@@ -495,6 +495,109 @@ button {
   color: var(--indigo);
 }
 
+.planning-summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.planning-stat {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fbfcfe;
+  padding: 12px;
+}
+
+.planning-stat span {
+  font-size: 1.35rem;
+  font-weight: 850;
+  line-height: 1;
+}
+
+.planning-stat p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.planning-timeline {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.planning-hour {
+  display: grid;
+  grid-template-columns: 78px minmax(0, 1fr);
+  min-height: 66px;
+  border-top: 1px solid var(--line);
+}
+
+.planning-hour:first-child {
+  border-top: 0;
+}
+
+.planning-time {
+  display: grid;
+  place-items: start center;
+  border-right: 1px solid var(--line);
+  background: #fbfcfe;
+  color: #344150;
+  padding: 12px 8px;
+  font-size: 0.78rem;
+  font-weight: 850;
+}
+
+.planning-slot {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-width: 0;
+  padding: 10px;
+}
+
+.planning-hour-empty {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.plan-card {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--indigo);
+  border-radius: var(--radius);
+  background: var(--panel);
+  padding: 10px;
+}
+
+.plan-card.is-event {
+  border-left-color: var(--teal);
+}
+
+.plan-card.is-done {
+  background: #f8fafc;
+  opacity: 0.72;
+}
+
+.plan-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.plan-card strong {
+  overflow-wrap: anywhere;
+}
+
 .progress-line {
   display: grid;
   gap: 6px;
@@ -1360,6 +1463,29 @@ body.is-mobile-mode .item-actions {
   justify-content: flex-start;
 }
 
+body.is-mobile-mode .planning-summary {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+body.is-mobile-mode .planning-hour {
+  grid-template-columns: 60px minmax(0, 1fr);
+  min-height: 58px;
+}
+
+body.is-mobile-mode .planning-time {
+  padding: 10px 6px;
+  font-size: 0.7rem;
+}
+
+body.is-mobile-mode .planning-slot {
+  padding: 8px;
+}
+
+body.is-mobile-mode .plan-card-header {
+  align-items: stretch;
+  flex-direction: column;
+}
+
 body.is-mobile-mode .work-calendar-layout {
   grid-template-columns: 1fr;
 }
@@ -1582,6 +1708,29 @@ body.is-desktop-mode .calendar-day strong {
   font-size: clamp(0.88rem, 1.5vw, 1.15rem);
 }
 
+body.is-desktop-mode .planning-summary {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+body.is-desktop-mode .planning-hour {
+  grid-template-columns: 78px minmax(0, 1fr);
+  min-height: 66px;
+}
+
+body.is-desktop-mode .planning-time {
+  padding: 12px 8px;
+  font-size: 0.78rem;
+}
+
+body.is-desktop-mode .planning-slot {
+  padding: 10px;
+}
+
+body.is-desktop-mode .plan-card-header {
+  align-items: flex-start;
+  flex-direction: row;
+}
+
 body.is-desktop-mode .item-main {
   align-items: flex-start;
   flex-direction: row;
@@ -1769,6 +1918,29 @@ body.is-desktop-mode .timeline-item {
 
   .item-actions {
     justify-content: flex-start;
+  }
+
+  .planning-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .planning-hour {
+    grid-template-columns: 60px minmax(0, 1fr);
+    min-height: 58px;
+  }
+
+  .planning-time {
+    padding: 10px 6px;
+    font-size: 0.7rem;
+  }
+
+  .planning-slot {
+    padding: 8px;
+  }
+
+  .plan-card-header {
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .work-calendar-layout {

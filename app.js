@@ -93,6 +93,7 @@ const views = [
   { id: "dashboard", label: "Dashboard", title: "Pusat Kendali Hari Ini", icon: "layout", count: () => dueTasks().length },
   { id: "capture", label: "Capture", title: "Capture Idea", icon: "plus", count: () => state.ideas.filter((idea) => idea.status !== "archived").length },
   { id: "journal", label: "Journal", title: "Daily Journal", icon: "journal", count: () => journalForDate(state.selectedDate) ? 1 : 0 },
+  { id: "planning", label: "Planning", title: "Planning Next Day", icon: "calendar", count: () => plansForDate(planningDate()).length },
   { id: "projects", label: "Projects", title: "Project & Task Management", icon: "folder", count: () => state.tasks.filter((task) => task.status !== "done").length },
   { id: "goals", label: "Goals", title: "Goals", icon: "target", count: () => state.goals.filter((goal) => Number(goal.progress) < 100).length },
   { id: "habits", label: "Habits", title: "Habit Tracker", icon: "check", count: () => habitsDoneToday() + "/" + Math.max(state.habits.length, 1) },
@@ -161,6 +162,7 @@ function loadState() {
     workouts: [
       createRecord({ date: today, type: "Mobility", minutes: 15, intensity: "Light", notes: "Pemanasan dan stretching." }),
     ],
+    nextDayPlans: [],
     workApplications: [],
     weightLogs: [],
     healthProfile: {
@@ -187,6 +189,18 @@ function normalizeState(input) {
     learning: input.learning || [],
     meals: input.meals || [],
     workouts: input.workouts || [],
+    nextDayPlans: (input.nextDayPlans || []).map((plan) => {
+      const startTime = plan.startTime || "08:00";
+      return {
+        ...plan,
+        date: plan.date || addDays(input.selectedDate || todayISO(), 1),
+        kind: ["task", "event"].includes(plan.kind) ? plan.kind : "task",
+        startTime,
+        endTime: normalizePlanEnd(startTime, plan.endTime),
+        priority: plan.priority || "Medium",
+        status: plan.status === "done" ? "done" : "scheduled",
+      };
+    }),
     workApplications: (input.workApplications || []).map((application) => ({
       ...application,
       status: workStatusIds.includes(application.status) ? application.status : "wishlist",
@@ -305,6 +319,7 @@ function icon(name) {
     check: '<path d="M20 6 9 17l-5-5" />',
     book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z" />',
     activity: '<path d="M22 12h-4l-3 8-6-16-3 8H2" />',
+    calendar: '<rect x="3" y="5" width="18" height="16" rx="2" /><path d="M16 3v4" /><path d="M8 3v4" /><path d="M3 11h18" /><path d="M8 15h.01" /><path d="M12 15h.01" /><path d="M16 15h.01" />',
     briefcase: '<path d="M10 6V5a2 2 0 0 1 2-2h0a2 2 0 0 1 2 2v1" /><path d="M4 7h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z" /><path d="M2 12h20" /><path d="M9 12v2h6v-2" />',
     review: '<path d="M8 6h13" /><path d="M8 12h13" /><path d="M8 18h13" /><path d="M3 6h.01" /><path d="M3 12h.01" /><path d="M3 18h.01" />',
     trash: '<path d="M3 6h18" /><path d="M8 6V4h8v2" /><path d="M6 6l1 14h10l1-14" /><path d="M10 11v5" /><path d="M14 11v5" />',
@@ -332,6 +347,7 @@ function render() {
     dashboard: renderDashboard,
     capture: renderCapture,
     journal: renderJournal,
+    planning: renderPlanning,
     projects: renderProjects,
     goals: renderGoals,
     habits: renderHabits,
@@ -369,6 +385,8 @@ function renderDashboard() {
   const journalStreakCount = journalStreak();
   const weeklyLearning = learningMinutes(7);
   const weeklyWorkout = workoutMinutes(7);
+  const tomorrow = planningDate();
+  const tomorrowPlans = plansForDate(tomorrow);
 
   return `
     <section class="grid four">
@@ -413,6 +431,19 @@ function renderDashboard() {
         <div class="surface-body">
           ${ideaForm("quick")}
         </div>
+      </div>
+    </section>
+
+    <section class="surface">
+      <div class="surface-header">
+        <div>
+          <h3>Planning Besok</h3>
+          <p>${formatDate(tomorrow)} / ${tomorrowPlans.length} agenda tersusun</p>
+        </div>
+        <button class="btn secondary small" type="button" data-view="planning">${icon("calendar")}Buka Planning</button>
+      </div>
+      <div class="surface-body item-list">
+        ${tomorrowPlans.length ? tomorrowPlans.slice(0, 4).map(nextDayPlanItem).join("") : emptyState()}
       </div>
     </section>
 
@@ -551,6 +582,84 @@ function renderJournal() {
         <div class="surface-body timeline">
           ${recent.length ? recent.map(journalTimelineItem).join("") : emptyState()}
         </div>
+      </div>
+    </section>
+  `;
+}
+
+function renderPlanning() {
+  const planDate = planningDate();
+  const plans = plansForDate(planDate);
+  const done = plans.filter((plan) => plan.status === "done").length;
+  const eventCount = plans.filter((plan) => plan.kind === "event").length;
+  const taskCount = plans.filter((plan) => plan.kind === "task").length;
+  const plannedMinutes = plans.reduce((sum, plan) => sum + planDurationMinutes(plan), 0);
+
+  return `
+    <section class="grid two">
+      <div class="surface">
+        <div class="surface-header">
+          <div>
+            <h3>Planning Besok</h3>
+            <p>${formatDate(planDate)} / atur 24 jam sebelum hari dimulai.</p>
+          </div>
+        </div>
+        <div class="surface-body">
+          ${nextDayPlanForm(planDate)}
+        </div>
+      </div>
+
+      <div class="surface">
+        <div class="surface-header">
+          <div>
+            <h3>Ringkasan Besok</h3>
+            <p>${done} dari ${plans.length} item selesai.</p>
+          </div>
+        </div>
+        <div class="surface-body">
+          <div class="planning-summary">
+            <div class="planning-stat">
+              <span>${plans.length}</span>
+              <p>Total agenda</p>
+            </div>
+            <div class="planning-stat">
+              <span>${taskCount}</span>
+              <p>Task</p>
+            </div>
+            <div class="planning-stat">
+              <span>${eventCount}</span>
+              <p>Event</p>
+            </div>
+            <div class="planning-stat">
+              <span>${formatDuration(plannedMinutes)}</span>
+              <p>Terjadwal</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="surface">
+      <div class="surface-header">
+        <div>
+          <h3>Timeline 24 Jam</h3>
+          <p>Susunan event dan task untuk ${formatDate(planDate)}.</p>
+        </div>
+      </div>
+      <div class="surface-body">
+        ${nextDayTimeline(planDate)}
+      </div>
+    </section>
+
+    <section class="surface">
+      <div class="surface-header">
+        <div>
+          <h3>Daftar Planning Besok</h3>
+          <p>Urut berdasarkan jam mulai.</p>
+        </div>
+      </div>
+      <div class="surface-body item-list">
+        ${plans.length ? plans.map(nextDayPlanItem).join("") : emptyState()}
       </div>
     </section>
   `;
@@ -1162,6 +1271,54 @@ function projectForm() {
         </div>
       </div>
       <button class="btn" type="submit">${icon("plus")}Tambah Project</button>
+    </form>
+  `;
+}
+
+function nextDayPlanForm(planDate) {
+  const startTime = defaultPlanStartTime(planDate);
+  const endTime = normalizePlanEnd(startTime, "");
+
+  return `
+    <form class="form-grid" data-form="nextDayPlan">
+      <input type="hidden" name="date" value="${planDate}" />
+      <div class="field">
+        <label for="planTitle">Event / Task</label>
+        <input id="planTitle" name="title" required placeholder="Contoh: deep work portfolio, meeting, workout" />
+      </div>
+      <div class="form-grid three">
+        <div class="field">
+          <label for="planKind">Tipe</label>
+          <select id="planKind" name="kind">
+            <option value="task">Task</option>
+            <option value="event">Event</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="planStart">Mulai</label>
+          <input id="planStart" name="startTime" type="time" value="${startTime}" required />
+        </div>
+        <div class="field">
+          <label for="planEnd">Selesai</label>
+          <input id="planEnd" name="endTime" type="time" value="${endTime}" required />
+        </div>
+      </div>
+      <div class="form-grid two">
+        <div class="field">
+          <label for="planPriority">Prioritas</label>
+          <select id="planPriority" name="priority">
+            <option>Low</option>
+            <option selected>Medium</option>
+            <option>High</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="planArea">Area</label>
+          <input id="planArea" name="area" placeholder="Career, health, family, belajar" />
+        </div>
+      </div>
+      ${textareaField("notes", "Catatan", "")}
+      <button class="btn" type="submit">${icon("plus")}Tambah ke Planning Besok</button>
     </form>
   `;
 }
@@ -1810,6 +1967,63 @@ function ideaItem(idea) {
   `;
 }
 
+function nextDayTimeline(date) {
+  return `
+    <div class="planning-timeline" aria-label="Timeline planning ${escapeHtml(formatDate(date))}">
+      ${Array.from({ length: 24 }, (_, hour) => {
+        const hourPlans = plansForHour(date, hour);
+        return `
+          <div class="planning-hour">
+            <div class="planning-time">${String(hour).padStart(2, "0")}:00</div>
+            <div class="planning-slot">
+              ${hourPlans.length ? hourPlans.map(planCard).join("") : '<span class="planning-hour-empty">Kosong</span>'}
+            </div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function planCard(plan) {
+  const done = plan.status === "done";
+  return `
+    <article class="plan-card is-${escapeHtml(plan.kind)} ${done ? "is-done" : ""}">
+      <div class="plan-card-header">
+        <div>
+          <strong>${escapeHtml(plan.title)}</strong>
+          <p class="meta">${escapeHtml(plan.area || "General")} / ${planTimeRange(plan)}</p>
+        </div>
+        <div class="item-actions">
+          <span class="pill ${plan.kind === "event" ? "teal" : "indigo"}">${plan.kind === "event" ? "Event" : "Task"}</span>
+          <span class="pill ${priorityTone(plan.priority)}">${escapeHtml(plan.priority || "Medium")}</span>
+        </div>
+      </div>
+      ${plan.notes ? `<p class="meta">${escapeHtml(plan.notes)}</p>` : ""}
+    </article>
+  `;
+}
+
+function nextDayPlanItem(plan) {
+  const done = plan.status === "done";
+  return `
+    <article class="item">
+      <div class="item-main">
+        <div>
+          <strong>${escapeHtml(plan.title)}</strong>
+          <p class="meta">${planTimeRange(plan)} / ${escapeHtml(plan.area || "General")} / ${escapeHtml(plan.kind === "event" ? "Event" : "Task")}</p>
+        </div>
+        <div class="item-actions">
+          <span class="pill ${done ? "green" : priorityTone(plan.priority)}">${done ? "Done" : escapeHtml(plan.priority || "Medium")}</span>
+          <button class="icon-button" type="button" data-toggle-plan="${plan.id}" title="${done ? "Batalkan selesai" : "Tandai selesai"}" aria-label="${done ? "Batalkan selesai" : "Tandai selesai"}">${icon("check")}</button>
+          <button class="icon-button" type="button" data-delete-type="nextDayPlans" data-delete-id="${plan.id}" title="Hapus planning" aria-label="Hapus planning">${icon("trash")}</button>
+        </div>
+      </div>
+      ${plan.notes ? `<p class="meta">${escapeHtml(plan.notes)}</p>` : ""}
+    </article>
+  `;
+}
+
 function taskItem(task) {
   const project = state.projects.find((item) => item.id === task.projectId);
   const overdue = task.due && task.due < state.selectedDate && task.status !== "done";
@@ -2355,6 +2569,66 @@ function priorityTone(priority) {
   return "teal";
 }
 
+function planningDate() {
+  return addDays(state.selectedDate, 1);
+}
+
+function plansForDate(date) {
+  return state.nextDayPlans
+    .filter((plan) => plan.date === date)
+    .sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime) || a.title.localeCompare(b.title));
+}
+
+function plansForHour(date, hour) {
+  const start = hour * 60;
+  const end = start + 60;
+  return plansForDate(date).filter((plan) => {
+    const minutes = timeToMinutes(plan.startTime);
+    return minutes >= start && minutes < end;
+  });
+}
+
+function defaultPlanStartTime(date) {
+  const plans = plansForDate(date);
+  if (!plans.length) return "08:00";
+  const latestEnd = Math.max(...plans.map((plan) => timeToMinutes(plan.endTime)));
+  return minutesToTime(Math.min(Math.max(latestEnd, 8 * 60), 23 * 60));
+}
+
+function normalizePlanEnd(startTime, endTime) {
+  const start = timeToMinutes(startTime || "08:00");
+  const end = endTime ? timeToMinutes(endTime) : start + 60;
+  return minutesToTime(Math.min(end > start ? end : start + 60, 23 * 60 + 59));
+}
+
+function timeToMinutes(time) {
+  const [hour = "0", minute = "0"] = String(time || "00:00").split(":");
+  return clamp(Number(hour) * 60 + Number(minute), 0, 23 * 60 + 59);
+}
+
+function minutesToTime(minutes) {
+  const safe = clamp(minutes, 0, 23 * 60 + 59);
+  const hour = Math.floor(safe / 60);
+  const minute = safe % 60;
+  return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+}
+
+function planDurationMinutes(plan) {
+  return Math.max(timeToMinutes(plan.endTime) - timeToMinutes(plan.startTime), 0);
+}
+
+function planTimeRange(plan) {
+  return `${plan.startTime} - ${plan.endTime}`;
+}
+
+function formatDuration(minutes) {
+  if (!minutes) return "0m";
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  if (!hours) return `${rest}m`;
+  return rest ? `${hours}j ${rest}m` : `${hours}j`;
+}
+
 function journalForDate(date) {
   return state.journals.find((journal) => journal.date === date);
 }
@@ -2782,6 +3056,21 @@ function handleFormSubmit(event) {
     state.tasks.unshift(createRecord({ ...formData, status: "todo", completedAt: "" }));
   }
 
+  if (type === "nextDayPlan") {
+    const startTime = formData.startTime || "08:00";
+    state.nextDayPlans.unshift(createRecord({
+      title: formData.title || "Untitled",
+      kind: ["task", "event"].includes(formData.kind) ? formData.kind : "task",
+      date: formData.date || planningDate(),
+      startTime,
+      endTime: normalizePlanEnd(startTime, formData.endTime),
+      priority: formData.priority || "Medium",
+      area: formData.area || "",
+      notes: formData.notes || "",
+      status: "scheduled",
+    }));
+  }
+
   if (type === "goal") {
     state.goals.unshift(createRecord({ ...formData, progress: clamp(formData.progress, 0, 100) }));
   }
@@ -3028,6 +3317,18 @@ function handleClick(event) {
     }
     saveState();
     render();
+    return;
+  }
+
+  const togglePlan = event.target.closest("[data-toggle-plan]");
+  if (togglePlan) {
+    const plan = state.nextDayPlans.find((item) => item.id === togglePlan.dataset.togglePlan);
+    if (plan) {
+      plan.status = plan.status === "done" ? "scheduled" : "done";
+      plan.completedAt = plan.status === "done" ? new Date().toISOString() : "";
+      saveState();
+      render();
+    }
     return;
   }
 
