@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Self Management</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Navigasi utama">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">SM</div>
+          <div>
+            <h1>Self Management</h1>
+            <p id="todayLabel">Hari ini</p>
+          </div>
+        </div>
+        <nav class="nav-list" id="navList" aria-label="Menu aplikasi"></nav>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="viewEyebrow">Dashboard</p>
+            <h2 id="viewTitle">Pusat Kendali Hari Ini</h2>
+          </div>
+          <div class="topbar-actions">
+            <label class="date-control" for="selectedDate">
+              <span>Tanggal</span>
+              <input id="selectedDate" type="date" />
+            </label>
+            <button class="icon-button" type="button" data-view="capture" title="Capture idea" aria-label="Capture idea">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+            </button>
+          </div>
+        </header>
+
+        <div id="app" class="workspace" aria-live="polite"></div>
+      </main>
+    </div>
+
+    <template id="emptyStateTemplate">
+      <div class="empty-state">
+        <div class="empty-mark" aria-hidden="true"></div>
+        <p>Belum ada data.</p>
+      </div>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
