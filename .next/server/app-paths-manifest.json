@@ -1,0 +1,16 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/habits/page": "app/habits/page.js",
+  "/finance/page": "app/finance/page.js",
+  "/capture/page": "app/capture/page.js",
+  "/journal/page": "app/journal/page.js",
+  "/projects/page": "app/projects/page.js",
+  "/page": "app/page.js",
+  "/planning/page": "app/planning/page.js",
+  "/goals/page": "app/goals/page.js",
+  "/learning/page": "app/learning/page.js",
+  "/reviews/page": "app/reviews/page.js",
+  "/health/page": "app/health/page.js",
+  "/work/page": "app/work/page.js",
+  "/settings/page": "app/settings/page.js"
+}

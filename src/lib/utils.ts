@@ -129,9 +129,9 @@ export function monthCalendarDays(dateString: string): (string | null)[] {
 /** Get chart label indexes spread across the month */
 export function monthLabelIndexes(dayCount: number): number[] {
   const last = Math.max(dayCount - 1, 0);
-  return [
-    ...new Set([0, Math.round(last / 3), Math.round((last * 2) / 3), last]),
-  ];
+  return Array.from(
+    new Set([0, Math.round(last / 3), Math.round((last * 2) / 3), last])
+  );
 }
 
 /** Build a date from month/year keeping day clamped */
