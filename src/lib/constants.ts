@@ -88,9 +88,9 @@ export const WORKOUT_PROGRAM_NAMES = [
 
 export const STRENGTH_PROGRAMS = Object.keys(WORKOUT_PROGRAMS);
 
-export const ALL_WORKOUT_EXERCISES = [
-  ...new Set(Object.values(WORKOUT_PROGRAMS).flat()),
-];
+export const ALL_WORKOUT_EXERCISES = Array.from(
+  new Set(Object.values(WORKOUT_PROGRAMS).flat())
+);
 
 export const WORK_STATUSES = [
   { id: 'wishlist', label: 'Belum Apply', labelEn: 'Wishlist', tone: 'amber' as const, progress: 10 },
