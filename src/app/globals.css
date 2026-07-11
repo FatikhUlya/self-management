@@ -1,0 +1,103 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-life-bg text-life-text font-sans antialiased;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(15, 118, 110, 0.08) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(67, 56, 202, 0.08) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, rgba(217, 119, 6, 0.03) 0px, transparent 50%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.01);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+@layer components {
+  /* Glassmorphism primitives */
+  .glass {
+    @apply bg-life-panel backdrop-blur-md border border-life-line rounded-xl shadow-glass transition-all duration-300;
+  }
+  
+  .glass-hover {
+    @apply hover:bg-life-panel-hover hover:border-life-line-strong hover:shadow-glass-glow;
+  }
+
+  .glass-input {
+    @apply bg-white/[0.02] border border-life-line rounded-lg py-2 px-3 outline-none text-life-text placeholder-life-muted focus:border-life-teal focus:bg-white/[0.04] focus:ring-1 focus:ring-life-teal/30 transition-all duration-200;
+  }
+
+  .glass-select {
+    @apply bg-[#111827] border border-life-line rounded-lg py-2 px-3 outline-none text-life-text focus:border-life-teal focus:ring-1 focus:ring-life-teal/30 transition-all duration-200;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-life-teal to-teal-500 hover:from-teal-500 hover:to-life-teal text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:shadow-life-teal/20 active:scale-[0.98] transition-all duration-200;
+  }
+
+  .btn-secondary {
+    @apply bg-white/[0.04] hover:bg-white/[0.08] border border-life-line hover:border-life-line-strong text-life-text font-semibold py-2 px-4 rounded-lg active:scale-[0.98] transition-all duration-200;
+  }
+
+  .btn-danger {
+    @apply bg-gradient-to-r from-life-rose to-rose-500 hover:from-rose-500 hover:to-life-rose text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:shadow-life-rose/20 active:scale-[0.98] transition-all duration-200;
+  }
+
+  /* Habit Heatmap */
+  .tone-0 { @apply bg-white/[0.02] text-life-muted border border-life-line; }
+  .tone-25 { @apply bg-life-teal-soft/30 text-teal-300 border border-life-teal/30; }
+  .tone-50 { @apply bg-life-teal-soft/60 text-teal-200 border border-life-teal/50; }
+  .tone-75 { @apply bg-life-teal/60 text-teal-100 border border-life-teal/70; }
+  .tone-100 { @apply bg-life-teal text-white border border-teal-400/30 shadow-[0_0_12px_rgba(15,118,110,0.4)]; }
+
+  /* Work Application Heatmap tone */
+  .has-deadline { @apply bg-life-amber-soft/40 text-amber-200 border border-life-amber/40; }
+
+  /* SVG Line Chart styling */
+  .chart-grid {
+    stroke: rgba(255, 255, 255, 0.05);
+    stroke-width: 1;
+    stroke-dasharray: 4 4;
+  }
+  .chart-axis {
+    stroke: rgba(255, 255, 255, 0.15);
+    stroke-width: 1;
+  }
+  .chart-line {
+    fill: none;
+    stroke: url(#teal-gradient);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .chart-area {
+    fill: url(#area-gradient);
+    opacity: 0.15;
+  }
+  .chart-point {
+    fill: #0a0e17;
+    stroke-width: 2.5;
+    transition: all 0.2s;
+  }
+  .chart-point:hover {
+    r: 6;
+    stroke-width: 3.5;
+  }
+}
