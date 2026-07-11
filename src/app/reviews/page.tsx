@@ -328,7 +328,7 @@ export default function ReviewsPage() {
                   <strong className="text-xs text-life-text">{formatDate(review.date)}</strong>
                   <div className="flex items-center space-x-2 shrink-0">
                     <Badge tone="teal">{review.period}</Badge>
-                    <Badge tone="amber">Score {review.score}/10</Badge>
+                    <Badge tone="amber">{`Score ${review.score}/10`}</Badge>
                     <button
                       onClick={() => deleteReview(review.id)}
                       className="text-life-muted hover:text-life-rose transition-colors p-1"

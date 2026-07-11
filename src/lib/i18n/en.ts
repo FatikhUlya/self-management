@@ -11,6 +11,7 @@ export const en: Record<TranslationKey, string> = {
   delete: 'Delete',
   edit: 'Edit',
   add: 'Add',
+  minus: 'Minus',
   close: 'Close',
   search: 'Search',
   loading: 'Loading...',

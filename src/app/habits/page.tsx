@@ -302,7 +302,7 @@ export default function HabitsPage() {
 
                     <div className="flex items-center space-x-2 shrink-0">
                       <Badge tone={rate >= 80 ? 'green' : rate >= 50 ? 'teal' : 'amber'}>
-                        {rate}%
+                        {`${rate}%`}
                       </Badge>
                       <button
                         onClick={() => deleteHabit(habit.id)}

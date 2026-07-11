@@ -403,8 +403,8 @@ export default function JournalPage() {
                   <div className="flex justify-between items-start">
                     <strong className="text-xs text-life-text">{formatDate(journal.date)}</strong>
                     <div className="flex items-center space-x-1.5">
-                      <Badge tone="teal">Mood {MOOD_EMOJIS[(journal.mood || 3) - 1]}</Badge>
-                      <Badge tone="indigo">Energy ⚡ {journal.energy}/5</Badge>
+                      <Badge tone="teal">{`Mood ${MOOD_EMOJIS[(journal.mood || 3) - 1]}`}</Badge>
+                      <Badge tone="indigo">{`Energy ⚡ ${journal.energy}/5`}</Badge>
                       <button
                         onClick={() => deleteJournal(journal.id)}
                         className="text-life-muted hover:text-life-rose transition-colors p-1"

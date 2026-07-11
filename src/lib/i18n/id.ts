@@ -9,6 +9,7 @@ export const id = {
   delete: 'Hapus',
   edit: 'Edit',
   add: 'Tambah',
+  minus: 'Kurang',
   close: 'Tutup',
   search: 'Cari',
   loading: 'Memuat...',

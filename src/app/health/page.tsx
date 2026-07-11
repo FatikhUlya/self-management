@@ -752,7 +752,7 @@ export default function HealthPage() {
                       <div className="flex flex-wrap gap-1 mt-1.5">
                         {w.exercises.map((e) => (
                           <Badge key={e.name} tone="teal">
-                            {e.name} {e.sets.length}s
+                            {`${e.name} ${e.sets.length}s`}
                           </Badge>
                         ))}
                       </div>
