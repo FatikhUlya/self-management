@@ -340,7 +340,7 @@ export default function FinancePage() {
                         <strong className="text-life-text">{item.category}</strong>
                         <div className="space-x-1.5 font-bold">
                           <span className="text-life-muted">{formatCurrency(item.amount)}</span>
-                          <Badge tone="rose">{pct}%</Badge>
+                          <Badge tone="rose">{`${pct}%`}</Badge>
                         </div>
                       </div>
                       <div className="h-2 w-full bg-white/[0.02] rounded-full overflow-hidden">
@@ -407,7 +407,7 @@ export default function FinancePage() {
 
                         <div className="flex items-center space-x-2 shrink-0">
                           <Badge tone={completionRate >= 100 ? 'green' : completionRate >= 50 ? 'teal' : 'amber'}>
-                            {completionRate}%
+                            {`${completionRate}%`}
                           </Badge>
                           <button
                             onClick={() => {
