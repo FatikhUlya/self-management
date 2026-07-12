@@ -42,6 +42,19 @@ export default function LearningPage() {
   const [customLanguage, setCustomLanguage] = useState('');
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
   const [copiedNotification, setCopiedNotification] = useState(false);
+  const [selectedFilterLang, setSelectedFilterLang] = useState<string | null>(null);
+  const [vocabFlipDirection, setVocabFlipDirection] = useState<'indo-target' | 'target-indo'>('indo-target');
+
+  // Sorted dictionary entries
+  const sortedDictionary = React.useMemo(() => {
+    return [...(state.dictionary || [])].sort((a, b) => {
+      if (vocabFlipDirection === 'indo-target') {
+        return a.indonesian.localeCompare(b.indonesian, locale === 'id' ? 'id-ID' : 'en-US');
+      } else {
+        return a.translation.localeCompare(b.translation, locale === 'id' ? 'id-ID' : 'en-US');
+      }
+    });
+  }, [state.dictionary, vocabFlipDirection, locale]);
 
   const totalMinutes7Days = state.learning
     .filter((item) => inLastDays(item.date, 7, state.selectedDate))
@@ -411,20 +424,40 @@ export default function LearningPage() {
 
               {/* Added Vocabulary List */}
               <div className="border-t border-life-line pt-3 mt-4">
-                <h4 className="text-xs font-black uppercase text-life-muted tracking-wider mb-2">
-                  {locale === 'id' ? 'Daftar Kosa Kata' : 'Vocabulary List'}
-                </h4>
+                <div className="flex justify-between items-center mb-2.5">
+                  <h4 className="text-xs font-black uppercase text-life-muted tracking-wider">
+                    {locale === 'id' ? 'Daftar Kosa Kata' : 'Vocabulary List'}
+                  </h4>
+                  <button
+                    type="button"
+                    onClick={() => setVocabFlipDirection(prev => prev === 'indo-target' ? 'target-indo' : 'indo-target')}
+                    className="text-[10px] font-black uppercase bg-white/[0.03] border border-life-line hover:bg-white/[0.07] px-2 py-0.5 rounded transition-all flex items-center gap-1.5 select-none"
+                  >
+                    <Icon name="review" size={10} />
+                    {vocabFlipDirection === 'indo-target' ? 'Indo ➔ Asing' : 'Asing ➔ Indo'}
+                  </button>
+                </div>
                 <div className="space-y-1 max-h-[140px] overflow-y-auto pr-1">
-                  {(state.dictionary || []).length > 0 ? (
-                    (state.dictionary || []).map((entry) => (
+                  {sortedDictionary.length > 0 ? (
+                    sortedDictionary.map((entry) => (
                       <div
                         key={entry.id}
                         className="flex items-center justify-between p-2 rounded bg-white/[0.01] border border-life-line text-xs"
                       >
                         <div className="min-w-0">
-                          <span className="font-bold text-life-text">{entry.indonesian}</span>
-                          <span className="text-life-muted mx-1.5">➔</span>
-                          <span className="text-teal-400 font-bold">{entry.translation}</span>
+                          {vocabFlipDirection === 'indo-target' ? (
+                            <>
+                              <span className="font-bold text-life-text">{entry.indonesian}</span>
+                              <span className="text-life-muted mx-1.5">➔</span>
+                              <span className="text-teal-400 font-bold">{entry.translation}</span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="font-bold text-teal-400">{entry.translation}</span>
+                              <span className="text-life-muted mx-1.5">➔</span>
+                              <span className="font-bold text-life-text">{entry.indonesian}</span>
+                            </>
+                          )}
                           <Badge tone="teal" className="ml-2 py-0 px-1 text-[8px]">
                             {entry.language}
                           </Badge>
@@ -504,9 +537,17 @@ export default function LearningPage() {
                   return acc;
                 }, {} as Record<string, number>)
               ).map(([lang, count]) => (
-                <Badge key={lang} tone="indigo">
-                  {`${lang}: ${count} ${locale === 'id' ? 'kata' : 'words'}`}
-                </Badge>
+                <button
+                  key={lang}
+                  type="button"
+                  onClick={() => setSelectedFilterLang(lang)}
+                  className="transition-all hover:scale-[1.03] active:scale-[0.98] cursor-pointer"
+                  title={locale === 'id' ? `Lihat daftar kata bahasa ${lang}` : `View ${lang} word list`}
+                >
+                  <Badge tone="indigo">
+                    {`${lang}: ${count} ${locale === 'id' ? 'kata' : 'words'}`}
+                  </Badge>
+                </button>
               ))}
               {(state.dictionary || []).length === 0 && (
                 <p className="text-xs text-life-muted italic">{t('no_data')}</p>
@@ -564,6 +605,49 @@ export default function LearningPage() {
               ? '* NotebookLM Tips: Salin data di atas, lalu buka Google NotebookLM dan tempelkan sebagai source (sumber catatan baru). NotebookLM akan bisa mengolah daftar kosa kata tersebut menjadi kuis interaktif maupun flashcard secara otomatis.'
               : '* NotebookLM Tips: Copy the data above, then open Google NotebookLM and paste it as a new source notes. NotebookLM can then process the vocabulary list to automatically generate interactive quizzes or flashcards.'}
           </p>
+        </div>
+      </Modal>
+
+      {/* Filtered Vocabulary Modal */}
+      <Modal
+        isOpen={selectedFilterLang !== null}
+        onClose={() => setSelectedFilterLang(null)}
+        title={`${locale === 'id' ? 'Daftar Kosa Kata' : 'Vocabulary List'} - ${selectedFilterLang}`}
+        subtitle={locale === 'id' ? `Menampilkan semua kosa kata dalam bahasa ${selectedFilterLang}` : `Showing all words classified as ${selectedFilterLang}`}
+      >
+        <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1">
+          {selectedFilterLang &&
+            sortedDictionary
+              .filter((entry) => entry.language === selectedFilterLang)
+              .map((entry) => (
+                <div
+                  key={entry.id}
+                  className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.01] border border-life-line text-xs"
+                >
+                  <div className="min-w-0">
+                    {vocabFlipDirection === 'indo-target' ? (
+                      <>
+                        <span className="font-bold text-life-text">{entry.indonesian}</span>
+                        <span className="text-life-muted mx-1.5">➔</span>
+                        <span className="text-teal-400 font-bold">{entry.translation}</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-bold text-teal-400">{entry.translation}</span>
+                        <span className="text-life-muted mx-1.5">➔</span>
+                        <span className="font-bold text-life-text">{entry.indonesian}</span>
+                      </>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => deleteDictionaryEntry(entry.id)}
+                    className="text-life-muted hover:text-life-rose transition-colors p-1"
+                    title={t('delete')}
+                  >
+                    <Icon name="trash" size={10} />
+                  </button>
+                </div>
+              ))}
         </div>
       </Modal>
     </div>
