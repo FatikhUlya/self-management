@@ -24,7 +24,18 @@ export default function LearningPage() {
   const { t, locale } = useI18n();
 
   // Tab state
-  const [activeTab, setActiveTab] = useState<'session' | 'dictionary'>('session');
+  const [activeTab, setActiveTab] = useState<'session' | 'dictionary'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('lifeos_learning_tab');
+      if (saved === 'session' || saved === 'dictionary') return saved;
+    }
+    return 'session';
+  });
+
+  const handleTabChange = (tab: 'session' | 'dictionary') => {
+    setActiveTab(tab);
+    localStorage.setItem('lifeos_learning_tab', tab);
+  };
 
   // Study Session Form states
   const [topic, setTopic] = useState('');
@@ -43,7 +54,20 @@ export default function LearningPage() {
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
   const [copiedNotification, setCopiedNotification] = useState(false);
   const [selectedFilterLang, setSelectedFilterLang] = useState<string | null>(null);
-  const [vocabFlipDirection, setVocabFlipDirection] = useState<'indo-target' | 'target-indo'>('indo-target');
+  const [vocabFlipDirection, setVocabFlipDirection] = useState<'indo-target' | 'target-indo'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('lifeos_dictionary_flip');
+      if (saved === 'indo-target' || saved === 'target-indo') return saved;
+    }
+    return 'indo-target';
+  });
+
+  const handleFlipDirectionToggle = () => {
+    const next = vocabFlipDirection === 'indo-target' ? 'target-indo' : 'indo-target';
+    setVocabFlipDirection(next);
+    localStorage.setItem('lifeos_dictionary_flip', next);
+  };
+
   const [exportLanguageFilter, setExportLanguageFilter] = useState<string>('all');
 
   // Sorted dictionary entries
@@ -185,7 +209,7 @@ export default function LearningPage() {
             <div className="flex gap-4 select-none">
               <button
                 type="button"
-                onClick={() => setActiveTab('session')}
+                onClick={() => handleTabChange('session')}
                 className={`text-sm font-bold uppercase tracking-wider border-b-2 pb-1.5 transition-all ${
                   activeTab === 'session'
                     ? 'border-life-teal text-life-text'
@@ -196,7 +220,7 @@ export default function LearningPage() {
               </button>
               <button
                 type="button"
-                onClick={() => setActiveTab('dictionary')}
+                onClick={() => handleTabChange('dictionary')}
                 className={`text-sm font-bold uppercase tracking-wider border-b-2 pb-1.5 transition-all ${
                   activeTab === 'dictionary'
                     ? 'border-life-teal text-life-text'
@@ -431,7 +455,7 @@ export default function LearningPage() {
                   </h4>
                   <button
                     type="button"
-                    onClick={() => setVocabFlipDirection(prev => prev === 'indo-target' ? 'target-indo' : 'indo-target')}
+                    onClick={handleFlipDirectionToggle}
                     className="text-[10px] font-black uppercase bg-white/[0.03] border border-life-line hover:bg-white/[0.07] px-2 py-0.5 rounded transition-all flex items-center gap-1.5 select-none"
                   >
                     <Icon name="review" size={10} />
@@ -656,7 +680,7 @@ export default function LearningPage() {
             </span>
             <button
               type="button"
-              onClick={() => setVocabFlipDirection(prev => prev === 'indo-target' ? 'target-indo' : 'indo-target')}
+              onClick={handleFlipDirectionToggle}
               className="text-[10px] font-black uppercase bg-white/[0.03] border border-life-line hover:bg-white/[0.07] px-2.5 py-1 rounded-md transition-all flex items-center gap-1.5 select-none text-life-text"
             >
               <Icon name="review" size={10} />

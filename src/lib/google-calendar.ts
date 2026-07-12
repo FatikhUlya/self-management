@@ -34,7 +34,7 @@ export async function initGoogleCalendar(): Promise<boolean> {
     return false;
   }
 
-  try {
+  const initPromise = async () => {
     // Load the Google API script
     await loadScript('https://apis.google.com/js/api.js');
     await loadScript('https://accounts.google.com/gsi/client');
@@ -52,6 +52,15 @@ export async function initGoogleCalendar(): Promise<boolean> {
     });
 
     return true;
+  };
+
+  try {
+    return await Promise.race([
+      initPromise(),
+      new Promise<boolean>((_, reject) =>
+        setTimeout(() => reject(new Error('Google Client init timed out')), 10000)
+      )
+    ]);
   } catch (error) {
     console.error('[Google Calendar] Init failed:', error);
     return false;
@@ -63,10 +72,24 @@ export async function signInGoogle(): Promise<string | null> {
   if (!CLIENT_ID) return null;
 
   return new Promise((resolve) => {
+    let resolved = false;
+
+    // Timeout fail-safe to prevent hanging if popup is blocked/closed silently
+    const timeoutId = setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        console.warn('[Google Calendar] Sign in timed out.');
+        resolve(null);
+      }
+    }, 45000);
+
     const client = window.google.accounts.oauth2.initTokenClient({
       client_id: CLIENT_ID,
       scope: SCOPES,
       callback: (response: { access_token?: string; error?: string }) => {
+        if (resolved) return;
+        resolved = true;
+        clearTimeout(timeoutId);
         if (response.error) {
           console.error('[Google Calendar] Auth error:', response.error);
           resolve(null);
@@ -122,7 +145,7 @@ export async function fetchCalendarEvents(
   startDate: string,
   endDate: string
 ): Promise<GoogleCalendarEvent[]> {
-  try {
+  const fetchPromise = async () => {
     const response = await window.gapi.client.calendar.events.list({
       calendarId: 'primary',
       timeMin: `${startDate}T00:00:00Z`,
@@ -134,6 +157,15 @@ export async function fetchCalendarEvents(
     });
 
     return response.result.items || [];
+  };
+
+  try {
+    return await Promise.race([
+      fetchPromise(),
+      new Promise<GoogleCalendarEvent[]>((_, reject) =>
+        setTimeout(() => reject(new Error('Fetch events timed out')), 15000)
+      )
+    ]);
   } catch (error) {
     console.error('[Google Calendar] Fetch events error:', error);
     return [];

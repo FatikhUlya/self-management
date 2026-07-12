@@ -42,8 +42,20 @@ export default function HabitsPage() {
 
   // Calendar local navigation state (independent from global selectedDate)
   const todayDate = new Date(`${today}T00:00:00`);
-  const [calMonth, setCalMonth] = useState(todayDate.getMonth());
-  const [calYear, setCalYear] = useState(todayDate.getFullYear());
+  const [calMonth, setCalMonth] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('lifeos_habits_cal_month');
+      if (saved !== null) return Number(saved);
+    }
+    return todayDate.getMonth();
+  });
+  const [calYear, setCalYear] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('lifeos_habits_cal_year');
+      if (saved !== null) return Number(saved);
+    }
+    return todayDate.getFullYear();
+  });
 
   // Derive calendar days from local calMonth/calYear
   const calDateStr = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-15`;
@@ -51,63 +63,165 @@ export default function HabitsPage() {
   const calendarDays = monthCalendarDays(calDateStr);
 
   // Chart independent navigation states
-  const [chartMonth, setChartMonth] = useState(todayDate.getMonth());
-  const [chartYear, setChartYear] = useState(todayDate.getFullYear());
+  const [chartMonth, setChartMonth] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('lifeos_habits_chart_month');
+      if (saved !== null) return Number(saved);
+    }
+    return todayDate.getMonth();
+  });
+  const [chartYear, setChartYear] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('lifeos_habits_chart_year');
+      if (saved !== null) return Number(saved);
+    }
+    return todayDate.getFullYear();
+  });
 
   // Detail Habit Recap period selection state
-  const [recapPeriod, setRecapPeriod] = useState<'30days' | 'month' | 'year'>('30days');
+  const [recapPeriod, setRecapPeriod] = useState<'30days' | 'month' | 'year'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('lifeos_habits_recap_period');
+      if (saved === '30days' || saved === 'month' || saved === 'year') return saved;
+    }
+    return '30days';
+  });
+
+  const handleRecapPeriodChange = (period: '30days' | 'month' | 'year') => {
+    setRecapPeriod(period);
+    localStorage.setItem('lifeos_habits_recap_period', period);
+  };
 
   // Recap independent navigation
-  const [recapMonth, setRecapMonth] = useState(todayDate.getMonth());
-  const [recapMonthYear, setRecapMonthYear] = useState(todayDate.getFullYear());
-  const [recapYear, setRecapYear] = useState(todayDate.getFullYear());
+  const [recapMonth, setRecapMonth] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('lifeos_habits_recap_month');
+      if (saved !== null) return Number(saved);
+    }
+    return todayDate.getMonth();
+  });
+  const [recapMonthYear, setRecapMonthYear] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('lifeos_habits_recap_month_year');
+      if (saved !== null) return Number(saved);
+    }
+    return todayDate.getFullYear();
+  });
+  const [recapYear, setRecapYear] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('lifeos_habits_recap_year');
+      if (saved !== null) return Number(saved);
+    }
+    return todayDate.getFullYear();
+  });
 
   // Derive days for recap month view
   const recapMonthDateStr = `${recapMonthYear}-${String(recapMonth + 1).padStart(2, '0')}-15`;
   const recapDaysInMonth = monthDays(recapMonthDateStr);
 
   const handleCalMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setCalMonth(Number(e.target.value));
+    const val = Number(e.target.value);
+    setCalMonth(val);
+    localStorage.setItem('lifeos_habits_cal_month', String(val));
   };
 
   const handleCalYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setCalYear(Number(e.target.value));
+    const val = Number(e.target.value);
+    setCalYear(val);
+    localStorage.setItem('lifeos_habits_cal_year', String(val));
+  };
+
+  const handleRecapMonthChange = (val: number) => {
+    setRecapMonth(val);
+    localStorage.setItem('lifeos_habits_recap_month', String(val));
+  };
+
+  const handleRecapMonthYearChange = (val: number) => {
+    setRecapMonthYear(val);
+    localStorage.setItem('lifeos_habits_recap_month_year', String(val));
+  };
+
+  const handleRecapYearChange = (val: number) => {
+    setRecapYear(val);
+    localStorage.setItem('lifeos_habits_recap_year', String(val));
   };
 
   const navigateCalendarMonth = (direction: 'prev' | 'next') => {
+    let m = calMonth;
+    let y = calYear;
     if (direction === 'prev') {
       if (calMonth === 0) {
-        setCalMonth(11);
-        setCalYear((y) => y - 1);
+        m = 11;
+        y = calYear - 1;
       } else {
-        setCalMonth((m) => m - 1);
+        m = calMonth - 1;
       }
     } else {
       if (calMonth === 11) {
-        setCalMonth(0);
-        setCalYear((y) => y + 1);
+        m = 0;
+        y = calYear + 1;
       } else {
-        setCalMonth((m) => m + 1);
+        m = calMonth + 1;
       }
     }
+    setCalMonth(m);
+    setCalYear(y);
+    localStorage.setItem('lifeos_habits_cal_month', String(m));
+    localStorage.setItem('lifeos_habits_cal_year', String(y));
   };
 
   const navigateChartMonth = (direction: 'prev' | 'next') => {
+    let m = chartMonth;
+    let y = chartYear;
     if (direction === 'prev') {
       if (chartMonth === 0) {
-        setChartMonth(11);
-        setChartYear((prev) => prev - 1);
+        m = 11;
+        y = chartYear - 1;
       } else {
-        setChartMonth((prev) => prev - 1);
+        m = chartMonth - 1;
       }
     } else {
       if (chartMonth === 11) {
-        setChartMonth(0);
-        setChartYear((prev) => prev + 1);
+        m = 0;
+        y = chartYear + 1;
       } else {
-        setChartMonth((prev) => prev + 1);
+        m = chartMonth + 1;
       }
     }
+    setChartMonth(m);
+    setChartYear(y);
+    localStorage.setItem('lifeos_habits_chart_month', String(m));
+    localStorage.setItem('lifeos_habits_chart_year', String(y));
+  };
+
+  const navigateRecapMonth = (direction: 'prev' | 'next') => {
+    let m = recapMonth;
+    let y = recapMonthYear;
+    if (direction === 'prev') {
+      if (recapMonth === 0) {
+        m = 11;
+        y = recapMonthYear - 1;
+      } else {
+        m = recapMonth - 1;
+      }
+    } else {
+      if (recapMonth === 11) {
+        m = 0;
+        y = recapMonthYear + 1;
+      } else {
+        m = recapMonth + 1;
+      }
+    }
+    setRecapMonth(m);
+    setRecapMonthYear(y);
+    localStorage.setItem('lifeos_habits_recap_month', String(m));
+    localStorage.setItem('lifeos_habits_recap_month_year', String(y));
+  };
+
+  const navigateRecapYear = (direction: 'prev' | 'next') => {
+    const nextY = direction === 'prev' ? recapYear - 1 : recapYear + 1;
+    setRecapYear(nextY);
+    localStorage.setItem('lifeos_habits_recap_year', String(nextY));
   };
 
   const handleNewHabitClick = () => {
@@ -418,7 +532,7 @@ export default function HabitsPage() {
           <div className="flex bg-white/[0.02] border border-life-line rounded-lg p-0.5 max-w-max self-start sm:self-auto select-none">
             <button
               type="button"
-              onClick={() => setRecapPeriod('30days')}
+              onClick={() => handleRecapPeriodChange('30days')}
               className={`px-3 py-1 text-[10px] font-black uppercase rounded transition-all ${
                 recapPeriod === '30days'
                   ? 'bg-life-teal text-white shadow-sm'
@@ -429,7 +543,7 @@ export default function HabitsPage() {
             </button>
             <button
               type="button"
-              onClick={() => setRecapPeriod('month')}
+              onClick={() => handleRecapPeriodChange('month')}
               className={`px-3 py-1 text-[10px] font-black uppercase rounded transition-all ${
                 recapPeriod === 'month'
                   ? 'bg-life-teal text-white shadow-sm'
@@ -440,7 +554,7 @@ export default function HabitsPage() {
             </button>
             <button
               type="button"
-              onClick={() => setRecapPeriod('year')}
+              onClick={() => handleRecapPeriodChange('year')}
               className={`px-3 py-1 text-[10px] font-black uppercase rounded transition-all ${
                 recapPeriod === 'year'
                   ? 'bg-life-teal text-white shadow-sm'
@@ -457,17 +571,14 @@ export default function HabitsPage() {
           <div className="flex items-center gap-2 mb-4">
             <button
               type="button"
-              onClick={() => {
-                if (recapMonth === 0) { setRecapMonth(11); setRecapMonthYear((y) => y - 1); }
-                else { setRecapMonth((m) => m - 1); }
-              }}
+              onClick={() => navigateRecapMonth('prev')}
               className="w-7 h-7 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
             >
               <Icon name="chevronLeft" size={12} />
             </button>
             <select
               value={recapMonth}
-              onChange={(e) => setRecapMonth(Number(e.target.value))}
+              onChange={(e) => handleRecapMonthChange(Number(e.target.value))}
               className="glass-select text-xs py-1.5"
             >
               {months.map((m) => (
@@ -476,7 +587,7 @@ export default function HabitsPage() {
             </select>
             <select
               value={recapMonthYear}
-              onChange={(e) => setRecapMonthYear(Number(e.target.value))}
+              onChange={(e) => handleRecapMonthYearChange(Number(e.target.value))}
               className="glass-select text-xs py-1.5"
             >
               {yearOptions(recapMonthYear).map((y) => (
@@ -485,10 +596,7 @@ export default function HabitsPage() {
             </select>
             <button
               type="button"
-              onClick={() => {
-                if (recapMonth === 11) { setRecapMonth(0); setRecapMonthYear((y) => y + 1); }
-                else { setRecapMonth((m) => m + 1); }
-              }}
+              onClick={() => navigateRecapMonth('next')}
               className="w-7 h-7 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
             >
               <Icon name="chevronRight" size={12} />
@@ -500,14 +608,14 @@ export default function HabitsPage() {
           <div className="flex items-center gap-2 mb-4">
             <button
               type="button"
-              onClick={() => setRecapYear((y) => y - 1)}
+              onClick={() => navigateRecapYear('prev')}
               className="w-7 h-7 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
             >
               <Icon name="chevronLeft" size={12} />
             </button>
             <select
               value={recapYear}
-              onChange={(e) => setRecapYear(Number(e.target.value))}
+              onChange={(e) => handleRecapYearChange(Number(e.target.value))}
               className="glass-select text-xs py-1.5"
             >
               {yearOptions(recapYear).map((y) => (
@@ -516,7 +624,7 @@ export default function HabitsPage() {
             </select>
             <button
               type="button"
-              onClick={() => setRecapYear((y) => y + 1)}
+              onClick={() => navigateRecapYear('next')}
               className="w-7 h-7 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
             >
               <Icon name="chevronRight" size={12} />
