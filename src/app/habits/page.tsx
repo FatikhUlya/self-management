@@ -234,7 +234,7 @@ export default function HabitsPage() {
               className="w-7 h-7 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
               title="Bulan Sebelumnya"
             >
-              <Icon name="chevron-left" size={12} />
+              <Icon name="chevronLeft" size={12} />
             </button>
 
             <select
@@ -266,7 +266,7 @@ export default function HabitsPage() {
               className="w-7 h-7 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
               title="Bulan Berikutnya"
             >
-              <Icon name="chevron-right" size={12} />
+              <Icon name="chevronRight" size={12} />
             </button>
 
             <Button 
@@ -351,7 +351,7 @@ export default function HabitsPage() {
               className="w-7 h-7 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
               title="Bulan Sebelumnya"
             >
-              <Icon name="chevron-left" size={12} />
+              <Icon name="chevronLeft" size={12} />
             </button>
 
             <select
@@ -384,7 +384,7 @@ export default function HabitsPage() {
               className="w-7 h-7 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
               title="Bulan Berikutnya"
             >
-              <Icon name="chevron-right" size={12} />
+              <Icon name="chevronRight" size={12} />
             </button>
           </div>
         </div>
