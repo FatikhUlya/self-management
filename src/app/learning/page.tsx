@@ -9,6 +9,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
 import { MiniChart } from '@/components/ui/MiniChart';
+import { Modal } from '@/components/ui/Modal';
 import { formatDate, lastSevenDays, dayName, inLastDays } from '@/lib/utils';
 import { LEARNING_STATUSES, LearningStatus } from '@/lib/constants';
 
