@@ -541,8 +541,8 @@ export default function LearningPage() {
                 setCopiedNotification(true);
                 setTimeout(() => setCopiedNotification(false), 2000);
               }}
-              variant={copiedNotification ? 'success' : 'primary'}
-              className="flex-1 text-xs"
+              variant="primary"
+              className={`flex-1 text-xs transition-all duration-300 ${copiedNotification ? 'from-emerald-500 to-teal-600' : ''}`}
               disabled={(state.dictionary || []).length === 0}
             >
               {copiedNotification ? t('dictionary_copied') : t('dictionary_notebooklm_btn')}
