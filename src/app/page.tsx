@@ -1,7 +1,7 @@
 'use client';
-
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { Brain } from 'lucide-react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
@@ -13,27 +13,27 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Icon } from '@/components/ui/Icon';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { 
-  getGreetingKey, 
-  formatDate, 
-  percent, 
-  avg, 
-  addDays, 
-  dayName, 
-  inLastDays, 
-  lastSevenDays 
+import {
+  getGreetingKey,
+  formatDate,
+  percent,
+  avg,
+  addDays,
+  dayName,
+  inLastDays,
+  lastSevenDays
 } from '@/lib/utils';
 import { PRIORITY_OPTIONS, Priority } from '@/lib/constants';
 
 export default function Dashboard() {
-  const { 
-    state, 
-    addIdea, 
-    updateTaskStatus, 
-    toggleHabit, 
-    togglePlan 
+  const {
+    state,
+    addIdea,
+    updateTaskStatus,
+    toggleHabit,
+    togglePlan
   } = useLifeOS();
-  
+
   const { t, locale } = useI18n();
 
   // Quick Capture Form State
@@ -137,9 +137,11 @@ export default function Dashboard() {
       {/* Greeting Banner */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-gradient-to-r from-life-teal-soft/10 via-transparent to-transparent p-5 border-l-4 border-life-teal rounded-r-xl bg-white/[0.01]">
         <div>
-          <h3 className="text-2xl font-black text-life-text tracking-tight">
+          <h3 className="text-2xl font-black text-life-text tracking-tight flex items-center gap-2">
+            <Brain className="w-6 h-6 text-amber-500" />
             {t(greetingKey)}, Guest
           </h3>
+
           <p className="text-xs text-life-muted font-medium mt-1 uppercase tracking-wider">
             {formatDate(today, { locale: locale === 'id' ? 'id-ID' : 'en-US' })}
           </p>
@@ -206,8 +208,8 @@ export default function Dashboard() {
               {todaysTasks.length > 0 ? (
                 <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
                   {todaysTasks.slice(0, 5).map((task) => (
-                    <div 
-                      key={task.id} 
+                    <div
+                      key={task.id}
                       className="flex items-center justify-between p-2.5 rounded-lg bg-white/[0.01] border border-life-line hover:border-life-line-strong transition-all duration-150"
                     >
                       <div className="min-w-0">
@@ -248,19 +250,17 @@ export default function Dashboard() {
                       (log) => log.habitId === habit.id && log.date === today
                     );
                     return (
-                      <div 
+                      <div
                         key={habit.id}
                         onClick={() => toggleHabit(habit.id, today)}
-                        className={`flex items-center justify-between p-2.5 rounded-lg border cursor-pointer select-none transition-all duration-150 ${
-                          isDone 
-                            ? 'bg-life-teal-soft/10 border-life-teal/30 text-teal-300' 
+                        className={`flex items-center justify-between p-2.5 rounded-lg border cursor-pointer select-none transition-all duration-150 ${isDone
+                            ? 'bg-life-teal-soft/10 border-life-teal/30 text-teal-300'
                             : 'bg-white/[0.01] border-life-line hover:border-life-line-strong text-life-muted'
-                        }`}
+                          }`}
                       >
                         <span className="text-xs font-bold truncate">{habit.name}</span>
-                        <span className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${
-                          isDone ? 'bg-life-teal border-teal-400 text-white' : 'border-life-line text-transparent'
-                        }`}>
+                        <span className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${isDone ? 'bg-life-teal border-teal-400 text-white' : 'border-life-line text-transparent'
+                          }`}>
                           <Icon name="check" size={10} />
                         </span>
                       </div>
@@ -359,16 +359,15 @@ export default function Dashboard() {
         {todayPlans.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {todayPlans.slice(0, 4).map((plan) => (
-              <div 
+              <div
                 key={plan.id}
                 onClick={() => togglePlan(plan.id)}
-                className={`p-3 rounded-lg border cursor-pointer select-none transition-all duration-150 ${
-                  plan.status === 'done'
+                className={`p-3 rounded-lg border cursor-pointer select-none transition-all duration-150 ${plan.status === 'done'
                     ? 'bg-life-green-soft/10 border-life-green/30 text-green-300'
                     : plan.kind === 'event'
                       ? 'bg-life-teal-soft/5 border-life-teal/30 hover:border-life-teal/60 text-life-text'
                       : 'bg-life-indigo-soft/5 border-life-indigo/30 hover:border-life-indigo/60 text-life-text'
-                }`}
+                  }`}
               >
                 <div className="flex justify-between items-start">
                   <span className="text-[10px] font-bold text-life-muted">
