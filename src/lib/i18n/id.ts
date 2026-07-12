@@ -205,6 +205,11 @@ export const id = {
   habits_checklist: 'Checklist Habit',
   habits_of: 'dari',
   habits_done: 'selesai',
+  habits_edit_title: 'Ubah Habit',
+  habits_update_btn: 'Simpan Perubahan',
+  habits_recap_30days: '30 Hari Terakhir',
+  habits_recap_month: 'Per Bulan',
+  habits_recap_year: 'Per Tahun',
 
   // Learning
   learning_title: 'Learning Tracker',

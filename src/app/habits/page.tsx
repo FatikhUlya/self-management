@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { useLifeOS } from '@/lib/hooks/useLifeOSState';
+import { useLifeOS, type Habit } from '@/lib/hooks/useLifeOSState';
 import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
 import { Button } from '@/components/ui/Button';
@@ -26,12 +26,13 @@ import {
 import { HABIT_AREAS } from '@/lib/constants';
 
 export default function HabitsPage() {
-  const { state, addHabit, toggleHabit, deleteHabit } = useLifeOS();
+  const { state, addHabit, toggleHabit, deleteHabit, updateHabit } = useLifeOS();
   const { t, locale } = useI18n();
 
   // Dialog & selection states
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<string | null>(null);
+  const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
 
   // Form states
   const [habitName, setHabitName] = useState('');
@@ -48,6 +49,13 @@ export default function HabitsPage() {
   const [monthSel, setMonthSel] = useState(currentSelectedDate.getMonth());
   const [yearSel, setYearSel] = useState(currentSelectedDate.getFullYear());
 
+  // Chart independent navigation states
+  const [chartMonth, setChartMonth] = useState(currentSelectedDate.getMonth());
+  const [chartYear, setChartYear] = useState(currentSelectedDate.getFullYear());
+
+  // Detail Habit Recap period selection state
+  const [recapPeriod, setRecapPeriod] = useState<'30days' | 'month' | 'year'>('30days');
+
   const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const m = Number(e.target.value);
     setMonthSel(m);
@@ -60,13 +68,68 @@ export default function HabitsPage() {
     updateSelectedMonthYear(monthSel, y);
   };
 
+  const navigateCalendarMonth = (direction: 'prev' | 'next') => {
+    let newMonth = monthSel;
+    let newYear = yearSel;
+    if (direction === 'prev') {
+      if (monthSel === 0) {
+        newMonth = 11;
+        newYear = yearSel - 1;
+      } else {
+        newMonth = monthSel - 1;
+      }
+    } else {
+      if (monthSel === 11) {
+        newMonth = 0;
+        newYear = yearSel + 1;
+      } else {
+        newMonth = monthSel + 1;
+      }
+    }
+    setMonthSel(newMonth);
+    setYearSel(newYear);
+    updateSelectedMonthYear(newMonth, newYear);
+  };
+
+  const navigateChartMonth = (direction: 'prev' | 'next') => {
+    if (direction === 'prev') {
+      if (chartMonth === 0) {
+        setChartMonth(11);
+        setChartYear((prev) => prev - 1);
+      } else {
+        setChartMonth((prev) => prev - 1);
+      }
+    } else {
+      if (chartMonth === 11) {
+        setChartMonth(0);
+        setChartYear((prev) => prev + 1);
+      } else {
+        setChartMonth((prev) => prev + 1);
+      }
+    }
+  };
+
+  const handleNewHabitClick = () => {
+    setEditingHabit(null);
+    setHabitName('');
+    setHabitArea(HABIT_AREAS[0]);
+    setHabitFrequency('daily');
+    setHabitTarget(5);
+    setIsFormOpen(true);
+  };
+
+  const handleEditHabitClick = (habit: Habit) => {
+    setEditingHabit(habit);
+    setHabitName(habit.name);
+    setHabitArea(habit.area);
+    setHabitFrequency(habit.frequency);
+    setHabitTarget(habit.targetPerWeek);
+    setIsFormOpen(true);
+  };
+
   const updateSelectedMonthYear = (m: number, y: number) => {
     const dateStr = dateInMonthYear(selectedDate, y, m);
-    // Trigger state selectedDate change via a custom wrapper if needed, but since we have useLifeOS's selectedDate, we can sync:
-    // Actually we can just update selectedDate inside our context!
-    // That will update the entire month view globally!
     const contextDate = dateInMonthYear(state.selectedDate, y, m);
-    // Since selectedDateInput is tied to this:
     const input = document.getElementById('selectedDate') as HTMLInputElement;
     if (input) {
       input.value = contextDate;
@@ -110,19 +173,32 @@ export default function HabitsPage() {
     e.preventDefault();
     if (!habitName.trim()) return;
 
-    await addHabit({
-      name: habitName,
-      area: habitArea,
-      frequency: habitFrequency,
-      targetPerWeek: habitTarget,
-    });
+    if (editingHabit) {
+      await updateHabit({
+        ...editingHabit,
+        name: habitName,
+        area: habitArea,
+        frequency: habitFrequency,
+        targetPerWeek: habitTarget,
+      });
+    } else {
+      await addHabit({
+        name: habitName,
+        area: habitArea,
+        frequency: habitFrequency,
+        targetPerWeek: habitTarget,
+      });
+    }
 
     setHabitName('');
+    setEditingHabit(null);
     setIsFormOpen(false);
   };
 
-  // Chart data for daily completion rate across this month
-  const chartPoints = daysInMonth.map((day) => ({
+  // Chart data for daily completion rate across this selected chart month
+  const chartDaysStr = `${chartYear}-${String(chartMonth + 1).padStart(2, '0')}-01`;
+  const chartDays = monthDays(chartDaysStr);
+  const chartPoints = chartDays.map((day) => ({
     label: day.slice(-2),
     value: getCompletionPercent(day),
     dateStr: day,
@@ -149,8 +225,17 @@ export default function HabitsPage() {
             </p>
           </div>
 
-          {/* Month/Year selectors */}
-          <div className="flex items-center gap-3">
+          {/* Month/Year selectors & sliding navigation */}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => navigateCalendarMonth('prev')}
+              className="w-7 h-7 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
+              title="Bulan Sebelumnya"
+            >
+              <Icon name="chevron-left" size={12} />
+            </button>
+
             <select
               value={monthSel}
               onChange={handleMonthChange}
@@ -174,11 +259,20 @@ export default function HabitsPage() {
               ))}
             </select>
 
+            <button
+              type="button"
+              onClick={() => navigateCalendarMonth('next')}
+              className="w-7 h-7 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
+              title="Bulan Berikutnya"
+            >
+              <Icon name="chevron-right" size={12} />
+            </button>
+
             <Button 
               size="sm" 
               variant="primary" 
               icon="plus" 
-              onClick={() => setIsFormOpen(true)}
+              onClick={handleNewHabitClick}
             >
               Habit
             </Button>
@@ -239,13 +333,59 @@ export default function HabitsPage() {
 
       {/* Progress Chart */}
       <Surface className="p-6">
-        <div className="border-b border-life-line pb-3 mb-6">
-          <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-            {t('habits_monthly_progress')}
-          </h3>
-          <p className="text-xs text-life-muted mt-0.5">
-            {t('habits_monthly_pct')} {monthLabel(selectedDate, locale === 'id' ? 'id-ID' : 'en-US')}
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-life-line pb-3 mb-6">
+          <div>
+            <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
+              {t('habits_monthly_progress')}
+            </h3>
+            <p className="text-xs text-life-muted mt-0.5">
+              {t('habits_monthly_pct')} {monthLabel(chartDaysStr, locale === 'id' ? 'id-ID' : 'en-US')}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => navigateChartMonth('prev')}
+              className="w-7 h-7 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
+              title="Bulan Sebelumnya"
+            >
+              <Icon name="chevron-left" size={12} />
+            </button>
+
+            <select
+              value={chartMonth}
+              onChange={(e) => setChartMonth(Number(e.target.value))}
+              className="glass-select text-xs py-1.5"
+            >
+              {months.map((m) => (
+                <option key={m.value} value={m.value}>
+                  {m.label}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={chartYear}
+              onChange={(e) => setChartYear(Number(e.target.value))}
+              className="glass-select text-xs py-1.5"
+            >
+              {yearOptions(chartYear).map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+
+            <button
+              type="button"
+              onClick={() => navigateChartMonth('next')}
+              className="w-7 h-7 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
+              title="Bulan Berikutnya"
+            >
+              <Icon name="chevron-right" size={12} />
+            </button>
+          </div>
         </div>
 
         <LineChart 
@@ -270,22 +410,88 @@ export default function HabitsPage() {
 
       {/* Habit Details Recaps */}
       <Surface className="p-6">
-        <div className="border-b border-life-line pb-3 mb-4">
-          <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-            {t('habits_monthly_detail')}
-          </h3>
-          <p className="text-xs text-life-muted mt-0.5">
-            {t('habits_monthly_recap')} {monthLabel(selectedDate, locale === 'id' ? 'id-ID' : 'en-US')}
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-life-line pb-3 mb-4">
+          <div>
+            <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
+              {t('habits_monthly_detail')}
+            </h3>
+            <p className="text-xs text-life-muted mt-0.5">
+              {t('habits_monthly_recap')} {monthLabel(selectedDate, locale === 'id' ? 'id-ID' : 'en-US')}
+            </p>
+          </div>
+
+          {/* Recap Period Selector */}
+          <div className="flex bg-white/[0.02] border border-life-line rounded-lg p-0.5 max-w-max self-start sm:self-auto select-none">
+            <button
+              type="button"
+              onClick={() => setRecapPeriod('30days')}
+              className={`px-3 py-1 text-[10px] font-black uppercase rounded transition-all ${
+                recapPeriod === '30days'
+                  ? 'bg-life-teal text-white shadow-sm'
+                  : 'text-life-muted hover:text-life-text'
+              }`}
+            >
+              {t('habits_recap_30days')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setRecapPeriod('month')}
+              className={`px-3 py-1 text-[10px] font-black uppercase rounded transition-all ${
+                recapPeriod === 'month'
+                  ? 'bg-life-teal text-white shadow-sm'
+                  : 'text-life-muted hover:text-life-text'
+              }`}
+            >
+              {t('habits_recap_month')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setRecapPeriod('year')}
+              className={`px-3 py-1 text-[10px] font-black uppercase rounded transition-all ${
+                recapPeriod === 'year'
+                  ? 'bg-life-teal text-white shadow-sm'
+                  : 'text-life-muted hover:text-life-text'
+              }`}
+            >
+              {t('habits_recap_year')}
+            </button>
+          </div>
         </div>
 
         <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1">
           {state.habits.length > 0 ? (
             state.habits.map((habit) => {
-              const logsCount = daysInMonth.filter((d) => 
-                state.habitLogs.some((l) => l.habitId === habit.id && l.date === d)
-              ).length;
-              const rate = percent(logsCount, daysInMonth.length);
+              let logsCount = 0;
+              let totalDays = 30;
+              let rate = 0;
+              let labelText = '';
+
+              if (recapPeriod === '30days') {
+                logsCount = Array.from({ length: 30 }).filter((_, index) => {
+                  const d = new Date();
+                  d.setDate(d.getDate() - (29 - index));
+                  const dayStr = toISODate(d);
+                  return state.habitLogs.some((l) => l.habitId === habit.id && l.date === dayStr);
+                }).length;
+                totalDays = 30;
+                rate = percent(logsCount, totalDays);
+                labelText = `${logsCount} ${t('habits_of')} 30 ${t('days')} (${t('habits_monthly_progress')}: ${rate}%)`;
+              } else if (recapPeriod === 'month') {
+                logsCount = daysInMonth.filter((d) =>
+                  state.habitLogs.some((l) => l.habitId === habit.id && l.date === d)
+                ).length;
+                totalDays = daysInMonth.length;
+                rate = percent(logsCount, totalDays);
+                labelText = `${logsCount} ${t('habits_of')} ${totalDays} ${t('days')} (${t('habits_monthly_progress')}: ${rate}%)`;
+              } else {
+                logsCount = state.habitLogs.filter(
+                  (l) => l.habitId === habit.id && l.date.startsWith(`${yearSel}-`)
+                ).length;
+                const isLeap = (yearSel % 4 === 0 && yearSel % 100 !== 0) || (yearSel % 400 === 0);
+                totalDays = isLeap ? 366 : 365;
+                rate = percent(logsCount, totalDays);
+                labelText = `${logsCount} ${t('habits_of')} ${totalDays} ${t('days')} (${t('habits_monthly_progress')}: ${rate}%)`;
+              }
 
               return (
                 <div 
@@ -305,6 +511,13 @@ export default function HabitsPage() {
                         {`${rate}%`}
                       </Badge>
                       <button
+                        onClick={() => handleEditHabitClick(habit)}
+                        className="w-7 h-7 rounded bg-white/[0.02] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
+                        title={t('edit')}
+                      >
+                        <Icon name="edit" size={12} />
+                      </button>
+                      <button
                         onClick={() => deleteHabit(habit.id)}
                         className="w-7 h-7 rounded bg-white/[0.02] border border-life-line hover:bg-life-rose/20 text-life-muted hover:text-life-rose flex items-center justify-center transition-all"
                         title={t('delete')}
@@ -316,33 +529,116 @@ export default function HabitsPage() {
 
                   <div className="space-y-3">
                     <div className="flex justify-between items-center text-[10px] text-life-muted font-bold uppercase">
-                      <span>{logsCount} {t('dash_of')} {daysInMonth.length} {t('days')} ({t('habits_monthly_progress')}: {rate}%)</span>
-                      <span>30 Hari Terakhir</span>
+                      <span>{labelText}</span>
+                      <span>
+                        {recapPeriod === '30days' 
+                          ? t('habits_recap_30days') 
+                          : recapPeriod === 'month' 
+                            ? t('habits_recap_month') 
+                            : t('habits_recap_year')}
+                      </span>
                     </div>
-                    {/* GitHub-style Contribution Grid */}
-                    <div className="flex flex-wrap gap-1 p-2 rounded-xl bg-black/20 border border-white/[0.02] max-w-max">
-                      {Array.from({ length: 30 }, (_, index) => {
-                        const d = new Date();
-                        d.setDate(d.getDate() - (29 - index));
-                        const dayStr = toISODate(d);
-                        const isCompleted = state.habitLogs.some(
-                          (l) => l.habitId === habit.id && l.date === dayStr
-                        );
-                        return (
-                          <button
-                            key={dayStr}
-                            type="button"
-                            onClick={() => toggleHabit(habit.id, dayStr)}
-                            title={`${formatDate(dayStr)}: ${isCompleted ? 'Selesai' : 'Belum selesai'} (Klik untuk mengubah)`}
-                            className={`w-3.5 h-3.5 rounded-sm transition-all duration-150 shrink-0 ${
-                              isCompleted 
-                                ? 'bg-gradient-to-br from-emerald-400 to-teal-500 shadow-[0_0_6px_rgba(16,185,129,0.3)] scale-[1.05]' 
-                                : 'bg-white/[0.03] border border-white/[0.02] hover:bg-white/[0.1] hover:border-white/[0.1]'
-                            }`}
-                          />
-                        );
-                      })}
-                    </div>
+
+                    {recapPeriod === '30days' && (
+                      <div className="flex flex-wrap gap-1 p-2 rounded-xl bg-black/20 border border-white/[0.02] max-w-max">
+                        {Array.from({ length: 30 }, (_, index) => {
+                          const d = new Date();
+                          d.setDate(d.getDate() - (29 - index));
+                          const dayStr = toISODate(d);
+                          const isCompleted = state.habitLogs.some(
+                            (l) => l.habitId === habit.id && l.date === dayStr
+                          );
+                          return (
+                            <button
+                              key={dayStr}
+                              type="button"
+                              onClick={() => toggleHabit(habit.id, dayStr)}
+                              title={`${formatDate(dayStr)}: ${isCompleted ? 'Selesai' : 'Belum selesai'} (Klik untuk mengubah)`}
+                              className={`w-3.5 h-3.5 rounded-sm transition-all duration-150 shrink-0 ${
+                                isCompleted 
+                                  ? 'bg-gradient-to-br from-emerald-400 to-teal-500 shadow-[0_0_6px_rgba(16,185,129,0.3)] scale-[1.05]' 
+                                  : 'bg-white/[0.03] border border-white/[0.02] hover:bg-white/[0.1] hover:border-white/[0.1]'
+                              }`}
+                            />
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {recapPeriod === 'month' && (
+                      <div className="flex flex-wrap gap-1 p-2 rounded-xl bg-black/20 border border-white/[0.02] max-w-max">
+                        {daysInMonth.map((dayStr) => {
+                          const isCompleted = state.habitLogs.some(
+                            (l) => l.habitId === habit.id && l.date === dayStr
+                          );
+                          return (
+                            <button
+                              key={dayStr}
+                              type="button"
+                              onClick={() => toggleHabit(habit.id, dayStr)}
+                              title={`${formatDate(dayStr)}: ${isCompleted ? 'Selesai' : 'Belum selesai'} (Klik untuk mengubah)`}
+                              className={`w-3.5 h-3.5 rounded-sm transition-all duration-150 shrink-0 ${
+                                isCompleted 
+                                  ? 'bg-gradient-to-br from-emerald-400 to-teal-500 shadow-[0_0_6px_rgba(16,185,129,0.3)] scale-[1.05]' 
+                                  : 'bg-white/[0.03] border border-white/[0.02] hover:bg-white/[0.1] hover:border-white/[0.1]'
+                              }`}
+                            />
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {recapPeriod === 'year' && (
+                      <div className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-white/10 p-1">
+                        <div className="flex flex-col gap-1 min-w-[480px]">
+                          {Array.from({ length: 12 }, (_, mIdx) => {
+                            const dateStr = `${yearSel}-${String(mIdx + 1).padStart(2, '0')}-01`;
+                            const mDays = monthDays(dateStr);
+                            const mName = new Intl.DateTimeFormat(locale === 'id' ? 'id-ID' : 'en-US', { month: 'short' }).format(
+                              new Date(yearSel, mIdx, 1)
+                            );
+
+                            return (
+                              <div key={mIdx} className="flex items-center gap-2">
+                                <span className="w-8 text-[9px] font-bold text-life-muted uppercase select-none shrink-0 text-left">
+                                  {mName}
+                                </span>
+                                <div className="flex gap-0.5">
+                                  {Array.from({ length: 31 }, (_, dIdx) => {
+                                    const dayNum = dIdx + 1;
+                                    const hasDay = dayNum <= mDays.length;
+                                    if (!hasDay) {
+                                      return (
+                                        <div key={dIdx} className="w-2.5 h-2.5 rounded-sm bg-transparent opacity-0 shrink-0" />
+                                      );
+                                    }
+
+                                    const dayStr = mDays[dIdx];
+                                    const isCompleted = state.habitLogs.some(
+                                      (l) => l.habitId === habit.id && l.date === dayStr
+                                    );
+
+                                    return (
+                                      <button
+                                        key={dayStr}
+                                        type="button"
+                                        onClick={() => toggleHabit(habit.id, dayStr)}
+                                        title={`${formatDate(dayStr)}: ${isCompleted ? 'Selesai' : 'Belum selesai'} (Klik untuk mengubah)`}
+                                        className={`w-2.5 h-2.5 rounded-sm transition-all duration-150 shrink-0 ${
+                                          isCompleted
+                                            ? 'bg-gradient-to-br from-emerald-400 to-teal-500 shadow-[0_0_4px_rgba(16,185,129,0.3)] scale-[1.05]'
+                                            : 'bg-white/[0.03] border border-white/[0.02] hover:bg-white/[0.1] hover:border-white/[0.1]'
+                                        }`}
+                                      />
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -400,12 +696,15 @@ export default function HabitsPage() {
         )}
       </Modal>
 
-      {/* Form modal to add habit */}
+      {/* Form modal to add/edit habit */}
       <Modal
         isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
-        title={t('habits_new')}
-        subtitle="Masukkan detail habit baru"
+        onClose={() => {
+          setIsFormOpen(false);
+          setEditingHabit(null);
+        }}
+        title={editingHabit ? t('habits_edit_title') : t('habits_new')}
+        subtitle={editingHabit ? "Ubah detail habit Anda" : "Masukkan detail habit baru"}
       >
         <form onSubmit={handleHabitSubmit} className="space-y-4">
           <div className="flex flex-col space-y-1">
@@ -474,8 +773,8 @@ export default function HabitsPage() {
             </div>
           </div>
 
-          <Button type="submit" variant="primary" icon="plus" className="w-full">
-            {t('habits_add_new')}
+          <Button type="submit" variant="primary" icon={editingHabit ? "save" : "plus"} className="w-full">
+            {editingHabit ? t('habits_update_btn') : t('habits_add_new')}
           </Button>
         </form>
       </Modal>

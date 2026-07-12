@@ -207,6 +207,11 @@ export const en: Record<TranslationKey, string> = {
   habits_checklist: 'Habit Checklist',
   habits_of: 'of',
   habits_done: 'done',
+  habits_edit_title: 'Edit Habit',
+  habits_update_btn: 'Save Changes',
+  habits_recap_30days: 'Last 30 Days',
+  habits_recap_month: 'Per Month',
+  habits_recap_year: 'Per Year',
 
   // Learning
   learning_title: 'Learning Tracker',

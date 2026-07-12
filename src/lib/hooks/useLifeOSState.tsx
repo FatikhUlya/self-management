@@ -268,6 +268,7 @@ interface LifeOSContextProps {
   // Habits
   addHabit: (habit: Omit<Habit, 'id' | 'createdAt'>) => Promise<void>;
   toggleHabit: (id: string, date: string) => Promise<void>;
+  updateHabit: (habit: Habit) => Promise<void>;
   deleteHabit: (id: string) => Promise<void>;
 
   // Learning
@@ -1266,6 +1267,23 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
     }
   }, [isDbConnected, updateStateAndPersist, checkError]);
 
+  const updateHabit = useCallback(async (updatedHabit: Habit) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      habits: prev.habits.map(h => h.id === updatedHabit.id ? updatedHabit : h)
+    }));
+
+    if (isDbConnected) {
+      const { error } = await supabase.from('habits').update({
+        name: updatedHabit.name,
+        area: updatedHabit.area,
+        frequency: updatedHabit.frequency,
+        target_per_week: updatedHabit.targetPerWeek
+      }).eq('id', updatedHabit.id);
+      checkError(error, 'updateHabit');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
   // =========================================================================
   // LEARNING MODULE
   // =========================================================================
@@ -1760,6 +1778,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
         deleteGoal,
         addHabit,
         toggleHabit,
+        updateHabit,
         deleteHabit,
         addLearningSession,
         deleteLearningSession,
