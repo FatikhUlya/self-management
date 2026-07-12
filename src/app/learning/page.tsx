@@ -608,46 +608,61 @@ export default function LearningPage() {
         </div>
       </Modal>
 
-      {/* Filtered Vocabulary Modal */}
       <Modal
         isOpen={selectedFilterLang !== null}
         onClose={() => setSelectedFilterLang(null)}
         title={`${locale === 'id' ? 'Daftar Kosa Kata' : 'Vocabulary List'} - ${selectedFilterLang}`}
         subtitle={locale === 'id' ? `Menampilkan semua kosa kata dalam bahasa ${selectedFilterLang}` : `Showing all words classified as ${selectedFilterLang}`}
       >
-        <div className="space-y-2 max-h-[350px] overflow-y-auto pr-1">
-          {selectedFilterLang &&
-            sortedDictionary
-              .filter((entry) => entry.language === selectedFilterLang)
-              .map((entry) => (
-                <div
-                  key={entry.id}
-                  className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.01] border border-life-line text-xs"
-                >
-                  <div className="min-w-0">
-                    {vocabFlipDirection === 'indo-target' ? (
-                      <>
-                        <span className="font-bold text-life-text">{entry.indonesian}</span>
-                        <span className="text-life-muted mx-1.5">➔</span>
-                        <span className="text-teal-400 font-bold">{entry.translation}</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="font-bold text-teal-400">{entry.translation}</span>
-                        <span className="text-life-muted mx-1.5">➔</span>
-                        <span className="font-bold text-life-text">{entry.indonesian}</span>
-                      </>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => deleteDictionaryEntry(entry.id)}
-                    className="text-life-muted hover:text-life-rose transition-colors p-1"
-                    title={t('delete')}
+        <div className="space-y-4">
+          <div className="flex justify-between items-center bg-white/[0.01] border border-life-line rounded-lg p-2">
+            <span className="text-[10px] text-life-muted font-bold uppercase tracking-wider">
+              {locale === 'id' ? 'Format & Urutan:' : 'Format & Sort:'}
+            </span>
+            <button
+              type="button"
+              onClick={() => setVocabFlipDirection(prev => prev === 'indo-target' ? 'target-indo' : 'indo-target')}
+              className="text-[10px] font-black uppercase bg-white/[0.03] border border-life-line hover:bg-white/[0.07] px-2.5 py-1 rounded-md transition-all flex items-center gap-1.5 select-none text-life-text"
+            >
+              <Icon name="review" size={10} />
+              {vocabFlipDirection === 'indo-target' ? 'Indo ➔ Asing' : 'Asing ➔ Indo'}
+            </button>
+          </div>
+
+          <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+            {selectedFilterLang &&
+              sortedDictionary
+                .filter((entry) => entry.language === selectedFilterLang)
+                .map((entry) => (
+                  <div
+                    key={entry.id}
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-white/[0.01] border border-life-line text-xs"
                   >
-                    <Icon name="trash" size={10} />
-                  </button>
-                </div>
-              ))}
+                    <div className="min-w-0">
+                      {vocabFlipDirection === 'indo-target' ? (
+                        <>
+                          <span className="font-bold text-life-text">{entry.indonesian}</span>
+                          <span className="text-life-muted mx-1.5">➔</span>
+                          <span className="text-teal-400 font-bold">{entry.translation}</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="font-bold text-teal-400">{entry.translation}</span>
+                          <span className="text-life-muted mx-1.5">➔</span>
+                          <span className="font-bold text-life-text">{entry.indonesian}</span>
+                        </>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => deleteDictionaryEntry(entry.id)}
+                      className="text-life-muted hover:text-life-rose transition-colors p-1"
+                      title={t('delete')}
+                    >
+                      <Icon name="trash" size={10} />
+                    </button>
+                  </div>
+                ))}
+          </div>
         </div>
       </Modal>
     </div>
