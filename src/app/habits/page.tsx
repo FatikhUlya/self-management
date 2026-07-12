@@ -57,8 +57,14 @@ export default function HabitsPage() {
   // Detail Habit Recap period selection state
   const [recapPeriod, setRecapPeriod] = useState<'30days' | 'month' | 'year'>('30days');
 
-  // Recap year selector (independent)
+  // Recap independent navigation
+  const [recapMonth, setRecapMonth] = useState(todayDate.getMonth());
+  const [recapMonthYear, setRecapMonthYear] = useState(todayDate.getFullYear());
   const [recapYear, setRecapYear] = useState(todayDate.getFullYear());
+
+  // Derive days for recap month view
+  const recapMonthDateStr = `${recapMonthYear}-${String(recapMonth + 1).padStart(2, '0')}-15`;
+  const recapDaysInMonth = monthDays(recapMonthDateStr);
 
   const handleCalMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setCalMonth(Number(e.target.value));
@@ -402,7 +408,9 @@ export default function HabitsPage() {
               {t('habits_monthly_detail')}
             </h3>
             <p className="text-xs text-life-muted mt-0.5">
-              {t('habits_monthly_recap')} {monthLabel(calDateStr, locale === 'id' ? 'id-ID' : 'en-US')}
+              {recapPeriod === '30days' && t('habits_recap_30days')}
+              {recapPeriod === 'month' && `${t('habits_recap_month')} - ${monthLabel(recapMonthDateStr, locale === 'id' ? 'id-ID' : 'en-US')}`}
+              {recapPeriod === 'year' && `${t('habits_recap_year')} - ${recapYear}`}
             </p>
           </div>
 
@@ -444,6 +452,78 @@ export default function HabitsPage() {
           </div>
         </div>
 
+        {/* Recap navigation controls */}
+        {recapPeriod === 'month' && (
+          <div className="flex items-center gap-2 mb-4">
+            <button
+              type="button"
+              onClick={() => {
+                if (recapMonth === 0) { setRecapMonth(11); setRecapMonthYear((y) => y - 1); }
+                else { setRecapMonth((m) => m - 1); }
+              }}
+              className="w-7 h-7 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
+            >
+              <Icon name="chevronLeft" size={12} />
+            </button>
+            <select
+              value={recapMonth}
+              onChange={(e) => setRecapMonth(Number(e.target.value))}
+              className="glass-select text-xs py-1.5"
+            >
+              {months.map((m) => (
+                <option key={m.value} value={m.value}>{m.label}</option>
+              ))}
+            </select>
+            <select
+              value={recapMonthYear}
+              onChange={(e) => setRecapMonthYear(Number(e.target.value))}
+              className="glass-select text-xs py-1.5"
+            >
+              {yearOptions(recapMonthYear).map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={() => {
+                if (recapMonth === 11) { setRecapMonth(0); setRecapMonthYear((y) => y + 1); }
+                else { setRecapMonth((m) => m + 1); }
+              }}
+              className="w-7 h-7 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
+            >
+              <Icon name="chevronRight" size={12} />
+            </button>
+          </div>
+        )}
+
+        {recapPeriod === 'year' && (
+          <div className="flex items-center gap-2 mb-4">
+            <button
+              type="button"
+              onClick={() => setRecapYear((y) => y - 1)}
+              className="w-7 h-7 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
+            >
+              <Icon name="chevronLeft" size={12} />
+            </button>
+            <select
+              value={recapYear}
+              onChange={(e) => setRecapYear(Number(e.target.value))}
+              className="glass-select text-xs py-1.5"
+            >
+              {yearOptions(recapYear).map((y) => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={() => setRecapYear((y) => y + 1)}
+              className="w-7 h-7 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
+            >
+              <Icon name="chevronRight" size={12} />
+            </button>
+          </div>
+        )}
+
         <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1">
           {state.habits.length > 0 ? (
             state.habits.map((habit) => {
@@ -463,10 +543,10 @@ export default function HabitsPage() {
                 rate = percent(logsCount, totalDays);
                 labelText = `${logsCount} ${t('habits_of')} 30 ${t('days')} (${t('habits_monthly_progress')}: ${rate}%)`;
               } else if (recapPeriod === 'month') {
-                logsCount = daysInMonth.filter((d) =>
+                logsCount = recapDaysInMonth.filter((d) =>
                   state.habitLogs.some((l) => l.habitId === habit.id && l.date === d)
                 ).length;
-                totalDays = daysInMonth.length;
+                totalDays = recapDaysInMonth.length;
                 rate = percent(logsCount, totalDays);
                 labelText = `${logsCount} ${t('habits_of')} ${totalDays} ${t('days')} (${t('habits_monthly_progress')}: ${rate}%)`;
               } else {
@@ -551,7 +631,7 @@ export default function HabitsPage() {
 
                     {recapPeriod === 'month' && (
                       <div className="flex flex-wrap gap-1 p-2 rounded-xl bg-black/20 border border-white/[0.02] max-w-max">
-                        {daysInMonth.map((dayStr) => {
+                        {recapDaysInMonth.map((dayStr) => {
                           const isCompleted = state.habitLogs.some(
                             (l) => l.habitId === habit.id && l.date === dayStr
                           );
