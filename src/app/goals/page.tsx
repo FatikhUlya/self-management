@@ -386,6 +386,7 @@ export default function GoalsPage() {
             </span>
           </div>
           <ProgressRing
+            label=""
             value={Math.round(avg(state.goals.map((g) => g.progress)))}
             colorClass="text-life-teal"
             size={55}
@@ -400,6 +401,7 @@ export default function GoalsPage() {
             </span>
           </div>
           <ProgressRing
+            label=""
             value={percent(completedGoalsCount, state.goals.length)}
             colorClass="text-green-400"
             size={55}
@@ -414,6 +416,7 @@ export default function GoalsPage() {
             </span>
           </div>
           <ProgressRing
+            label=""
             value={percent(activeGoalsCount, state.goals.length)}
             colorClass="text-life-indigo"
             size={55}
