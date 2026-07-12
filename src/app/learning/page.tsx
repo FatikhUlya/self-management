@@ -44,6 +44,7 @@ export default function LearningPage() {
   const [copiedNotification, setCopiedNotification] = useState(false);
   const [selectedFilterLang, setSelectedFilterLang] = useState<string | null>(null);
   const [vocabFlipDirection, setVocabFlipDirection] = useState<'indo-target' | 'target-indo'>('indo-target');
+  const [exportLanguageFilter, setExportLanguageFilter] = useState<string>('all');
 
   // Sorted dictionary entries
   const sortedDictionary = React.useMemo(() => {
@@ -556,49 +557,83 @@ export default function LearningPage() {
           </div>
 
           {/* Export Box */}
-          <div className="flex flex-col space-y-1">
-            <label className="text-xs font-bold text-life-muted uppercase">
-              Data Raw untuk NotebookLM
-            </label>
-            <textarea
-              readOnly
-              value={
-                (state.dictionary || []).length > 0
-                  ? `Kamus Pribadi (My Dictionary) - Ekspor NotebookLM\nFormat: Bahasa Indonesia => Bahasa Asing (Klasifikasi)\n\n` +
-                    (state.dictionary || []).map((e, i) => `${i + 1}. ${e.indonesian} => ${e.translation} (${e.language})`).join('\n')
-                  : 'Kamus masih kosong. Silakan masukkan beberapa kata terlebih dahulu.'
-              }
-              rows={6}
-              className="glass-input text-xs font-mono p-2.5 resize-none bg-black/25 select-all"
-            />
-          </div>
+          {(() => {
+            const existingLanguages = Array.from(
+              new Set((state.dictionary || []).map((e) => e.language || 'English'))
+            );
+            const filteredExportEntries = (state.dictionary || []).filter(
+              (e) => exportLanguageFilter === 'all' || e.language === exportLanguageFilter
+            );
+            const rawExportText = filteredExportEntries.length > 0
+              ? `Kamus Pribadi (My Dictionary) - Ekspor NotebookLM\n` +
+                `Filter: ${
+                  exportLanguageFilter === 'all'
+                    ? (locale === 'id' ? 'Semua Bahasa' : 'All Languages')
+                    : exportLanguageFilter
+                }\n` +
+                `Format: Bahasa Indonesia => Bahasa Asing (Klasifikasi)\n\n` +
+                filteredExportEntries
+                  .map((e, i) => `${i + 1}. ${e.indonesian} => ${e.translation} (${e.language})`)
+                  .join('\n')
+              : (locale === 'id' ? 'Kamus masih kosong.' : 'Dictionary is empty.');
 
-          <div className="flex flex-col sm:flex-row gap-2">
-            <Button
-              onClick={async () => {
-                const text = `Kamus Pribadi (My Dictionary) - Ekspor NotebookLM\nFormat: Bahasa Indonesia => Bahasa Asing (Klasifikasi)\n\n` +
-                  (state.dictionary || []).map((e, i) => `${i + 1}. ${e.indonesian} => ${e.translation} (${e.language})`).join('\n');
-                await navigator.clipboard.writeText(text);
-                setCopiedNotification(true);
-                setTimeout(() => setCopiedNotification(false), 2000);
-              }}
-              variant="primary"
-              className={`flex-1 text-xs transition-all duration-300 ${copiedNotification ? 'from-emerald-500 to-teal-600' : ''}`}
-              disabled={(state.dictionary || []).length === 0}
-            >
-              {copiedNotification ? t('dictionary_copied') : t('dictionary_notebooklm_btn')}
-            </Button>
+            return (
+              <>
+                <div className="flex flex-col space-y-1">
+                  <div className="flex justify-between items-center">
+                    <label className="text-xs font-bold text-life-muted uppercase">
+                      Data Raw untuk NotebookLM
+                    </label>
+                    <select
+                      value={exportLanguageFilter}
+                      onChange={(e) => setExportLanguageFilter(e.target.value)}
+                      className="glass-select text-[10px] py-0.5 px-1.5 max-w-max bg-black/40 border border-white/10 rounded"
+                    >
+                      <option value="all">{locale === 'id' ? 'Semua Bahasa' : 'All Languages'}</option>
+                      {existingLanguages.map((lang) => (
+                        <option key={lang} value={lang}>
+                          {lang}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <textarea
+                    readOnly
+                    value={rawExportText}
+                    rows={6}
+                    className="glass-input text-xs font-mono p-2.5 resize-none bg-black/25 select-all"
+                  />
+                </div>
 
-            <a
-              href="https://notebooklm.google.com/"
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-text hover:text-white rounded-lg transition-all"
-            >
-              <Icon name="globe" size={12} />
-              {t('dictionary_notebooklm_link')}
-            </a>
-          </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button
+                    onClick={async () => {
+                      await navigator.clipboard.writeText(rawExportText);
+                      setCopiedNotification(true);
+                      setTimeout(() => setCopiedNotification(false), 2000);
+                    }}
+                    variant="primary"
+                    className={`flex-1 text-xs transition-all duration-300 ${
+                      copiedNotification ? 'from-emerald-500 to-teal-600' : ''
+                    }`}
+                    disabled={filteredExportEntries.length === 0}
+                  >
+                    {copiedNotification ? t('dictionary_copied') : t('dictionary_notebooklm_btn')}
+                  </Button>
+
+                  <a
+                    href="https://notebooklm.google.com/"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-text hover:text-white rounded-lg transition-all"
+                  >
+                    <Icon name="globe" size={12} />
+                    {t('dictionary_notebooklm_link')}
+                  </a>
+                </div>
+              </>
+            );
+          })()}
 
           <p className="text-[10px] text-life-muted leading-relaxed">
             {locale === 'id'
