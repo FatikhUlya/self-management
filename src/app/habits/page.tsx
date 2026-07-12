@@ -15,18 +15,16 @@ import {
   monthLabel, 
   monthCalendarDays, 
   monthDays, 
-  dayName, 
   toISODate, 
   percent, 
   avg,
   yearOptions,
-  dateInMonthYear,
   addDays
 } from '@/lib/utils';
 import { HABIT_AREAS } from '@/lib/constants';
 
 export default function HabitsPage() {
-  const { state, addHabit, toggleHabit, deleteHabit, updateHabit, setSelectedDate } = useLifeOS();
+  const { state, addHabit, toggleHabit, deleteHabit, updateHabit } = useLifeOS();
   const { t, locale } = useI18n();
 
   // Dialog & selection states
@@ -40,62 +38,52 @@ export default function HabitsPage() {
   const [habitFrequency, setHabitFrequency] = useState<'daily' | 'weekly'>('daily');
   const [habitTarget, setHabitTarget] = useState<number>(5);
 
-  const selectedDate = state.selectedDate;
-  const daysInMonth = monthDays(selectedDate);
-  const calendarDays = monthCalendarDays(selectedDate);
+  const today = state.selectedDate;
 
-  // Month navigation helpers
-  const currentSelectedDate = new Date(`${selectedDate}T00:00:00`);
-  const [monthSel, setMonthSel] = useState(currentSelectedDate.getMonth());
-  const [yearSel, setYearSel] = useState(currentSelectedDate.getFullYear());
+  // Calendar local navigation state (independent from global selectedDate)
+  const todayDate = new Date(`${today}T00:00:00`);
+  const [calMonth, setCalMonth] = useState(todayDate.getMonth());
+  const [calYear, setCalYear] = useState(todayDate.getFullYear());
+
+  // Derive calendar days from local calMonth/calYear
+  const calDateStr = `${calYear}-${String(calMonth + 1).padStart(2, '0')}-15`;
+  const daysInMonth = monthDays(calDateStr);
+  const calendarDays = monthCalendarDays(calDateStr);
 
   // Chart independent navigation states
-  const [chartMonth, setChartMonth] = useState(currentSelectedDate.getMonth());
-  const [chartYear, setChartYear] = useState(currentSelectedDate.getFullYear());
+  const [chartMonth, setChartMonth] = useState(todayDate.getMonth());
+  const [chartYear, setChartYear] = useState(todayDate.getFullYear());
 
   // Detail Habit Recap period selection state
   const [recapPeriod, setRecapPeriod] = useState<'30days' | 'month' | 'year'>('30days');
 
-  // Keep local month/year selectors in sync with global selectedDate
-  React.useEffect(() => {
-    const currentSelectedDate = new Date(`${state.selectedDate}T00:00:00`);
-    setMonthSel(currentSelectedDate.getMonth());
-    setYearSel(currentSelectedDate.getFullYear());
-  }, [state.selectedDate]);
+  // Recap year selector (independent)
+  const [recapYear, setRecapYear] = useState(todayDate.getFullYear());
 
-  const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const m = Number(e.target.value);
-    setMonthSel(m);
-    updateSelectedMonthYear(m, yearSel);
+  const handleCalMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCalMonth(Number(e.target.value));
   };
 
-  const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const y = Number(e.target.value);
-    setYearSel(y);
-    updateSelectedMonthYear(monthSel, y);
+  const handleCalYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setCalYear(Number(e.target.value));
   };
 
   const navigateCalendarMonth = (direction: 'prev' | 'next') => {
-    let newMonth = monthSel;
-    let newYear = yearSel;
     if (direction === 'prev') {
-      if (monthSel === 0) {
-        newMonth = 11;
-        newYear = yearSel - 1;
+      if (calMonth === 0) {
+        setCalMonth(11);
+        setCalYear((y) => y - 1);
       } else {
-        newMonth = monthSel - 1;
+        setCalMonth((m) => m - 1);
       }
     } else {
-      if (monthSel === 11) {
-        newMonth = 0;
-        newYear = yearSel + 1;
+      if (calMonth === 11) {
+        setCalMonth(0);
+        setCalYear((y) => y + 1);
       } else {
-        newMonth = monthSel + 1;
+        setCalMonth((m) => m + 1);
       }
     }
-    setMonthSel(newMonth);
-    setYearSel(newYear);
-    updateSelectedMonthYear(newMonth, newYear);
   };
 
   const navigateChartMonth = (direction: 'prev' | 'next') => {
@@ -134,10 +122,7 @@ export default function HabitsPage() {
     setIsFormOpen(true);
   };
 
-  const updateSelectedMonthYear = (m: number, y: number) => {
-    const contextDate = dateInMonthYear(state.selectedDate, y, m);
-    setSelectedDate(contextDate);
-  };
+  // (updateSelectedMonthYear removed — calendar uses local state only)
 
   // Completion calculation for a single date
   const getCompletionPercent = (date: string) => {
@@ -157,7 +142,7 @@ export default function HabitsPage() {
   };
 
   // Streak calculator
-  const getHabitStreak = (habitId: string, fromDate = selectedDate) => {
+  const getHabitStreak = (habitId: string, fromDate = today) => {
     let streak = 0;
     let cursor = fromDate;
     const isDone = (hId: string, d: string) =>
@@ -208,7 +193,7 @@ export default function HabitsPage() {
   const months = Array.from({ length: 12 }, (_, index) => ({
     value: index,
     label: new Intl.DateTimeFormat(locale === 'id' ? 'id-ID' : 'en-US', { month: 'long' }).format(
-      new Date(yearSel, index, 1)
+      new Date(calYear, index, 1)
     ),
   }));
 
@@ -238,8 +223,8 @@ export default function HabitsPage() {
             </button>
 
             <select
-              value={monthSel}
-              onChange={handleMonthChange}
+              value={calMonth}
+              onChange={handleCalMonthChange}
               className="glass-select text-xs py-1.5"
             >
               {months.map((m) => (
@@ -249,11 +234,11 @@ export default function HabitsPage() {
               ))}
             </select>
             <select
-              value={yearSel}
-              onChange={handleYearChange}
+              value={calYear}
+              onChange={handleCalYearChange}
               className="glass-select text-xs py-1.5"
             >
-              {yearOptions(yearSel).map((y) => (
+              {yearOptions(calYear).map((y) => (
                 <option key={y} value={y}>
                   {y}
                 </option>
@@ -293,7 +278,7 @@ export default function HabitsPage() {
           {calendarDays.map((day, idx) => {
             if (!day) return <div key={`empty-${idx}`} className="aspect-square opacity-0" />;
             const pct = getCompletionPercent(day);
-            const isSelected = day === selectedDate;
+            const isToday = day === today;
             const tone = getCompletionTone(pct);
 
             return (
@@ -301,7 +286,7 @@ export default function HabitsPage() {
                 key={day}
                 onClick={() => setSelectedCalendarDate(day)}
                 className={`aspect-square rounded-lg flex flex-col items-center justify-between p-1.5 relative border transition-all duration-150 select-none ${tone} ${
-                  isSelected ? 'border-teal-400 scale-[1.05] ring-2 ring-life-teal/30 z-10' : ''
+                  isToday ? 'border-teal-400 scale-[1.05] ring-2 ring-life-teal/30 z-10' : ''
                 }`}
                 title={`${formatDate(day)}: ${pct}% habit done`}
               >
@@ -417,7 +402,7 @@ export default function HabitsPage() {
               {t('habits_monthly_detail')}
             </h3>
             <p className="text-xs text-life-muted mt-0.5">
-              {t('habits_monthly_recap')} {monthLabel(selectedDate, locale === 'id' ? 'id-ID' : 'en-US')}
+              {t('habits_monthly_recap')} {monthLabel(calDateStr, locale === 'id' ? 'id-ID' : 'en-US')}
             </p>
           </div>
 
@@ -486,9 +471,9 @@ export default function HabitsPage() {
                 labelText = `${logsCount} ${t('habits_of')} ${totalDays} ${t('days')} (${t('habits_monthly_progress')}: ${rate}%)`;
               } else {
                 logsCount = state.habitLogs.filter(
-                  (l) => l.habitId === habit.id && l.date.startsWith(`${yearSel}-`)
+                  (l) => l.habitId === habit.id && l.date.startsWith(`${recapYear}-`)
                 ).length;
-                const isLeap = (yearSel % 4 === 0 && yearSel % 100 !== 0) || (yearSel % 400 === 0);
+                const isLeap = (recapYear % 4 === 0 && recapYear % 100 !== 0) || (recapYear % 400 === 0);
                 totalDays = isLeap ? 366 : 365;
                 rate = percent(logsCount, totalDays);
                 labelText = `${logsCount} ${t('habits_of')} ${totalDays} ${t('days')} (${t('habits_monthly_progress')}: ${rate}%)`;
@@ -550,15 +535,13 @@ export default function HabitsPage() {
                             (l) => l.habitId === habit.id && l.date === dayStr
                           );
                           return (
-                            <button
+                            <div
                               key={dayStr}
-                              type="button"
-                              onClick={() => toggleHabit(habit.id, dayStr)}
-                              title={`${formatDate(dayStr)}: ${isCompleted ? 'Selesai' : 'Belum selesai'} (Klik untuk mengubah)`}
-                              className={`w-3.5 h-3.5 rounded-sm transition-all duration-150 shrink-0 ${
+                              title={`${formatDate(dayStr)}: ${isCompleted ? 'Selesai' : 'Belum selesai'}`}
+                              className={`w-3.5 h-3.5 rounded-sm shrink-0 ${
                                 isCompleted 
                                   ? 'bg-gradient-to-br from-emerald-400 to-teal-500 shadow-[0_0_6px_rgba(16,185,129,0.3)] scale-[1.05]' 
-                                  : 'bg-white/[0.03] border border-white/[0.02] hover:bg-white/[0.1] hover:border-white/[0.1]'
+                                  : 'bg-white/[0.03] border border-white/[0.02]'
                               }`}
                             />
                           );
@@ -573,15 +556,13 @@ export default function HabitsPage() {
                             (l) => l.habitId === habit.id && l.date === dayStr
                           );
                           return (
-                            <button
+                            <div
                               key={dayStr}
-                              type="button"
-                              onClick={() => toggleHabit(habit.id, dayStr)}
-                              title={`${formatDate(dayStr)}: ${isCompleted ? 'Selesai' : 'Belum selesai'} (Klik untuk mengubah)`}
-                              className={`w-3.5 h-3.5 rounded-sm transition-all duration-150 shrink-0 ${
+                              title={`${formatDate(dayStr)}: ${isCompleted ? 'Selesai' : 'Belum selesai'}`}
+                              className={`w-3.5 h-3.5 rounded-sm shrink-0 ${
                                 isCompleted 
                                   ? 'bg-gradient-to-br from-emerald-400 to-teal-500 shadow-[0_0_6px_rgba(16,185,129,0.3)] scale-[1.05]' 
-                                  : 'bg-white/[0.03] border border-white/[0.02] hover:bg-white/[0.1] hover:border-white/[0.1]'
+                                  : 'bg-white/[0.03] border border-white/[0.02]'
                               }`}
                             />
                           );
@@ -593,10 +574,10 @@ export default function HabitsPage() {
                       <div className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-white/10 p-1">
                         <div className="flex flex-col gap-1 min-w-[480px]">
                           {Array.from({ length: 12 }, (_, mIdx) => {
-                            const dateStr = `${yearSel}-${String(mIdx + 1).padStart(2, '0')}-01`;
+                            const dateStr = `${recapYear}-${String(mIdx + 1).padStart(2, '0')}-01`;
                             const mDays = monthDays(dateStr);
                             const mName = new Intl.DateTimeFormat(locale === 'id' ? 'id-ID' : 'en-US', { month: 'short' }).format(
-                              new Date(yearSel, mIdx, 1)
+                              new Date(recapYear, mIdx, 1)
                             );
 
                             return (
@@ -620,15 +601,13 @@ export default function HabitsPage() {
                                     );
 
                                     return (
-                                      <button
+                                      <div
                                         key={dayStr}
-                                        type="button"
-                                        onClick={() => toggleHabit(habit.id, dayStr)}
-                                        title={`${formatDate(dayStr)}: ${isCompleted ? 'Selesai' : 'Belum selesai'} (Klik untuk mengubah)`}
-                                        className={`w-2.5 h-2.5 rounded-sm transition-all duration-150 shrink-0 ${
+                                        title={`${formatDate(dayStr)}: ${isCompleted ? 'Selesai' : 'Belum selesai'}`}
+                                        className={`w-2.5 h-2.5 rounded-sm shrink-0 ${
                                           isCompleted
                                             ? 'bg-gradient-to-br from-emerald-400 to-teal-500 shadow-[0_0_4px_rgba(16,185,129,0.3)] scale-[1.05]'
-                                            : 'bg-white/[0.03] border border-white/[0.02] hover:bg-white/[0.1] hover:border-white/[0.1]'
+                                            : 'bg-white/[0.03] border border-white/[0.02]'
                                         }`}
                                       />
                                     );
