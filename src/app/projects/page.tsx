@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
+import { useLocalStorageState } from '@/lib/hooks/useLocalStorageState';
 import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
 import { Button } from '@/components/ui/Button';
@@ -18,21 +19,25 @@ export default function ProjectsPage() {
     deleteProject, 
     addTask, 
     updateTaskStatus, 
-    deleteTask 
+    deleteTask,
+    updateProjectGoal,
+    updateTaskGoal
   } = useLifeOS();
   
   const { t } = useI18n();
 
   // Project form states
-  const [projectName, setProjectName] = useState('');
-  const [projectArea, setProjectArea] = useState('');
-  const [projectStatus, setProjectStatus] = useState<'active' | 'paused' | 'done'>('active');
+  const [projectName, setProjectName] = useLocalStorageState('draft_project_name', '');
+  const [projectArea, setProjectArea] = useLocalStorageState('draft_project_area', '');
+  const [projectStatus, setProjectStatus] = useLocalStorageState<'active' | 'paused' | 'done'>('draft_project_status', 'active');
+  const [projectGoalId, setProjectGoalId] = useLocalStorageState('draft_project_goalId', '');
 
   // Task form states
-  const [taskTitle, setTaskTitle] = useState('');
-  const [taskProjectId, setTaskProjectId] = useState('');
-  const [taskDue, setTaskDue] = useState(state.selectedDate);
-  const [taskPriority, setTaskPriority] = useState<Priority>('Medium');
+  const [taskTitle, setTaskTitle] = useLocalStorageState('draft_task_title', '');
+  const [taskProjectId, setTaskProjectId] = useLocalStorageState('draft_task_projectId', '');
+  const [taskDue, setTaskDue] = useLocalStorageState('draft_task_due', state.selectedDate);
+  const [taskPriority, setTaskPriority] = useLocalStorageState<Priority>('draft_task_priority', 'Medium');
+  const [taskGoalId, setTaskGoalId] = useLocalStorageState('draft_task_goalId', '');
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
 
   const activeProjectsCount = state.projects.filter(p => p.status === 'active').length;
@@ -45,12 +50,14 @@ export default function ProjectsPage() {
     await addProject({
       name: projectName,
       area: projectArea,
-      status: projectStatus
+      status: projectStatus,
+      goalId: projectGoalId || undefined
     });
 
     setProjectName('');
     setProjectArea('');
     setProjectStatus('active');
+    setProjectGoalId('');
   };
 
   const handleTaskSubmit = async (e: React.FormEvent) => {
@@ -61,12 +68,14 @@ export default function ProjectsPage() {
       title: taskTitle,
       projectId: taskProjectId,
       due: taskDue,
-      priority: taskPriority
+      priority: taskPriority,
+      goalId: taskGoalId || undefined
     });
 
     setTaskTitle('');
     setTaskProjectId('');
     setTaskPriority('Medium');
+    setTaskGoalId('');
   };
 
   // Helper to render task board columns (Todo / Doing / Done)
@@ -88,6 +97,7 @@ export default function ProjectsPage() {
           {columnTasks.length > 0 ? (
             columnTasks.map((task) => {
               const project = state.projects.find((p) => p.id === task.projectId);
+              const goal = state.goals.find((g) => g.id === task.goalId);
               const isOverdue = task.due && task.due < state.selectedDate && task.status !== 'done';
               
               return (
@@ -97,9 +107,10 @@ export default function ProjectsPage() {
                 >
                   <div className="min-w-0">
                     <strong className="text-xs font-bold text-life-text block leading-tight">{task.title}</strong>
-                    <p className="text-[10px] text-life-muted mt-0.5 truncate">
-                      📁 {project ? project.name : 'Inbox'}
-                    </p>
+                    <div className="flex flex-col gap-0.5 mt-1 text-[10px] text-life-muted">
+                      <span>📁 {project ? project.name : 'Inbox'}</span>
+                      {goal && <span className="text-teal-400 font-semibold flex items-center gap-1 mt-0.5">🎯 {goal.title}</span>}
+                    </div>
                   </div>
 
                   <div className="flex justify-between items-center">
@@ -183,6 +194,7 @@ export default function ProjectsPage() {
             <tr className="border-b border-life-line text-[10px] font-black text-life-muted uppercase tracking-wider">
               <th className="pb-3 pr-4">{t('tasks_title_label')}</th>
               <th className="pb-3 px-4">{t('tasks_project')}</th>
+              <th className="pb-3 px-4">Target (Goal)</th>
               <th className="pb-3 px-4">{t('tasks_due')}</th>
               <th className="pb-3 px-4">{t('priority')}</th>
               <th className="pb-3 px-4">{t('status')}</th>
@@ -198,6 +210,20 @@ export default function ProjectsPage() {
                 <tr key={task.id} className="text-xs hover:bg-white/[0.005] transition-colors">
                   <td className="py-3 pr-4 font-bold text-life-text min-w-[150px]">{task.title}</td>
                   <td className="py-3 px-4 text-life-muted font-semibold">{project ? project.name : 'Inbox'}</td>
+                  <td className="py-3 px-4">
+                    <select
+                      value={task.goalId || ''}
+                      onChange={(e) => updateTaskGoal(task.id, e.target.value || null)}
+                      className="glass-select py-1 px-2 text-[10px]"
+                    >
+                      <option value="">-- Tanpa Target --</option>
+                      {state.goals.map((g) => (
+                        <option key={g.id} value={g.id}>
+                          🎯 {g.title}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
                   <td className="py-3 px-4">
                     <span className={isOverdue ? 'text-life-rose font-bold' : 'text-life-muted font-bold'}>
                       {task.due ? formatDate(task.due) : '-'}
@@ -299,6 +325,25 @@ export default function ProjectsPage() {
               </div>
             </div>
 
+            <div className="flex flex-col space-y-1">
+              <label htmlFor="projectGoal" className="text-xs font-bold text-life-muted uppercase">
+                Hubungkan ke Target (Goal)
+              </label>
+              <select
+                id="projectGoal"
+                value={projectGoalId}
+                onChange={(e) => setProjectGoalId(e.target.value)}
+                className="glass-select text-xs"
+              >
+                <option value="">-- Tanpa Target --</option>
+                {state.goals.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    🎯 {g.title} ({g.progress}%)
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <Button type="submit" variant="primary" icon="plus" className="w-full">
               {t('projects_add_btn')}
             </Button>
@@ -384,6 +429,25 @@ export default function ProjectsPage() {
               </div>
             </div>
 
+            <div className="flex flex-col space-y-1">
+              <label htmlFor="taskGoal" className="text-xs font-bold text-life-muted uppercase">
+                Hubungkan ke Target (Goal)
+              </label>
+              <select
+                id="taskGoal"
+                value={taskGoalId}
+                onChange={(e) => setTaskGoalId(e.target.value)}
+                className="glass-select text-xs"
+              >
+                <option value="">-- Tanpa Target --</option>
+                {state.goals.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    🎯 {g.title} ({g.progress}%)
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <Button type="submit" variant="primary" icon="plus" className="w-full">
               {t('tasks_add_btn')}
             </Button>
@@ -465,11 +529,25 @@ export default function ProjectsPage() {
                   className="p-4 rounded-xl bg-white/[0.005] border border-life-line hover:border-life-line-strong hover:bg-white/[0.01] transition-all space-y-3"
                 >
                   <div className="flex justify-between items-start">
-                    <div>
+                    <div className="space-y-1">
                       <strong className="text-sm text-life-text block tracking-tight">{proj.name}</strong>
-                      <span className="text-[10px] font-bold text-life-muted uppercase tracking-wider">
-                        Area: {proj.area || 'Inbox'} / {projTasks.length} Tasks
-                      </span>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[10px] font-bold text-life-muted uppercase tracking-wider">
+                          Area: {proj.area || 'Inbox'} / {projTasks.length} Tasks
+                        </span>
+                        <select
+                          value={proj.goalId || ''}
+                          onChange={(e) => updateProjectGoal(proj.id, e.target.value || null)}
+                          className="glass-select py-0.5 px-1.5 text-[9px] bg-black/40 border border-white/5 text-life-muted hover:text-life-text focus:text-life-text"
+                        >
+                          <option value="">🎯 -- Hubungkan Goal --</option>
+                          {state.goals.map((g) => (
+                            <option key={g.id} value={g.id}>
+                              🎯 {g.title}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
 
                     <div className="flex items-center space-x-2">

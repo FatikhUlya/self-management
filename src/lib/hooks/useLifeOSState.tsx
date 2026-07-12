@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from 'react';
 import { supabase as supabaseClient, isSupabaseConfigured } from '@/lib/supabase/client';
 import { createCalendarEvent, deleteCalendarEvent } from '../google-calendar';
 import { todayISO, generateId, clamp } from '@/lib/utils';
@@ -53,12 +53,14 @@ export interface Project {
   name: string;
   area: string;
   status: 'active' | 'paused' | 'done';
+  goalId?: string;
   createdAt: string;
 }
 
 export interface Task {
   id: string;
   projectId: string; // empty string for Inbox
+  goalId?: string;
   title: string;
   due: string;
   priority: 'Low' | 'Medium' | 'High';
@@ -105,6 +107,9 @@ export interface LearningSession {
   status: 'to_learn' | 'learning' | 'completed';
   minutes: number;
   notes: string;
+  notesCues?: string;
+  notesNotes?: string;
+  notesSummary?: string;
   createdAt: string;
 }
 
@@ -268,6 +273,8 @@ interface LifeOSContextProps {
   addTask: (task: Omit<Task, 'id' | 'createdAt' | 'status' | 'completedAt'>) => Promise<void>;
   updateTaskStatus: (id: string, status: 'todo' | 'doing' | 'done') => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
+  updateProjectGoal: (id: string, goalId: string | null) => Promise<void>;
+  updateTaskGoal: (id: string, goalId: string | null) => Promise<void>;
 
   // Goals
   addGoal: (goal: Omit<Goal, 'id' | 'createdAt'>) => Promise<void>;
@@ -283,6 +290,7 @@ interface LifeOSContextProps {
   // Learning
   addLearningSession: (session: Omit<LearningSession, 'id' | 'createdAt'>) => Promise<void>;
   deleteLearningSession: (id: string) => Promise<void>;
+  updateLearningSessionNotes: (id: string, cues: string, notes: string, summary: string) => Promise<void>;
   addDictionaryEntry: (entry: Omit<DictionaryEntry, 'id' | 'createdAt'>) => Promise<void>;
   deleteDictionaryEntry: (id: string) => Promise<void>;
 
@@ -469,6 +477,9 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  const userId = user?.id;
+  const userEmail = user?.email;
+
   // ── Step 2: Load data ONLY after auth is resolved ──
   useEffect(() => {
     if (!authResolved) return;
@@ -477,12 +488,12 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
       setLoading(true);
 
       // ── Logged in → Supabase is the ONLY source of truth ──
-      if (isDbConnected && user) {
+      if (isDbConnected && userId) {
         try {
           // 1. Ensure user row exists in public.users table to satisfy foreign keys
           const { error: userUpsertError } = await supabase.from('users').upsert({
-            id: user.id,
-            email: user.email
+            id: userId,
+            email: userEmail
           }, { onConflict: 'id' });
 
           if (userUpsertError) {
@@ -515,24 +526,24 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
             { data: financialGoalsData },
             { data: dictionaryData, error: dictionaryError },
           ] = await Promise.all([
-            supabase.from('ideas').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
-            supabase.from('journals').select('*').eq('user_id', user.id).order('date', { ascending: false }),
-            supabase.from('next_day_plans').select('*').eq('user_id', user.id).order('date', { ascending: false }),
-            supabase.from('projects').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
-            supabase.from('tasks').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
-            supabase.from('goals').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
-            supabase.from('habits').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
-            supabase.from('habit_logs').select('*').eq('user_id', user.id),
-            supabase.from('learning_sessions').select('*').eq('user_id', user.id).order('date', { ascending: false }),
-            supabase.from('weight_logs').select('*').eq('user_id', user.id).order('date', { ascending: false }),
-            supabase.from('meals').select('*').eq('user_id', user.id).order('date', { ascending: false }),
-            supabase.from('workouts').select('*, workout_exercises(*, workout_sets(*))').eq('user_id', user.id).order('date', { ascending: false }),
-            supabase.from('health_profiles').select('*').eq('user_id', user.id),
-            supabase.from('work_applications').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
-            supabase.from('reviews').select('*').eq('user_id', user.id).order('date', { ascending: false }),
-            supabase.from('transactions').select('*').eq('user_id', user.id).order('date', { ascending: false }),
-            supabase.from('financial_goals').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
-            supabase.from('dictionary').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
+            supabase.from('ideas').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+            supabase.from('journals').select('*').eq('user_id', userId).order('date', { ascending: false }),
+            supabase.from('next_day_plans').select('*').eq('user_id', userId).order('date', { ascending: false }),
+            supabase.from('projects').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+            supabase.from('tasks').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+            supabase.from('goals').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+            supabase.from('habits').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+            supabase.from('habit_logs').select('*').eq('user_id', userId),
+            supabase.from('learning_sessions').select('*').eq('user_id', userId).order('date', { ascending: false }),
+            supabase.from('weight_logs').select('*').eq('user_id', userId).order('date', { ascending: false }),
+            supabase.from('meals').select('*').eq('user_id', userId).order('date', { ascending: false }),
+            supabase.from('workouts').select('*, workout_exercises(*, workout_sets(*))').eq('user_id', userId).order('date', { ascending: false }),
+            supabase.from('health_profiles').select('*').eq('user_id', userId),
+            supabase.from('work_applications').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+            supabase.from('reviews').select('*').eq('user_id', userId).order('date', { ascending: false }),
+            supabase.from('transactions').select('*').eq('user_id', userId).order('date', { ascending: false }),
+            supabase.from('financial_goals').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+            supabase.from('dictionary').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
           ]);
 
           let dictEntries: any[] = [];
@@ -591,11 +602,13 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
               name: p.name,
               area: p.area,
               status: p.status,
+              goalId: p.goal_id || '',
               createdAt: p.created_at || p.createdAt
             })),
             tasks: (tasks as any[] || []).map(t => ({
               id: t.id,
               projectId: t.project_id || '',
+              goalId: t.goal_id || '',
               title: t.title,
               due: t.due || '',
               priority: t.priority,
@@ -638,6 +651,9 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
               status: l.status,
               minutes: l.minutes || 0,
               notes: l.notes || '',
+              notesCues: l.notes_cues || '',
+              notesNotes: l.notes_notes || '',
+              notesSummary: l.notes_summary || '',
               createdAt: l.created_at || l.createdAt
             })),
             weightLogs: (weightLogs as any[] || []).map(w => ({
@@ -746,7 +762,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
     }
 
     loadData();
-  }, [authResolved, user, isDbConnected]);
+  }, [authResolved, userId, userEmail, isDbConnected]);
 
   // Update state (Supabase writes happen in individual CRUD functions)
   const updateStateAndPersist = useCallback((updater: (prev: LifeOSState) => LifeOSState) => {
@@ -1025,7 +1041,8 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
           user_id: user.id,
           name: item.name,
           area: item.area,
-          status: item.status
+          status: item.status,
+          goal_id: item.goalId || null
         });
         checkError(error, 'addProject');
       }
@@ -1084,6 +1101,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
           id: item.id,
           user_id: user.id,
           project_id: item.projectId || null,
+          goal_id: item.goalId || null,
           title: item.title,
           due: item.due || null,
           priority: item.priority,
@@ -1141,6 +1159,30 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
     if (isDbConnected) {
       const { error } = await supabase.from('tasks').delete().eq('id', id);
       checkError(error, 'deleteTask');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const updateProjectGoal = useCallback(async (id: string, goalId: string | null) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      projects: prev.projects.map(p => p.id === id ? { ...p, goalId: goalId || '' } : p)
+    }));
+
+    if (isDbConnected) {
+      const { error } = await supabase.from('projects').update({ goal_id: goalId || null }).eq('id', id);
+      checkError(error, 'updateProjectGoal');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const updateTaskGoal = useCallback(async (id: string, goalId: string | null) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      tasks: prev.tasks.map(t => t.id === id ? { ...t, goalId: goalId || '' } : t)
+    }));
+
+    if (isDbConnected) {
+      const { error } = await supabase.from('tasks').update({ goal_id: goalId || null }).eq('id', id);
+      checkError(error, 'updateTaskGoal');
     }
   }, [isDbConnected, updateStateAndPersist, checkError]);
 
@@ -1323,6 +1365,9 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
     const item: LearningSession = {
       ...newSession,
       id: generateId(),
+      notesCues: '',
+      notesNotes: '',
+      notesSummary: '',
       createdAt: new Date().toISOString()
     };
 
@@ -1338,7 +1383,10 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
           link: item.link,
           status: item.status,
           minutes: item.minutes,
-          notes: item.notes
+          notes: item.notes,
+          notes_cues: item.notesCues,
+          notes_notes: item.notesNotes,
+          notes_summary: item.notesSummary
         });
         checkError(error, 'addLearningSession');
       }
@@ -1359,6 +1407,22 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
     if (isDbConnected) {
       const { error } = await supabase.from('learning_sessions').delete().eq('id', id);
       checkError(error, 'deleteLearningSession');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const updateLearningSessionNotes = useCallback(async (id: string, cues: string, notes: string, summary: string) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      learning: prev.learning.map(l => l.id === id ? { ...l, notesCues: cues, notesNotes: notes, notesSummary: summary } : l)
+    }));
+
+    if (isDbConnected) {
+      const { error } = await supabase.from('learning_sessions').update({
+        notes_cues: cues,
+        notes_notes: notes,
+        notes_summary: summary
+      }).eq('id', id);
+      checkError(error, 'updateLearningSessionNotes');
     }
   }, [isDbConnected, updateStateAndPersist, checkError]);
 
@@ -1840,10 +1904,37 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
     }
   }, [isDbConnected, updateStateAndPersist, checkError]);
 
+  // Dynamically compute goal progress based on linked projects and tasks
+  const processedGoals = useMemo(() => {
+    return state.goals.map(goal => {
+      // Find projects linked to this goal
+      const linkedProjects = state.projects.filter(p => p.goalId === goal.id);
+      const linkedProjectIds = linkedProjects.map(p => p.id);
+
+      // Find tasks linked directly to this goal OR via linked projects
+      const linkedTasks = state.tasks.filter(t => 
+        t.goalId === goal.id || 
+        (t.projectId && linkedProjectIds.includes(t.projectId))
+      );
+
+      if (linkedTasks.length > 0) {
+        const completedCount = linkedTasks.filter(t => t.status === 'done').length;
+        const progress = Math.round((completedCount / linkedTasks.length) * 100);
+        return { ...goal, progress };
+      }
+      return goal;
+    });
+  }, [state.goals, state.projects, state.tasks]);
+
+  const memoizedState = useMemo(() => ({
+    ...state,
+    goals: processedGoals
+  }), [state, processedGoals]);
+
   return (
     <LifeOSContext.Provider
       value={{
-        state,
+        state: memoizedState,
         loading,
         isDbConnected,
         user,
@@ -1866,6 +1957,8 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
         addTask,
         updateTaskStatus,
         deleteTask,
+        updateProjectGoal,
+        updateTaskGoal,
         addGoal,
         updateGoalProgress,
         deleteGoal,
@@ -1875,6 +1968,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
         deleteHabit,
         addLearningSession,
         deleteLearningSession,
+        updateLearningSessionNotes,
         addDictionaryEntry,
         deleteDictionaryEntry,
         updateHealthProfile,

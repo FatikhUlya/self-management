@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { Brain } from 'lucide-react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
+import { useLocalStorageState } from '@/lib/hooks/useLocalStorageState';
 import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
 import { MetricCard } from '@/components/ui/MetricCard';
@@ -37,10 +38,10 @@ export default function Dashboard() {
   const { t, locale } = useI18n();
 
   // Quick Capture Form State
-  const [ideaTitle, setIdeaTitle] = useState('');
-  const [ideaArea, setIdeaArea] = useState('');
-  const [ideaPriority, setIdeaPriority] = useState<Priority>('Medium');
-  const [ideaNotes, setIdeaNotes] = useState('');
+  const [ideaTitle, setIdeaTitle] = useLocalStorageState('draft_dashboard_ideaTitle', '');
+  const [ideaArea, setIdeaArea] = useLocalStorageState('draft_dashboard_ideaArea', '');
+  const [ideaPriority, setIdeaPriority] = useLocalStorageState<Priority>('draft_dashboard_ideaPriority', 'Medium');
+  const [ideaNotes, setIdeaNotes] = useLocalStorageState('draft_dashboard_ideaNotes', '');
 
   // Local helper functions
   const today = state.selectedDate;

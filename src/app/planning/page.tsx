@@ -174,14 +174,25 @@ export default function PlanningPage() {
     }
   }, [state.nextDayPlans, deletePlan]);
 
+  // Pre-load Google Calendar client on mount to prevent popup blocker on manual sync
+  useEffect(() => {
+    if (isGoogleCalendarConfigured()) {
+      initGoogleCalendar().catch((err) => console.error('[Planning] Pre-load GCal failed:', err));
+    }
+  }, []);
+
   const handleGoogleSync = async () => {
     setGcalSyncing(true);
     try {
-      const initSuccess = await initGoogleCalendar();
-      if (!initSuccess) {
-        alert('Gagal inisialisasi Google API client. Periksa setup di docs/google-calendar-setup.md.');
-        setGcalSyncing(false);
-        return;
+      // Check if GCal is already initialized to bypass await and prevent popup blocker
+      const isLoaded = typeof window !== 'undefined' && !!window.gapi?.client?.calendar && !!window.google?.accounts?.oauth2;
+      if (!isLoaded) {
+        const initSuccess = await initGoogleCalendar();
+        if (!initSuccess) {
+          alert('Gagal inisialisasi Google API client. Periksa setup di docs/google-calendar-setup.md.');
+          setGcalSyncing(false);
+          return;
+        }
       }
 
       const token = await signInGoogle();

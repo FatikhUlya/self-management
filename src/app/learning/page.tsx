@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
+import { useLocalStorageState } from '@/lib/hooks/useLocalStorageState';
 import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
 import { Button } from '@/components/ui/Button';
@@ -18,6 +19,7 @@ export default function LearningPage() {
     state, 
     addLearningSession, 
     deleteLearningSession,
+    updateLearningSessionNotes,
     addDictionaryEntry,
     deleteDictionaryEntry 
   } = useLifeOS();
@@ -38,19 +40,38 @@ export default function LearningPage() {
   };
 
   // Study Session Form states
-  const [topic, setTopic] = useState('');
-  const [resource, setResource] = useState('');
-  const [link, setLink] = useState('');
-  const [status, setStatus] = useState<LearningStatus>('learning');
-  const [date, setDate] = useState(state.selectedDate);
-  const [minutes, setMinutes] = useState<number>(30);
-  const [notes, setNotes] = useState('');
+  const [topic, setTopic] = useLocalStorageState('draft_learning_topic', '');
+  const [resource, setResource] = useLocalStorageState('draft_learning_resource', '');
+  const [link, setLink] = useLocalStorageState('draft_learning_link', '');
+  const [status, setStatus] = useLocalStorageState<LearningStatus>('draft_learning_status', 'learning');
+  const [date, setDate] = useLocalStorageState('draft_learning_date', state.selectedDate);
+  const [minutes, setMinutes] = useLocalStorageState<number>('draft_learning_minutes', 30);
+  const [notes, setNotes] = useLocalStorageState('draft_learning_notes', '');
+
+  // Cornell Notes Modal states
+  const [isCornellModalOpen, setIsCornellModalOpen] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<any | null>(null);
+  const [cues, setCues] = useLocalStorageState(
+    selectedSession ? `draft_cornell_cues_${selectedSession.id}` : 'draft_cornell_cues_temp', 
+    ''
+  );
+  const [notesContent, setNotesContent] = useLocalStorageState(
+    selectedSession ? `draft_cornell_notes_${selectedSession.id}` : 'draft_cornell_notes_temp', 
+    ''
+  );
+  const [summary, setSummary] = useLocalStorageState(
+    selectedSession ? `draft_cornell_summary_${selectedSession.id}` : 'draft_cornell_summary_temp', 
+    ''
+  );
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Dictionary states
-  const [indonesianWord, setIndonesianWord] = useState('');
-  const [translatedWord, setTranslatedWord] = useState('');
-  const [vocabLanguage, setVocabLanguage] = useState('English');
-  const [customLanguage, setCustomLanguage] = useState('');
+  const [indonesianWord, setIndonesianWord] = useLocalStorageState('draft_dict_indonesian', '');
+  const [translatedWord, setTranslatedWord] = useLocalStorageState('draft_dict_translated', '');
+  const [vocabLanguage, setVocabLanguage] = useLocalStorageState('draft_dict_language', 'English');
+  const [customLanguage, setCustomLanguage] = useLocalStorageState('draft_dict_customLanguage', '');
   const [isSummaryOpen, setIsSummaryOpen] = useState(false);
   const [copiedNotification, setCopiedNotification] = useState(false);
   const [selectedFilterLang, setSelectedFilterLang] = useState<string | null>(null);
@@ -66,6 +87,22 @@ export default function LearningPage() {
     const next = vocabFlipDirection === 'indo-target' ? 'target-indo' : 'indo-target';
     setVocabFlipDirection(next);
     localStorage.setItem('lifeos_dictionary_flip', next);
+  };
+
+  const handleOpenCornellNotes = (session: any) => {
+    setSelectedSession(session);
+    setCues(session.notesCues || '');
+    setNotesContent(session.notesNotes || '');
+    setSummary(session.notesSummary || '');
+    setIsCornellModalOpen(true);
+  };
+
+  const handleSaveCornellNotes = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedSession) return;
+    await updateLearningSessionNotes(selectedSession.id, cues, notesContent, summary);
+    setIsCornellModalOpen(false);
+    setSelectedSession(null);
   };
 
   const [exportLanguageFilter, setExportLanguageFilter] = useState<string>('all');
@@ -126,6 +163,17 @@ export default function LearningPage() {
   const renderStatusLane = (laneStatus: LearningStatus, titleKey: string) => {
     const laneItems = state.learning
       .filter((item) => item.status === laneStatus)
+      .filter((item) => {
+        if (!searchQuery.trim()) return true;
+        const query = searchQuery.toLowerCase();
+        return (
+          item.topic.toLowerCase().includes(query) ||
+          item.notes.toLowerCase().includes(query) ||
+          (item.notesCues && item.notesCues.toLowerCase().includes(query)) ||
+          (item.notesNotes && item.notesNotes.toLowerCase().includes(query)) ||
+          (item.notesSummary && item.notesSummary.toLowerCase().includes(query))
+        );
+      })
       .sort((a, b) => b.date.localeCompare(a.date));
 
     return (
@@ -172,6 +220,17 @@ export default function LearningPage() {
                         <Icon name="arrowRight" size={12} />
                       </a>
                     )}
+                    <button
+                      onClick={() => handleOpenCornellNotes(item)}
+                      className={`p-1 transition-colors ${
+                        item.notesNotes || item.notesCues || item.notesSummary
+                          ? 'text-teal-400 hover:text-teal-300'
+                          : 'text-life-muted hover:text-life-text'
+                      }`}
+                      title="Buka Catatan Cornell"
+                    >
+                      <Icon name="book" size={12} />
+                    </button>
                     <button
                       onClick={() => deleteLearningSession(item.id)}
                       className="text-life-muted hover:text-life-rose transition-colors p-1"
@@ -522,13 +581,38 @@ export default function LearningPage() {
 
       {/* Learning Status Kanban Board */}
       <Surface className="p-6">
-        <div className="border-b border-life-line pb-3 mb-4">
-          <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-            Daftar Target Belajar & Progres
-          </h3>
-          <p className="text-xs text-life-muted mt-0.5">
-            Eksplorasi software arsitektur (D5 Render, Figma, QGIS, dll)
-          </p>
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center border-b border-life-line pb-3 mb-4 gap-3">
+          <div>
+            <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
+              Daftar Target Belajar & Progres
+            </h3>
+            <p className="text-xs text-life-muted mt-0.5">
+              Eksplorasi software arsitektur (D5 Render, Figma, QGIS, dll)
+            </p>
+          </div>
+
+          {/* Search bar */}
+          <div className="relative w-full sm:w-64">
+            <input
+              type="text"
+              placeholder="Cari topik atau catatan..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="glass-input pl-8 text-xs w-full py-1.5"
+            />
+            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-life-muted text-[10px]">
+              🔍
+            </span>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-life-muted hover:text-life-text text-xs p-1"
+                title="Hapus pencarian"
+              >
+                ✕
+              </button>
+            )}
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-4 overflow-x-auto">
@@ -723,6 +807,85 @@ export default function LearningPage() {
                 ))}
           </div>
         </div>
+      </Modal>
+
+      {/* Cornell Notes Modal */}
+      <Modal
+        isOpen={isCornellModalOpen}
+        onClose={() => {
+          setIsCornellModalOpen(false);
+          setSelectedSession(null);
+        }}
+        title={`Catatan Cornell: ${selectedSession?.topic || ''}`}
+        subtitle="Metode Cornell: Hubungkan Pertanyaan (Cues), Catatan Detail (Notes), dan Rangkuman Akhir (Summary)."
+        size="lg"
+      >
+        <form onSubmit={handleSaveCornellNotes} className="space-y-4">
+          {/* Top side-by-side block */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Left Column: Cues/Questions (30%) */}
+            <div className="flex flex-col space-y-1 md:col-span-1 border-r border-white/5 pr-0 md:pr-4">
+              <label htmlFor="cornellCues" className="text-xs font-black text-teal-400 uppercase tracking-wider">
+                Cues / Pertanyaan
+              </label>
+              <p className="text-[9px] text-life-muted">Tulis kata kunci, pertanyaan kunci, atau penanda di sini.</p>
+              <textarea
+                id="cornellCues"
+                value={cues}
+                onChange={(e) => setCues(e.target.value)}
+                placeholder="Misal:&#10;- Apa itu REST API?&#10;- Ciri utama OOP...&#10;- Poin penting slide 3"
+                className="glass-input text-xs resize-none h-[280px] mt-1"
+              />
+            </div>
+
+            {/* Right Column: Detailed Notes (70%) */}
+            <div className="flex flex-col space-y-1 md:col-span-2">
+              <label htmlFor="cornellNotes" className="text-xs font-black text-indigo-400 uppercase tracking-wider">
+                Notes / Catatan Detail
+              </label>
+              <p className="text-[9px] text-life-muted">Tulis rangkuman rinci, poin-poin penting, atau contoh kode di sini.</p>
+              <textarea
+                id="cornellNotes"
+                value={notesContent}
+                onChange={(e) => setNotesContent(e.target.value)}
+                placeholder="Tulis detail materi yang dipelajari di sini secara lengkap..."
+                className="glass-input text-xs resize-none h-[280px] mt-1"
+              />
+            </div>
+          </div>
+
+          {/* Bottom portion: Summary (Full width) */}
+          <div className="flex flex-col space-y-1 pt-3 border-t border-white/5">
+            <label htmlFor="cornellSummary" className="text-xs font-black text-amber-500 uppercase tracking-wider font-semibold">
+              Summary / Rangkuman
+            </label>
+            <p className="text-[9px] text-life-muted">Kesimpulan singkat sesi belajar ini dalam 2-3 kalimat.</p>
+            <textarea
+              id="cornellSummary"
+              value={summary}
+              onChange={(e) => setSummary(e.target.value)}
+              placeholder="Tulis kesimpulan keseluruhan dari sesi belajar ini..."
+              className="glass-input text-xs resize-none h-[80px] mt-1"
+            />
+          </div>
+
+          {/* Buttons */}
+          <div className="flex justify-end gap-2 pt-2 border-t border-white/5 bg-white/[0.01] -mx-6 -mb-6 p-4">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setIsCornellModalOpen(false);
+                setSelectedSession(null);
+              }}
+            >
+              Batal
+            </Button>
+            <Button type="submit" variant="primary">
+              Simpan Catatan
+            </Button>
+          </div>
+        </form>
       </Modal>
     </div>
   );

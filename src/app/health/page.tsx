@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
+import { useLocalStorageState } from '@/lib/hooks/useLocalStorageState';
 import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
 import { Button } from '@/components/ui/Button';
@@ -52,23 +53,23 @@ export default function HealthPage() {
   const [mealGoal, setMealGoal] = useState<number | ''>(state.healthProfile.mealGoalCalories);
 
   // Weight form
-  const [weightValue, setWeightValue] = useState<string>('');
-  const [weightNotes, setWeightNotes] = useState<string>('');
+  const [weightValue, setWeightValue] = useLocalStorageState<string>('draft_health_weightValue', '');
+  const [weightNotes, setWeightNotes] = useLocalStorageState<string>('draft_health_weightNotes', '');
 
   // Meal form
-  const [mealType, setMealType] = useState<'Breakfast' | 'Lunch' | 'Dinner' | 'Snack'>('Breakfast');
-  const [mealFood, setMealFood] = useState('');
-  const [mealProtein, setMealProtein] = useState<number>(0);
-  const [mealCalories, setMealCalories] = useState<number>(0);
+  const [mealType, setMealType] = useLocalStorageState<'Breakfast' | 'Lunch' | 'Dinner' | 'Snack'>('draft_health_mealType', 'Breakfast');
+  const [mealFood, setMealFood] = useLocalStorageState('draft_health_mealFood', '');
+  const [mealProtein, setMealProtein] = useLocalStorageState<number>('draft_health_mealProtein', 0);
+  const [mealCalories, setMealCalories] = useLocalStorageState<number>('draft_health_mealCalories', 0);
 
   // Workout form
-  const [workoutProgram, setWorkoutProgram] = useState<string>('Push A');
-  const [workoutActivity, setWorkoutActivity] = useState('');
-  const [workoutMinutes, setWorkoutMinutes] = useState<number>(30);
-  const [workoutNotes, setWorkoutNotes] = useState('');
+  const [workoutProgram, setWorkoutProgram] = useLocalStorageState<string>('draft_health_workoutProgram', 'Push A');
+  const [workoutActivity, setWorkoutActivity] = useLocalStorageState('draft_health_workoutActivity', '');
+  const [workoutMinutes, setWorkoutMinutes] = useLocalStorageState<number>('draft_health_workoutMinutes', 30);
+  const [workoutNotes, setWorkoutNotes] = useLocalStorageState('draft_health_workoutNotes', '');
   
   // Sets draft state (stores: { "Bench Press": [{ weight: 60, reps: 8 }, ...] })
-  const [strengthSets, setStrengthSets] = useState<Record<string, { weight: string; reps: string }[]>>({});
+  const [strengthSets, setStrengthSets] = useLocalStorageState<Record<string, { weight: string; reps: string }[]>>('draft_health_strengthSets', {});
 
   // History selector
   const [historyExercise, setHistoryExercise] = useState<string>(allWorkoutExercises[0]);

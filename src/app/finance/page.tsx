@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
+import { useLocalStorageState } from '@/lib/hooks/useLocalStorageState';
 import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
 import { Button } from '@/components/ui/Button';
@@ -43,18 +44,18 @@ export default function FinancePage() {
   const { t } = useI18n();
 
   // Transaction form states
-  const [txTitle, setTxTitle] = useState('');
-  const [txAmount, setTxAmount] = useState('');
-  const [txType, setTxType] = useState<'income' | 'expense'>('expense');
-  const [txCategory, setTxCategory] = useState(EXPENSE_CATEGORIES[0]);
-  const [txNotes, setTxNotes] = useState('');
-  const [txDate, setTxDate] = useState(state.selectedDate);
+  const [txTitle, setTxTitle] = useLocalStorageState('draft_tx_title', '');
+  const [txAmount, setTxAmount] = useLocalStorageState('draft_tx_amount', '');
+  const [txType, setTxType] = useLocalStorageState<'income' | 'expense'>('draft_tx_type', 'expense');
+  const [txCategory, setTxCategory] = useLocalStorageState('draft_tx_category', EXPENSE_CATEGORIES[0]);
+  const [txNotes, setTxNotes] = useLocalStorageState('draft_tx_notes', '');
+  const [txDate, setTxDate] = useLocalStorageState('draft_tx_date', state.selectedDate);
 
   // Financial Goal form states
-  const [goalTitle, setGoalTitle] = useState('');
-  const [goalTarget, setGoalTarget] = useState('');
-  const [goalCurrent, setGoalCurrent] = useState('0');
-  const [goalDate, setGoalDate] = useState('');
+  const [goalTitle, setGoalTitle] = useLocalStorageState('draft_finance_goal_title', '');
+  const [goalTarget, setGoalTarget] = useLocalStorageState('draft_finance_goal_target', '');
+  const [goalCurrent, setGoalCurrent] = useLocalStorageState('draft_finance_goal_current', '0');
+  const [goalDate, setGoalDate] = useLocalStorageState('draft_finance_goal_date', '');
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
 
   // Quick adjustment state

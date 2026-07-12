@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
+import { useLocalStorageState } from '@/lib/hooks/useLocalStorageState';
 import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
 import { Button } from '@/components/ui/Button';
@@ -18,17 +19,32 @@ export default function JournalPage() {
   const today = state.selectedDate;
   const currentJournal = state.journals.find((j) => j.date === today);
 
-  // Form states
-  const [mood, setMood] = useState<number>(3);
-  const [energy, setEnergy] = useState<number>(3);
-  const [gratitude1, setGratitude1] = useState('');
-  const [gratitude2, setGratitude2] = useState('');
-  const [gratitude3, setGratitude3] = useState('');
-  const [win, setWin] = useState('');
-  const [reflection, setReflection] = useState('');
-  const [nextAction, setNextAction] = useState('');
+  // Helper to load draft safely
+  const getDraftOrValue = (key: string, fallback: any) => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(key);
+      if (saved !== null) {
+        try {
+          return JSON.parse(saved);
+        } catch {
+          return saved;
+        }
+      }
+    }
+    return fallback;
+  };
 
-  // Sync state if today's journal exists
+  // Form states
+  const [mood, setMood] = useLocalStorageState<number>(`draft_journal_mood_${today}`, 3);
+  const [energy, setEnergy] = useLocalStorageState<number>(`draft_journal_energy_${today}`, 3);
+  const [gratitude1, setGratitude1] = useLocalStorageState(`draft_journal_gratitude1_${today}`, '');
+  const [gratitude2, setGratitude2] = useLocalStorageState(`draft_journal_gratitude2_${today}`, '');
+  const [gratitude3, setGratitude3] = useLocalStorageState(`draft_journal_gratitude3_${today}`, '');
+  const [win, setWin] = useLocalStorageState(`draft_journal_win_${today}`, '');
+  const [reflection, setReflection] = useLocalStorageState(`draft_journal_reflection_${today}`, '');
+  const [nextAction, setNextAction] = useLocalStorageState(`draft_journal_nextAction_${today}`, '');
+
+  // Sync state if today's journal exists or load drafts
   useEffect(() => {
     if (currentJournal) {
       setMood(currentJournal.mood || 3);
@@ -40,14 +56,14 @@ export default function JournalPage() {
       setReflection(currentJournal.reflection || '');
       setNextAction(currentJournal.next || '');
     } else {
-      setMood(3);
-      setEnergy(3);
-      setGratitude1('');
-      setGratitude2('');
-      setGratitude3('');
-      setWin('');
-      setReflection('');
-      setNextAction('');
+      setMood(getDraftOrValue(`draft_journal_mood_${today}`, 3));
+      setEnergy(getDraftOrValue(`draft_journal_energy_${today}`, 3));
+      setGratitude1(getDraftOrValue(`draft_journal_gratitude1_${today}`, ''));
+      setGratitude2(getDraftOrValue(`draft_journal_gratitude2_${today}`, ''));
+      setGratitude3(getDraftOrValue(`draft_journal_gratitude3_${today}`, ''));
+      setWin(getDraftOrValue(`draft_journal_win_${today}`, ''));
+      setReflection(getDraftOrValue(`draft_journal_reflection_${today}`, ''));
+      setNextAction(getDraftOrValue(`draft_journal_nextAction_${today}`, ''));
     }
   }, [currentJournal, today]);
 
