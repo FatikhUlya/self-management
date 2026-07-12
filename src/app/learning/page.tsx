@@ -505,7 +505,7 @@ export default function LearningPage() {
                 }, {} as Record<string, number>)
               ).map(([lang, count]) => (
                 <Badge key={lang} tone="indigo">
-                  {lang}: {count} {locale === 'id' ? 'kata' : 'words'}
+                  {`${lang}: ${count} ${locale === 'id' ? 'kata' : 'words'}`}
                 </Badge>
               ))}
               {(state.dictionary || []).length === 0 && (
