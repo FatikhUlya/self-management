@@ -13,10 +13,19 @@ import { formatDate, lastSevenDays, dayName, inLastDays } from '@/lib/utils';
 import { LEARNING_STATUSES, LearningStatus } from '@/lib/constants';
 
 export default function LearningPage() {
-  const { state, addLearningSession, deleteLearningSession } = useLifeOS();
+  const { 
+    state, 
+    addLearningSession, 
+    deleteLearningSession,
+    addDictionaryEntry,
+    deleteDictionaryEntry 
+  } = useLifeOS();
   const { t, locale } = useI18n();
 
-  // Form states
+  // Tab state
+  const [activeTab, setActiveTab] = useState<'session' | 'dictionary'>('session');
+
+  // Study Session Form states
   const [topic, setTopic] = useState('');
   const [resource, setResource] = useState('');
   const [link, setLink] = useState('');
@@ -24,6 +33,14 @@ export default function LearningPage() {
   const [date, setDate] = useState(state.selectedDate);
   const [minutes, setMinutes] = useState<number>(30);
   const [notes, setNotes] = useState('');
+
+  // Dictionary states
+  const [indonesianWord, setIndonesianWord] = useState('');
+  const [translatedWord, setTranslatedWord] = useState('');
+  const [vocabLanguage, setVocabLanguage] = useState('English');
+  const [customLanguage, setCustomLanguage] = useState('');
+  const [isSummaryOpen, setIsSummaryOpen] = useState(false);
+  const [copiedNotification, setCopiedNotification] = useState(false);
 
   const totalMinutes7Days = state.learning
     .filter((item) => inLastDays(item.date, 7, state.selectedDate))
@@ -47,6 +64,23 @@ export default function LearningPage() {
     setResource('');
     setLink('');
     setNotes('');
+  };
+
+  const handleDictionarySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!indonesianWord.trim() || !translatedWord.trim()) return;
+
+    const language = vocabLanguage === 'Other' ? (customLanguage.trim() || 'Other') : vocabLanguage;
+
+    await addDictionaryEntry({
+      indonesian: indonesianWord.trim(),
+      translation: translatedWord.trim(),
+      language: language,
+    });
+
+    setIndonesianWord('');
+    setTranslatedWord('');
+    setCustomLanguage('');
   };
 
   // Grouping learning logs by status (To Learn, Learning, Completed)
@@ -130,130 +164,288 @@ export default function LearningPage() {
     <div className="space-y-6">
       {/* Forms & Chart Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left: Study Session Form */}
+        {/* Left: Study Session Form / Dictionary Tab */}
         <Surface className="p-6">
-          <div className="border-b border-life-line pb-3 mb-4">
-            <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-              {t('learning_session')}
-            </h3>
-            <p className="text-xs text-life-muted mt-0.5">
-              {totalMinutes7Days} {t('learning_in_7_days')}
-            </p>
+          <div className="flex justify-between items-center border-b border-life-line pb-3 mb-4">
+            <div className="flex gap-4 select-none">
+              <button
+                type="button"
+                onClick={() => setActiveTab('session')}
+                className={`text-sm font-bold uppercase tracking-wider border-b-2 pb-1.5 transition-all ${
+                  activeTab === 'session'
+                    ? 'border-life-teal text-life-text'
+                    : 'border-transparent text-life-muted hover:text-life-text'
+                }`}
+              >
+                {t('learning_session')}
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('dictionary')}
+                className={`text-sm font-bold uppercase tracking-wider border-b-2 pb-1.5 transition-all ${
+                  activeTab === 'dictionary'
+                    ? 'border-life-teal text-life-text'
+                    : 'border-transparent text-life-muted hover:text-life-text'
+                }`}
+              >
+                {t('dictionary_title')}
+              </button>
+            </div>
+            {activeTab === 'session' ? (
+              <p className="text-xs text-life-muted">
+                {totalMinutes7Days} {t('learning_in_7_days')}
+              </p>
+            ) : (
+              <p className="text-xs text-life-muted">
+                {(state.dictionary || []).length} {locale === 'id' ? 'kosa kata' : 'words'}
+              </p>
+            )}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="topic" className="text-xs font-bold text-life-muted uppercase">
-                  {t('learning_topic')}
-                </label>
-                <input
-                  id="topic"
-                  type="text"
-                  required
-                  placeholder="E.g. Figma components, D5 Render, QGIS..."
-                  value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
-                  className="glass-input text-sm"
-                />
+          {activeTab === 'session' && (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col space-y-1">
+                  <label htmlFor="topic" className="text-xs font-bold text-life-muted uppercase">
+                    {t('learning_topic')}
+                  </label>
+                  <input
+                    id="topic"
+                    type="text"
+                    required
+                    placeholder="E.g. Figma components, D5 Render, QGIS..."
+                    value={topic}
+                    onChange={(e) => setTopic(e.target.value)}
+                    className="glass-input text-sm"
+                  />
+                </div>
+
+                <div className="flex flex-col space-y-1">
+                  <label htmlFor="resource" className="text-xs font-bold text-life-muted uppercase">
+                    {t('learning_resource')}
+                  </label>
+                  <input
+                    id="resource"
+                    type="text"
+                    placeholder={t('learning_resource_placeholder')}
+                    value={resource}
+                    onChange={(e) => setResource(e.target.value)}
+                    className="glass-input text-xs"
+                  />
+                </div>
               </div>
 
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="resource" className="text-xs font-bold text-life-muted uppercase">
-                  {t('learning_resource')}
-                </label>
-                <input
-                  id="resource"
-                  type="text"
-                  placeholder={t('learning_resource_placeholder')}
-                  value={resource}
-                  onChange={(e) => setResource(e.target.value)}
-                  className="glass-input text-xs"
-                />
+              <div className="grid grid-cols-3 gap-3">
+                <div className="flex flex-col space-y-1">
+                  <label htmlFor="link" className="text-xs font-bold text-life-muted uppercase">
+                    {t('learning_link')}
+                  </label>
+                  <input
+                    id="link"
+                    type="url"
+                    placeholder={t('learning_link_placeholder')}
+                    value={link}
+                    onChange={(e) => setLink(e.target.value)}
+                    className="glass-input text-xs"
+                  />
+                </div>
+
+                <div className="flex flex-col space-y-1">
+                  <label htmlFor="status" className="text-xs font-bold text-life-muted uppercase">
+                    {t('learning_status')}
+                  </label>
+                  <select
+                    id="status"
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value as LearningStatus)}
+                    className="glass-select text-xs"
+                  >
+                    <option value="to_learn">{t('learning_to_learn')}</option>
+                    <option value="learning">{t('learning_learning')}</option>
+                    <option value="completed">{t('learning_completed')}</option>
+                  </select>
+                </div>
+
+                <div className="flex flex-col space-y-1">
+                  <label htmlFor="minutes" className="text-xs font-bold text-life-muted uppercase">
+                    {t('learning_minutes')}
+                  </label>
+                  <input
+                    id="minutes"
+                    type="number"
+                    min="1"
+                    required
+                    value={minutes}
+                    onChange={(e) => setMinutes(Number(e.target.value))}
+                    className="glass-input text-xs"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col space-y-1">
+                  <label htmlFor="date" className="text-xs font-bold text-life-muted uppercase">
+                    {t('learning_date')}
+                  </label>
+                  <input
+                    id="date"
+                    type="date"
+                    required
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="glass-input text-xs"
+                  />
+                </div>
+
+                <div className="flex flex-col space-y-1">
+                  <label htmlFor="notes" className="text-xs font-bold text-life-muted uppercase">
+                    {t('notes')}
+                  </label>
+                  <input
+                    id="notes"
+                    type="text"
+                    placeholder="Catatan ringkas pelajaran..."
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    className="glass-input text-xs"
+                  />
+                </div>
+              </div>
+
+              <Button type="submit" variant="primary" icon="plus" className="w-full">
+                {t('learning_add_btn')}
+              </Button>
+            </form>
+          )}
+
+          {activeTab === 'dictionary' && (
+            <div className="space-y-4">
+              <form onSubmit={handleDictionarySubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col space-y-1">
+                    <label htmlFor="indoWord" className="text-xs font-bold text-life-muted uppercase">
+                      {t('dictionary_indo')}
+                    </label>
+                    <input
+                      id="indoWord"
+                      type="text"
+                      required
+                      placeholder="Contoh: Selamat pagi, Kopi, Kucing..."
+                      value={indonesianWord}
+                      onChange={(e) => setIndonesianWord(e.target.value)}
+                      className="glass-input text-sm"
+                    />
+                  </div>
+
+                  <div className="flex flex-col space-y-1">
+                    <label htmlFor="targetWord" className="text-xs font-bold text-life-muted uppercase">
+                      {t('dictionary_target')}
+                    </label>
+                    <input
+                      id="targetWord"
+                      type="text"
+                      required
+                      placeholder="Contoh: Good morning, Coffee, Cat..."
+                      value={translatedWord}
+                      onChange={(e) => setTranslatedWord(e.target.value)}
+                      className="glass-input text-sm"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 items-end">
+                  <div className="flex flex-col space-y-1">
+                    <label htmlFor="vocabLang" className="text-xs font-bold text-life-muted uppercase">
+                      {t('dictionary_lang')}
+                    </label>
+                    <select
+                      id="vocabLang"
+                      value={vocabLanguage}
+                      onChange={(e) => setVocabLanguage(e.target.value)}
+                      className="glass-select text-xs"
+                    >
+                      <option value="English">English</option>
+                      <option value="Japanese">Japanese</option>
+                      <option value="Mandarin">Mandarin</option>
+                      <option value="Arabic">Arabic</option>
+                      <option value="French">French</option>
+                      <option value="German">German</option>
+                      <option value="Korean">Korean</option>
+                      <option value="Other">Lainnya (Tulis Sendiri)</option>
+                    </select>
+                  </div>
+
+                  {vocabLanguage === 'Other' && (
+                    <div className="flex flex-col space-y-1">
+                      <label htmlFor="customLang" className="text-xs font-bold text-life-muted uppercase">
+                        Bahasa Kustom
+                      </label>
+                      <input
+                        id="customLang"
+                        type="text"
+                        required
+                        placeholder="Nama Bahasa..."
+                        value={customLanguage}
+                        onChange={(e) => setCustomLanguage(e.target.value)}
+                        className="glass-input text-xs"
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex gap-2">
+                    <Button type="submit" variant="primary" className="flex-1 text-xs py-2">
+                      {t('dictionary_add_btn')}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className="text-xs py-2"
+                      onClick={() => setIsSummaryOpen(true)}
+                    >
+                      {t('dictionary_summary_btn')}
+                    </Button>
+                  </div>
+                </div>
+              </form>
+
+              {/* Added Vocabulary List */}
+              <div className="border-t border-life-line pt-3 mt-4">
+                <h4 className="text-xs font-black uppercase text-life-muted tracking-wider mb-2">
+                  {locale === 'id' ? 'Daftar Kosa Kata' : 'Vocabulary List'}
+                </h4>
+                <div className="space-y-1 max-h-[140px] overflow-y-auto pr-1">
+                  {(state.dictionary || []).length > 0 ? (
+                    (state.dictionary || []).map((entry) => (
+                      <div
+                        key={entry.id}
+                        className="flex items-center justify-between p-2 rounded bg-white/[0.01] border border-life-line text-xs"
+                      >
+                        <div className="min-w-0">
+                          <span className="font-bold text-life-text">{entry.indonesian}</span>
+                          <span className="text-life-muted mx-1.5">➔</span>
+                          <span className="text-teal-400 font-bold">{entry.translation}</span>
+                          <Badge tone="teal" className="ml-2 py-0 px-1 text-[8px]">
+                            {entry.language}
+                          </Badge>
+                        </div>
+                        <button
+                          onClick={() => deleteDictionaryEntry(entry.id)}
+                          className="text-life-muted hover:text-life-rose transition-colors p-1"
+                          title={t('delete')}
+                        >
+                          <Icon name="trash" size={10} />
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-[11px] text-life-muted italic text-center py-2">
+                      {t('no_data')}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
-
-            <div className="grid grid-cols-3 gap-3">
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="link" className="text-xs font-bold text-life-muted uppercase">
-                  {t('learning_link')}
-                </label>
-                <input
-                  id="link"
-                  type="url"
-                  placeholder={t('learning_link_placeholder')}
-                  value={link}
-                  onChange={(e) => setLink(e.target.value)}
-                  className="glass-input text-xs"
-                />
-              </div>
-
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="status" className="text-xs font-bold text-life-muted uppercase">
-                  {t('learning_status')}
-                </label>
-                <select
-                  id="status"
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value as LearningStatus)}
-                  className="glass-select text-xs"
-                >
-                  <option value="to_learn">{t('learning_to_learn')}</option>
-                  <option value="learning">{t('learning_learning')}</option>
-                  <option value="completed">{t('learning_completed')}</option>
-                </select>
-              </div>
-
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="minutes" className="text-xs font-bold text-life-muted uppercase">
-                  {t('learning_minutes')}
-                </label>
-                <input
-                  id="minutes"
-                  type="number"
-                  min="1"
-                  required
-                  value={minutes}
-                  onChange={(e) => setMinutes(Number(e.target.value))}
-                  className="glass-input text-xs"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="date" className="text-xs font-bold text-life-muted uppercase">
-                  {t('learning_date')}
-                </label>
-                <input
-                  id="date"
-                  type="date"
-                  required
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="glass-input text-xs"
-                />
-              </div>
-
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="notes" className="text-xs font-bold text-life-muted uppercase">
-                  {t('notes')}
-                </label>
-                <input
-                  id="notes"
-                  type="text"
-                  placeholder="Catatan ringkas pelajaran..."
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  className="glass-input text-xs"
-                />
-              </div>
-            </div>
-
-            <Button type="submit" variant="primary" icon="plus" className="w-full">
-              {t('learning_add_btn')}
-            </Button>
-          </form>
+          )}
         </Surface>
 
         {/* Right: Learning Chart */}
@@ -286,6 +478,93 @@ export default function LearningPage() {
           {renderStatusLane('completed', 'learning_completed')}
         </div>
       </Surface>
+
+      {/* Dictionary Language Summary & NotebookLM Export Modal */}
+      <Modal
+        isOpen={isSummaryOpen}
+        onClose={() => {
+          setIsSummaryOpen(false);
+          setCopiedNotification(false);
+        }}
+        title={t('dictionary_summary_title')}
+        subtitle={locale === 'id' ? 'Ekspor data kosa kata Anda untuk NotebookLM' : 'Export vocabulary list to NotebookLM'}
+      >
+        <div className="space-y-4">
+          {/* Classification Summary */}
+          <div className="bg-white/[0.01] border border-life-line rounded-xl p-3.5 space-y-2">
+            <h4 className="text-xs font-black uppercase text-life-muted tracking-wider">
+              {locale === 'id' ? 'Klasifikasi Bahasa' : 'Language Breakdown'}
+            </h4>
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(
+                (state.dictionary || []).reduce((acc, entry) => {
+                  const lang = entry.language || 'English';
+                  acc[lang] = (acc[lang] || 0) + 1;
+                  return acc;
+                }, {} as Record<string, number>)
+              ).map(([lang, count]) => (
+                <Badge key={lang} tone="indigo">
+                  {lang}: {count} {locale === 'id' ? 'kata' : 'words'}
+                </Badge>
+              ))}
+              {(state.dictionary || []).length === 0 && (
+                <p className="text-xs text-life-muted italic">{t('no_data')}</p>
+              )}
+            </div>
+          </div>
+
+          {/* Export Box */}
+          <div className="flex flex-col space-y-1">
+            <label className="text-xs font-bold text-life-muted uppercase">
+              Data Raw untuk NotebookLM
+            </label>
+            <textarea
+              readOnly
+              value={
+                (state.dictionary || []).length > 0
+                  ? `Kamus Pribadi (My Dictionary) - Ekspor NotebookLM\nFormat: Bahasa Indonesia => Bahasa Asing (Klasifikasi)\n\n` +
+                    (state.dictionary || []).map((e, i) => `${i + 1}. ${e.indonesian} => ${e.translation} (${e.language})`).join('\n')
+                  : 'Kamus masih kosong. Silakan masukkan beberapa kata terlebih dahulu.'
+              }
+              rows={6}
+              className="glass-input text-xs font-mono p-2.5 resize-none bg-black/25 select-all"
+            />
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button
+              onClick={async () => {
+                const text = `Kamus Pribadi (My Dictionary) - Ekspor NotebookLM\nFormat: Bahasa Indonesia => Bahasa Asing (Klasifikasi)\n\n` +
+                  (state.dictionary || []).map((e, i) => `${i + 1}. ${e.indonesian} => ${e.translation} (${e.language})`).join('\n');
+                await navigator.clipboard.writeText(text);
+                setCopiedNotification(true);
+                setTimeout(() => setCopiedNotification(false), 2000);
+              }}
+              variant={copiedNotification ? 'success' : 'primary'}
+              className="flex-1 text-xs"
+              disabled={(state.dictionary || []).length === 0}
+            >
+              {copiedNotification ? t('dictionary_copied') : t('dictionary_notebooklm_btn')}
+            </Button>
+
+            <a
+              href="https://notebooklm.google.com/"
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-text hover:text-white rounded-lg transition-all"
+            >
+              <Icon name="globe" size={12} />
+              {t('dictionary_notebooklm_link')}
+            </a>
+          </div>
+
+          <p className="text-[10px] text-life-muted leading-relaxed">
+            {locale === 'id'
+              ? '* NotebookLM Tips: Salin data di atas, lalu buka Google NotebookLM dan tempelkan sebagai source (sumber catatan baru). NotebookLM akan bisa mengolah daftar kosa kata tersebut menjadi kuis interaktif maupun flashcard secara otomatis.'
+              : '* NotebookLM Tips: Copy the data above, then open Google NotebookLM and paste it as a new source notes. NotebookLM can then process the vocabulary list to automatically generate interactive quizzes or flashcards.'}
+          </p>
+        </div>
+      </Modal>
     </div>
   );
 }

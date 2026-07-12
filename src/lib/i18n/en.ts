@@ -236,6 +236,18 @@ export const en: Record<TranslationKey, string> = {
   learning_saved: 'sessions saved',
   learning_no_notes: 'No notes',
 
+  // Dictionary
+  dictionary_title: 'My Dictionary',
+  dictionary_indo: 'Indonesian',
+  dictionary_target: 'Foreign / English',
+  dictionary_lang: 'Language Classification',
+  dictionary_add_btn: 'Add Word',
+  dictionary_summary_btn: 'Language Summary',
+  dictionary_summary_title: 'Language Summary & NotebookLM Export',
+  dictionary_notebooklm_btn: 'Copy Data for NotebookLM',
+  dictionary_notebooklm_link: 'Open Google NotebookLM',
+  dictionary_copied: 'Dictionary data copied!',
+
   // Health
   health_title: 'Health & Fitness',
   health_tdee_profile: 'TDEE Profile',

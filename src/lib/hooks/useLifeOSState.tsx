@@ -108,6 +108,14 @@ export interface LearningSession {
   createdAt: string;
 }
 
+export interface DictionaryEntry {
+  id: string;
+  indonesian: string;
+  translation: string;
+  language: string;
+  createdAt: string;
+}
+
 export interface HealthProfile {
   height: number | '';
   age: number | '';
@@ -222,6 +230,7 @@ export interface LifeOSState {
   reviews: Review[];
   transactions: Transaction[];
   financialGoals: FinancialGoal[];
+  dictionary: DictionaryEntry[];
   displayMode: 'auto' | 'desktop' | 'mobile';
   reviewPeriod: 'weekly' | 'monthly';
   selectedDate: string;
@@ -274,6 +283,8 @@ interface LifeOSContextProps {
   // Learning
   addLearningSession: (session: Omit<LearningSession, 'id' | 'createdAt'>) => Promise<void>;
   deleteLearningSession: (id: string) => Promise<void>;
+  addDictionaryEntry: (entry: Omit<DictionaryEntry, 'id' | 'createdAt'>) => Promise<void>;
+  deleteDictionaryEntry: (id: string) => Promise<void>;
 
   // Health
   updateHealthProfile: (profile: HealthProfile) => Promise<void>;
@@ -358,6 +369,7 @@ const initialDefaultState = (today: string): LifeOSState => ({
   reviews: [],
   transactions: [],
   financialGoals: [],
+  dictionary: [],
   displayMode: 'auto',
   reviewPeriod: 'weekly',
   selectedDate: today
@@ -501,6 +513,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
             { data: reviews },
             { data: transactions },
             { data: financialGoalsData },
+            { data: dictionaryData, error: dictionaryError },
           ] = await Promise.all([
             supabase.from('ideas').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
             supabase.from('journals').select('*').eq('user_id', user.id).order('date', { ascending: false }),
@@ -519,7 +532,19 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
             supabase.from('reviews').select('*').eq('user_id', user.id).order('date', { ascending: false }),
             supabase.from('transactions').select('*').eq('user_id', user.id).order('date', { ascending: false }),
             supabase.from('financial_goals').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
+            supabase.from('dictionary').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
           ]);
+
+          let dictEntries: any[] = [];
+          if (dictionaryData) {
+            dictEntries = dictionaryData;
+          } else if (dictionaryError) {
+            console.warn('[LifeOS] Dictionary table does not exist or fetch failed. Falling back to local storage:', dictionaryError);
+            const localDict = localStorage.getItem('lifeos_dictionary');
+            if (localDict) {
+              try { dictEntries = JSON.parse(localDict); } catch {}
+            }
+          }
 
           const healthProfile = healthProfilesData && healthProfilesData.length > 0 ? healthProfilesData[0] : null;
 
@@ -697,6 +722,13 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
               currentAmount: Number(fg.current_amount) || 0,
               targetDate: fg.target_date || '',
               createdAt: fg.created_at || fg.createdAt
+            })),
+            dictionary: dictEntries.map(d => ({
+              id: d.id,
+              indonesian: d.indonesian || '',
+              translation: d.translation || '',
+              language: d.language || 'English',
+              createdAt: d.created_at || d.createdAt || new Date().toISOString()
             })),
           }));
           setLoading(false);
@@ -1330,6 +1362,67 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
     }
   }, [isDbConnected, updateStateAndPersist, checkError]);
 
+  const addDictionaryEntry = useCallback(async (newEntry: Omit<DictionaryEntry, 'id' | 'createdAt'>) => {
+    const item: DictionaryEntry = {
+      ...newEntry,
+      id: generateId(),
+      createdAt: new Date().toISOString()
+    };
+
+    let savedToDb = false;
+    if (isDbConnected) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase.from('dictionary').insert({
+          id: item.id,
+          user_id: user.id,
+          indonesian: item.indonesian,
+          translation: item.translation,
+          language: item.language
+        });
+        if (!error) {
+          savedToDb = true;
+        } else {
+          console.warn('[LifeOS] Failed to save dictionary to Supabase, saving locally:', error);
+        }
+      }
+    }
+
+    updateStateAndPersist(prev => {
+      const updatedDict = [item, ...prev.dictionary];
+      if (!savedToDb) {
+        localStorage.setItem('lifeos_dictionary', JSON.stringify(updatedDict));
+      }
+      return {
+        ...prev,
+        dictionary: updatedDict
+      };
+    });
+  }, [isDbConnected, updateStateAndPersist]);
+
+  const deleteDictionaryEntry = useCallback(async (id: string) => {
+    let deletedFromDb = false;
+    if (isDbConnected) {
+      const { error } = await supabase.from('dictionary').delete().eq('id', id);
+      if (!error) {
+        deletedFromDb = true;
+      } else {
+        console.warn('[LifeOS] Failed to delete dictionary from Supabase, deleting locally:', error);
+      }
+    }
+
+    updateStateAndPersist(prev => {
+      const updatedDict = prev.dictionary.filter(item => item.id !== id);
+      if (!deletedFromDb) {
+        localStorage.setItem('lifeos_dictionary', JSON.stringify(updatedDict));
+      }
+      return {
+        ...prev,
+        dictionary: updatedDict
+      };
+    });
+  }, [isDbConnected, updateStateAndPersist]);
+
   // =========================================================================
   // HEALTH & FITNESS MODULE
   // =========================================================================
@@ -1782,6 +1875,8 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
         deleteHabit,
         addLearningSession,
         deleteLearningSession,
+        addDictionaryEntry,
+        deleteDictionaryEntry,
         updateHealthProfile,
         saveWeightLog,
         deleteWeightLog,

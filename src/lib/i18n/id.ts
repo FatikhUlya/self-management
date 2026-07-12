@@ -234,6 +234,18 @@ export const id = {
   learning_saved: 'sesi tersimpan',
   learning_no_notes: 'Tanpa notes',
 
+  // Dictionary
+  dictionary_title: 'Kamus Saya',
+  dictionary_indo: 'Bahasa Indonesia',
+  dictionary_target: 'Bahasa Asing / Inggris',
+  dictionary_lang: 'Klasifikasi Bahasa',
+  dictionary_add_btn: 'Tambah Kata',
+  dictionary_summary_btn: 'Ringkasan Bahasa',
+  dictionary_summary_title: 'Ringkasan Bahasa & Ekspor NotebookLM',
+  dictionary_notebooklm_btn: 'Salin Data untuk NotebookLM',
+  dictionary_notebooklm_link: 'Buka Google NotebookLM',
+  dictionary_copied: 'Data kamus disalin!',
+
   // Health
   health_title: 'Health & Fitness',
   health_tdee_profile: 'Profil TDEE',
