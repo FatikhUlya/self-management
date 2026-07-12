@@ -26,7 +26,7 @@ import {
 import { HABIT_AREAS } from '@/lib/constants';
 
 export default function HabitsPage() {
-  const { state, addHabit, toggleHabit, deleteHabit, updateHabit } = useLifeOS();
+  const { state, addHabit, toggleHabit, deleteHabit, updateHabit, setSelectedDate } = useLifeOS();
   const { t, locale } = useI18n();
 
   // Dialog & selection states
@@ -55,6 +55,13 @@ export default function HabitsPage() {
 
   // Detail Habit Recap period selection state
   const [recapPeriod, setRecapPeriod] = useState<'30days' | 'month' | 'year'>('30days');
+
+  // Keep local month/year selectors in sync with global selectedDate
+  React.useEffect(() => {
+    const currentSelectedDate = new Date(`${state.selectedDate}T00:00:00`);
+    setMonthSel(currentSelectedDate.getMonth());
+    setYearSel(currentSelectedDate.getFullYear());
+  }, [state.selectedDate]);
 
   const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const m = Number(e.target.value);
@@ -128,14 +135,8 @@ export default function HabitsPage() {
   };
 
   const updateSelectedMonthYear = (m: number, y: number) => {
-    const dateStr = dateInMonthYear(selectedDate, y, m);
     const contextDate = dateInMonthYear(state.selectedDate, y, m);
-    const input = document.getElementById('selectedDate') as HTMLInputElement;
-    if (input) {
-      input.value = contextDate;
-      const event = new Event('change', { bubbles: true });
-      input.dispatchEvent(event);
-    }
+    setSelectedDate(contextDate);
   };
 
   // Completion calculation for a single date
