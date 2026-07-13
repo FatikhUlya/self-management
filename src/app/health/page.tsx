@@ -586,7 +586,7 @@ export default function HealthPage() {
             <div className="grid grid-cols-3 gap-3 pt-2">
               <div className="flex flex-col space-y-1">
                 <label className="text-xs font-bold text-life-muted uppercase">
-                  {t('health_type')}
+                  {t('health_meal_type')}
                 </label>
                 <select
                   value={mealType}
