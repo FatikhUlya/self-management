@@ -155,7 +155,7 @@ export function LineChart({
                 cx={xFor(index)}
                 cy={yFor(p.value)}
                 r={4}
-                fill="#0a0e17"
+                fill="var(--life-bg)"
                 strokeWidth={2}
               >
                 <title>

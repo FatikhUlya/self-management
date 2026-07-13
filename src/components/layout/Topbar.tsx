@@ -13,6 +13,37 @@ export function Topbar() {
   const { state, setSelectedDate, isDbConnected } = useLifeOS();
   const { locale, setLocale, t } = useI18n();
 
+  const [theme, setTheme] = React.useState<'dark' | 'light'>('dark');
+
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('lifeos_theme');
+      if (savedTheme === 'light') {
+        setTheme('light');
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      } else {
+        setTheme('dark');
+        document.documentElement.classList.remove('light');
+        document.documentElement.classList.add('dark');
+      }
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    const root = window.document.documentElement;
+    if (nextTheme === 'light') {
+      root.classList.remove('dark');
+      root.classList.add('light');
+    } else {
+      root.classList.remove('light');
+      root.classList.add('dark');
+    }
+    localStorage.setItem('lifeos_theme', nextTheme);
+  };
+
   // Find active navigation item based on path
   const activeNavItem = NAV_ITEMS.find((item) => item.path === pathname) || NAV_ITEMS[0];
 
@@ -27,7 +58,7 @@ export function Topbar() {
   };
 
   return (
-    <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-life-line bg-[#0a0e17]/40 backdrop-blur-md py-4 px-6 sticky top-0 z-30 select-none">
+    <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-life-line bg-life-bg/60 backdrop-blur-md py-4 px-6 sticky top-0 z-30 select-none">
       <div>
         <p className="text-[10px] text-life-muted font-black uppercase tracking-widest">
           {t(activeNavItem.labelKey)}
@@ -50,6 +81,15 @@ export function Topbar() {
           <span className={`w-2 h-2 rounded-full ${isDbConnected ? 'bg-teal-400 animate-pulse' : 'bg-gray-500'}`} />
           <span className="hidden lg:inline">{isDbConnected ? 'Cloud' : 'Local'}</span>
         </div>
+
+        {/* Theme Switcher */}
+        <button
+          onClick={toggleTheme}
+          className="flex items-center justify-center p-2 rounded-lg bg-white/[0.03] hover:bg-white/[0.07] border border-life-line text-life-muted hover:text-life-text active:scale-[0.98] transition-all duration-200"
+          title={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
+        >
+          <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={16} />
+        </button>
 
         {/* Language Switcher */}
         <button

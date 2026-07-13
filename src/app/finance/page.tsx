@@ -315,14 +315,14 @@ export default function FinancePage() {
                      <label htmlFor="txAccount" className="text-xs font-bold text-life-muted uppercase">
                        Rekening / Akun
                      </label>
-                     <button
-                       type="button"
-                       onClick={() => setIsAccountModalOpen(true)}
-                       className="text-[10px] font-black uppercase text-teal-400 hover:underline"
-                     >
-                       ⚙️ Kelola
-                     </button>
-                   </div>
+                      <button
+                        type="button"
+                        onClick={() => setIsAccountModalOpen(true)}
+                        className="flex items-center gap-1 text-[10px] font-black uppercase text-teal-400 hover:underline"
+                      >
+                        <Icon name="settings" size={10} /> Kelola
+                      </button>
+                    </div>
                    <select
                      id="txAccount"
                      value={txAccount}
@@ -590,8 +590,8 @@ export default function FinancePage() {
                         <span>•</span>
                         <span>{tx.category}</span>
                         <span>•</span>
-                        <span className="text-teal-400 font-semibold bg-teal-500/10 border border-teal-500/20 px-1.5 py-0.5 rounded text-[8px] tracking-normal normal-case">
-                          💳 {tx.account || 'Tunai'}
+                        <span className="flex items-center gap-1 text-teal-400 font-semibold bg-teal-500/10 border border-teal-500/20 px-1.5 py-0.5 rounded text-[8px] tracking-normal normal-case">
+                          <Icon name="wallet" size={8} /> {tx.account || 'Tunai'}
                         </span>
                       </div>
                       {tx.notes && (
@@ -712,7 +712,9 @@ export default function FinancePage() {
               {state.financialAccounts && state.financialAccounts.length > 0 ? (
                 state.financialAccounts.map((acc) => (
                   <div key={acc.id} className="flex justify-between items-center p-2 rounded bg-white/[0.01] border border-life-line">
-                    <span className="text-xs font-semibold text-life-text">💳 {acc.name}</span>
+                    <span className="flex items-center gap-1.5 text-xs font-semibold text-life-text">
+                      <Icon name="wallet" size={12} className="text-life-muted" /> {acc.name}
+                    </span>
                     <button
                       onClick={() => deleteFinancialAccount(acc.id)}
                       className="text-life-muted hover:text-life-rose p-1 transition-colors"

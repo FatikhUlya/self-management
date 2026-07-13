@@ -77,7 +77,7 @@ export function Sidebar() {
 
   return (
     <aside 
-      className="hidden md:flex flex-col w-64 border-r border-life-line bg-[#0d1321]/60 backdrop-blur-xl h-screen sticky top-0 py-6 px-4 shrink-0 overflow-y-auto"
+      className="hidden md:flex flex-col w-64 border-r border-life-line bg-life-bg/60 backdrop-blur-xl h-screen sticky top-0 py-6 px-4 shrink-0 overflow-y-auto"
       aria-label="Navigasi utama"
     >
       {/* Brand Header */}

@@ -443,7 +443,10 @@ export default function JournalPage() {
                     <strong className="text-xs text-life-text">{formatDate(journal.date)}</strong>
                     <div className="flex items-center space-x-1.5" onClick={(e) => e.stopPropagation()}>
                       <Badge tone="teal">{`Mood ${MOOD_EMOJIS[(journal.mood || 3) - 1]}`}</Badge>
-                      <Badge tone="indigo">{`Energy ⚡ ${journal.energy}/5`}</Badge>
+                      <Badge tone="indigo" className="flex items-center gap-1">
+                        <Icon name="zap" size={10} />
+                        <span>{`Energy ${journal.energy}/5`}</span>
+                      </Badge>
                       <button
                         onClick={() => deleteJournal(journal.id)}
                         className="text-life-muted hover:text-life-rose transition-colors p-1"
@@ -456,13 +459,15 @@ export default function JournalPage() {
 
                   <div className="text-xs space-y-1.5 font-medium pt-1 text-life-muted">
                     {journal.gratitude_1 && (
-                      <p>
-                        💡 <span className="text-life-text">{journal.gratitude_1}</span>
+                      <p className="flex items-start gap-1.5">
+                        <Icon name="lightbulb" size={12} className="text-amber-400 mt-0.5 shrink-0" />
+                        <span className="text-life-text">{journal.gratitude_1}</span>
                       </p>
                     )}
                     {journal.win && (
-                      <p>
-                        🏆 <span className="text-life-text">{journal.win}</span>
+                      <p className="flex items-start gap-1.5">
+                        <Icon name="trophy" size={12} className="text-yellow-400 mt-0.5 shrink-0" />
+                        <span className="text-life-text">{journal.win}</span>
                       </p>
                     )}
                     {journal.reflection && (
@@ -513,8 +518,9 @@ export default function JournalPage() {
               <h4 className="text-[10px] font-black uppercase text-life-muted tracking-wider border-b border-white/5 pb-1">
                 Pencapaian Hari Ini (Daily Win)
               </h4>
-              <p className="text-life-text font-semibold">
-                🏆 {viewingJournal.win || <span className="italic text-life-muted">Tidak ada data</span>}
+              <p className="flex items-center gap-1.5 text-life-text font-semibold">
+                <Icon name="trophy" size={14} className="text-yellow-400 shrink-0" />
+                <span>{viewingJournal.win || <span className="italic text-life-muted">Tidak ada data</span>}</span>
               </p>
             </div>
 
@@ -533,8 +539,9 @@ export default function JournalPage() {
               <h4 className="text-[10px] font-black uppercase text-life-muted tracking-wider border-b border-white/5 pb-1">
                 Rencana Hari Esok (Next Steps)
               </h4>
-              <p className="text-life-text">
-                👉 {viewingJournal.next || <span className="italic text-life-muted">Tidak ada data</span>}
+              <p className="flex items-center gap-1.5 text-life-text font-semibold">
+                <Icon name="arrowRight" size={14} className="text-life-teal shrink-0" />
+                <span>{viewingJournal.next || <span className="italic text-life-muted">Tidak ada data</span>}</span>
               </p>
             </div>
 

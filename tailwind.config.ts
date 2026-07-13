@@ -11,14 +11,14 @@ const config: Config = {
     extend: {
       colors: {
         life: {
-          bg: '#0a0e17',
-          panel: 'rgba(255, 255, 255, 0.03)',
-          'panel-hover': 'rgba(255, 255, 255, 0.07)',
-          'panel-active': 'rgba(255, 255, 255, 0.12)',
-          line: 'rgba(255, 255, 255, 0.07)',
-          'line-strong': 'rgba(255, 255, 255, 0.15)',
-          text: '#f3f4f6',
-          muted: '#9ca3af',
+          bg: 'var(--life-bg)',
+          panel: 'var(--life-panel)',
+          'panel-hover': 'var(--life-panel-hover)',
+          'panel-active': 'var(--life-panel-active)',
+          line: 'var(--life-line)',
+          'line-strong': 'var(--life-line-strong)',
+          text: 'var(--life-text)',
+          muted: 'var(--life-muted)',
           teal: {
             DEFAULT: '#0f766e',
             soft: 'rgba(15, 118, 110, 0.15)',

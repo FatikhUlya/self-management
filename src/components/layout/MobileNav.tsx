@@ -23,7 +23,7 @@ export function MobileNav() {
   return (
     <>
       <nav 
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#0d1321]/90 backdrop-blur-xl border-t border-life-line flex justify-around items-center py-2 px-1 shadow-[0_-4px_24px_rgba(0,0,0,0.4)]"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-life-bg/90 backdrop-blur-xl border-t border-life-line flex justify-around items-center py-2 px-1 shadow-[0_-4px_24px_rgba(0,0,0,0.4)]"
         aria-label="Navigasi bawah mobile"
       >
         {mainBarItems.map((item) => {
@@ -75,7 +75,7 @@ export function MobileNav() {
 
       {/* Bottom Sheet Panel (Swipe-up/Slide-up Menu) */}
       <div 
-        className={`md:hidden fixed bottom-0 left-0 right-0 z-30 bg-[#070b13]/95 backdrop-blur-xl border-t border-white/[0.08] rounded-t-3xl px-6 pb-20 pt-4 shadow-[0_-12px_40px_rgba(0,0,0,0.7)] transform transition-transform duration-300 ease-out max-h-[75vh] overflow-y-auto ${
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-30 bg-life-bg/95 backdrop-blur-xl border-t border-white/[0.08] rounded-t-3xl px-6 pb-20 pt-4 shadow-[0_-12px_40px_rgba(0,0,0,0.7)] transform transition-transform duration-300 ease-out max-h-[75vh] overflow-y-auto ${
           isOpen ? 'translate-y-0' : 'translate-y-full'
         }`}
       >

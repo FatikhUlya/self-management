@@ -358,7 +358,7 @@ export default function GoalsPage() {
       {/* Vision & Mission Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Surface className="p-5 border-l-2 border-l-life-teal bg-gradient-to-br from-life-teal/5 to-transparent relative group">
-          <div className="absolute right-3 top-3 text-[30px] opacity-10 select-none">🎯</div>
+          <Icon name="target" size={36} className="absolute right-3 top-3 opacity-10 select-none text-life-text" />
           <h3 className="text-xs font-black uppercase text-life-teal tracking-wider mb-2">Visi Pribadi (Vision)</h3>
           <p className="text-sm font-semibold italic text-life-text leading-relaxed tracking-tight">
             "{vision}"
@@ -366,7 +366,7 @@ export default function GoalsPage() {
         </Surface>
 
         <Surface className="p-5 border-l-2 border-l-life-indigo bg-gradient-to-br from-life-indigo/5 to-transparent relative group">
-          <div className="absolute right-3 top-3 text-[30px] opacity-10 select-none">🚀</div>
+          <Icon name="briefcase" size={36} className="absolute right-3 top-3 opacity-10 select-none text-life-text" />
           <h3 className="text-xs font-black uppercase text-life-indigo tracking-wider mb-2">Misi Pribadi (Mission)</h3>
           <div className="text-xs text-life-text leading-relaxed space-y-1.5">
             {mission.split('\n').map((m, idx) => (
@@ -499,8 +499,8 @@ export default function GoalsPage() {
         <div className={`xl:col-span-2 space-y-4 ${isGravityReleased ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-300'}`}>
           <Surface className="p-6">
             <div className="border-b border-life-line pb-3 mb-5">
-              <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-                🎯 Objectives & Key Results (OKRs)
+              <h3 className="flex items-center gap-1.5 text-sm font-bold text-life-text uppercase tracking-wider">
+                <Icon name="target" size={16} className="text-life-teal" /> Objectives & Key Results (OKRs)
               </h3>
               <p className="text-xs text-life-muted mt-0.5">
                 Objective diambil dari Goals utama. Proyek & Tugas terkait bertindak sebagai Key Results pendukung.
@@ -561,8 +561,8 @@ export default function GoalsPage() {
                             
                             <span className="text-[10px] text-life-muted font-bold">
                               {isAutoTracked 
-                                ? `🎯 ${totalKeyResults} Key Results (Auto)`
-                                : `⚙️ Manual Tracked`
+                                ? `${totalKeyResults} Key Results (Auto)`
+                                : `Manual Tracked`
                               }
                             </span>
                           </div>
@@ -611,7 +611,7 @@ export default function GoalsPage() {
                             <div className="space-y-3">
                               {/* Headers of Key Results */}
                               <div className="flex justify-between items-center text-[10px] font-black uppercase text-life-muted tracking-wider border-b border-white/5 pb-1">
-                                <span>🎯 Key Result / Hasil Kunci</span>
+                                <span>Key Result / Hasil Kunci</span>
                                 <span>Status / Progres</span>
                               </div>
 
@@ -644,7 +644,7 @@ export default function GoalsPage() {
                                       className="rounded bg-black/40 border-white/10 text-life-teal focus:ring-0 focus:ring-offset-0 cursor-pointer w-3.5 h-3.5"
                                     />
                                     <span className={`font-semibold text-life-text ${t.status === 'done' ? 'line-through text-life-muted' : ''}`}>
-                                      🎯 Tugas: {t.title}
+                                      <Icon name="target" size={12} className="inline mr-1 text-life-teal" /> Tugas: {t.title}
                                     </span>
                                   </div>
                                   <Badge tone={t.status === 'done' ? 'green' : t.status === 'doing' ? 'amber' : 'gray'}>

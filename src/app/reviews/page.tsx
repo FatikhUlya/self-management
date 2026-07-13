@@ -64,6 +64,16 @@ export default function ReviewsPage() {
       .filter((item) => inLastDays(item.date, days, today))
       .reduce((sum, item) => sum + Number(item.minutes || 0), 0);
 
+    // Finance Cashflow in the period
+    const periodTransactions = state.transactions.filter((t) => inLastDays(t.date, days, today));
+    const periodIncome = periodTransactions.filter((t) => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+    const periodExpense = periodTransactions.filter((t) => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+    const periodCashflow = periodIncome - periodExpense;
+
+    // Cornell Notes in the period
+    const periodSessions = state.learning.filter((item) => inLastDays(item.date, days, today));
+    const completedCornellNotesCount = periodSessions.filter((s) => s.notesCues || s.notesNotes || s.notesSummary).length;
+
     return {
       days,
       tasksDone: completedTasksCount,
@@ -74,7 +84,14 @@ export default function ReviewsPage() {
       goalsAvg: goalsAvgProgress,
       learningMinutes: learnMins,
       workoutMinutes: workoutMins,
+      cashflow: periodCashflow,
+      sessionsCount: periodSessions.length,
+      cornellNotesCount: completedCornellNotesCount,
     };
+  };
+
+  const formatCurrency = (num: number) => {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
   };
 
   const metrics = calculateAggregatedMetrics();
@@ -299,8 +316,22 @@ export default function ReviewsPage() {
             />
 
             <div className="flex flex-wrap gap-2 pt-3">
-              <Badge tone="indigo">{`${metrics.learningMinutes} ${t('reviews_learning_min')}`}</Badge>
-              <Badge tone="green">{`${metrics.workoutMinutes} ${t('reviews_workout_min')}`}</Badge>
+              <Badge tone="indigo" className="flex items-center gap-1">
+                <Icon name="book" size={10} />
+                <span>{`${metrics.learningMinutes} ${t('reviews_learning_min')}`}</span>
+              </Badge>
+              <Badge tone="green" className="flex items-center gap-1">
+                <Icon name="activity" size={10} />
+                <span>{`${metrics.workoutMinutes} ${t('reviews_workout_min')}`}</span>
+              </Badge>
+              <Badge tone="amber" className="flex items-center gap-1">
+                <Icon name="book" size={10} />
+                <span>{`Cornell Notes: ${metrics.cornellNotesCount}/${metrics.sessionsCount}`}</span>
+              </Badge>
+              <Badge tone={metrics.cashflow >= 0 ? 'teal' : 'rose'} className="flex items-center gap-1">
+                <Icon name="wallet" size={10} />
+                <span>{`Cashflow: ${metrics.cashflow >= 0 ? '+' : ''}${formatCurrency(metrics.cashflow)}`}</span>
+              </Badge>
             </div>
           </div>
         </Surface>
@@ -341,13 +372,15 @@ export default function ReviewsPage() {
 
                 <div className="text-xs space-y-1.5 font-medium pt-1 text-life-muted">
                   {review.wins && (
-                    <p>
-                      🏆 Wins: <span className="text-life-text">{review.wins}</span>
+                    <p className="flex items-start gap-1.5">
+                      <Icon name="trophy" size={12} className="text-yellow-400 mt-0.5 shrink-0" />
+                      <span>Wins: <span className="text-life-text">{review.wins}</span></span>
                     </p>
                   )}
                   {review.focus && (
-                    <p>
-                      🎯 Focus: <span className="text-life-text">{review.focus}</span>
+                    <p className="flex items-start gap-1.5">
+                      <Icon name="target" size={12} className="text-life-teal mt-0.5 shrink-0" />
+                      <span>Focus: <span className="text-life-text">{review.focus}</span></span>
                     </p>
                   )}
                   {review.evaluationNotes && (
