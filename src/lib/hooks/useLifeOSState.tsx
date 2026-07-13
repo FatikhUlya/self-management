@@ -204,6 +204,7 @@ export interface Transaction {
   amount: number;
   type: 'income' | 'expense';
   category: string;
+  account: string;
   notes: string;
   createdAt: string;
 }
@@ -728,6 +729,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
               amount: Number(t.amount) || 0,
               type: t.type,
               category: t.category,
+              account: t.account || 'Tunai',
               notes: t.notes || '',
               createdAt: t.created_at || t.createdAt
             })),
@@ -1826,6 +1828,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
           amount: item.amount,
           type: item.type,
           category: item.category,
+          account: item.account,
           notes: item.notes
         });
         checkError(error, 'addTransaction');

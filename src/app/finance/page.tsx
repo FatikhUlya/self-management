@@ -31,6 +31,8 @@ const INCOME_CATEGORIES = [
   'Lainnya'
 ];
 
+const ACCOUNTS = ['Tunai', 'Bank BCA', 'Bank Mandiri', 'GoPay', 'OVO', 'ShopeePay', 'Lainnya'];
+
 export default function FinancePage() {
   const { 
     state, 
@@ -48,6 +50,7 @@ export default function FinancePage() {
   const [txAmount, setTxAmount] = useLocalStorageState('draft_tx_amount', '');
   const [txType, setTxType] = useLocalStorageState<'income' | 'expense'>('draft_tx_type', 'expense');
   const [txCategory, setTxCategory] = useLocalStorageState('draft_tx_category', EXPENSE_CATEGORIES[0]);
+  const [txAccount, setTxAccount] = useLocalStorageState('draft_tx_account', ACCOUNTS[0]);
   const [txNotes, setTxNotes] = useLocalStorageState('draft_tx_notes', '');
   const [txDate, setTxDate] = useLocalStorageState('draft_tx_date', state.selectedDate);
 
@@ -93,6 +96,7 @@ export default function FinancePage() {
       amount: Number(txAmount),
       type: txType,
       category: txCategory,
+      account: txAccount,
       notes: txNotes,
       date: txDate
     });
@@ -300,24 +304,93 @@ export default function FinancePage() {
                 </div>
 
                 <div className="flex flex-col space-y-1">
-                  <label htmlFor="txNotes" className="text-xs font-bold text-life-muted uppercase">
-                    Catatan (Opsional)
+                  <label htmlFor="txAccount" className="text-xs font-bold text-life-muted uppercase">
+                    Rekening / Akun
                   </label>
-                  <input
-                    id="txNotes"
-                    type="text"
-                    placeholder="..."
-                    value={txNotes}
-                    onChange={(e) => setTxNotes(e.target.value)}
-                    className="glass-input text-xs"
-                  />
+                  <select
+                    id="txAccount"
+                    value={txAccount}
+                    onChange={(e) => setTxAccount(e.target.value)}
+                    className="glass-select text-xs"
+                  >
+                    {ACCOUNTS.map((acc) => (
+                      <option key={acc} value={acc}>{acc}</option>
+                    ))}
+                  </select>
                 </div>
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label htmlFor="txNotes" className="text-xs font-bold text-life-muted uppercase">
+                  Catatan (Opsional)
+                </label>
+                <input
+                  id="txNotes"
+                  type="text"
+                  placeholder="..."
+                  value={txNotes}
+                  onChange={(e) => setTxNotes(e.target.value)}
+                  className="glass-input text-xs"
+                />
               </div>
 
               <Button type="submit" variant="primary" icon="plus" className="w-full">
                 Simpan Transaksi
               </Button>
             </form>
+          </Surface>
+
+          {/* Account Balances Summary */}
+          <Surface className="p-6">
+            <div className="border-b border-life-line pb-3 mb-4">
+              <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
+                Saldo per Rekening
+              </h3>
+              <p className="text-xs text-life-muted mt-0.5">
+                Rincian saldo aktif di setiap rekening / dompet
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {ACCOUNTS.map((acc) => {
+                const accIncome = state.transactions
+                  .filter(t => t.type === 'income' && t.account === acc)
+                  .reduce((sum, t) => sum + t.amount, 0);
+
+                const accExpense = state.transactions
+                  .filter(t => t.type === 'expense' && t.account === acc)
+                  .reduce((sum, t) => sum + t.amount, 0);
+
+                const accBalance = accIncome - accExpense;
+
+                // Only show if there's activity or if it's a primary account
+                const isPrimary = ['Tunai', 'Bank BCA', 'Bank Mandiri'].includes(acc);
+                if (accBalance === 0 && !isPrimary) return null;
+
+                return (
+                  <div 
+                    key={acc}
+                    className="p-3 rounded-xl bg-white/[0.005] border border-life-line flex justify-between items-center"
+                  >
+                    <div>
+                      <span className="text-[10px] font-black uppercase text-life-muted tracking-wider block">
+                        {acc}
+                      </span>
+                      <span className={`text-xs font-black block mt-0.5 ${accBalance >= 0 ? 'text-teal-400' : 'text-rose-400'}`}>
+                        {formatCurrency(accBalance)}
+                      </span>
+                    </div>
+                    <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded ${
+                      accBalance >= 0 
+                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                        : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                    }`}>
+                      {accBalance >= 0 ? 'Surplus' : 'Defisit'}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </Surface>
 
           {/* Expenses Breakdown chart */}
@@ -499,6 +572,10 @@ export default function FinancePage() {
                         <span>{formatDate(tx.date)}</span>
                         <span>•</span>
                         <span>{tx.category}</span>
+                        <span>•</span>
+                        <span className="text-teal-400 font-semibold bg-teal-500/10 border border-teal-500/20 px-1.5 py-0.5 rounded text-[8px] tracking-normal normal-case">
+                          💳 {tx.account || 'Tunai'}
+                        </span>
                       </div>
                       {tx.notes && (
                         <p className="text-[10px] text-life-muted italic mt-1 font-medium">

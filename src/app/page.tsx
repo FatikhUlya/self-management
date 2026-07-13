@@ -39,7 +39,7 @@ export default function Dashboard() {
 
   // Quick Capture Form State
   const [ideaTitle, setIdeaTitle] = useLocalStorageState('draft_dashboard_ideaTitle', '');
-  const [ideaArea, setIdeaArea] = useLocalStorageState('draft_dashboard_ideaArea', '');
+  const [ideaArea, setIdeaArea] = useLocalStorageState('draft_dashboard_ideaArea', 'Career');
   const [ideaPriority, setIdeaPriority] = useLocalStorageState<Priority>('draft_dashboard_ideaPriority', 'Medium');
   const [ideaNotes, setIdeaNotes] = useLocalStorageState('draft_dashboard_ideaNotes', '');
 
@@ -299,13 +299,18 @@ export default function Dashboard() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="flex flex-col space-y-1">
-                  <input
-                    type="text"
-                    placeholder={t('capture_area_placeholder')}
-                    value={ideaArea}
+                  <select
+                    value={ideaArea || 'Career'}
                     onChange={(e) => setIdeaArea(e.target.value)}
-                    className="glass-input text-xs"
-                  />
+                    className="glass-select text-xs"
+                  >
+                    <option value="Career">Career</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Health">Health</option>
+                    <option value="Learning">Learning</option>
+                    <option value="Personal">Personal</option>
+                    <option value="Relationship">Relationship</option>
+                  </select>
                 </div>
                 <div className="flex flex-col space-y-1">
                   <select

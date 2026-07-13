@@ -28,7 +28,7 @@ export default function ProjectsPage() {
 
   // Project form states
   const [projectName, setProjectName] = useLocalStorageState('draft_project_name', '');
-  const [projectArea, setProjectArea] = useLocalStorageState('draft_project_area', '');
+  const [projectArea, setProjectArea] = useLocalStorageState('draft_project_area', 'Career');
   const [projectStatus, setProjectStatus] = useLocalStorageState<'active' | 'paused' | 'done'>('draft_project_status', 'active');
   const [projectGoalId, setProjectGoalId] = useLocalStorageState('draft_project_goalId', '');
 
@@ -298,14 +298,19 @@ export default function ProjectsPage() {
                 <label htmlFor="projectArea" className="text-xs font-bold text-life-muted uppercase">
                   {t('area')}
                 </label>
-                <input
+                <select
                   id="projectArea"
-                  type="text"
-                  placeholder={t('projects_area_placeholder')}
-                  value={projectArea}
+                  value={projectArea || 'Career'}
                   onChange={(e) => setProjectArea(e.target.value)}
-                  className="glass-input text-xs"
-                />
+                  className="glass-select text-xs"
+                >
+                  <option value="Career">Career</option>
+                  <option value="Finance">Finance</option>
+                  <option value="Health">Health</option>
+                  <option value="Learning">Learning</option>
+                  <option value="Personal">Personal</option>
+                  <option value="Relationship">Relationship</option>
+                </select>
               </div>
 
               <div className="flex flex-col space-y-1">
