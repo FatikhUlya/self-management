@@ -579,6 +579,21 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
 
           const healthProfile = healthProfilesData && healthProfilesData.length > 0 ? healthProfilesData[0] : null;
 
+          let finalAccounts = financialAccountsData as any[] || [];
+          if (finalAccounts.length === 0) {
+            const defaultAccs = ['Tunai', 'Bank BCA', 'Bank Mandiri', 'GoPay', 'OVO', 'ShopeePay'];
+            const payload = defaultAccs.map(name => ({
+              user_id: userId,
+              name
+            }));
+            const { data: seededAccs, error: seedErr } = await supabase.from('financial_accounts').insert(payload).select();
+            if (!seedErr && seededAccs) {
+              finalAccounts = seededAccs;
+            } else {
+              console.error('[LifeOS] Failed to seed default accounts:', seedErr);
+            }
+          }
+
           setState(prev => ({
             ...prev,
             ideas: (ideas as any[] || []).map(i => ({
@@ -767,27 +782,11 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
               language: d.language || 'English',
               createdAt: d.created_at || d.createdAt || new Date().toISOString()
             })),
-            financialAccounts: await (async () => {
-              let fetched = financialAccountsData as any[] || [];
-              if (fetched.length === 0) {
-                const defaultAccs = ['Tunai', 'Bank BCA', 'Bank Mandiri', 'GoPay', 'OVO', 'ShopeePay'];
-                const payload = defaultAccs.map(name => ({
-                  user_id: userId,
-                  name
-                }));
-                const { data: seededAccs, error: seedErr } = await supabase.from('financial_accounts').insert(payload).select();
-                if (!seedErr && seededAccs) {
-                  fetched = seededAccs;
-                } else {
-                  console.error('[LifeOS] Failed to seed default accounts:', seedErr);
-                }
-              }
-              return fetched.map(fa => ({
-                id: fa.id,
-                name: fa.name,
-                createdAt: fa.created_at || fa.createdAt
-              }));
-            })(),
+            financialAccounts: finalAccounts.map(fa => ({
+              id: fa.id,
+              name: fa.name,
+              createdAt: fa.created_at || fa.createdAt
+            })),
           }));
           setLoading(false);
           return;
