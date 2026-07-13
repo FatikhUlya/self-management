@@ -218,6 +218,12 @@ export interface FinancialGoal {
   createdAt: string;
 }
 
+export interface FinancialAccount {
+  id: string;
+  name: string;
+  createdAt: string;
+}
+
 export interface LifeOSState {
   ideas: Idea[];
   journals: Journal[];
@@ -236,6 +242,7 @@ export interface LifeOSState {
   reviews: Review[];
   transactions: Transaction[];
   financialGoals: FinancialGoal[];
+  financialAccounts: FinancialAccount[];
   dictionary: DictionaryEntry[];
   displayMode: 'auto' | 'desktop' | 'mobile';
   reviewPeriod: 'weekly' | 'monthly';
@@ -319,7 +326,8 @@ interface LifeOSContextProps {
   addFinancialGoal: (goal: Omit<FinancialGoal, 'id' | 'createdAt'>) => Promise<void>;
   updateFinancialGoal: (id: string, currentAmount: number) => Promise<void>;
   deleteFinancialGoal: (id: string) => Promise<void>;
-
+  addFinancialAccount: (name: string) => Promise<void>;
+  deleteFinancialAccount: (id: string) => Promise<void>;
 }
 
 const LifeOSContext = createContext<LifeOSContextProps | undefined>(undefined);
@@ -378,6 +386,7 @@ const initialDefaultState = (today: string): LifeOSState => ({
   reviews: [],
   transactions: [],
   financialGoals: [],
+  financialAccounts: [],
   dictionary: [],
   displayMode: 'auto',
   reviewPeriod: 'weekly',
@@ -526,6 +535,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
             { data: transactions },
             { data: financialGoalsData },
             { data: dictionaryData, error: dictionaryError },
+            { data: financialAccountsData },
           ] = await Promise.all([
             supabase.from('ideas').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
             supabase.from('journals').select('*').eq('user_id', userId).order('date', { ascending: false }),
@@ -545,6 +555,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
             supabase.from('transactions').select('*').eq('user_id', userId).order('date', { ascending: false }),
             supabase.from('financial_goals').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
             supabase.from('dictionary').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+            supabase.from('financial_accounts').select('*').eq('user_id', userId).order('created_at', { ascending: true }),
           ]);
 
           let dictEntries: any[] = [];
@@ -747,6 +758,11 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
               translation: d.translation || '',
               language: d.language || 'English',
               createdAt: d.created_at || d.createdAt || new Date().toISOString()
+            })),
+            financialAccounts: (financialAccountsData as any[] || []).map(fa => ({
+              id: fa.id,
+              name: fa.name,
+              createdAt: fa.created_at || fa.createdAt
             })),
           }));
           setLoading(false);
@@ -1907,6 +1923,43 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
     }
   }, [isDbConnected, updateStateAndPersist, checkError]);
 
+  const addFinancialAccount = useCallback(async (name: string) => {
+    const item: FinancialAccount = {
+      id: generateId(),
+      name,
+      createdAt: new Date().toISOString()
+    };
+
+    updateStateAndPersist(prev => ({
+      ...prev,
+      financialAccounts: [...prev.financialAccounts, item]
+    }));
+
+    if (isDbConnected) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase.from('financial_accounts').insert({
+          id: item.id,
+          user_id: user.id,
+          name: item.name
+        });
+        checkError(error, 'addFinancialAccount');
+      }
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const deleteFinancialAccount = useCallback(async (id: string) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      financialAccounts: prev.financialAccounts.filter(fa => fa.id !== id)
+    }));
+
+    if (isDbConnected) {
+      const { error } = await supabase.from('financial_accounts').delete().eq('id', id);
+      checkError(error, 'deleteFinancialAccount');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
   // Dynamically compute goal progress based on linked projects and tasks
   const processedGoals = useMemo(() => {
     return state.goals.map(goal => {
@@ -1991,6 +2044,8 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
         addFinancialGoal,
         updateFinancialGoal,
         deleteFinancialGoal,
+        addFinancialAccount,
+        deleteFinancialAccount,
       }}
     >
       {children}

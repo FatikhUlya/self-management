@@ -31,7 +31,7 @@ const INCOME_CATEGORIES = [
   'Lainnya'
 ];
 
-const ACCOUNTS = ['Tunai', 'Bank BCA', 'Bank Mandiri', 'GoPay', 'OVO', 'ShopeePay', 'Lainnya'];
+const DEFAULT_ACCOUNTS = ['Tunai', 'Bank BCA', 'Bank Mandiri', 'GoPay', 'OVO', 'ShopeePay'];
 
 export default function FinancePage() {
   const { 
@@ -40,17 +40,24 @@ export default function FinancePage() {
     deleteTransaction, 
     addFinancialGoal, 
     updateFinancialGoal, 
-    deleteFinancialGoal 
+    deleteFinancialGoal,
+    addFinancialAccount,
+    deleteFinancialAccount
   } = useLifeOS();
 
   const { t } = useI18n();
+
+  const customAccounts = state.financialAccounts ? state.financialAccounts.map(fa => fa.name) : [];
+  const allAccounts = Array.from(new Set([...DEFAULT_ACCOUNTS, ...customAccounts, 'Lainnya']));
 
   // Transaction form states
   const [txTitle, setTxTitle] = useLocalStorageState('draft_tx_title', '');
   const [txAmount, setTxAmount] = useLocalStorageState('draft_tx_amount', '');
   const [txType, setTxType] = useLocalStorageState<'income' | 'expense'>('draft_tx_type', 'expense');
   const [txCategory, setTxCategory] = useLocalStorageState('draft_tx_category', EXPENSE_CATEGORIES[0]);
-  const [txAccount, setTxAccount] = useLocalStorageState('draft_tx_account', ACCOUNTS[0]);
+  const [txAccount, setTxAccount] = useLocalStorageState('draft_tx_account', 'Tunai');
+  const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
+  const [newAccountName, setNewAccountName] = useState('');
   const [txNotes, setTxNotes] = useLocalStorageState('draft_tx_notes', '');
   const [txDate, setTxDate] = useLocalStorageState('draft_tx_date', state.selectedDate);
 
@@ -304,19 +311,28 @@ export default function FinancePage() {
                 </div>
 
                 <div className="flex flex-col space-y-1">
-                  <label htmlFor="txAccount" className="text-xs font-bold text-life-muted uppercase">
-                    Rekening / Akun
-                  </label>
-                  <select
-                    id="txAccount"
-                    value={txAccount}
-                    onChange={(e) => setTxAccount(e.target.value)}
-                    className="glass-select text-xs"
-                  >
-                    {ACCOUNTS.map((acc) => (
-                      <option key={acc} value={acc}>{acc}</option>
-                    ))}
-                  </select>
+                   <div className="flex justify-between items-center">
+                     <label htmlFor="txAccount" className="text-xs font-bold text-life-muted uppercase">
+                       Rekening / Akun
+                     </label>
+                     <button
+                       type="button"
+                       onClick={() => setIsAccountModalOpen(true)}
+                       className="text-[10px] font-black uppercase text-teal-400 hover:underline"
+                     >
+                       ⚙️ Kelola
+                     </button>
+                   </div>
+                   <select
+                     id="txAccount"
+                     value={txAccount}
+                     onChange={(e) => setTxAccount(e.target.value)}
+                     className="glass-select text-xs"
+                   >
+                     {allAccounts.map((acc) => (
+                       <option key={acc} value={acc}>{acc}</option>
+                     ))}
+                   </select>
                 </div>
               </div>
 
@@ -352,7 +368,7 @@ export default function FinancePage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {ACCOUNTS.map((acc) => {
+              {allAccounts.map((acc) => {
                 const accIncome = state.transactions
                   .filter(t => t.type === 'income' && t.account === acc)
                   .reduce((sum, t) => sum + t.amount, 0);
@@ -363,9 +379,10 @@ export default function FinancePage() {
 
                 const accBalance = accIncome - accExpense;
 
-                // Only show if there's activity or if it's a primary account
+                // Only show if there's activity or if it's a primary account or custom account
                 const isPrimary = ['Tunai', 'Bank BCA', 'Bank Mandiri'].includes(acc);
-                if (accBalance === 0 && !isPrimary) return null;
+                const isCustom = customAccounts.includes(acc);
+                if (accBalance === 0 && !isPrimary && !isCustom) return null;
 
                 return (
                   <div 
@@ -677,6 +694,79 @@ export default function FinancePage() {
             Simpan Rencana Keuangan
           </Button>
         </form>
+      </Modal>
+
+      {/* Manage Accounts Modal */}
+      <Modal
+        isOpen={isAccountModalOpen}
+        onClose={() => setIsAccountModalOpen(false)}
+        title="Kelola Rekening / Dompet"
+        subtitle="Tambahkan atau hapus akun rekening/dompet kustom Anda"
+      >
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <h4 className="text-[10px] font-black uppercase text-life-muted tracking-wider border-b border-white/5 pb-1">
+              Rekening Kustom Aktif
+            </h4>
+            <div className="space-y-2 max-h-[180px] overflow-y-auto pr-1">
+              {state.financialAccounts && state.financialAccounts.length > 0 ? (
+                state.financialAccounts.map((acc) => (
+                  <div key={acc.id} className="flex justify-between items-center p-2 rounded bg-white/[0.01] border border-life-line">
+                    <span className="text-xs font-semibold text-life-text">💳 {acc.name}</span>
+                    <button
+                      onClick={() => deleteFinancialAccount(acc.id)}
+                      className="text-life-muted hover:text-life-rose p-1 transition-colors"
+                      title="Hapus Rekening"
+                    >
+                      <Icon name="trash" size={12} />
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <p className="text-xs text-life-muted italic py-2 text-center">Belum ada rekening kustom. Tambahkan di bawah.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="border-t border-white/5 pt-3">
+            <h4 className="text-[10px] font-black uppercase text-life-muted tracking-wider mb-2">
+              Tambah Rekening Baru
+            </h4>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                className="glass-input text-xs flex-1"
+                placeholder="Misal: Bank BNI, DANA, dll..."
+                value={newAccountName}
+                onChange={(e) => setNewAccountName(e.target.value)}
+                onKeyDown={async (e) => {
+                  if (e.key === 'Enter' && newAccountName.trim()) {
+                    e.preventDefault();
+                    await addFinancialAccount(newAccountName.trim());
+                    setNewAccountName('');
+                  }
+                }}
+              />
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={async () => {
+                  if (!newAccountName.trim()) return;
+                  await addFinancialAccount(newAccountName.trim());
+                  setNewAccountName('');
+                }}
+              >
+                Tambah
+              </Button>
+            </div>
+          </div>
+
+          <div className="flex justify-end pt-2 border-t border-white/5">
+            <Button variant="secondary" onClick={() => setIsAccountModalOpen(false)}>
+              Selesai
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );
