@@ -149,6 +149,7 @@ export interface Meal {
 export interface WorkoutSet {
   weight: number;
   reps: number;
+  setType?: 'N' | 'W' | 'D' | 'F';
 }
 
 export interface WorkoutExercise {
@@ -719,10 +720,13 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
               createdAt: w.created_at || w.createdAt,
               exercises: (w.workout_exercises || []).map((e: any) => ({
                 name: e.name,
-                sets: (e.workout_sets || []).map((s: any) => ({
-                  weight: s.weight || 0,
-                  reps: s.reps || 0
-                }))
+                sets: (e.workout_sets || [])
+                  .sort((a: any, b: any) => (a.set_number || 0) - (b.set_number || 0))
+                  .map((s: any) => ({
+                    weight: Number(s.weight) || 0,
+                    reps: Number(s.reps) || 0,
+                    setType: s.set_type || 'N'
+                  }))
               }))
             })),
             healthProfile: healthProfile ? {
@@ -1697,7 +1701,8 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
                   exercise_id: exId,
                   set_number: sIdx + 1,
                   weight: set.weight,
-                  reps: set.reps
+                  reps: set.reps,
+                  set_type: set.setType || 'N'
                 });
                 checkError(setErr, 'addWorkoutSet');
               }
