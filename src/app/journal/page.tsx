@@ -545,7 +545,7 @@ export default function JournalPage() {
             </div>
           </div>
         )}
-      </Modal>    </div>
+      </Modal>
     </div>
   );
 }
