@@ -17,7 +17,7 @@ export default function CapturePage() {
 
   // Form states
   const [title, setTitle] = useState('');
-  const [area, setArea] = useState('');
+  const [area, setArea] = useState('Career');
   const [priority, setPriority] = useState<Priority>('Medium');
   const [notes, setNotes] = useState('');
 
@@ -30,7 +30,7 @@ export default function CapturePage() {
 
     await addIdea({ title, area, priority, notes });
     setTitle('');
-    setArea('');
+    setArea('Career');
     setPriority('Medium');
     setNotes('');
   };
@@ -70,14 +70,19 @@ export default function CapturePage() {
                 <label htmlFor="area" className="text-xs font-bold text-life-muted uppercase">
                   {t('area')}
                 </label>
-                <input
+                <select
                   id="area"
-                  type="text"
-                  placeholder={t('capture_area_placeholder')}
-                  value={area}
+                  value={area || 'Career'}
                   onChange={(e) => setArea(e.target.value)}
-                  className="glass-input text-xs"
-                />
+                  className="glass-select text-xs"
+                >
+                  <option value="Career">Career</option>
+                  <option value="Finance">Finance</option>
+                  <option value="Health">Health</option>
+                  <option value="Learning">Learning</option>
+                  <option value="Personal">Personal</option>
+                  <option value="Relationship">Relationship</option>
+                </select>
               </div>
 
               <div className="flex flex-col space-y-1">

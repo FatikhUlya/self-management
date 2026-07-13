@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/Badge';
 import { MOOD_EMOJIS } from '@/lib/constants';
 import { formatDate } from '@/lib/utils';
 import { Icon } from '@/components/ui/Icon';
+import { Modal } from '@/components/ui/Modal';
 
 export default function JournalPage() {
   const { state, saveJournal, deleteJournal } = useLifeOS();
@@ -18,6 +19,7 @@ export default function JournalPage() {
 
   const today = state.selectedDate;
   const currentJournal = state.journals.find((j) => j.date === today);
+  const [viewingJournal, setViewingJournal] = useState<any | null>(null);
 
   // Helper to load draft safely
   const getDraftOrValue = (key: string, fallback: any) => {
@@ -98,159 +100,179 @@ export default function JournalPage() {
     return d.toISOString().slice(0, 10);
   };
 
-  // Get journals for last 7 days chronologically
-  const last7DaysJournals = [...state.journals]
-    .sort((a, b) => a.date.localeCompare(b.date))
-    .slice(-7);
+  // Month & Year state for trends
+  const [trendMonth, setTrendMonth] = useState(() => new Date(today).getMonth());
+  const [trendYear, setTrendYear] = useState(() => new Date(today).getFullYear());
 
-  // SVG dimensions
-  const svgWidth = 600;
-  const svgHeight = 120;
-  const padding = 20;
-  const chartWidth = svgWidth - padding * 2;
-  const chartHeight = svgHeight - padding * 2;
-
-  const pointsCount = last7DaysJournals.length;
-  const getX = (index: number) => {
-    if (pointsCount <= 1) return padding + chartWidth / 2;
-    return padding + (index / (pointsCount - 1)) * chartWidth;
-  };
-  const getY = (value: number) => {
-    const valPercent = (value - 1) / 4; // Scale 1 to 5 to 0% to 100%
-    return padding + chartHeight - (valPercent * chartHeight);
+  const getDaysInMonth = (month: number, year: number) => {
+    return new Date(year, month + 1, 0).getDate();
   };
 
-  const moodPoints = last7DaysJournals.map((j, i) => ({ x: getX(i), y: getY(j.mood || 3), date: j.date, val: j.mood || 3 }));
-  const energyPoints = last7DaysJournals.map((j, i) => ({ x: getX(i), y: getY(j.energy || 3), date: j.date, val: j.energy || 3 }));
-
-  const buildPath = (points: { x: number; y: number }[]) => {
-    if (points.length === 0) return '';
-    if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
-    return points.reduce((acc, p, i) => {
-      if (i === 0) return `M ${p.x} ${p.y}`;
-      const prev = points[i - 1];
-      const cpX1 = prev.x + (p.x - prev.x) / 2;
-      const cpY1 = prev.y;
-      const cpX2 = prev.x + (p.x - prev.x) / 2;
-      const cpY2 = p.y;
-      return `${acc} C ${cpX1} ${cpY1}, ${cpX2} ${cpY2}, ${p.x} ${p.y}`;
-    }, '');
+  const getFirstDayOfWeek = (month: number, year: number) => {
+    return new Date(year, month, 1).getDay();
   };
 
-  const moodPath = buildPath(moodPoints);
-  const energyPath = buildPath(energyPoints);
+  const handlePrevMonth = () => {
+    if (trendMonth === 0) {
+      setTrendMonth(11);
+      setTrendYear(prev => prev - 1);
+    } else {
+      setTrendMonth(prev => prev - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (trendMonth === 11) {
+      setTrendMonth(0);
+      setTrendYear(prev => prev + 1);
+    } else {
+      setTrendMonth(prev => prev + 1);
+    }
+  };
+
+  const daysInMonth = getDaysInMonth(trendMonth, trendYear);
+  const firstDayOfWeek = getFirstDayOfWeek(trendMonth, trendYear);
+  
+  const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+  const monthNames = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  ];
 
   return (
     <div className="space-y-6">
-      {/* Mood & Energy Trend SVG Chart */}
+      {/* Mood & Energy Trend Monthly Grids */}
       <Surface className="p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-life-line pb-4 mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-life-line pb-4 mb-6">
           <div>
             <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-              {t('journal_trend') || 'Tren Mood & Energi'}
+              {t('journal_trend') || 'Tren Mood & Energi Bulanan'}
             </h3>
             <p className="text-xs text-life-muted mt-0.5">
-              Visualisasi emosi dan tingkat energi Anda dalam 7 entri jurnal terakhir
+              Visualisasi emosi bulanan (emoji) dan tingkat energi (petak petir tingkat kecerahan)
             </p>
           </div>
-          <div className="flex items-center gap-4 text-[10px] font-black uppercase text-life-muted">
-            <span className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-life-teal inline-block shadow-[0_0_8px_rgba(20,184,166,0.5)]" />
-              Mood
+
+          {/* Month Navigation */}
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" size="sm" onClick={handlePrevMonth} className="px-2.5 py-1">
+              <Icon name="chevron-left" size={14} />
+            </Button>
+            <span className="text-xs font-black uppercase text-life-text min-w-[120px] text-center">
+              {monthNames[trendMonth]} {trendYear}
             </span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-2.5 h-2.5 rounded-full bg-indigo-400 inline-block shadow-[0_0_8px_rgba(129,140,248,0.5)]" />
-              Energi
-            </span>
+            <Button variant="secondary" size="sm" onClick={handleNextMonth} className="px-2.5 py-1">
+              <Icon name="chevron-right" size={14} />
+            </Button>
           </div>
         </div>
 
-        {last7DaysJournals.length > 0 ? (
-          <div className="w-full overflow-x-auto">
-            <div className="min-w-[500px] p-2">
-              <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="w-full h-auto overflow-visible">
-                {/* Horizontal reference lines */}
-                {[0, 1, 2, 3, 4].map((i) => {
-                  const yVal = padding + (i / 4) * chartHeight;
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Mood Calendar Grid */}
+          <div className="space-y-3">
+            <div className="flex justify-between items-center border-b border-white/5 pb-2">
+              <span className="text-xs font-bold text-life-text uppercase tracking-wider">🎭 Tren Mood (Emoji)</span>
+              <span className="text-[10px] text-life-muted font-semibold">Klik tanggal untuk rincian</span>
+            </div>
+            <div className="grid grid-cols-7 gap-1.5 text-center">
+              {dayNames.map((day) => (
+                <span key={`mood-dayname-${day}`} className="text-[10px] text-life-muted font-black uppercase py-1">
+                  {day}
+                </span>
+              ))}
+              {/* Padding for first day offset */}
+              {Array.from({ length: firstDayOfWeek }).map((_, i) => (
+                <div key={`mood-empty-${i}`} className="aspect-square" />
+              ))}
+              {/* Days list */}
+              {Array.from({ length: daysInMonth }, (_, i) => {
+                const day = i + 1;
+                const dateStr = `${trendYear}-${String(trendMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const journal = state.journals.find((j) => j.date === dateStr);
+
+                if (journal) {
                   return (
-                    <line
-                      key={i}
-                      x1={padding}
-                      y1={yVal}
-                      x2={svgWidth - padding}
-                      y2={yVal}
-                      className="stroke-white/[0.03] stroke-1"
-                      strokeDasharray="4 4"
-                    />
+                    <div
+                      key={`mood-day-${day}`}
+                      onClick={() => setViewingJournal(journal)}
+                      className="aspect-square flex items-center justify-center text-sm rounded bg-white/[0.04] border border-white/[0.08] hover:border-life-teal cursor-pointer transition-all relative group"
+                      title={`${formatDate(dateStr)}: Mood ${journal.mood || 3}/5`}
+                    >
+                      <span>{MOOD_EMOJIS[(journal.mood || 3) - 1]}</span>
+                      <span className="absolute bottom-0.5 right-1 text-[8px] text-white/20 font-bold leading-none">{day}</span>
+                    </div>
                   );
-                })}
+                }
 
-                {/* Mood path */}
-                {moodPath && (
-                  <path
-                    d={moodPath}
-                    fill="none"
-                    className="stroke-life-teal stroke-[3]"
-                    strokeLinecap="round"
-                  />
-                )}
-
-                {/* Energy path */}
-                {energyPath && (
-                  <path
-                    d={energyPath}
-                    fill="none"
-                    className="stroke-indigo-400 stroke-[3]"
-                    strokeLinecap="round"
-                  />
-                )}
-
-                {/* Mood circles */}
-                {moodPoints.map((p, idx) => (
-                  <g key={`mood-${idx}`} className="group">
-                    <circle
-                      cx={p.x}
-                      cy={p.y}
-                      r="5"
-                      className="fill-life-bg stroke-life-teal stroke-[3] cursor-pointer hover:r-[7] transition-all duration-150"
-                    />
-                    <title>{`${p.date}: Mood ${p.val}/5`}</title>
-                  </g>
-                ))}
-
-                {/* Energy circles */}
-                {energyPoints.map((p, idx) => (
-                  <g key={`energy-${idx}`} className="group">
-                    <circle
-                      cx={p.x}
-                      cy={p.y}
-                      r="5"
-                      className="fill-life-bg stroke-indigo-400 stroke-[3] cursor-pointer hover:r-[7] transition-all duration-150"
-                    />
-                    <title>{`${p.date}: Energi ${p.val}/5`}</title>
-                  </g>
-                ))}
-
-                {/* X-axis date labels */}
-                {moodPoints.map((p, idx) => (
-                  <text
-                    key={`label-${idx}`}
-                    x={p.x}
-                    y={svgHeight - 2}
-                    textAnchor="middle"
-                    className="fill-life-muted font-black text-[9px] uppercase tracking-tight"
+                return (
+                  <div
+                    key={`mood-day-empty-${day}`}
+                    className="aspect-square flex items-center justify-center text-[10px] font-bold text-white/20 rounded bg-white/[0.01] border border-white/[0.03] relative"
                   >
-                    {p.date.slice(-5)}
-                  </text>
-                ))}
-              </svg>
+                    <span>{day}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
-        ) : (
-          <div className="py-6 text-center text-xs text-life-muted font-bold uppercase">
-            Tulis jurnal hari ini untuk mulai melihat bagan perkembangan emosi Anda!
+
+          {/* Energy Calendar Grid */}
+          <div className="space-y-3">
+            <div className="flex justify-between items-center border-b border-white/5 pb-2">
+              <span className="text-xs font-bold text-life-text uppercase tracking-wider">⚡ Tren Energi (Petir)</span>
+              <span className="text-[10px] text-life-muted font-semibold">Semakin terang = semakin bertenaga</span>
+            </div>
+            <div className="grid grid-cols-7 gap-1.5 text-center">
+              {dayNames.map((day) => (
+                <span key={`energy-dayname-${day}`} className="text-[10px] text-life-muted font-black uppercase py-1">
+                  {day}
+                </span>
+              ))}
+              {/* Padding for first day offset */}
+              {Array.from({ length: firstDayOfWeek }).map((_, i) => (
+                <div key={`energy-empty-${i}`} className="aspect-square" />
+              ))}
+              {/* Days list */}
+              {Array.from({ length: daysInMonth }, (_, i) => {
+                const day = i + 1;
+                const dateStr = `${trendYear}-${String(trendMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const journal = state.journals.find((j) => j.date === dateStr);
+
+                if (journal) {
+                  const energyClasses = [
+                    'bg-indigo-950/20 text-indigo-400/30 border-indigo-500/10 hover:border-indigo-400',
+                    'bg-indigo-900/30 text-indigo-400/50 border-indigo-500/20 hover:border-indigo-400',
+                    'bg-indigo-800/40 text-indigo-400/75 border-indigo-500/30 hover:border-indigo-400',
+                    'bg-indigo-700/60 text-indigo-400/95 border-indigo-500/45 hover:border-indigo-400',
+                    'bg-indigo-500 text-white border-indigo-400 shadow-[0_0_6px_rgba(99,102,241,0.45)] hover:bg-indigo-400'
+                  ];
+                  const energyClass = energyClasses[(journal.energy || 3) - 1];
+
+                  return (
+                    <div
+                      key={`energy-day-${day}`}
+                      onClick={() => setViewingJournal(journal)}
+                      className={`aspect-square flex items-center justify-center text-xs rounded border cursor-pointer transition-all relative group ${energyClass}`}
+                      title={`${formatDate(dateStr)}: Energi ⚡ ${journal.energy || 3}/5`}
+                    >
+                      <span>⚡</span>
+                      <span className="absolute bottom-0.5 right-1 text-[8px] opacity-40 font-bold leading-none">{day}</span>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div
+                    key={`energy-day-empty-${day}`}
+                    className="aspect-square flex items-center justify-center text-[10px] font-bold text-white/20 rounded bg-white/[0.01] border border-white/[0.03] relative"
+                  >
+                    <span>{day}</span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-        )}
+        </div>
       </Surface>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -414,11 +436,12 @@ export default function JournalPage() {
               state.journals.map((journal) => (
                 <div 
                   key={journal.id} 
-                  className="p-4 rounded-xl bg-white/[0.01] border border-life-line space-y-2 relative"
+                  onClick={() => setViewingJournal(journal)}
+                  className="p-4 rounded-xl bg-white/[0.01] border border-life-line space-y-2 relative cursor-pointer hover:border-life-line-strong hover:bg-white/[0.02] transition-all"
                 >
                   <div className="flex justify-between items-start">
                     <strong className="text-xs text-life-text">{formatDate(journal.date)}</strong>
-                    <div className="flex items-center space-x-1.5">
+                    <div className="flex items-center space-x-1.5" onClick={(e) => e.stopPropagation()}>
                       <Badge tone="teal">{`Mood ${MOOD_EMOJIS[(journal.mood || 3) - 1]}`}</Badge>
                       <Badge tone="indigo">{`Energy ⚡ ${journal.energy}/5`}</Badge>
                       <button
@@ -443,7 +466,7 @@ export default function JournalPage() {
                       </p>
                     )}
                     {journal.reflection && (
-                      <p className="border-t border-white/5 pt-1.5 italic text-[11px] leading-relaxed">
+                      <p className="border-t border-white/5 pt-1.5 italic text-[11px] leading-relaxed truncate">
                         &ldquo;{journal.reflection}&rdquo;
                       </p>
                     )}
@@ -456,6 +479,73 @@ export default function JournalPage() {
           </div>
         </Surface>
       </div>
+
+      {/* Modal Detail Jurnal */}
+      <Modal
+        isOpen={!!viewingJournal}
+        onClose={() => setViewingJournal(null)}
+        title={viewingJournal ? `Jurnal Harian — ${formatDate(viewingJournal.date)}` : ''}
+        subtitle={
+          viewingJournal 
+            ? `Mood: ${MOOD_EMOJIS[(viewingJournal.mood || 3) - 1]} | Energi: ⚡ ${viewingJournal.energy}/5`
+            : ''
+        }
+      >
+        {viewingJournal && (
+          <div className="space-y-4 text-xs leading-relaxed text-life-text">
+            {/* Gratitudes */}
+            <div className="space-y-1.5">
+              <h4 className="text-[10px] font-black uppercase text-life-muted tracking-wider border-b border-white/5 pb-1">
+                Hal yang Disyukuri (Gratitudes)
+              </h4>
+              <ul className="list-disc pl-4 space-y-1 text-life-text">
+                {viewingJournal.gratitude_1 && <li>{viewingJournal.gratitude_1}</li>}
+                {viewingJournal.gratitude_2 && <li>{viewingJournal.gratitude_2}</li>}
+                {viewingJournal.gratitude_3 && <li>{viewingJournal.gratitude_3}</li>}
+                {!viewingJournal.gratitude_1 && !viewingJournal.gratitude_2 && !viewingJournal.gratitude_3 && (
+                  <li className="italic text-life-muted">Tidak ada data</li>
+                )}
+              </ul>
+            </div>
+
+            {/* Wins */}
+            <div className="space-y-1.5">
+              <h4 className="text-[10px] font-black uppercase text-life-muted tracking-wider border-b border-white/5 pb-1">
+                Pencapaian Hari Ini (Daily Win)
+              </h4>
+              <p className="text-life-text font-semibold">
+                🏆 {viewingJournal.win || <span className="italic text-life-muted">Tidak ada data</span>}
+              </p>
+            </div>
+
+            {/* Reflection */}
+            <div className="space-y-1.5">
+              <h4 className="text-[10px] font-black uppercase text-life-muted tracking-wider border-b border-white/5 pb-1">
+                Refleksi & Catatan
+              </h4>
+              <p className="italic text-[11px] bg-white/[0.01] border border-life-line p-3 rounded-lg leading-relaxed text-life-text">
+                &ldquo;{viewingJournal.reflection || 'Tidak ada catatan refleksi untuk hari ini.'}&rdquo;
+              </p>
+            </div>
+
+            {/* Next Day Plan */}
+            <div className="space-y-1.5">
+              <h4 className="text-[10px] font-black uppercase text-life-muted tracking-wider border-b border-white/5 pb-1">
+                Rencana Hari Esok (Next Steps)
+              </h4>
+              <p className="text-life-text">
+                👉 {viewingJournal.next || <span className="italic text-life-muted">Tidak ada data</span>}
+              </p>
+            </div>
+
+            <div className="flex justify-end pt-2 border-t border-white/5">
+              <Button variant="secondary" onClick={() => setViewingJournal(null)}>
+                Tutup
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>    </div>
     </div>
   );
 }
