@@ -684,7 +684,7 @@ export default function HealthPage() {
               <div className="border-t border-life-line pt-4 space-y-3">
                 <span className="text-[10px] text-life-muted font-black uppercase tracking-wider block">Mulai Rutinitas Program</span>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                  {STRENGTH_PROGRAMS.map((progName) => (
+                  {strengthPrograms.map((progName) => (
                     <button
                       key={progName}
                       onClick={() => {
