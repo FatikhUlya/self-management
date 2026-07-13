@@ -327,6 +327,7 @@ interface LifeOSContextProps {
   updateFinancialGoal: (id: string, currentAmount: number) => Promise<void>;
   deleteFinancialGoal: (id: string) => Promise<void>;
   addFinancialAccount: (name: string) => Promise<void>;
+  updateFinancialAccount: (id: string, name: string) => Promise<void>;
   deleteFinancialAccount: (id: string) => Promise<void>;
 }
 
@@ -386,7 +387,14 @@ const initialDefaultState = (today: string): LifeOSState => ({
   reviews: [],
   transactions: [],
   financialGoals: [],
-  financialAccounts: [],
+  financialAccounts: [
+    { id: 'acc-tunai', name: 'Tunai', createdAt: new Date().toISOString() },
+    { id: 'acc-bca', name: 'Bank BCA', createdAt: new Date().toISOString() },
+    { id: 'acc-mandiri', name: 'Bank Mandiri', createdAt: new Date().toISOString() },
+    { id: 'acc-gopay', name: 'GoPay', createdAt: new Date().toISOString() },
+    { id: 'acc-ovo', name: 'OVO', createdAt: new Date().toISOString() },
+    { id: 'acc-shopeepay', name: 'ShopeePay', createdAt: new Date().toISOString() }
+  ],
   dictionary: [],
   displayMode: 'auto',
   reviewPeriod: 'weekly',
@@ -759,11 +767,27 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
               language: d.language || 'English',
               createdAt: d.created_at || d.createdAt || new Date().toISOString()
             })),
-            financialAccounts: (financialAccountsData as any[] || []).map(fa => ({
-              id: fa.id,
-              name: fa.name,
-              createdAt: fa.created_at || fa.createdAt
-            })),
+            financialAccounts: await (async () => {
+              let fetched = financialAccountsData as any[] || [];
+              if (fetched.length === 0) {
+                const defaultAccs = ['Tunai', 'Bank BCA', 'Bank Mandiri', 'GoPay', 'OVO', 'ShopeePay'];
+                const payload = defaultAccs.map(name => ({
+                  user_id: userId,
+                  name
+                }));
+                const { data: seededAccs, error: seedErr } = await supabase.from('financial_accounts').insert(payload).select();
+                if (!seedErr && seededAccs) {
+                  fetched = seededAccs;
+                } else {
+                  console.error('[LifeOS] Failed to seed default accounts:', seedErr);
+                }
+              }
+              return fetched.map(fa => ({
+                id: fa.id,
+                name: fa.name,
+                createdAt: fa.created_at || fa.createdAt
+              }));
+            })(),
           }));
           setLoading(false);
           return;
@@ -1960,6 +1984,18 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
     }
   }, [isDbConnected, updateStateAndPersist, checkError]);
 
+  const updateFinancialAccount = useCallback(async (id: string, name: string) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      financialAccounts: prev.financialAccounts.map(fa => fa.id === id ? { ...fa, name } : fa)
+    }));
+
+    if (isDbConnected) {
+      const { error } = await supabase.from('financial_accounts').update({ name }).eq('id', id);
+      checkError(error, 'updateFinancialAccount');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
   // Dynamically compute goal progress based on linked projects and tasks
   const processedGoals = useMemo(() => {
     return state.goals.map(goal => {
@@ -2045,6 +2081,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
         updateFinancialGoal,
         deleteFinancialGoal,
         addFinancialAccount,
+        updateFinancialAccount,
         deleteFinancialAccount,
       }}
     >

@@ -31,8 +31,6 @@ const INCOME_CATEGORIES = [
   'Lainnya'
 ];
 
-const DEFAULT_ACCOUNTS = ['Tunai', 'Bank BCA', 'Bank Mandiri', 'GoPay', 'OVO', 'ShopeePay'];
-
 export default function FinancePage() {
   const { 
     state, 
@@ -42,13 +40,17 @@ export default function FinancePage() {
     updateFinancialGoal, 
     deleteFinancialGoal,
     addFinancialAccount,
+    updateFinancialAccount,
     deleteFinancialAccount
   } = useLifeOS();
 
   const { t } = useI18n();
 
   const customAccounts = state.financialAccounts ? state.financialAccounts.map(fa => fa.name) : [];
-  const allAccounts = Array.from(new Set([...DEFAULT_ACCOUNTS, ...customAccounts, 'Lainnya']));
+  const allAccounts = Array.from(new Set([...customAccounts, 'Lainnya']));
+
+  const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
+  const [editingAccountName, setEditingAccountName] = useState('');
 
   // Transaction form states
   const [txTitle, setTxTitle] = useLocalStorageState('draft_tx_title', '');
@@ -701,31 +703,88 @@ export default function FinancePage() {
         isOpen={isAccountModalOpen}
         onClose={() => setIsAccountModalOpen(false)}
         title="Kelola Rekening / Dompet"
-        subtitle="Tambahkan atau hapus akun rekening/dompet kustom Anda"
+        subtitle="Kelola semua akun rekening/dompet Anda"
       >
         <div className="space-y-4">
           <div className="space-y-2">
             <h4 className="text-[10px] font-black uppercase text-life-muted tracking-wider border-b border-white/5 pb-1">
-              Rekening Kustom Aktif
+              Daftar Rekening Aktif
             </h4>
             <div className="space-y-2 max-h-[180px] overflow-y-auto pr-1">
               {state.financialAccounts && state.financialAccounts.length > 0 ? (
                 state.financialAccounts.map((acc) => (
                   <div key={acc.id} className="flex justify-between items-center p-2 rounded bg-white/[0.01] border border-life-line">
-                    <span className="flex items-center gap-1.5 text-xs font-semibold text-life-text">
-                      <Icon name="wallet" size={12} className="text-life-muted" /> {acc.name}
-                    </span>
-                    <button
-                      onClick={() => deleteFinancialAccount(acc.id)}
-                      className="text-life-muted hover:text-life-rose p-1 transition-colors"
-                      title="Hapus Rekening"
-                    >
-                      <Icon name="trash" size={12} />
-                    </button>
+                    {editingAccountId === acc.id ? (
+                      <div className="flex items-center gap-1.5 flex-1 mr-2">
+                        <input
+                          type="text"
+                          value={editingAccountName}
+                          onChange={(e) => setEditingAccountName(e.target.value)}
+                          className="glass-input text-xs py-0.5 px-2 flex-1"
+                          autoFocus
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              if (editingAccountName.trim()) {
+                                updateFinancialAccount(acc.id, editingAccountName.trim());
+                                setEditingAccountId(null);
+                              }
+                            } else if (e.key === 'Escape') {
+                              setEditingAccountId(null);
+                            }
+                          }}
+                        />
+                        <button
+                          onClick={() => {
+                            if (editingAccountName.trim()) {
+                              updateFinancialAccount(acc.id, editingAccountName.trim());
+                              setEditingAccountId(null);
+                            }
+                          }}
+                          className="p-1 text-emerald-400 hover:text-emerald-300"
+                          title="Simpan"
+                        >
+                          <Icon name="check" size={12} />
+                        </button>
+                        <button
+                          onClick={() => setEditingAccountId(null)}
+                          className="p-1 text-life-muted hover:text-life-text"
+                          title="Batal"
+                        >
+                          <Icon name="x" size={12} />
+                        </button>
+                      </div>
+                    ) : (
+                      <span className="flex items-center gap-1.5 text-xs font-semibold text-life-text truncate mr-2">
+                        <Icon name="wallet" size={12} className="text-life-muted shrink-0" />
+                        <span>{acc.name}</span>
+                      </span>
+                    )}
+
+                    {editingAccountId !== acc.id && (
+                      <div className="flex items-center space-x-1 shrink-0">
+                        <button
+                          onClick={() => {
+                            setEditingAccountId(acc.id);
+                            setEditingAccountName(acc.name);
+                          }}
+                          className="text-life-muted hover:text-life-teal p-1 transition-colors"
+                          title="Ubah Nama"
+                        >
+                          <Icon name="edit" size={12} />
+                        </button>
+                        <button
+                          onClick={() => deleteFinancialAccount(acc.id)}
+                          className="text-life-muted hover:text-life-rose p-1 transition-colors"
+                          title="Hapus Rekening"
+                        >
+                          <Icon name="trash" size={12} />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))
               ) : (
-                <p className="text-xs text-life-muted italic py-2 text-center">Belum ada rekening kustom. Tambahkan di bawah.</p>
+                <p className="text-xs text-life-muted italic py-2 text-center">Belum ada rekening aktif. Tambahkan di bawah.</p>
               )}
             </div>
           </div>
