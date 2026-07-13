@@ -3,7 +3,7 @@ import React from 'react';
 type BadgeTone = 'teal' | 'indigo' | 'amber' | 'rose' | 'green' | 'gray';
 
 interface BadgeProps {
-  children: string | number;
+  children: React.ReactNode;
   tone?: BadgeTone;
   className?: string;
 }
