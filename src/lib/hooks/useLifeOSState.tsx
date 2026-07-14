@@ -517,11 +517,26 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
 
           if (userUpsertError) {
             console.error('[LifeOS] Failed to upsert user profile:', userUpsertError);
-            alert(
-              `Gagal menyelaraskan profil pengguna: ${userUpsertError.message}\n\n` +
-              `Untuk memperbaikinya, jalankan perintah SQL ini di Dashboard Supabase → SQL Editor:\n` +
-              `ALTER TABLE users DISABLE ROW LEVEL SECURITY;`
-            );
+            const isNetworkError = !userUpsertError.code || 
+                                   userUpsertError.message?.toLowerCase().includes('load failed') || 
+                                   userUpsertError.message?.toLowerCase().includes('failed to fetch') ||
+                                   userUpsertError.message?.toLowerCase().includes('network');
+            
+            if (isNetworkError) {
+              alert(
+                `Gagal menyambung ke database (Network/CORS Error):\n${userUpsertError.message}\n\n` +
+                `Penyebab umum:\n` +
+                `1. Koneksi internet Anda tidak stabil.\n` +
+                `2. Browser Anda menggunakan AdBlocker, Brave Shield, atau VPN yang memblokir domain Supabase (ejbtjcaxfjuoedytagrp.supabase.co).\n` +
+                `Silakan matikan AdBlocker/Brave Shield untuk situs ini, atau periksa jaringan Anda.`
+              );
+            } else {
+              alert(
+                `Gagal menyelaraskan profil pengguna (Database Error): ${userUpsertError.message}\n\n` +
+                `Untuk memperbaikinya, jalankan perintah SQL ini di Dashboard Supabase → SQL Editor:\n` +
+                `ALTER TABLE users DISABLE ROW LEVEL SECURITY;`
+              );
+            }
           }
 
           // 2. Fetch user-specific data in parallel
