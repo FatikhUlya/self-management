@@ -117,7 +117,8 @@ export default function ProjectsPage() {
                   title: cleanTitle,
                   due: due,
                   priority: 'Medium',
-                  googleEventId: gevent.id
+                  googleEventId: gevent.id,
+                  projectId: ''
                 });
               }
             }
@@ -192,7 +193,8 @@ export default function ProjectsPage() {
               title: cleanTitle,
               due: due,
               priority: 'Medium',
-              googleEventId: gevent.id
+              googleEventId: gevent.id,
+              projectId: ''
             });
           }
         }
