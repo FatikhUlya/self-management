@@ -976,14 +976,15 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
       createdAt: new Date().toISOString()
     };
 
-    // Auto-push event to Google Calendar if connected
-    if (item.kind === 'event' && typeof window !== 'undefined' && window.gapi?.client?.calendar) {
+    // Auto-push event/task to Google Calendar if connected
+    if ((item.kind === 'event' || item.kind === 'task') && typeof window !== 'undefined' && window.gapi?.client?.calendar) {
       try {
+        const titlePrefix = item.kind === 'task' ? '[Tugas] ' : '';
         const gEventId = await createCalendarEvent({
-          title: item.title,
+          title: `${titlePrefix}${item.title}`,
           date: item.date,
-          startTime: item.startTime,
-          endTime: item.endTime,
+          startTime: item.startTime || '09:00',
+          endTime: item.endTime || '10:00',
           notes: item.notes
         });
         if (gEventId) {
