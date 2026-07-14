@@ -624,6 +624,7 @@ export default function HealthPage() {
                 <input
                   type="number"
                   min="0"
+                  step="any"
                   required
                   value={mealProtein}
                   onChange={(e) => setMealProtein(Number(e.target.value))}
@@ -638,6 +639,7 @@ export default function HealthPage() {
                 <input
                   type="number"
                   min="0"
+                  step="any"
                   required
                   value={mealCalories}
                   onChange={(e) => setMealCalories(Number(e.target.value))}
