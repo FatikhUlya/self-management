@@ -81,8 +81,20 @@ export default function PlanningPage() {
 
             // Auto-import google events to plans if they don't exist yet
             const existingPlans = [...state.nextDayPlans];
+            
+            // Delete local plans that were deleted from Google Calendar
+            const fetchedEventIds = new Set(events.map(e => e.id));
+            const localPlansWithGCal = existingPlans.filter(p => p.googleEventId);
+            for (const localPlan of localPlansWithGCal) {
+              if (localPlan.googleEventId && !fetchedEventIds.has(localPlan.googleEventId)) {
+                console.log('[Planning] Event deleted externally, removing locally:', localPlan.title);
+                await deletePlan(localPlan.id);
+              }
+            }
 
             for (const gevent of events) {
+              if (gevent.summary?.startsWith('[Tugas]')) continue; // Skip tasks, handled in Projects module
+
               const startIso = gevent.start.dateTime || gevent.start.date || '';
               const endIso = gevent.end.dateTime || gevent.end.date || '';
               
@@ -204,8 +216,20 @@ export default function PlanningPage() {
         
         // Auto-import google events to plans if they don't exist yet
         const existingPlans = [...state.nextDayPlans];
+        
+        // Delete local plans that were deleted from Google Calendar
+        const fetchedEventIds = new Set(events.map(e => e.id));
+        const localPlansWithGCal = existingPlans.filter(p => p.googleEventId);
+        for (const localPlan of localPlansWithGCal) {
+          if (localPlan.googleEventId && !fetchedEventIds.has(localPlan.googleEventId)) {
+            console.log('[Planning] Event deleted externally, removing locally:', localPlan.title);
+            await deletePlan(localPlan.id);
+          }
+        }
 
         for (const gevent of events) {
+          if (gevent.summary?.startsWith('[Tugas]')) continue; // Skip tasks, handled in Projects module
+
           const startIso = gevent.start.dateTime || gevent.start.date || '';
           const endIso = gevent.end.dateTime || gevent.end.date || '';
           

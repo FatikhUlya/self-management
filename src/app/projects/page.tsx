@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
 import { formatDate, percent } from '@/lib/utils';
 import { PRIORITY_OPTIONS, Priority } from '@/lib/constants';
-import { isGoogleCalendarConfigured, initGoogleCalendar, restoreGoogleToken } from '@/lib/google-calendar';
+import { isGoogleCalendarConfigured, initGoogleCalendar, restoreGoogleToken, fetchCalendarEvents, signInGoogle } from '@/lib/google-calendar';
 
 
 export default function ProjectsPage() {
@@ -45,13 +45,163 @@ export default function ProjectsPage() {
   const activeProjectsCount = state.projects.filter(p => p.status === 'active').length;
   const activeTasksCount = state.tasks.filter(t => t.status !== 'done').length;
 
+  const [isGCalConfigured, setIsGCalConfigured] = useState(false);
+  const [isGCalConnected, setIsGCalConnected] = useState(false);
+  const [gcalSyncing, setGcalSyncing] = useState(false);
+  const syncedRef = React.useRef(false);
+
   useEffect(() => {
-    if (isGoogleCalendarConfigured()) {
-      initGoogleCalendar().then((success) => {
-        if (success) restoreGoogleToken();
-      }).catch((err) => console.error('[Projects] Pre-load GCal failed:', err));
+    const configured = isGoogleCalendarConfigured();
+    setIsGCalConfigured(configured);
+
+    if (!configured) return;
+    
+    // Also pre-load GCal
+    initGoogleCalendar().catch((err) => console.error('[Projects] Pre-load GCal failed:', err));
+
+    if (syncedRef.current) return;
+    syncedRef.current = true;
+
+    async function autoSync() {
+      try {
+        const initSuccess = await initGoogleCalendar();
+        if (initSuccess) {
+          const tokenActive = restoreGoogleToken();
+          if (tokenActive) {
+            setIsGCalConnected(true);
+            setGcalSyncing(true);
+
+            // Fetch events for next 30 days to sync tasks
+            const startD = new Date(state.selectedDate);
+            const endD = new Date(startD);
+            endD.setDate(endD.getDate() + 30);
+            const startIso = startD.toISOString().split('T')[0];
+            const endIso = endD.toISOString().split('T')[0];
+
+            const events = await fetchCalendarEvents(startIso, endIso);
+            const existingTasks = [...state.tasks];
+            
+            // 1. Delete local tasks that were deleted from Google Calendar
+            const fetchedEventIds = new Set(events.map(e => e.id));
+            const localTasksInWindow = existingTasks.filter(t => t.googleEventId && t.due && t.due >= startIso && t.due <= endIso);
+            for (const t of localTasksInWindow) {
+              if (t.googleEventId && !fetchedEventIds.has(t.googleEventId)) {
+                console.log('[Projects] Task deleted externally:', t.title);
+                await deleteTask(t.id);
+              }
+            }
+
+            // 2. Import [Tugas] events from Google Calendar
+            for (const gevent of events) {
+              if (!gevent.summary?.startsWith('[Tugas]')) continue;
+              
+              const cleanTitle = gevent.summary.replace('[Tugas]', '').trim();
+              const dateIso = gevent.start.dateTime || gevent.start.date || '';
+              const due = dateIso ? dateIso.slice(0, 10) : state.selectedDate;
+              
+              const exists = existingTasks.some(t => t.googleEventId === gevent.id || (t.title === cleanTitle && t.due === due));
+              if (!exists) {
+                existingTasks.push({
+                   id: 'temp-' + gevent.id,
+                   title: cleanTitle,
+                   due: due,
+                   status: 'todo',
+                   priority: 'Medium',
+                   googleEventId: gevent.id,
+                   projectId: '',
+                   createdAt: new Date().toISOString()
+                });
+                
+                await addTask({
+                  title: cleanTitle,
+                  due: due,
+                  priority: 'Medium',
+                  googleEventId: gevent.id
+                });
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setGcalSyncing(false);
+      }
     }
-  }, []);
+
+    autoSync();
+  }, [state.selectedDate, state.tasks, addTask, deleteTask]);
+
+  const handleGoogleSync = async () => {
+    setGcalSyncing(true);
+    try {
+      const isLoaded = typeof window !== 'undefined' && !!window.gapi?.client?.calendar && !!window.google?.accounts?.oauth2;
+      if (!isLoaded) {
+        const initSuccess = await initGoogleCalendar();
+        if (!initSuccess) {
+          alert('Gagal inisialisasi Google API client.');
+          setGcalSyncing(false);
+          return;
+        }
+      }
+
+      const token = await signInGoogle();
+      if (token) {
+        setIsGCalConnected(true);
+        const startD = new Date(state.selectedDate);
+        const endD = new Date(startD);
+        endD.setDate(endD.getDate() + 30);
+        const startIso = startD.toISOString().split('T')[0];
+        const endIso = endD.toISOString().split('T')[0];
+
+        const events = await fetchCalendarEvents(startIso, endIso);
+        const existingTasks = [...state.tasks];
+        
+        const fetchedEventIds = new Set(events.map(e => e.id));
+        const localTasksInWindow = existingTasks.filter(t => t.googleEventId && t.due && t.due >= startIso && t.due <= endIso);
+        for (const t of localTasksInWindow) {
+          if (t.googleEventId && !fetchedEventIds.has(t.googleEventId)) {
+            console.log('[Projects] Task deleted externally:', t.title);
+            await deleteTask(t.id);
+          }
+        }
+
+        for (const gevent of events) {
+          if (!gevent.summary?.startsWith('[Tugas]')) continue;
+          
+          const cleanTitle = gevent.summary.replace('[Tugas]', '').trim();
+          const dateIso = gevent.start.dateTime || gevent.start.date || '';
+          const due = dateIso ? dateIso.slice(0, 10) : state.selectedDate;
+          
+          const exists = existingTasks.some(t => t.googleEventId === gevent.id || (t.title === cleanTitle && t.due === due));
+          if (!exists) {
+            existingTasks.push({
+               id: 'temp-' + gevent.id,
+               title: cleanTitle,
+               due: due,
+               status: 'todo',
+               priority: 'Medium',
+               googleEventId: gevent.id,
+               projectId: '',
+               createdAt: new Date().toISOString()
+            });
+            
+            await addTask({
+              title: cleanTitle,
+              due: due,
+              priority: 'Medium',
+              googleEventId: gevent.id
+            });
+          }
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      alert('Error saat sinkronisasi Google Calendar.');
+    } finally {
+      setGcalSyncing(false);
+    }
+  };
 
   const handleProjectSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -482,30 +632,46 @@ export default function ProjectsPage() {
             </p>
           </div>
 
-          {/* Kanban / List Toggle */}
-          <div className="flex bg-white/[0.02] border border-life-line rounded-lg p-0.5 shrink-0 self-start sm:self-auto">
-            <button
-              type="button"
-              onClick={() => setViewMode('kanban')}
-              className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-wider transition-all duration-150 ${
-                viewMode === 'kanban'
-                  ? 'bg-life-teal text-white shadow-md'
-                  : 'text-life-muted hover:text-life-text'
-              }`}
-            >
-              Kanban
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode('list')}
-              className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-wider transition-all duration-150 ${
-                viewMode === 'list'
-                  ? 'bg-life-teal text-white shadow-md'
-                  : 'text-life-muted hover:text-life-text'
-              }`}
-            >
-              Daftar
-            </button>
+          {/* Kanban / List Toggle & GCal Sync */}
+          <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+            {isGCalConfigured && (
+              <button
+                onClick={handleGoogleSync}
+                disabled={gcalSyncing}
+                className="flex items-center space-x-1.5 px-3 py-1.5 bg-white/[0.02] hover:bg-life-teal/20 text-life-muted hover:text-life-text border border-life-line rounded-lg transition-all"
+                title="Sinkronisasi dengan Google Calendar"
+              >
+                <Icon name="calendar" size={12} className={gcalSyncing ? 'animate-spin' : ''} />
+                <span className="text-[10px] font-bold uppercase tracking-wider hidden sm:inline">
+                  {gcalSyncing ? 'Syncing...' : isGCalConnected ? 'Synced' : 'Sync GCal'}
+                </span>
+              </button>
+            )}
+
+            <div className="flex bg-white/[0.02] border border-life-line rounded-lg p-0.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => setViewMode('kanban')}
+                className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-wider transition-all duration-150 ${
+                  viewMode === 'kanban'
+                    ? 'bg-life-teal text-white shadow-md'
+                    : 'text-life-muted hover:text-life-text'
+                }`}
+              >
+                Kanban
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode('list')}
+                className={`px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-wider transition-all duration-150 ${
+                  viewMode === 'list'
+                    ? 'bg-life-teal text-white shadow-md'
+                    : 'text-life-muted hover:text-life-text'
+                }`}
+              >
+                Daftar
+              </button>
+            </div>
           </div>
         </div>
 
