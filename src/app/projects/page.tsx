@@ -109,7 +109,8 @@ export default function ProjectsPage() {
                    priority: 'Medium',
                    googleEventId: gevent.id,
                    projectId: '',
-                   createdAt: new Date().toISOString()
+                   createdAt: new Date().toISOString(),
+                   completedAt: ''
                 });
                 
                 await addTask({
@@ -183,7 +184,8 @@ export default function ProjectsPage() {
                priority: 'Medium',
                googleEventId: gevent.id,
                projectId: '',
-               createdAt: new Date().toISOString()
+               createdAt: new Date().toISOString(),
+               completedAt: ''
             });
             
             await addTask({
