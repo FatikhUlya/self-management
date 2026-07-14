@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { useLocalStorageState } from '@/lib/hooks/useLocalStorageState';
 import { useI18n } from '@/lib/i18n/context';
@@ -11,6 +11,8 @@ import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
 import { formatDate, percent } from '@/lib/utils';
 import { PRIORITY_OPTIONS, Priority } from '@/lib/constants';
+import { isGoogleCalendarConfigured, initGoogleCalendar, restoreGoogleToken } from '@/lib/google-calendar';
+
 
 export default function ProjectsPage() {
   const { 
@@ -42,6 +44,14 @@ export default function ProjectsPage() {
 
   const activeProjectsCount = state.projects.filter(p => p.status === 'active').length;
   const activeTasksCount = state.tasks.filter(t => t.status !== 'done').length;
+
+  useEffect(() => {
+    if (isGoogleCalendarConfigured()) {
+      initGoogleCalendar().then((success) => {
+        if (success) restoreGoogleToken();
+      }).catch((err) => console.error('[Projects] Pre-load GCal failed:', err));
+    }
+  }, []);
 
   const handleProjectSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
