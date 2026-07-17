@@ -15,7 +15,7 @@ import { Modal } from '@/components/ui/Modal';
 
 export default function JournalPage() {
   const { state, saveJournal, deleteJournal } = useLifeOS();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   const today = state.selectedDate;
   const currentJournal = state.journals.find((j) => j.date === today);
