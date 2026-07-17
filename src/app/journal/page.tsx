@@ -268,23 +268,21 @@ export default function JournalPage() {
                 const journal = state.journals.find((j) => j.date === dateStr);
 
                 if (journal) {
-                  const energyClasses = [
-                    'bg-indigo-950/20 text-indigo-400/30 border-indigo-500/10 hover:border-indigo-400',
-                    'bg-indigo-900/30 text-indigo-400/50 border-indigo-500/20 hover:border-indigo-400',
-                    'bg-indigo-800/40 text-indigo-400/75 border-indigo-500/30 hover:border-indigo-400',
-                    'bg-indigo-700/60 text-indigo-400/95 border-indigo-500/45 hover:border-indigo-400',
-                    'bg-indigo-500 text-white border-indigo-400 shadow-[0_0_6px_rgba(99,102,241,0.45)] hover:bg-indigo-400'
-                  ];
-                  const energyClass = energyClasses[(journal.energy || 3) - 1];
+                  const zapColor = 
+                    (journal.energy || 3) === 1 ? 'text-red-500' :
+                    (journal.energy || 3) === 2 ? 'text-orange-500' :
+                    (journal.energy || 3) === 3 ? 'text-amber-500' :
+                    (journal.energy || 3) === 4 ? 'text-yellow-500' :
+                    'text-yellow-300';
 
                   return (
                     <div
                       key={`energy-day-${day}`}
                       onClick={() => setViewingJournal(journal)}
-                      className={`aspect-square flex items-center justify-center text-xs rounded border cursor-pointer transition-all relative group ${energyClass}`}
+                      className="aspect-square flex items-center justify-center rounded bg-white/[0.04] border border-white/[0.08] hover:border-life-teal cursor-pointer transition-all relative group"
                       title={`${formatDate(dateStr)}: Energi ${journal.energy || 3}/5`}
                     >
-                      <Icon name="zap" size={12} />
+                      <Icon name="zap" size={12} className={zapColor} />
                       <span className="absolute bottom-0.5 right-1 text-[8px] opacity-40 font-bold leading-none">{day}</span>
                     </div>
                   );
@@ -320,38 +318,40 @@ export default function JournalPage() {
             {/* Mood & Energy selectors */}
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-xs font-bold text-life-muted uppercase block">
+                <label htmlFor="mood" className="text-xs font-bold text-life-muted uppercase block">
                   {t('journal_mood')}
                 </label>
-                <div className="flex justify-between items-center bg-white/[0.01] border border-life-line rounded-lg p-1.5">
-                  {MOOD_EMOJIS.map((_, index) => {
-                    const val = index + 1;
-                    const isSelected = mood === val;
-                    return (
-                      <button
-                        key={val}
-                        type="button"
-                        onClick={() => setMood(val)}
-                        className={`p-1.5 rounded-md transition-all ${
-                          isSelected ? 'bg-life-teal text-white scale-110 shadow-md' : 'opacity-50 hover:opacity-100'
-                        }`}
-                        title={`Mood ${val}`}
-                      >
-                        <Icon
-                          name={`mood${val}`}
-                          size={20}
-                          className={
-                            isSelected ? 'text-white' :
-                            val === 1 ? 'text-rose-500' :
-                            val === 2 ? 'text-orange-400' :
-                            val === 3 ? 'text-yellow-400' :
-                            val === 4 ? 'text-lime-500' :
-                            'text-emerald-500'
-                          }
-                        />
-                      </button>
-                    );
-                  })}
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
+                    <Icon
+                      name={`mood${mood}`}
+                      size={16}
+                      className={
+                        mood === 1 ? 'text-rose-500' :
+                        mood === 2 ? 'text-orange-400' :
+                        mood === 3 ? 'text-yellow-400' :
+                        mood === 4 ? 'text-lime-500' :
+                        'text-emerald-500'
+                      }
+                    />
+                  </div>
+                  <select
+                    id="mood"
+                    value={mood}
+                    onChange={(e) => setMood(Number(e.target.value))}
+                    className="glass-select w-full pl-9"
+                  >
+                    {[1, 2, 3, 4, 5].map((val) => {
+                      const moodLabels = locale === 'id' 
+                        ? ['Sangat Buruk', 'Buruk', 'Biasa', 'Senang', 'Sangat Senang']
+                        : ['Very Bad', 'Bad', 'Neutral', 'Good', 'Very Good'];
+                      return (
+                        <option key={val} value={val}>
+                          {moodLabels[val - 1]} ({val}/5)
+                        </option>
+                      );
+                    })}
+                  </select>
                 </div>
               </div>
 
@@ -359,18 +359,33 @@ export default function JournalPage() {
                 <label htmlFor="energy" className="text-xs font-bold text-life-muted uppercase block">
                   {t('journal_energy')}
                 </label>
-                <select
-                  id="energy"
-                  value={energy}
-                  onChange={(e) => setEnergy(Number(e.target.value))}
-                  className="glass-select w-full"
-                >
-                  {[1, 2, 3, 4, 5].map((val) => (
-                    <option key={val} value={val}>
-                      Energi {val} / 5
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
+                    <Icon
+                      name="zap"
+                      size={14}
+                      className={
+                        energy === 1 ? 'text-red-500' :
+                        energy === 2 ? 'text-orange-500' :
+                        energy === 3 ? 'text-amber-500' :
+                        energy === 4 ? 'text-yellow-500' :
+                        'text-yellow-300'
+                      }
+                    />
+                  </div>
+                  <select
+                    id="energy"
+                    value={energy}
+                    onChange={(e) => setEnergy(Number(e.target.value))}
+                    className="glass-select w-full pl-9"
+                  >
+                    {[1, 2, 3, 4, 5].map((val) => (
+                      <option key={val} value={val}>
+                        Energi {val} / 5
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
