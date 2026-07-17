@@ -140,7 +140,7 @@ export default function Dashboard() {
         <div>
           <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-emerald-600 dark:from-teal-300 dark:to-emerald-500 flex items-center gap-2">
             <Icon name="layout" size={28} className="text-emerald-500" />
-            {t(greetingKey)}, Guest
+            {t(greetingKey)}, Fatikh
           </h1>
           <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
             {formatDate(today, { locale: locale === 'id' ? 'id-ID' : 'en-US' })}

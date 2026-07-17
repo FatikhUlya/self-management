@@ -529,8 +529,8 @@ export default function LearningPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 items-end">
-                  <div className="flex flex-col space-y-1">
+                <div className="flex flex-col sm:flex-row gap-3 items-end">
+                  <div className="flex flex-col space-y-1 flex-1 w-full">
                     <label htmlFor="vocabLang" className="text-xs font-bold text-life-muted uppercase">
                       {t('dictionary_lang')}
                     </label>
@@ -552,7 +552,7 @@ export default function LearningPage() {
                   </div>
 
                   {vocabLanguage === 'Other' && (
-                    <div className="flex flex-col space-y-1">
+                    <div className="flex flex-col space-y-1 flex-1 w-full">
                       <label htmlFor="customLang" className="text-xs font-bold text-life-muted uppercase">
                         Bahasa Kustom
                       </label>
@@ -568,7 +568,7 @@ export default function LearningPage() {
                     </div>
                   )}
 
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-1 w-full">
                     <Button type="submit" variant="primary" className="flex-1 text-xs py-2">
                       {t('dictionary_add_btn')}
                     </Button>

@@ -1149,7 +1149,7 @@ export default function HealthPage() {
 
       {/* Exercise History selector table */}
       <Surface className="p-6">
-        <div className="border-b border-life-line pb-3 mb-4 flex justify-between items-center">
+        <div className="border-b border-life-line pb-3 mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
             <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
               {t('health_exercise_history')}

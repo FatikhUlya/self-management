@@ -367,9 +367,9 @@ export default function PlanningPage() {
             {""}
           </Button>
         </div>
-        <div className="flex items-center space-x-3 w-full sm:w-auto justify-end">
-          <div className="flex items-center space-x-2 w-full sm:w-auto">
-            <span className="text-xs font-bold text-life-muted uppercase whitespace-nowrap">Lompat ke:</span>
+        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <span className="text-[11px] font-bold text-life-muted uppercase whitespace-nowrap">Lompat ke:</span>
             <input
               type="date"
               value={planDate}
