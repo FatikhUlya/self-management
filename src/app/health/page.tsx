@@ -856,7 +856,7 @@ export default function HealthPage() {
                       <button
                         onClick={() => deleteActiveExercise(exIdx)}
                         className="text-life-muted hover:text-life-rose p-1 transition-colors"
-                        title="Hapus Latihan"
+                        title={locale === 'id' ? 'Hapus Latihan' : 'Delete Exercise'}
                       >
                         <Icon name="trash" size={12} />
                       </button>
@@ -954,20 +954,20 @@ export default function HealthPage() {
                         onClick={() => deleteActiveSet(exIdx, ex.sets.length - 1)}
                         className="text-[10px] font-black uppercase text-life-rose hover:underline"
                       >
-                        Hapus Set
+                       {locale === 'id' ? 'Hapus Set' : 'Delete Set'}
                       </button>
                       <button
                         type="button"
                         onClick={() => addActiveSet(exIdx)}
                         className="text-[10px] font-black uppercase text-life-teal hover:underline"
                       >
-                        Tambah Set
+                        {locale === 'id' ? 'Tambah Set' : 'Add Set'}
                       </button>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-xs text-life-muted italic py-6 text-center">Belum ada gerakan latihan. Klik tombol di bawah.</p>
+                <p className="text-xs text-life-muted italic py-6 text-center">{locale === 'id' ? 'Belum ada gerakan latihan. Klik tombol di bawah.' : 'No exercises added yet. Click the button below.'}</p>
               )}
             </div>
 
@@ -981,7 +981,7 @@ export default function HealthPage() {
               icon="plus"
               className="w-full text-xs font-bold"
             >
-              Tambah Gerakan Latihan
+              {locale === 'id' ? 'Tambah Gerakan Latihan' : 'Add Exercise'}
             </Button>
           </Surface>
         )}

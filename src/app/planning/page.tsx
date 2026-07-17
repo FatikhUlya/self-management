@@ -382,14 +382,14 @@ export default function PlanningPage() {
             variant="secondary"
             onClick={() => handleDateChange(addDays(today, 1))}
           >
-            Besok
+            {t('tomorrow')}
           </Button>
           <Button
             size="sm"
             variant="secondary"
             onClick={() => handleDateChange(today)}
           >
-            Hari Ini
+            {t('today')}
           </Button>
         </div>
       </Surface>
@@ -416,7 +416,7 @@ export default function PlanningPage() {
               : 'text-life-muted hover:text-life-text'
           }`}
         >
-          📝 Tambah
+          📝 {t('add')}
         </button>
         <button
           type="button"
@@ -581,7 +581,7 @@ export default function PlanningPage() {
             </div>
 
             <Button type="submit" variant="primary" icon="plus" className="w-full">
-              Tambah Rencana Harian
+              {locale === 'id' ? 'Tambah Rencana Harian' : 'Add Daily Plan'}
             </Button>
           </form>
         </Surface>

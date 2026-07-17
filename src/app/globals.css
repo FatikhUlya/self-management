@@ -3,14 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --life-bg: #f9fafb;
-  --life-text: #1f2937;
-  --life-panel: rgba(255, 255, 255, 0.7);
-  --life-panel-hover: rgba(255, 255, 255, 0.9);
-  --life-panel-active: rgba(0, 0, 0, 0.05);
-  --life-line: rgba(0, 0, 0, 0.08);
-  --life-line-strong: rgba(0, 0, 0, 0.15);
-  --life-muted: #6b7280;
+  --life-bg: #f2f3f5;
+  --life-text: #111827;
+  --life-panel: rgba(255, 255, 255, 0.85);
+  --life-panel-hover: rgba(255, 255, 255, 0.95);
+  --life-panel-active: rgba(0, 0, 0, 0.08);
+  --life-line: rgba(0, 0, 0, 0.12);
+  --life-line-strong: rgba(0, 0, 0, 0.22);
+  --life-muted: #4b5563;
 }
 
 .dark {
@@ -77,7 +77,7 @@
   }
 
   .btn-secondary {
-    @apply bg-white/[0.04] hover:bg-white/[0.08] border border-life-line hover:border-life-line-strong text-life-text font-semibold py-2 px-4 rounded-lg active:scale-[0.98] transition-all duration-200;
+    @apply bg-black/[0.03] dark:bg-white/[0.04] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] border border-life-line hover:border-life-line-strong text-life-text font-semibold py-2 px-4 rounded-lg active:scale-[0.98] transition-all duration-200;
   }
 
   .btn-danger {
@@ -85,14 +85,14 @@
   }
 
   /* Habit Heatmap */
-  .tone-0 { @apply bg-white/[0.02] text-life-muted border border-life-line; }
-  .tone-25 { @apply bg-life-teal-soft/30 text-teal-300 border border-life-teal/30; }
-  .tone-50 { @apply bg-life-teal-soft/60 text-teal-200 border border-life-teal/50; }
-  .tone-75 { @apply bg-life-teal/60 text-teal-100 border border-life-teal/70; }
-  .tone-100 { @apply bg-life-teal text-white border border-teal-400/30 shadow-[0_0_12px_rgba(15,118,110,0.4)]; }
+  .tone-0 { @apply bg-black/[0.02] dark:bg-white/[0.02] text-life-muted border border-life-line; }
+  .tone-25 { @apply bg-life-teal-soft/35 dark:bg-life-teal-soft/20 text-teal-700 dark:text-teal-300 border border-life-teal/20 dark:border-life-teal/30; }
+  .tone-50 { @apply bg-life-teal-soft/70 dark:bg-life-teal-soft/40 text-teal-800 dark:text-teal-200 border border-life-teal/40 dark:border-life-teal/50; }
+  .tone-75 { @apply bg-life-teal/40 dark:bg-life-teal/60 text-teal-900 dark:text-teal-100 border border-life-teal/60 dark:border-life-teal/70; }
+  .tone-100 { @apply bg-life-teal text-white border border-teal-500/30 shadow-[0_0_12px_rgba(15,118,110,0.2)] dark:shadow-[0_0_12px_rgba(15,118,110,0.4)]; }
 
   /* Work Application Heatmap tone */
-  .has-deadline { @apply bg-life-amber-soft/40 text-amber-200 border border-life-amber/40; }
+  .has-deadline { @apply bg-life-amber-soft/50 dark:bg-life-amber-soft/20 text-amber-800 dark:text-amber-200 border border-life-amber/30 dark:border-life-amber/40; }
 
   /* SVG Line Chart styling */
   .chart-grid {

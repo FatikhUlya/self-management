@@ -504,7 +504,9 @@ export default function GoalsPage() {
                 <Icon name="target" size={16} className="text-life-teal" /> Objectives & Key Results (OKRs)
               </h3>
               <p className="text-xs text-life-muted mt-0.5">
-                Objective diambil dari Goals utama. Proyek & Tugas terkait bertindak sebagai Key Results pendukung.
+                {locale === 'id' 
+                  ? 'Objective diambil dari Goals utama. Proyek & Tugas terkait bertindak sebagai Key Results pendukung.'
+                  : 'Objectives are derived from main Goals. Related Projects & Tasks act as supporting Key Results.'}
               </p>
             </div>
 
@@ -562,8 +564,8 @@ export default function GoalsPage() {
                             
                             <span className="text-[10px] text-life-muted font-bold">
                               {isAutoTracked 
-                                ? `${totalKeyResults} Key Results (Auto)`
-                                : `Manual Tracked`
+                                ? `${totalKeyResults} ${locale === 'id' ? 'Key Results (Otomatis)' : 'Key Results (Auto)'}`
+                                : (locale === 'id' ? 'Lacak Manual' : 'Manual Tracked')
                               }
                             </span>
                           </div>
@@ -575,14 +577,14 @@ export default function GoalsPage() {
                               <button
                                 onClick={() => updateGoalProgress(goal.id, -5)}
                                 className="w-6 h-6 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
-                                title="Kurangi Progres"
+                                title={locale === 'id' ? 'Kurangi Progres' : 'Decrease Progress'}
                               >
                                 <Icon name="minus" size={10} />
                               </button>
                               <button
                                 onClick={() => updateGoalProgress(goal.id, 5)}
                                 className="w-6 h-6 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
-                                title="Tambah Progres"
+                                title={locale === 'id' ? 'Tambah Progres' : 'Add Progress'}
                               >
                                 <Icon name="plus" size={10} />
                               </button>
@@ -591,7 +593,7 @@ export default function GoalsPage() {
                           <button
                             onClick={() => deleteGoal(goal.id)}
                             className="w-6 h-6 rounded bg-white/[0.03] border border-life-line hover:bg-life-rose/20 text-life-muted hover:text-life-rose flex items-center justify-center transition-all mr-2"
-                            title="Hapus"
+                            title={t('delete')}
                           >
                             <Icon name="trash" size={10} />
                           </button>
@@ -628,7 +630,9 @@ export default function GoalsPage() {
                                         <Icon name="folder" size={12} className="text-blue-400 mt-0.5 shrink-0" />
                                         <span>Proyek: {proj.name}</span>
                                       </span>
-                                      <span className="text-[10px] text-life-muted mt-0.5">Tugas: {doneTasks.length}/{projTasks.length} selesai</span>
+                                      <span className="text-[10px] text-life-muted mt-0.5">
+                                        {locale === 'id' ? 'Tugas' : 'Tasks'}: {doneTasks.length}/{projTasks.length} {locale === 'id' ? 'selesai' : 'completed'}
+                                      </span>
                                     </div>
                                     <Badge tone={proj.status === 'done' ? 'green' : 'teal'}>
                                       {`${completionRate}%`}
@@ -648,7 +652,7 @@ export default function GoalsPage() {
                                       className="rounded bg-black/40 border-white/10 text-life-teal focus:ring-0 focus:ring-offset-0 cursor-pointer w-3.5 h-3.5"
                                     />
                                     <span className={`font-semibold text-life-text ${t.status === 'done' ? 'line-through text-life-muted' : ''}`}>
-                                      <Icon name="target" size={12} className="inline mr-1 text-life-teal" /> Tugas: {t.title}
+                                      <Icon name="target" size={12} className="inline mr-1 text-life-teal" /> {locale === 'id' ? 'Tugas' : 'Task'}: {t.title}
                                     </span>
                                   </div>
                                   <Badge tone={t.status === 'done' ? 'green' : t.status === 'doing' ? 'amber' : 'gray'}>

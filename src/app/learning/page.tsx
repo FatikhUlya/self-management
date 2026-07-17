@@ -620,7 +620,7 @@ export default function LearningPage() {
               <button
                 onClick={() => setSearchQuery('')}
                 className="absolute right-2 top-1/2 -translate-y-1/2 text-life-muted hover:text-life-text text-xs p-1"
-                title="Hapus pencarian"
+                title={locale === 'id' ? 'Hapus pencarian' : 'Clear search'}
               >
                 ✕
               </button>

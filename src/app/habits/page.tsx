@@ -350,7 +350,7 @@ export default function HabitsPage() {
               type="button"
               onClick={() => navigateCalendarMonth('prev')}
               className="w-7 h-7 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
-              title="Bulan Sebelumnya"
+              title={locale === 'id' ? 'Bulan Sebelumnya' : 'Previous Month'}
             >
               <Icon name="chevronLeft" size={12} />
             </button>
@@ -382,7 +382,7 @@ export default function HabitsPage() {
               type="button"
               onClick={() => navigateCalendarMonth('next')}
               className="w-7 h-7 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
-              title="Bulan Berikutnya"
+              title={locale === 'id' ? 'Bulan Berikutnya' : 'Next Month'}
             >
               <Icon name="chevronRight" size={12} />
             </button>
@@ -467,7 +467,7 @@ export default function HabitsPage() {
               type="button"
               onClick={() => navigateChartMonth('prev')}
               className="w-7 h-7 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
-              title="Bulan Sebelumnya"
+              title={locale === 'id' ? 'Bulan Sebelumnya' : 'Previous Month'}
             >
               <Icon name="chevronLeft" size={12} />
             </button>
@@ -500,7 +500,7 @@ export default function HabitsPage() {
               type="button"
               onClick={() => navigateChartMonth('next')}
               className="w-7 h-7 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
-              title="Bulan Berikutnya"
+              title={locale === 'id' ? 'Bulan Berikutnya' : 'Next Month'}
             >
               <Icon name="chevronRight" size={12} />
             </button>

@@ -12,7 +12,7 @@ import { todayISO, addDays, inLastDays } from '@/lib/utils';
 export function Sidebar() {
   const pathname = usePathname();
   const { state } = useLifeOS();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
 
   // Helper count functions mimicking vanilla JS count calculations
   const getBadgeCount = (id: string): string | number => {
@@ -87,7 +87,9 @@ export function Sidebar() {
         </div>
         <div>
           <h1 className="text-sm font-extrabold text-life-text tracking-tight uppercase">Life OS</h1>
-          <p className="text-[10px] text-life-muted font-bold mt-0.5 uppercase tracking-wide">Pusat Kendali</p>
+          <p className="text-[10px] text-life-muted font-bold mt-0.5 uppercase tracking-wide">
+            {locale === 'id' ? 'Pusat Kendali' : 'Command Center'}
+          </p>
         </div>
       </div>
 
@@ -103,18 +105,18 @@ export function Sidebar() {
               href={item.path}
               className={`flex items-center justify-between px-3 py-2.5 rounded-lg border text-sm font-bold transition-all duration-200 ${
                 isActive
-                  ? 'bg-white/[0.04] border-life-line text-life-text shadow-md'
-                  : 'bg-transparent border-transparent text-life-muted hover:text-life-text hover:bg-white/[0.02]'
+                  ? 'bg-black/[0.03] dark:bg-white/[0.04] border-life-line text-life-text shadow-md'
+                  : 'bg-transparent border-transparent text-life-muted hover:text-life-text hover:bg-black/[0.015] dark:hover:bg-white/[0.02]'
               }`}
             >
               <div className="flex items-center space-x-3 min-w-0">
-                <span className={`flex items-center justify-center p-1 rounded-md ${isActive ? 'text-life-teal bg-life-teal/10' : 'text-life-muted bg-white/[0.02]'}`}>
+                <span className={`flex items-center justify-center p-1 rounded-md ${isActive ? 'text-life-teal bg-life-teal/10' : 'text-life-muted bg-black/[0.02] dark:bg-white/[0.02]'}`}>
                   <Icon name={item.icon} size={16} />
                 </span>
                 <span className="truncate">{t(item.labelKey)}</span>
               </div>
               {badge !== '' && (
-                <span className="px-2 py-0.5 text-[10px] font-black rounded-full bg-white/[0.04] text-life-muted border border-life-line">
+                <span className="px-2 py-0.5 text-[10px] font-black rounded-full bg-black/[0.03] dark:bg-white/[0.04] text-life-muted border border-life-line">
                   {badge}
                 </span>
               )}

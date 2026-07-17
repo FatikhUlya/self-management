@@ -73,8 +73,8 @@ export function Topbar() {
         <div 
           className={`flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-bold ${
             isDbConnected 
-              ? 'bg-life-teal-soft/10 border-life-teal/30 text-teal-300' 
-              : 'bg-white/[0.02] border-life-line text-life-muted'
+              ? 'bg-life-teal-soft/15 dark:bg-life-teal-soft/10 border-life-teal/20 dark:border-life-teal/30 text-teal-600 dark:text-teal-300' 
+              : 'bg-black/[0.02] dark:bg-white/[0.02] border-life-line text-life-muted'
           }`}
           title={isDbConnected ? t('settings_supabase_connected') : t('settings_supabase_disconnected')}
         >
@@ -85,7 +85,7 @@ export function Topbar() {
         {/* Theme Switcher */}
         <button
           onClick={toggleTheme}
-          className="flex items-center justify-center p-2 rounded-lg bg-white/[0.03] hover:bg-white/[0.07] border border-life-line text-life-muted hover:text-life-text active:scale-[0.98] transition-all duration-200"
+          className="flex items-center justify-center p-2 rounded-lg bg-black/[0.02] dark:bg-white/[0.03] hover:bg-black/[0.04] dark:hover:bg-white/[0.07] border border-life-line text-life-muted hover:text-life-text active:scale-[0.98] transition-all duration-200"
           title={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
         >
           <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={16} />
@@ -94,7 +94,7 @@ export function Topbar() {
         {/* Language Switcher */}
         <button
           onClick={toggleLanguage}
-          className="flex items-center justify-center p-2 rounded-lg bg-white/[0.03] hover:bg-white/[0.07] border border-life-line text-life-muted hover:text-life-text active:scale-[0.98] transition-all duration-200"
+          className="flex items-center justify-center p-2 rounded-lg bg-black/[0.02] dark:bg-white/[0.03] hover:bg-black/[0.04] dark:hover:bg-white/[0.07] border border-life-line text-life-muted hover:text-life-text active:scale-[0.98] transition-all duration-200"
           title={t('settings_language')}
         >
           <Icon name="globe" size={16} />
