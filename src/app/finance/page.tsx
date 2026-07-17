@@ -20,6 +20,8 @@ const EXPENSE_CATEGORIES = [
   'Kesehatan',
   'Pendidikan',
   'Investasi',
+  'Biaya Admin',
+  'Transfer',
   'Lainnya'
 ];
 
@@ -28,6 +30,7 @@ const INCOME_CATEGORIES = [
   'Bisnis / Side Hustle',
   'Investasi',
   'Hadiah / Pemberian',
+  'Transfer',
   'Lainnya'
 ];
 
@@ -44,7 +47,9 @@ const getCategoryLabel = (cat: string, locale: string) => {
     'Lainnya': 'Others',
     'Gaji': 'Salary',
     'Bisnis / Side Hustle': 'Business / Side Hustle',
-    'Hadiah / Pemberian': 'Gifts / Presents'
+    'Hadiah / Pemberian': 'Gifts / Presents',
+    'Transfer': 'Transfer',
+    'Biaya Admin': 'Admin Fee'
   };
   return labels[cat] || cat;
 };
@@ -73,9 +78,11 @@ export default function FinancePage() {
   // Transaction form states
   const [txTitle, setTxTitle] = useLocalStorageState('draft_tx_title', '');
   const [txAmount, setTxAmount] = useLocalStorageState('draft_tx_amount', '');
-  const [txType, setTxType] = useLocalStorageState<'income' | 'expense'>('draft_tx_type', 'expense');
+  const [txType, setTxType] = useLocalStorageState<'income' | 'expense' | 'transfer'>('draft_tx_type', 'expense');
   const [txCategory, setTxCategory] = useLocalStorageState('draft_tx_category', EXPENSE_CATEGORIES[0]);
   const [txAccount, setTxAccount] = useLocalStorageState('draft_tx_account', 'Tunai');
+  const [txToAccount, setTxToAccount] = useLocalStorageState('draft_tx_to_account', 'Tunai');
+  const [txAdminFee, setTxAdminFee] = useLocalStorageState('draft_tx_admin_fee', '');
   const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
   const [newAccountName, setNewAccountName] = useState('');
   const [txNotes, setTxNotes] = useLocalStorageState('draft_tx_notes', '');
@@ -118,18 +125,57 @@ export default function FinancePage() {
     e.preventDefault();
     if (!txTitle.trim() || !txAmount) return;
 
-    await addTransaction({
-      title: txTitle,
-      amount: Number(txAmount),
-      type: txType,
-      category: txCategory,
-      account: txAccount,
-      notes: txNotes,
-      date: txDate
-    });
+    if (txType === 'transfer') {
+      // 1. Expense from source account
+      await addTransaction({
+        title: `Transfer ke ${txToAccount}: ${txTitle}`,
+        amount: Number(txAmount),
+        type: 'expense',
+        category: 'Transfer',
+        account: txAccount,
+        notes: txNotes,
+        date: txDate
+      });
+
+      // 2. Income to destination account
+      await addTransaction({
+        title: `Transfer dari ${txAccount}: ${txTitle}`,
+        amount: Number(txAmount),
+        type: 'income',
+        category: 'Transfer',
+        account: txToAccount,
+        notes: txNotes,
+        date: txDate
+      });
+
+      // 3. Admin Fee (if any)
+      if (Number(txAdminFee) > 0) {
+        await addTransaction({
+          title: `Biaya Admin Transfer: ${txTitle}`,
+          amount: Number(txAdminFee),
+          type: 'expense',
+          category: 'Biaya Admin',
+          account: txAccount,
+          notes: txNotes,
+          date: txDate
+        });
+      }
+    } else {
+      // Normal income / expense
+      await addTransaction({
+        title: txTitle,
+        amount: Number(txAmount),
+        type: txType as 'income' | 'expense',
+        category: txCategory,
+        account: txAccount,
+        notes: txNotes,
+        date: txDate
+      });
+    }
 
     setTxTitle('');
     setTxAmount('');
+    setTxAdminFee('');
     setTxNotes('');
   };
 
@@ -251,7 +297,7 @@ export default function FinancePage() {
             </div>
 
             <form onSubmit={handleTxSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-2 p-0.5 bg-white/[0.02] border border-life-line rounded-lg">
+              <div className="grid grid-cols-3 gap-2 p-0.5 bg-white/[0.02] border border-life-line rounded-lg">
                 <button
                   type="button"
                   onClick={() => {
@@ -279,6 +325,17 @@ export default function FinancePage() {
                   }`}
                 >
                   {locale === 'id' ? 'Pemasukan' : 'Income'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTxType('transfer')}
+                  className={`py-2 rounded-md text-[10px] font-black uppercase tracking-wider transition-all duration-150 ${
+                    txType === 'transfer'
+                      ? 'bg-blue-500 text-white shadow-md'
+                      : 'text-life-muted hover:text-life-text'
+                  }`}
+                >
+                  Transfer
                 </button>
               </div>
 
@@ -313,21 +370,37 @@ export default function FinancePage() {
                   />
                 </div>
 
-                <div className="flex flex-col space-y-1">
-                  <label htmlFor="txCategory" className="text-xs font-bold text-life-muted uppercase">
-                    {t('category')}
-                  </label>
-                  <select
-                    id="txCategory"
-                    value={txCategory}
-                    onChange={(e) => setTxCategory(e.target.value)}
-                    className="glass-select text-xs"
-                  >
-                    {txType === 'expense'
-                      ? EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{getCategoryLabel(c, locale)}</option>)
-                      : INCOME_CATEGORIES.map((c) => <option key={c} value={c}>{getCategoryLabel(c, locale)}</option>)}
-                  </select>
-                </div>
+                {txType === 'transfer' ? (
+                  <div className="flex flex-col space-y-1">
+                    <label htmlFor="txAdminFee" className="text-xs font-bold text-life-muted uppercase">
+                      {locale === 'id' ? 'Biaya Admin' : 'Admin Fee'}
+                    </label>
+                    <input
+                      id="txAdminFee"
+                      type="number"
+                      placeholder={locale === 'id' ? 'Opsional...' : 'Optional...'}
+                      value={txAdminFee}
+                      onChange={(e) => setTxAdminFee(e.target.value)}
+                      className="glass-input text-sm"
+                    />
+                  </div>
+                ) : (
+                  <div className="flex flex-col space-y-1">
+                    <label htmlFor="txCategory" className="text-xs font-bold text-life-muted uppercase">
+                      {t('category')}
+                    </label>
+                    <select
+                      id="txCategory"
+                      value={txCategory}
+                      onChange={(e) => setTxCategory(e.target.value)}
+                      className="glass-select text-xs"
+                    >
+                      {txType === 'expense'
+                        ? EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{getCategoryLabel(c, locale)}</option>)
+                        : INCOME_CATEGORIES.map((c) => <option key={c} value={c}>{getCategoryLabel(c, locale)}</option>)}
+                    </select>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -348,7 +421,9 @@ export default function FinancePage() {
                 <div className="flex flex-col space-y-1">
                    <div className="flex justify-between items-center">
                      <label htmlFor="txAccount" className="text-xs font-bold text-life-muted uppercase">
-                       {locale === 'id' ? 'Rekening / Akun' : 'Account / Wallet'}
+                       {txType === 'transfer' 
+                         ? (locale === 'id' ? 'Dari Rekening' : 'From Account') 
+                         : (locale === 'id' ? 'Rekening / Akun' : 'Account / Wallet')}
                      </label>
                       <button
                         type="button"
@@ -370,6 +445,26 @@ export default function FinancePage() {
                    </select>
                 </div>
               </div>
+
+              {txType === 'transfer' && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col space-y-1">
+                    <label htmlFor="txToAccount" className="text-xs font-bold text-life-muted uppercase">
+                      {locale === 'id' ? 'Ke Rekening' : 'To Account'}
+                    </label>
+                    <select
+                      id="txToAccount"
+                      value={txToAccount}
+                      onChange={(e) => setTxToAccount(e.target.value)}
+                      className="glass-select text-xs"
+                    >
+                      {allAccounts.map((acc) => (
+                        <option key={acc} value={acc}>{acc === 'Tunai' ? (locale === 'id' ? 'Tunai' : 'Cash') : acc}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
 
               <div className="flex flex-col space-y-1">
                 <label htmlFor="txNotes" className="text-xs font-bold text-life-muted uppercase">
