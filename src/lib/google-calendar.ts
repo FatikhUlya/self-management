@@ -70,6 +70,10 @@ export async function initGoogleCalendar(): Promise<boolean> {
 /** Sign in with Google OAuth */
 export async function signInGoogle(): Promise<string | null> {
   if (!CLIENT_ID) return null;
+  if (!window.google?.accounts?.oauth2) {
+    console.error('[Google Calendar] OAuth2 client not loaded');
+    return null;
+  }
 
   return new Promise((resolve) => {
     let resolved = false;
@@ -110,7 +114,7 @@ export async function signInGoogle(): Promise<string | null> {
 /** Sign out of Google */
 export function signOutGoogle(): void {
   const token = window.gapi?.client?.getToken();
-  if (token) {
+  if (token && window.google?.accounts?.oauth2) {
     window.google.accounts.oauth2.revoke(token.access_token);
     window.gapi.client.setToken(null);
   }
@@ -224,15 +228,24 @@ export async function deleteCalendarEvent(eventId: string): Promise<boolean> {
 
 function loadScript(src: string): Promise<void> {
   return new Promise((resolve, reject) => {
-    if (document.querySelector(`script[src="${src}"]`)) {
-      resolve();
+    const existingScript = document.querySelector(`script[src="${src}"]`) as HTMLScriptElement;
+    if (existingScript) {
+      if (existingScript.getAttribute('data-loaded') === 'true') {
+        resolve();
+      } else {
+        existingScript.addEventListener('load', () => resolve());
+        existingScript.addEventListener('error', () => reject(new Error(`Failed to load ${src}`)));
+      }
       return;
     }
     const script = document.createElement('script');
     script.src = src;
     script.async = true;
     script.defer = true;
-    script.onload = () => resolve();
+    script.onload = () => {
+      script.setAttribute('data-loaded', 'true');
+      resolve();
+    };
     script.onerror = () => reject(new Error(`Failed to load ${src}`));
     document.head.appendChild(script);
   });
