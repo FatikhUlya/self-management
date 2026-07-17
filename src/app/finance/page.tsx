@@ -150,6 +150,19 @@ export default function FinancePage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-600 dark:from-green-300 dark:to-emerald-500 flex items-center gap-2">
+            <Icon name="wallet" size={28} className="text-green-500" />
+            {t('nav_finance')}
+          </h1>
+          <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
+            Manajemen keuangan pribadi, pelacakan transaksi pengeluaran dan pemasukan.
+          </p>
+        </div>
+      </div>
+
       {/* Financial Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Surface className="p-6 relative overflow-hidden bg-gradient-to-br from-white/[0.01] to-emerald-500/[0.02]">

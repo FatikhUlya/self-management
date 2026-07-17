@@ -135,15 +135,14 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Greeting Banner */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-gradient-to-r from-life-teal-soft/10 via-transparent to-transparent p-5 border-l-4 border-life-teal rounded-r-xl bg-white/[0.01]">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h3 className="text-2xl font-black text-life-text tracking-tight flex items-center gap-2">
-            <Brain className="w-6 h-6 text-amber-500" />
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-emerald-600 dark:from-teal-300 dark:to-emerald-500 flex items-center gap-2">
+            <Icon name="layout" size={28} className="text-emerald-500" />
             {t(greetingKey)}, Guest
-          </h3>
-
-          <p className="text-xs text-life-muted font-medium mt-1 uppercase tracking-wider">
+          </h1>
+          <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
             {formatDate(today, { locale: locale === 'id' ? 'id-ID' : 'en-US' })}
           </p>
         </div>

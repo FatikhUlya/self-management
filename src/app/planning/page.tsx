@@ -331,6 +331,19 @@ export default function PlanningPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-400 to-pink-600 dark:from-rose-300 dark:to-pink-500 flex items-center gap-2">
+            <Icon name="calendar" size={28} className="text-pink-500" />
+            {t('planning_title')}
+          </h1>
+          <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
+            {t('planning_arrange_desc')}
+          </p>
+        </div>
+      </div>
+
       {/* Date Navigation Bar */}
       <Surface className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-life-line">
         <div className="flex items-center space-x-3">

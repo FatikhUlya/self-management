@@ -260,6 +260,19 @@ export default function LearningPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-600 dark:from-amber-300 dark:to-orange-500 flex items-center gap-2">
+            <Icon name="book" size={28} className="text-amber-500" />
+            {t('learning_title')}
+          </h1>
+          <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
+            Catat sesi pembelajaran, minutes of learning, dan riwayat kamus kosakata.
+          </p>
+        </div>
+      </div>
+
       {/* Forms & Chart Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left: Study Session Form / Dictionary Tab */}

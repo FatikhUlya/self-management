@@ -37,6 +37,19 @@ export default function CapturePage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-blue-600 dark:from-indigo-300 dark:to-blue-500 flex items-center gap-2">
+            <Icon name="lightbulb" size={28} className="text-indigo-500" />
+            {t('capture_title')}
+          </h1>
+          <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
+            {t('capture_idea_desc')}
+          </p>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left: Input Form */}
         <Surface className="p-6">

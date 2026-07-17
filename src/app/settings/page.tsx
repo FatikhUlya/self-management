@@ -29,6 +29,18 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6 max-w-3xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-zinc-400 to-slate-600 dark:from-zinc-300 dark:to-slate-500 flex items-center gap-2">
+            <Icon name="settings" size={28} className="text-zinc-500" />
+            {t('settings_title')}
+          </h1>
+          <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
+            Konfigurasi tampilan aplikasi, koneksi Supabase, Google Calendar, dan ekspor/impor data.
+          </p>
+        </div>
+      </div>
 
       {/* Display Mode Selection */}
       <Surface className="p-6">

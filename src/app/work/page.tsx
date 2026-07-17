@@ -221,6 +221,19 @@ export default function WorkPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-600 dark:from-sky-300 dark:to-blue-500 flex items-center gap-2">
+            <Icon name="briefcase" size={28} className="text-sky-500" />
+            {t('work_title')}
+          </h1>
+          <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
+            Pantau pipeline lamaran kerja, detail perusahaan, status, dan tindak lanjut.
+          </p>
+        </div>
+      </div>
+
       {/* Deadline Calendar */}
       <Surface className="p-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-life-line pb-4 mb-6">

@@ -325,13 +325,14 @@ export default function GoalsPage() {
 
   return (
     <div className="space-y-6 relative min-h-[80vh]">
-      {/* ── 1. HEADER & IDENTITY ── */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-life-line pb-4 gap-4">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-life-text uppercase tracking-tight flex items-center gap-2">
-            🧭 Fatikh's Compass
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-teal-600 dark:from-emerald-300 dark:to-teal-500 flex items-center gap-2">
+            <Icon name="target" size={28} className="text-teal-500" />
+            {t('goals_title')}
           </h1>
-          <p className="text-xs text-life-muted mt-1">
+          <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
             Visualisasi target utama, kerangka kerja OKR, dan sinkronisasi tindakan harian.
           </p>
         </div>

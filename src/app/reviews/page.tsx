@@ -131,6 +131,19 @@ export default function ReviewsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-fuchsia-400 to-pink-600 dark:from-fuchsia-300 dark:to-pink-500 flex items-center gap-2">
+            <Icon name="review" size={28} className="text-fuchsia-500" />
+            {t('reviews_title')}
+          </h1>
+          <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
+            Evaluasi berkala untuk pertumbuhan.
+          </p>
+        </div>
+      </div>
+
       {/* Forms & Stats Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left: Review Form */}

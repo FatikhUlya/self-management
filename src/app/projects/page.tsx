@@ -429,6 +429,19 @@ export default function ProjectsPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-600 dark:from-blue-300 dark:to-cyan-500 flex items-center gap-2">
+            <Icon name="folder" size={28} className="text-blue-500" />
+            {t('projects_title')}
+          </h1>
+          <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
+            Kelola project, task, board kanban, dan timeline kerja Anda.
+          </p>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left: Project Creation Form */}
         <Surface className="p-6">
