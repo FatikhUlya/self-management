@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { useLocalStorageState } from '@/lib/hooks/useLocalStorageState';
 import { useI18n } from '@/lib/i18n/context';
@@ -21,7 +21,8 @@ export default function LearningPage() {
     deleteLearningSession,
     updateLearningSessionNotes,
     addDictionaryEntry,
-    deleteDictionaryEntry 
+    deleteDictionaryEntry,
+    updateLearningSchedule
   } = useLifeOS();
   const { t, locale } = useI18n();
 
@@ -87,6 +88,36 @@ export default function LearningPage() {
     const next = vocabFlipDirection === 'indo-target' ? 'target-indo' : 'indo-target';
     setVocabFlipDirection(next);
     localStorage.setItem('lifeos_dictionary_flip', next);
+  };
+
+  // Learning Schedule state & debounce logic
+  const [localSchedule, setLocalSchedule] = useState({
+    mon: '', tue: '', wed: '', thu: '', fri: '', sat: '', sun: ''
+  });
+  const scheduleTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Sync with global state when it loads
+  useEffect(() => {
+    if (state.learningSchedule) {
+      setLocalSchedule({
+        mon: state.learningSchedule.mon || '',
+        tue: state.learningSchedule.tue || '',
+        wed: state.learningSchedule.wed || '',
+        thu: state.learningSchedule.thu || '',
+        fri: state.learningSchedule.fri || '',
+        sat: state.learningSchedule.sat || '',
+        sun: state.learningSchedule.sun || ''
+      });
+    }
+  }, [state.learningSchedule]);
+
+  const handleScheduleChange = (day: string, value: string) => {
+    const next = { ...localSchedule, [day]: value };
+    setLocalSchedule(next);
+    if (scheduleTimeoutRef.current) clearTimeout(scheduleTimeoutRef.current);
+    scheduleTimeoutRef.current = setTimeout(() => {
+      updateLearningSchedule(next);
+    }, 1000);
   };
 
   const handleOpenCornellNotes = (session: any) => {
@@ -272,6 +303,40 @@ export default function LearningPage() {
           </p>
         </div>
       </div>
+
+      {/* Learning Schedule */}
+      <Surface className="p-4 md:p-6 mb-6">
+        <div className="flex items-center gap-2 mb-4 border-b border-life-line pb-3">
+          <Icon name="calendar" size={16} className="text-amber-500" />
+          <h2 className="text-sm font-black uppercase text-life-text tracking-wider">
+            {locale === 'id' ? 'Jadwal Belajar' : 'Learning Schedule'}
+          </h2>
+        </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
+          {[
+            { key: 'mon', label: locale === 'id' ? 'Senin' : 'Mon' },
+            { key: 'tue', label: locale === 'id' ? 'Selasa' : 'Tue' },
+            { key: 'wed', label: locale === 'id' ? 'Rabu' : 'Wed' },
+            { key: 'thu', label: locale === 'id' ? 'Kamis' : 'Thu' },
+            { key: 'fri', label: locale === 'id' ? 'Jumat' : 'Fri' },
+            { key: 'sat', label: locale === 'id' ? 'Sabtu' : 'Sat', isWeekend: true },
+            { key: 'sun', label: locale === 'id' ? 'Minggu' : 'Sun', isWeekend: true }
+          ].map((day) => (
+            <div key={day.key} className="flex flex-col space-y-1.5 bg-white/[0.01] p-3 rounded-xl border border-life-line hover:border-life-line-strong transition-all">
+              <span className={`text-[10px] font-black uppercase tracking-wider ${day.isWeekend ? 'text-amber-400' : 'text-life-muted'}`}>
+                {day.label}
+              </span>
+              <textarea
+                placeholder={locale === 'id' ? 'Topik/Materi...' : 'Topic/Material...'}
+                value={localSchedule[day.key as keyof typeof localSchedule]}
+                onChange={(e) => handleScheduleChange(day.key, e.target.value)}
+                className="w-full bg-transparent text-xs text-life-text placeholder:text-zinc-600 focus:outline-none resize-none h-16 leading-relaxed"
+              />
+            </div>
+          ))}
+        </div>
+      </Surface>
 
       {/* Forms & Chart Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

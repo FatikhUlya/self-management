@@ -113,6 +113,17 @@ export interface LearningSession {
   createdAt: string;
 }
 
+export interface LearningSchedule {
+  id: string;
+  mon: string;
+  tue: string;
+  wed: string;
+  thu: string;
+  fri: string;
+  sat: string;
+  sun: string;
+}
+
 export interface DictionaryEntry {
   id: string;
   indonesian: string;
@@ -241,6 +252,7 @@ export interface LifeOSState {
   habits: Habit[];
   habitLogs: HabitLog[];
   learning: LearningSession[];
+  learningSchedule: LearningSchedule | null;
   meals: Meal[];
   workouts: Workout[];
   nextDayPlans: Plan[];
@@ -304,6 +316,7 @@ interface LifeOSContextProps {
   deleteHabit: (id: string) => Promise<void>;
 
   // Learning
+  updateLearningSchedule: (schedule: Omit<LearningSchedule, 'id'>) => Promise<void>;
   addLearningSession: (session: Omit<LearningSession, 'id' | 'createdAt'>) => Promise<void>;
   deleteLearningSession: (id: string) => Promise<void>;
   updateLearningSessionNotes: (id: string, cues: string, notes: string, summary: string) => Promise<void>;
@@ -386,6 +399,7 @@ const initialDefaultState = (today: string): LifeOSState => ({
   ],
   habitLogs: [],
   learning: [],
+  learningSchedule: null,
   meals: [],
   workouts: [],
   nextDayPlans: [],
@@ -573,6 +587,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
             { data: dictionaryData, error: dictionaryError },
             { data: financialAccountsData },
             { data: selfRulesData },
+            { data: learningSchedulesData },
           ] = await Promise.all([
             supabase.from('ideas').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
             supabase.from('journals').select('*').eq('user_id', userId).order('date', { ascending: false }),
@@ -594,6 +609,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
             supabase.from('dictionary').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
             supabase.from('financial_accounts').select('*').eq('user_id', userId).order('created_at', { ascending: true }),
             supabase.from('self_rules').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+            supabase.from('learning_schedules').select('*').eq('user_id', userId).limit(1),
           ]);
 
           let dictEntries: any[] = [];
@@ -825,6 +841,16 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
               name: fa.name,
               createdAt: fa.created_at || fa.createdAt
             })),
+            learningSchedule: learningSchedulesData?.[0] ? {
+              id: learningSchedulesData[0].id,
+              mon: learningSchedulesData[0].mon || '',
+              tue: learningSchedulesData[0].tue || '',
+              wed: learningSchedulesData[0].wed || '',
+              thu: learningSchedulesData[0].thu || '',
+              fri: learningSchedulesData[0].fri || '',
+              sat: learningSchedulesData[0].sat || '',
+              sun: learningSchedulesData[0].sun || '',
+            } : null,
           }));
           setLoading(false);
           return;
@@ -1441,6 +1467,38 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
   // =========================================================================
   // LEARNING MODULE
   // =========================================================================
+  const updateLearningSchedule = useCallback(async (schedule: Omit<LearningSchedule, 'id'>) => {
+    let newId = generateId();
+    updateStateAndPersist(prev => {
+      const existing = prev.learningSchedule;
+      if (existing) newId = existing.id;
+      return {
+        ...prev,
+        learningSchedule: { ...schedule, id: newId }
+      };
+    });
+
+    if (isDbConnected && userId) {
+      const { data: existing } = await supabase.from('learning_schedules').select('id').eq('user_id', userId).single();
+      if (existing) {
+        const { error } = await supabase.from('learning_schedules').update({
+          mon: schedule.mon, tue: schedule.tue, wed: schedule.wed,
+          thu: schedule.thu, fri: schedule.fri, sat: schedule.sat, sun: schedule.sun,
+          updated_at: new Date().toISOString()
+        }).eq('id', existing.id);
+        checkError(error, 'updateLearningSchedule');
+      } else {
+        const { error } = await supabase.from('learning_schedules').insert([{
+          id: newId,
+          user_id: userId,
+          mon: schedule.mon, tue: schedule.tue, wed: schedule.wed,
+          thu: schedule.thu, fri: schedule.fri, sat: schedule.sat, sun: schedule.sun,
+        }]);
+        checkError(error, 'insertLearningSchedule');
+      }
+    }
+  }, [isDbConnected, userId, updateStateAndPersist, checkError]);
+
   const addLearningSession = useCallback(async (newSession: Omit<LearningSession, 'id' | 'createdAt'>) => {
     const item: LearningSession = {
       ...newSession,
@@ -2135,6 +2193,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
         toggleHabit,
         updateHabit,
         deleteHabit,
+        updateLearningSchedule,
         addLearningSession,
         deleteLearningSession,
         updateLearningSessionNotes,
