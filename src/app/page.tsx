@@ -496,7 +496,7 @@ export default function Dashboard() {
                 )}
               </div>
             ) : (
-              <EmptyState message="Jurnal hari ini belum diisi." />
+              <EmptyState message={locale === 'id' ? 'Jurnal hari ini belum diisi.' : 'Today\'s journal has not been filled out.'} />
             )}
           </div>
         </Surface>

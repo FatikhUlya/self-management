@@ -149,7 +149,7 @@ export default function JournalPage() {
             {t('journal_title')}
           </h1>
           <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
-            Refleksi harian, evaluasi mood, energi, dan pencapaian hari ini.
+            {locale === 'id' ? 'Refleksi harian, evaluasi mood, energi, dan pencapaian hari ini.' : 'Daily reflections, mood evaluation, energy, and today\'s achievements.'}
           </p>
         </div>
       </div>
@@ -159,10 +159,10 @@ export default function JournalPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-life-line pb-4 mb-6">
           <div>
             <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-              {t('journal_trend') || 'Tren Mood & Energi Bulanan'}
+              {t('journal_trend') || (locale === 'id' ? 'Tren Mood & Energi Bulanan' : 'Monthly Mood & Energy Trend')}
             </h3>
             <p className="text-xs text-life-muted mt-0.5">
-              Visualisasi emosi bulanan (emoji) dan tingkat energi (petak petir tingkat kecerahan)
+              {locale === 'id' ? 'Visualisasi emosi bulanan (emoji) dan tingkat energi (petak petir tingkat kecerahan)' : 'Monthly emotional visualization (emoji) and energy levels (lightning bolt brightness)'}
             </p>
           </div>
 
@@ -186,9 +186,9 @@ export default function JournalPage() {
             <div className="flex justify-between items-center border-b border-white/5 pb-2">
               <div className="flex items-center gap-1.5">
                 <Icon name="journal" size={14} className="text-purple-400 mt-0.5 shrink-0" />
-                <span className="text-xs font-bold text-life-text uppercase tracking-wider">Tren Mood</span>
+                <span className="text-xs font-bold text-life-text uppercase tracking-wider">{locale === 'id' ? 'Tren Mood' : 'Mood Trend'}</span>
               </div>
-              <span className="text-[10px] text-life-muted font-semibold">Klik tanggal untuk rincian</span>
+              <span className="text-[10px] text-life-muted font-semibold">{locale === 'id' ? 'Klik tanggal untuk rincian' : 'Click date for details'}</span>
             </div>
             <div className="grid grid-cols-7 gap-1.5 text-center">
               {dayNames.map((day) => (
@@ -211,21 +211,21 @@ export default function JournalPage() {
                     <div
                       key={`mood-day-${day}`}
                       onClick={() => setViewingJournal(journal)}
-                      className="aspect-square flex items-center justify-center text-sm rounded bg-white/[0.04] border border-white/[0.08] hover:border-life-teal cursor-pointer transition-all relative group"
+                      className="aspect-square flex items-center justify-center text-sm rounded bg-black/[0.04] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] hover:border-life-teal cursor-pointer transition-all relative group"
                       title={`${formatDate(dateStr)}: Mood ${journal.mood || 3}/5`}
                     >
                       <Icon
                         name={`mood${journal.mood || 3}`}
                         size={18}
                         className={
-                          (journal.mood || 3) === 1 ? 'text-rose-500' :
-                          (journal.mood || 3) === 2 ? 'text-orange-400' :
-                          (journal.mood || 3) === 3 ? 'text-yellow-400' :
-                          (journal.mood || 3) === 4 ? 'text-lime-500' :
-                          'text-emerald-500'
+                          (journal.mood || 3) === 1 ? 'text-rose-600 dark:text-rose-500' :
+                          (journal.mood || 3) === 2 ? 'text-orange-600 dark:text-orange-400' :
+                          (journal.mood || 3) === 3 ? 'text-amber-500 dark:text-yellow-400' :
+                          (journal.mood || 3) === 4 ? 'text-lime-600 dark:text-lime-500' :
+                          'text-emerald-600 dark:text-emerald-500'
                         }
                       />
-                      <span className="absolute bottom-0.5 right-1 text-[8px] text-white/20 font-bold leading-none">{day}</span>
+                      <span className="absolute bottom-0.5 right-1 text-[8px] text-black/40 dark:text-white/20 font-bold leading-none">{day}</span>
                     </div>
                   );
                 }
@@ -233,7 +233,7 @@ export default function JournalPage() {
                 return (
                   <div
                     key={`mood-day-empty-${day}`}
-                    className="aspect-square flex items-center justify-center text-[10px] font-bold text-white/20 rounded bg-white/[0.01] border border-white/[0.03] relative"
+                    className="aspect-square flex items-center justify-center text-[10px] font-bold text-black/20 dark:text-white/20 rounded bg-black/[0.02] dark:bg-white/[0.01] border border-black/[0.05] dark:border-white/[0.03] relative"
                   >
                     <span>{day}</span>
                   </div>
@@ -247,9 +247,9 @@ export default function JournalPage() {
             <div className="flex justify-between items-center border-b border-white/5 pb-2">
               <div className="flex items-center gap-1.5">
                 <Icon name="zap" size={14} className="text-amber-500 mt-0.5 shrink-0" />
-                <span className="text-xs font-bold text-life-text uppercase tracking-wider">Tren Energi</span>
+                <span className="text-xs font-bold text-life-text uppercase tracking-wider">{locale === 'id' ? 'Tren Energi' : 'Energy Trend'}</span>
               </div>
-              <span className="text-[10px] text-life-muted font-semibold">Semakin terang = semakin bertenaga</span>
+              <span className="text-[10px] text-life-muted font-semibold">{locale === 'id' ? 'Semakin terang = semakin bertenaga' : 'Brighter = more energetic'}</span>
             </div>
             <div className="grid grid-cols-7 gap-1.5 text-center">
               {dayNames.map((day) => (
@@ -274,16 +274,25 @@ export default function JournalPage() {
                     (journal.energy || 3) === 3 ? 'text-amber-500' :
                     (journal.energy || 3) === 4 ? 'text-yellow-500' :
                     'text-yellow-300';
-
                   return (
                     <div
                       key={`energy-day-${day}`}
                       onClick={() => setViewingJournal(journal)}
-                      className="aspect-square flex items-center justify-center rounded bg-white/[0.04] border border-white/[0.08] hover:border-life-teal cursor-pointer transition-all relative group"
+                      className="aspect-square flex items-center justify-center text-sm rounded bg-black/[0.04] dark:bg-white/[0.04] border border-black/[0.08] dark:border-white/[0.08] hover:border-life-amber cursor-pointer transition-all relative group"
                       title={`${formatDate(dateStr)}: Energi ${journal.energy || 3}/5`}
                     >
-                      <Icon name="zap" size={12} className={zapColor} />
-                      <span className="absolute bottom-0.5 right-1 text-[8px] opacity-40 font-bold leading-none">{day}</span>
+                      <Icon
+                        name="zap"
+                        size={18}
+                        className={
+                          (journal.energy || 3) === 1 ? 'text-red-700 dark:text-red-500' :
+                          (journal.energy || 3) === 2 ? 'text-orange-700 dark:text-orange-500' :
+                          (journal.energy || 3) === 3 ? 'text-amber-600 dark:text-amber-500' :
+                          (journal.energy || 3) === 4 ? 'text-yellow-600 dark:text-yellow-500' :
+                          'text-amber-400 dark:text-yellow-300'
+                        }
+                      />
+                      <span className="absolute bottom-0.5 right-1 text-[8px] text-black/40 dark:text-white/20 font-bold leading-none">{day}</span>
                     </div>
                   );
                 }
@@ -291,7 +300,7 @@ export default function JournalPage() {
                 return (
                   <div
                     key={`energy-day-empty-${day}`}
-                    className="aspect-square flex items-center justify-center text-[10px] font-bold text-white/20 rounded bg-white/[0.01] border border-white/[0.03] relative"
+                    className="aspect-square flex items-center justify-center text-[10px] font-bold text-black/20 dark:text-white/20 rounded bg-black/[0.02] dark:bg-white/[0.01] border border-black/[0.05] dark:border-white/[0.03] relative"
                   >
                     <span>{day}</span>
                   </div>
@@ -428,7 +437,7 @@ export default function JournalPage() {
               <input
                 id="win"
                 type="text"
-                placeholder="Pencapaian terbaik hari ini..."
+                placeholder={locale === 'id' ? "Pencapaian terbaik hari ini..." : "Best achievement today..."}
                 value={win}
                 onChange={(e) => setWin(e.target.value)}
                 className="glass-input text-xs"
@@ -442,7 +451,7 @@ export default function JournalPage() {
               </label>
               <textarea
                 id="reflection"
-                placeholder="Apa pelajaran hari ini? Tulis refleksi panjang..."
+                placeholder={locale === 'id' ? "Apa pelajaran hari ini? Tulis refleksi panjang..." : "What's the lesson today? Write a long reflection..."}
                 value={reflection}
                 onChange={(e) => setReflection(e.target.value)}
                 className="glass-input text-xs h-24"
@@ -605,7 +614,7 @@ export default function JournalPage() {
             {/* Wins */}
             <div className="space-y-1.5">
               <h4 className="text-[10px] font-black uppercase text-life-muted tracking-wider border-b border-white/5 pb-1">
-                Pencapaian Hari Ini (Daily Win)
+                {locale === 'id' ? 'Pencapaian Hari Ini (Daily Win)' : 'Today\'s Achievement (Daily Win)'}
               </h4>
               <p className="flex items-center gap-1.5 text-life-text font-semibold">
                 <Icon name="trophy" size={14} className="text-yellow-400 shrink-0" />
@@ -619,7 +628,7 @@ export default function JournalPage() {
                 Refleksi & Catatan
               </h4>
               <p className="italic text-[11px] bg-white/[0.01] border border-life-line p-3 rounded-lg leading-relaxed text-life-text">
-                &ldquo;{viewingJournal.reflection || 'Tidak ada catatan refleksi untuk hari ini.'}&rdquo;
+                &ldquo;{viewingJournal.reflection || (locale === 'id' ? 'Tidak ada catatan refleksi untuk hari ini.' : 'No reflection notes for today.')}&rdquo;
               </p>
             </div>
 

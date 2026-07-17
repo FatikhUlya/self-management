@@ -1023,7 +1023,7 @@ export default function HealthPage() {
             ))
           ) : (
             <div className="col-span-full">
-              <EmptyState message="Belum ada catatan berat badan bulan ini." />
+              <EmptyState message={locale === 'id' ? 'Belum ada catatan berat badan bulan ini.' : 'No weight records for this month.'} />
             </div>
           )}
         </div>
