@@ -47,6 +47,7 @@ export const id = {
   nav_learning: 'Learning',
   nav_health: 'Health',
   nav_work: 'Work',
+  nav_rules: 'Self Rules',
   nav_reviews: 'Reviews',
   nav_finance: 'Keuangan',
   nav_settings: 'Settings',
@@ -414,6 +415,14 @@ export const id = {
   area_social: 'Social / Family',
   area_hobbies: 'Hobbies / Creativity',
   area_lifestyle: 'Lifestyle',
+
+  // Rules
+  rules_title: 'Self Rules',
+  rules_desc: 'Peraturan dan prinsip yang saya buat untuk diri sendiri.',
+  rules_add_btn: 'Tambah Rule',
+  rules_placeholder: 'Tulis peraturan baru...',
+  rules_active: 'peraturan aktif',
+  rules_no_data: 'Belum ada peraturan yang dibuat.',
 } as const;
 
 export type TranslationKey = keyof typeof id;

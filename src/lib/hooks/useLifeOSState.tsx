@@ -225,7 +225,14 @@ export interface FinancialAccount {
   createdAt: string;
 }
 
+export interface SelfRule {
+  id: string;
+  rule_text: string;
+  createdAt: string;
+}
+
 export interface LifeOSState {
+  selfRules: SelfRule[];
   ideas: Idea[];
   journals: Journal[];
   projects: Project[];
@@ -330,11 +337,16 @@ interface LifeOSContextProps {
   addFinancialAccount: (name: string) => Promise<void>;
   updateFinancialAccount: (id: string, name: string) => Promise<void>;
   deleteFinancialAccount: (id: string) => Promise<void>;
+
+  // Self Rules
+  addSelfRule: (ruleText: string) => Promise<void>;
+  deleteSelfRule: (id: string) => Promise<void>;
 }
 
 const LifeOSContext = createContext<LifeOSContextProps | undefined>(undefined);
 
 const initialDefaultState = (today: string): LifeOSState => ({
+  selfRules: [],
   ideas: [
     {
       id: generateId(),
@@ -560,6 +572,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
             { data: financialGoalsData },
             { data: dictionaryData, error: dictionaryError },
             { data: financialAccountsData },
+            { data: selfRulesData },
           ] = await Promise.all([
             supabase.from('ideas').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
             supabase.from('journals').select('*').eq('user_id', userId).order('date', { ascending: false }),
@@ -580,6 +593,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
             supabase.from('financial_goals').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
             supabase.from('dictionary').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
             supabase.from('financial_accounts').select('*').eq('user_id', userId).order('created_at', { ascending: true }),
+            supabase.from('self_rules').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
           ]);
 
           let dictEntries: any[] = [];
@@ -612,6 +626,11 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
 
           setState(prev => ({
             ...prev,
+            selfRules: (selfRulesData as any[] || []).map(r => ({
+              id: r.id,
+              rule_text: r.rule_text,
+              createdAt: r.created_at || r.createdAt
+            })),
             ideas: (ideas as any[] || []).map(i => ({
               id: i.id,
               title: i.title || '',
@@ -2016,6 +2035,44 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
     }
   }, [isDbConnected, updateStateAndPersist, checkError]);
 
+  const addSelfRule = useCallback(async (rule_text: string) => {
+    const item: SelfRule = {
+      id: generateId(),
+      rule_text,
+      createdAt: new Date().toISOString()
+    };
+
+    updateStateAndPersist(prev => ({
+      ...prev,
+      selfRules: [item, ...prev.selfRules]
+    }));
+
+    if (isDbConnected) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase.from('self_rules').insert({
+          id: item.id,
+          user_id: user.id,
+          rule_text: item.rule_text,
+          created_at: item.createdAt
+        });
+        checkError(error, 'addSelfRule');
+      }
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const deleteSelfRule = useCallback(async (id: string) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      selfRules: prev.selfRules.filter(r => r.id !== id)
+    }));
+
+    if (isDbConnected) {
+      const { error } = await supabase.from('self_rules').delete().eq('id', id);
+      checkError(error, 'deleteSelfRule');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
   // Dynamically compute goal progress based on linked projects and tasks
   const processedGoals = useMemo(() => {
     return state.goals.map(goal => {
@@ -2103,6 +2160,8 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
         addFinancialAccount,
         updateFinancialAccount,
         deleteFinancialAccount,
+        addSelfRule,
+        deleteSelfRule,
       }}
     >
       {children}

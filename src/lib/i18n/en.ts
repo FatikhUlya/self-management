@@ -49,6 +49,7 @@ export const en: Record<TranslationKey, string> = {
   nav_learning: 'Learning',
   nav_health: 'Health',
   nav_work: 'Work',
+  nav_rules: 'Self Rules',
   nav_reviews: 'Reviews',
   nav_finance: 'Finance',
   nav_settings: 'Settings',
@@ -416,4 +417,12 @@ export const en: Record<TranslationKey, string> = {
   area_social: 'Social / Family',
   area_hobbies: 'Hobbies / Creativity',
   area_lifestyle: 'Lifestyle',
-};
+
+  // Rules
+  rules_title: 'Self Rules',
+  rules_desc: 'Rules and principles I set for myself.',
+  rules_add_btn: 'Add Rule',
+  rules_placeholder: 'Write a new rule...',
+  rules_active: 'active rules',
+  rules_no_data: 'No rules created yet.',
+} as const;
