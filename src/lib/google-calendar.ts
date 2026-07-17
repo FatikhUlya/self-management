@@ -27,11 +27,17 @@ export function isGoogleCalendarConfigured(): boolean {
   );
 }
 
+let globalInitPromise: Promise<boolean> | null = null;
+
 /** Initialize the Google API client */
 export async function initGoogleCalendar(): Promise<boolean> {
   if (!isGoogleCalendarConfigured()) {
     console.warn('[Google Calendar] Not configured. Set NEXT_PUBLIC_GOOGLE_CLIENT_ID and NEXT_PUBLIC_GOOGLE_API_KEY in .env.local');
     return false;
+  }
+
+  if (globalInitPromise) {
+    return globalInitPromise;
   }
 
   const initPromise = async () => {
@@ -54,17 +60,22 @@ export async function initGoogleCalendar(): Promise<boolean> {
     return true;
   };
 
-  try {
-    return await Promise.race([
-      initPromise(),
-      new Promise<boolean>((_, reject) =>
-        setTimeout(() => reject(new Error('Google Client init timed out')), 10000)
-      )
-    ]);
-  } catch (error) {
-    console.error('[Google Calendar] Init failed:', error);
-    return false;
-  }
+  globalInitPromise = (async () => {
+    try {
+      return await Promise.race([
+        initPromise(),
+        new Promise<boolean>((_, reject) =>
+          setTimeout(() => reject(new Error('Google Client init timed out')), 10000)
+        )
+      ]);
+    } catch (error) {
+      console.error('[Google Calendar] Init failed:', error);
+      globalInitPromise = null; // allow retrying
+      return false;
+    }
+  })();
+
+  return globalInitPromise;
 }
 
 /** Sign in with Google OAuth */
