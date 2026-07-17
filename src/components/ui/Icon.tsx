@@ -29,6 +29,11 @@ const ICON_PATHS: Record<string, string> = {
   zap: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />',
   star: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />',
   shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />',
+  mood1: '<circle cx="12" cy="12" r="10" /><path d="M16 16s-1.5-2-4-2-4 2-4 2" /><path d="M9 9h.01" /><path d="M15 9h.01" />',
+  mood2: '<circle cx="12" cy="12" r="10" /><path d="M8 15h8" /><path d="M9 9h.01" /><path d="M15 9h.01" />',
+  mood3: '<circle cx="12" cy="12" r="10" /><path d="M8 14s1.5 2 4 2 4-2 4-2" /><path d="M9 9h.01" /><path d="M15 9h.01" />',
+  mood4: '<circle cx="12" cy="12" r="10" /><path d="M8 13s1.5 3.5 4 3.5 4-3.5 4-3.5" /><path d="M9 9h.01" /><path d="M15 9h.01" />',
+  mood5: '<circle cx="12" cy="12" r="10" /><path d="M8 13s1.5 4 4 4 4-4 4-4z" /><path d="M9 9h.01" /><path d="M15 9h.01" />',
 };
 
 interface IconProps {

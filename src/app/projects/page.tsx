@@ -272,8 +272,16 @@ export default function ProjectsPage() {
                   <div className="min-w-0">
                     <strong className="text-xs font-bold text-life-text block leading-tight">{task.title}</strong>
                     <div className="flex flex-col gap-0.5 mt-1 text-[10px] text-life-muted">
-                      <span>📁 {project ? project.name : 'Inbox'}</span>
-                      {goal && <span className="text-teal-400 font-semibold flex items-center gap-1 mt-0.5">🎯 {goal.title}</span>}
+                      <span className="flex items-center gap-1">
+                        <Icon name="folder" size={10} className="text-blue-400 mt-0.5 shrink-0" />
+                        <span>{project ? project.name : 'Inbox'}</span>
+                      </span>
+                      {goal && (
+                        <span className="text-teal-400 font-semibold flex items-center gap-1 mt-0.5">
+                          <Icon name="target" size={10} className="text-teal-400 mt-0.5 shrink-0" />
+                          <span>{goal.title}</span>
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -383,7 +391,7 @@ export default function ProjectsPage() {
                       <option value="">-- Tanpa Target --</option>
                       {state.goals.map((g) => (
                         <option key={g.id} value={g.id}>
-                          🎯 {g.title}
+                          {g.title}
                         </option>
                       ))}
                     </select>
@@ -520,7 +528,7 @@ export default function ProjectsPage() {
                 <option value="">-- Tanpa Target --</option>
                 {state.goals.map((g) => (
                   <option key={g.id} value={g.id}>
-                    🎯 {g.title} ({g.progress}%)
+                    {g.title} ({g.progress}%)
                   </option>
                 ))}
               </select>
@@ -624,7 +632,7 @@ export default function ProjectsPage() {
                 <option value="">-- Tanpa Target --</option>
                 {state.goals.map((g) => (
                   <option key={g.id} value={g.id}>
-                    🎯 {g.title} ({g.progress}%)
+                    {g.title} ({g.progress}%)
                   </option>
                 ))}
               </select>
@@ -738,10 +746,10 @@ export default function ProjectsPage() {
                           onChange={(e) => updateProjectGoal(proj.id, e.target.value || null)}
                           className="glass-select py-0.5 px-1.5 text-[9px] bg-black/40 border border-white/5 text-life-muted hover:text-life-text focus:text-life-text"
                         >
-                          <option value="">🎯 -- Hubungkan Goal --</option>
+                          <option value="">-- Hubungkan Goal --</option>
                           {state.goals.map((g) => (
                             <option key={g.id} value={g.id}>
-                              🎯 {g.title}
+                              {g.title}
                             </option>
                           ))}
                         </select>

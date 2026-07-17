@@ -624,7 +624,10 @@ export default function GoalsPage() {
                                 return (
                                   <div key={proj.id} className="flex justify-between items-center bg-white/[0.01] border border-life-line p-2.5 rounded-lg">
                                     <div className="flex flex-col">
-                                      <span className="font-semibold text-life-text">📁 Proyek: {proj.name}</span>
+                                      <span className="font-semibold text-life-text flex items-center gap-1">
+                                        <Icon name="folder" size={12} className="text-blue-400 mt-0.5 shrink-0" />
+                                        <span>Proyek: {proj.name}</span>
+                                      </span>
                                       <span className="text-[10px] text-life-muted mt-0.5">Tugas: {doneTasks.length}/{projTasks.length} selesai</span>
                                     </div>
                                     <Badge tone={proj.status === 'done' ? 'green' : 'teal'}>

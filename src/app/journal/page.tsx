@@ -184,7 +184,10 @@ export default function JournalPage() {
           {/* Mood Calendar Grid */}
           <div className="space-y-3">
             <div className="flex justify-between items-center border-b border-white/5 pb-2">
-              <span className="text-xs font-bold text-life-text uppercase tracking-wider">🎭 Tren Mood (Emoji)</span>
+              <div className="flex items-center gap-1.5">
+                <Icon name="journal" size={14} className="text-purple-400 mt-0.5 shrink-0" />
+                <span className="text-xs font-bold text-life-text uppercase tracking-wider">Tren Mood</span>
+              </div>
               <span className="text-[10px] text-life-muted font-semibold">Klik tanggal untuk rincian</span>
             </div>
             <div className="grid grid-cols-7 gap-1.5 text-center">
@@ -211,7 +214,17 @@ export default function JournalPage() {
                       className="aspect-square flex items-center justify-center text-sm rounded bg-white/[0.04] border border-white/[0.08] hover:border-life-teal cursor-pointer transition-all relative group"
                       title={`${formatDate(dateStr)}: Mood ${journal.mood || 3}/5`}
                     >
-                      <span>{MOOD_EMOJIS[(journal.mood || 3) - 1]}</span>
+                      <Icon
+                        name={`mood${journal.mood || 3}`}
+                        size={18}
+                        className={
+                          (journal.mood || 3) === 1 ? 'text-rose-500' :
+                          (journal.mood || 3) === 2 ? 'text-orange-400' :
+                          (journal.mood || 3) === 3 ? 'text-yellow-400' :
+                          (journal.mood || 3) === 4 ? 'text-lime-500' :
+                          'text-emerald-500'
+                        }
+                      />
                       <span className="absolute bottom-0.5 right-1 text-[8px] text-white/20 font-bold leading-none">{day}</span>
                     </div>
                   );
@@ -232,7 +245,10 @@ export default function JournalPage() {
           {/* Energy Calendar Grid */}
           <div className="space-y-3">
             <div className="flex justify-between items-center border-b border-white/5 pb-2">
-              <span className="text-xs font-bold text-life-text uppercase tracking-wider">⚡ Tren Energi (Petir)</span>
+              <div className="flex items-center gap-1.5">
+                <Icon name="zap" size={14} className="text-amber-500 mt-0.5 shrink-0" />
+                <span className="text-xs font-bold text-life-text uppercase tracking-wider">Tren Energi</span>
+              </div>
               <span className="text-[10px] text-life-muted font-semibold">Semakin terang = semakin bertenaga</span>
             </div>
             <div className="grid grid-cols-7 gap-1.5 text-center">
@@ -266,9 +282,9 @@ export default function JournalPage() {
                       key={`energy-day-${day}`}
                       onClick={() => setViewingJournal(journal)}
                       className={`aspect-square flex items-center justify-center text-xs rounded border cursor-pointer transition-all relative group ${energyClass}`}
-                      title={`${formatDate(dateStr)}: Energi ⚡ ${journal.energy || 3}/5`}
+                      title={`${formatDate(dateStr)}: Energi ${journal.energy || 3}/5`}
                     >
-                      <span>⚡</span>
+                      <Icon name="zap" size={12} />
                       <span className="absolute bottom-0.5 right-1 text-[8px] opacity-40 font-bold leading-none">{day}</span>
                     </div>
                   );
@@ -308,7 +324,7 @@ export default function JournalPage() {
                   {t('journal_mood')}
                 </label>
                 <div className="flex justify-between items-center bg-white/[0.01] border border-life-line rounded-lg p-1.5">
-                  {MOOD_EMOJIS.map((emoji, index) => {
+                  {MOOD_EMOJIS.map((_, index) => {
                     const val = index + 1;
                     const isSelected = mood === val;
                     return (
@@ -316,12 +332,23 @@ export default function JournalPage() {
                         key={val}
                         type="button"
                         onClick={() => setMood(val)}
-                        className={`text-lg p-1.5 rounded-md transition-all ${
+                        className={`p-1.5 rounded-md transition-all ${
                           isSelected ? 'bg-life-teal text-white scale-110 shadow-md' : 'opacity-50 hover:opacity-100'
                         }`}
                         title={`Mood ${val}`}
                       >
-                        {emoji}
+                        <Icon
+                          name={`mood${val}`}
+                          size={20}
+                          className={
+                            isSelected ? 'text-white' :
+                            val === 1 ? 'text-rose-500' :
+                            val === 2 ? 'text-orange-400' :
+                            val === 3 ? 'text-yellow-400' :
+                            val === 4 ? 'text-lime-500' :
+                            'text-emerald-500'
+                          }
+                        />
                       </button>
                     );
                   })}
@@ -340,7 +367,7 @@ export default function JournalPage() {
                 >
                   {[1, 2, 3, 4, 5].map((val) => (
                     <option key={val} value={val}>
-                      ⚡ {val} / 5
+                      Energi {val} / 5
                     </option>
                   ))}
                 </select>
@@ -455,9 +482,22 @@ export default function JournalPage() {
                   <div className="flex justify-between items-start">
                     <strong className="text-xs text-life-text">{formatDate(journal.date)}</strong>
                     <div className="flex items-center space-x-1.5" onClick={(e) => e.stopPropagation()}>
-                      <Badge tone="teal">{`Mood ${MOOD_EMOJIS[(journal.mood || 3) - 1]}`}</Badge>
+                      <Badge tone="teal" className="flex items-center gap-1">
+                        <Icon
+                          name={`mood${journal.mood || 3}`}
+                          size={12}
+                          className={
+                            (journal.mood || 3) === 1 ? 'text-rose-400' :
+                            (journal.mood || 3) === 2 ? 'text-orange-300' :
+                            (journal.mood || 3) === 3 ? 'text-yellow-300' :
+                            (journal.mood || 3) === 4 ? 'text-lime-300' :
+                            'text-emerald-300'
+                          }
+                        />
+                        <span>Mood</span>
+                      </Badge>
                       <Badge tone="indigo" className="flex items-center gap-1">
-                        <Icon name="zap" size={10} />
+                        <Icon name="zap" size={10} className="text-indigo-400" />
                         <span>{`Energy ${journal.energy}/5`}</span>
                       </Badge>
                       <button
@@ -505,7 +545,28 @@ export default function JournalPage() {
         title={viewingJournal ? `Jurnal Harian — ${formatDate(viewingJournal.date)}` : ''}
         subtitle={
           viewingJournal 
-            ? `Mood: ${MOOD_EMOJIS[(viewingJournal.mood || 3) - 1]} | Energi: ⚡ ${viewingJournal.energy}/5`
+            ? (
+              <div className="flex items-center gap-3 mt-1.5 select-none">
+                <div className="flex items-center gap-1.5">
+                  <Icon
+                    name={`mood${viewingJournal.mood || 3}`}
+                    size={14}
+                    className={
+                      (viewingJournal.mood || 3) === 1 ? 'text-rose-400' :
+                      (viewingJournal.mood || 3) === 2 ? 'text-orange-300' :
+                      (viewingJournal.mood || 3) === 3 ? 'text-yellow-300' :
+                      (viewingJournal.mood || 3) === 4 ? 'text-lime-300' :
+                      'text-emerald-300'
+                    }
+                  />
+                  <span className="text-xs text-life-muted font-semibold">Mood: {viewingJournal.mood || 3}/5</span>
+                </div>
+                <div className="flex items-center gap-1.5 border-l border-white/10 pl-3">
+                  <Icon name="zap" size={12} className="text-indigo-400" />
+                  <span className="text-xs text-life-muted font-semibold">Energi: {viewingJournal.energy}/5</span>
+                </div>
+              </div>
+            )
             : ''
         }
       >
