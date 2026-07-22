@@ -13,24 +13,10 @@ import { Icon } from '@/components/ui/Icon';
 import { Modal } from '@/components/ui/Modal';
 import { formatDate, percent, clamp, avg } from '@/lib/utils';
 
-// Physics item type for Easter Egg
-interface PhysicsCard {
-  id: string;
-  title: string;
-  progress: number;
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  width: number;
-  height: number;
-  angle: number;
-  va: number; // angular velocity
-  category: string;
-}
+
 
 export default function GoalsPage() {
-  const { state, addGoal, updateGoalProgress, deleteGoal, updateTaskStatus } = useLifeOS();
+  const { state, addGoal, updateGoal, updateGoalProgress, deleteGoal, updateTaskStatus } = useLifeOS();
   const { t, locale } = useI18n();
 
   // Tab filter time-based
@@ -63,16 +49,40 @@ export default function GoalsPage() {
   const [unit, setUnit] = useLocalStorageState('draft_goal_unit', '%');
   const [targetDate, setTargetDate] = useLocalStorageState('draft_goal_targetDate', state.selectedDate);
 
-  // Physics Easter Egg States
-  const [isGravityReleased, setIsGravityReleased] = useState(false);
-  const [physicsCards, setPhysicsCards] = useState<PhysicsCard[]>([]);
-  const dragInfo = useRef<{ cardId: string | null; offsetX: number; offsetY: number }>({
-    cardId: null,
-    offsetX: 0,
-    offsetY: 0,
-  });
-  const mousePos = useRef({ x: 0, y: 0, px: 0, py: 0 });
-  const animationFrameRef = useRef<number | null>(null);
+  // Goal Edit Form states
+  const [editingGoal, setEditingGoal] = useState<any | null>(null);
+  const [editGoalTitle, setEditGoalTitle] = useState('');
+  const [editGoalCategory, setEditGoalCategory] = useState('');
+  const [editGoalCurrentValue, setEditGoalCurrentValue] = useState<number>(0);
+  const [editGoalTargetValue, setEditGoalTargetValue] = useState<number>(100);
+  const [editGoalUnit, setEditGoalUnit] = useState('%');
+  const [editGoalTargetDate, setEditGoalTargetDate] = useState('');
+
+  const handleOpenEditGoal = (goal: any) => {
+    setEditingGoal(goal);
+    setEditGoalTitle(goal.title);
+    setEditGoalCategory(goal.category || 'Career');
+    setEditGoalCurrentValue(goal.currentValue || 0);
+    setEditGoalTargetValue(goal.targetValue || 100);
+    setEditGoalUnit(goal.unit || '%');
+    setEditGoalTargetDate(goal.targetDate || '');
+  };
+
+  const handleSaveEditGoal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingGoal || !editGoalTitle.trim()) return;
+    await updateGoal(editingGoal.id, {
+      title: editGoalTitle.trim(),
+      category: editGoalCategory.trim() || 'Career',
+      currentValue: editGoalCurrentValue,
+      targetValue: editGoalTargetValue,
+      unit: editGoalUnit,
+      targetDate: editGoalTargetDate
+    });
+    setEditingGoal(null);
+  };
+
+
 
   // Dynamic calculations for overall stats
   const completedGoalsCount = state.goals.filter((g) => Number(g.progress) >= 100).length;
@@ -161,167 +171,7 @@ export default function GoalsPage() {
     setIsVisionModalOpen(false);
   };
 
-  // ── Physics Easter Egg Logic ──
-  const startGravityRelease = () => {
-    if (isGravityReleased) {
-      // Restore gravity
-      setIsGravityReleased(false);
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-      setPhysicsCards([]);
-      return;
-    }
 
-    // Gather elements with '.gravity-card' class
-    const elements = document.querySelectorAll('.gravity-card');
-    const cards: PhysicsCard[] = [];
-
-    elements.forEach((el, index) => {
-      const rect = el.getBoundingClientRect();
-      const goalId = el.getAttribute('data-goal-id') || `physics-${index}`;
-      const titleText = el.getAttribute('data-goal-title') || 'Goal';
-      const progressVal = Number(el.getAttribute('data-goal-progress') || '0');
-      const catText = el.getAttribute('data-goal-cat') || 'General';
-
-      cards.push({
-        id: goalId,
-        title: titleText,
-        progress: progressVal,
-        x: rect.left,
-        y: rect.top,
-        vx: (Math.random() - 0.5) * 8, // Initial sideways push
-        vy: -Math.random() * 5 - 2, // Slight upward push
-        width: rect.width,
-        height: rect.height,
-        angle: 0,
-        va: (Math.random() - 0.5) * 0.1,
-        category: catText,
-      });
-    });
-
-    setPhysicsCards(cards);
-    setIsGravityReleased(true);
-  };
-
-  // Main physics loop
-  useEffect(() => {
-    if (!isGravityReleased || physicsCards.length === 0) return;
-
-    const gravity = 0.5;
-    const bounce = 0.55;
-    const friction = 0.98;
-
-    const updatePhysics = () => {
-      setPhysicsCards((prev) => {
-        return prev.map((card) => {
-          // If this card is currently dragged
-          if (dragInfo.current.cardId === card.id) {
-            const dragVx = mousePos.current.x - mousePos.current.px;
-            const dragVy = mousePos.current.y - mousePos.current.py;
-            return {
-              ...card,
-              x: mousePos.current.x - dragInfo.current.offsetX,
-              y: mousePos.current.y - dragInfo.current.offsetY,
-              vx: dragVx,
-              vy: dragVy,
-              angle: card.angle + dragVx * 0.02,
-              va: dragVx * 0.01,
-            };
-          }
-
-          // Apply physics
-          let vy = card.vy + gravity;
-          let vx = card.vx * friction;
-          let x = card.x + vx;
-          let y = card.y + vy;
-          let va = card.va * friction;
-          let angle = card.angle + va;
-
-          const screenHeight = window.innerHeight;
-          const screenWidth = window.innerWidth;
-
-          // Bottom boundary collision (bounces)
-          if (y + card.height > screenHeight - 20) {
-            y = screenHeight - 20 - card.height;
-            vy = -vy * bounce;
-            vx *= 0.8; // Ground friction
-            va *= 0.7; // Spin dampening
-          }
-
-          // Left wall collision
-          if (x < 10) {
-            x = 10;
-            vx = -vx * bounce;
-            va *= 0.8;
-          }
-
-          // Right wall collision
-          if (x + card.width > screenWidth - 10) {
-            x = screenWidth - 10 - card.width;
-            vx = -vx * bounce;
-            va *= 0.8;
-          }
-
-          return {
-            ...card,
-            x,
-            y,
-            vx,
-            vy,
-            angle,
-            va,
-          };
-        });
-      });
-
-      // Update mouse previous positions
-      mousePos.current.px = mousePos.current.x;
-      mousePos.current.py = mousePos.current.y;
-
-      animationFrameRef.current = requestAnimationFrame(updatePhysics);
-    };
-
-    animationFrameRef.current = requestAnimationFrame(updatePhysics);
-
-    return () => {
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-    };
-  }, [isGravityReleased, physicsCards.length]);
-
-  // Mouse handlers for dragging physics cards
-  const handleMouseDown = (e: React.MouseEvent, card: PhysicsCard) => {
-    e.preventDefault();
-    dragInfo.current = {
-      cardId: card.id,
-      offsetX: e.clientX - card.x,
-      offsetY: e.clientY - card.y,
-    };
-    mousePos.current = {
-      x: e.clientX,
-      y: e.clientY,
-      px: e.clientX,
-      py: e.clientY,
-    };
-  };
-
-  const handleMouseMove = (e: MouseEvent) => {
-    mousePos.current.x = e.clientX;
-    mousePos.current.y = e.clientY;
-  };
-
-  const handleMouseUp = () => {
-    dragInfo.current = { cardId: null, offsetX: 0, offsetY: 0 };
-  };
-
-  useEffect(() => {
-    if (isGravityReleased) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    }
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isGravityReleased]);
 
   return (
     <div className="space-y-6 relative min-h-[80vh]">
@@ -497,7 +347,7 @@ export default function GoalsPage() {
         </div>
 
         {/* Right Columns: OKRs Expandable Accordion (2/3 width) */}
-        <div className={`xl:col-span-2 space-y-4 ${isGravityReleased ? 'opacity-0 pointer-events-none' : 'opacity-100 transition-opacity duration-300'}`}>
+        <div className="xl:col-span-2 space-y-4">
           <Surface className="p-6">
             <div className="border-b border-life-line pb-3 mb-5">
               <h3 className="flex items-center gap-1.5 text-sm font-bold text-life-text uppercase tracking-wider">
@@ -531,7 +381,7 @@ export default function GoalsPage() {
                       data-goal-title={goal.title}
                       data-goal-progress={goal.progress}
                       data-goal-cat={goal.category}
-                      className="gravity-card border border-life-line rounded-xl bg-white/[0.005] hover:border-life-line-strong overflow-hidden transition-all duration-150"
+                      className="border border-life-line rounded-xl bg-white/[0.005] hover:border-life-line-strong overflow-hidden transition-all duration-150"
                     >
                       {/* Accordion Trigger/Header */}
                       <div
@@ -590,6 +440,13 @@ export default function GoalsPage() {
                               </button>
                             </div>
                           )}
+                          <button
+                            onClick={() => handleOpenEditGoal(goal)}
+                            className="w-6 h-6 rounded bg-white/[0.03] border border-life-line hover:bg-life-teal/20 text-life-muted hover:text-life-text flex items-center justify-center transition-all mr-1"
+                            title="Edit Goal"
+                          >
+                            <Icon name="edit" size={10} />
+                          </button>
                           <button
                             onClick={() => deleteGoal(goal.id)}
                             className="w-6 h-6 rounded bg-white/[0.03] border border-life-line hover:bg-life-rose/20 text-life-muted hover:text-life-rose flex items-center justify-center transition-all mr-2"
@@ -711,71 +568,7 @@ export default function GoalsPage() {
         </div>
       </div>
 
-      {/* ── 4. PHYSICS CANVAS OVERLAY (Easter Egg) ── */}
-      {isGravityReleased && (
-        <div className="fixed inset-0 z-40 pointer-events-auto bg-black/40 backdrop-blur-[1px] select-none">
-          {/* Top banner info */}
-          <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 bg-gray-900/90 border border-white/10 px-4 py-2 rounded-full text-xs font-bold text-teal-400 flex items-center gap-2 animate-bounce">
-            <span>🌌 Antigravity Mode: Seret dan lempar kartu Objective Anda!</span>
-            <Button
-              variant="primary"
-              onClick={startGravityRelease}
-              className="text-[10px] py-1 px-2.5 bg-teal-500/20 border-teal-500/40 text-teal-300 rounded-full shrink-0"
-            >
-              Restore Gravity
-            </Button>
-          </div>
 
-          {/* Render physics cards */}
-          {physicsCards.map((card) => (
-            <div
-              key={card.id}
-              onMouseDown={(e) => handleMouseDown(e, card)}
-              className="absolute bg-gray-900 border border-white/10 rounded-xl p-4 shadow-2xl cursor-grab active:cursor-grabbing text-xs select-none pointer-events-auto"
-              style={{
-                left: 0,
-                top: 0,
-                width: card.width,
-                height: card.height,
-                transform: `translate3d(${card.x}px, ${card.y}px, 0px) rotate(${card.angle}rad)`,
-                transformOrigin: 'center center',
-              }}
-            >
-              <div className="flex justify-between items-start gap-3">
-                <span className="font-bold text-life-text truncate block max-w-[80%]">{card.title}</span>
-                <Badge tone={card.progress >= 100 ? 'green' : 'teal'} className="text-[8px] py-0 px-1 shrink-0">
-                  {card.category}
-                </Badge>
-              </div>
-              <div className="mt-3 space-y-1">
-                <div className="flex justify-between text-[9px] text-life-muted font-bold uppercase">
-                  <span>Progres</span>
-                  <span>{card.progress}%</span>
-                </div>
-                <div className="h-1.5 w-full bg-white/[0.02] rounded-full overflow-hidden">
-                  <div
-                    className={`h-full rounded-full bg-gradient-to-r ${
-                      card.progress >= 100 ? 'from-life-green to-green-400' : 'from-life-teal to-teal-400'
-                    }`}
-                    style={{ width: `${card.progress}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* ── 5. RELEASE GRAVITY DISCREET BUTTON ── */}
-      <div className="flex justify-center pt-8">
-        <button
-          type="button"
-          onClick={startGravityRelease}
-          className="text-[10px] font-black uppercase text-life-muted hover:text-teal-400 tracking-widest bg-white/[0.01] hover:bg-white/[0.04] border border-life-line px-3 py-1.5 rounded-full transition-all duration-300 select-none shadow-sm flex items-center gap-1.5"
-        >
-          🌌 {isGravityReleased ? 'Restore Gravity' : 'Release Gravity'}
-        </button>
-      </div>
 
       {/* ── 6. MODALS SECTION ── */}
       {/* Modal Edit Vision & Mission */}
@@ -936,6 +729,119 @@ export default function GoalsPage() {
             </Button>
           </div>
         </form>
+      </Modal>
+
+      {/* Modal Edit Objective (Goal) */}
+      <Modal
+        isOpen={Boolean(editingGoal)}
+        onClose={() => setEditingGoal(null)}
+        title="Edit Target / Objective"
+        subtitle="Perbarui rincian, target kuantitatif, atau tenggat waktu target Anda"
+      >
+        {editingGoal && (
+          <form onSubmit={handleSaveEditGoal} className="space-y-4">
+            <div className="flex flex-col space-y-1">
+              <label htmlFor="editGoalTitleInput" className="text-xs font-bold text-life-muted uppercase">
+                {t('goals_goal_label')}
+              </label>
+              <input
+                id="editGoalTitleInput"
+                type="text"
+                required
+                value={editGoalTitle}
+                onChange={(e) => setEditGoalTitle(e.target.value)}
+                className="glass-input text-sm mt-1"
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div className="flex flex-col space-y-1">
+                <label htmlFor="editGoalCurrentVal" className="text-xs font-bold text-life-muted uppercase">
+                  Current
+                </label>
+                <input
+                  id="editGoalCurrentVal"
+                  type="number"
+                  required
+                  value={editGoalCurrentValue}
+                  onChange={(e) => setEditGoalCurrentValue(Number(e.target.value))}
+                  className="glass-input text-xs mt-1"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label htmlFor="editGoalTargetVal" className="text-xs font-bold text-life-muted uppercase">
+                  Target
+                </label>
+                <input
+                  id="editGoalTargetVal"
+                  type="number"
+                  required
+                  value={editGoalTargetValue}
+                  onChange={(e) => setEditGoalTargetValue(Number(e.target.value))}
+                  className="glass-input text-xs mt-1"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label htmlFor="editGoalUnitInput" className="text-xs font-bold text-life-muted uppercase">
+                  Unit
+                </label>
+                <input
+                  id="editGoalUnitInput"
+                  type="text"
+                  required
+                  value={editGoalUnit}
+                  onChange={(e) => setEditGoalUnit(e.target.value)}
+                  className="glass-input text-xs mt-1"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col space-y-1">
+                <label htmlFor="editGoalCat" className="text-xs font-bold text-life-muted uppercase">
+                  {t('area')} / Kategori
+                </label>
+                <select
+                  id="editGoalCat"
+                  value={editGoalCategory}
+                  onChange={(e) => setEditGoalCategory(e.target.value)}
+                  className="glass-select text-xs mt-1"
+                >
+                  <option value="Career">Career</option>
+                  <option value="Finance">Finance</option>
+                  <option value="Health">Health</option>
+                  <option value="Learning">Learning</option>
+                  <option value="Personal">Personal</option>
+                  <option value="Relationship">Relationship</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label htmlFor="editGoalTargetDt" className="text-xs font-bold text-life-muted uppercase">
+                  {t('goals_target_date')}
+                </label>
+                <input
+                  id="editGoalTargetDt"
+                  type="date"
+                  value={editGoalTargetDate}
+                  onChange={(e) => setEditGoalTargetDate(e.target.value)}
+                  className="glass-input text-xs mt-1"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-white/5">
+              <Button type="button" variant="secondary" onClick={() => setEditingGoal(null)}>
+                Batal
+              </Button>
+              <Button type="submit" variant="primary">
+                Simpan Perubahan
+              </Button>
+            </div>
+          </form>
+        )}
       </Modal>
     </div>
   );

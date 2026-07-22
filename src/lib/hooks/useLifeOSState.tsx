@@ -297,8 +297,10 @@ interface LifeOSContextProps {
 
   // Projects & Tasks
   addProject: (project: Omit<Project, 'id' | 'createdAt'>) => Promise<void>;
+  updateProject: (id: string, updates: Partial<Omit<Project, 'id' | 'createdAt'>>) => Promise<void>;
   deleteProject: (id: string) => Promise<void>;
   addTask: (task: Omit<Task, 'id' | 'createdAt' | 'status' | 'completedAt'>) => Promise<void>;
+  updateTask: (id: string, updates: Partial<Omit<Task, 'id' | 'createdAt'>>) => Promise<void>;
   updateTaskStatus: (id: string, status: 'todo' | 'doing' | 'done') => Promise<void>;
   deleteTask: (id: string) => Promise<void>;
   updateProjectGoal: (id: string, goalId: string | null) => Promise<void>;
@@ -306,6 +308,7 @@ interface LifeOSContextProps {
 
   // Goals
   addGoal: (goal: Omit<Goal, 'id' | 'createdAt'>) => Promise<void>;
+  updateGoal: (id: string, updates: Partial<Omit<Goal, 'id' | 'createdAt'>>) => Promise<void>;
   updateGoalProgress: (id: string, delta: number) => Promise<void>;
   deleteGoal: (id: string) => Promise<void>;
 
@@ -1280,6 +1283,44 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
     }
   }, [isDbConnected, updateStateAndPersist, checkError]);
 
+  const updateProject = useCallback(async (id: string, updates: Partial<Omit<Project, 'id' | 'createdAt'>>) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      projects: prev.projects.map(p => p.id === id ? { ...p, ...updates } : p)
+    }));
+
+    if (isDbConnected) {
+      const payload: any = {};
+      if (updates.name !== undefined) payload.name = updates.name;
+      if (updates.area !== undefined) payload.area = updates.area;
+      if (updates.status !== undefined) payload.status = updates.status;
+      if (updates.goalId !== undefined) payload.goal_id = updates.goalId || null;
+
+      const { error } = await supabase.from('projects').update(payload).eq('id', id);
+      checkError(error, 'updateProject');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const updateTask = useCallback(async (id: string, updates: Partial<Omit<Task, 'id' | 'createdAt'>>) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      tasks: prev.tasks.map(t => t.id === id ? { ...t, ...updates } : t)
+    }));
+
+    if (isDbConnected) {
+      const payload: any = {};
+      if (updates.title !== undefined) payload.title = updates.title;
+      if (updates.due !== undefined) payload.due = updates.due || null;
+      if (updates.priority !== undefined) payload.priority = updates.priority;
+      if (updates.status !== undefined) payload.status = updates.status;
+      if (updates.projectId !== undefined) payload.project_id = updates.projectId || null;
+      if (updates.goalId !== undefined) payload.goal_id = updates.goalId || null;
+
+      const { error } = await supabase.from('tasks').update(payload).eq('id', id);
+      checkError(error, 'updateTask');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
   const updateTaskGoal = useCallback(async (id: string, goalId: string | null) => {
     updateStateAndPersist(prev => ({
       ...prev,
@@ -1354,6 +1395,27 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
     if (isDbConnected) {
       const { error } = await supabase.from('goals').delete().eq('id', id);
       checkError(error, 'deleteGoal');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const updateGoal = useCallback(async (id: string, updates: Partial<Omit<Goal, 'id' | 'createdAt'>>) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      goals: prev.goals.map(g => g.id === id ? { ...g, ...updates } : g)
+    }));
+
+    if (isDbConnected) {
+      const payload: any = {};
+      if (updates.title !== undefined) payload.title = updates.title;
+      if (updates.category !== undefined) payload.category = updates.category;
+      if (updates.currentValue !== undefined) payload.current_value = updates.currentValue;
+      if (updates.targetValue !== undefined) payload.target_value = updates.targetValue;
+      if (updates.unit !== undefined) payload.unit = updates.unit;
+      if (updates.targetDate !== undefined) payload.target_date = updates.targetDate || null;
+      if (updates.progress !== undefined) payload.progress = updates.progress;
+
+      const { error } = await supabase.from('goals').update(payload).eq('id', id);
+      checkError(error, 'updateGoal');
     }
   }, [isDbConnected, updateStateAndPersist, checkError]);
 
@@ -2180,13 +2242,16 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
         togglePlan,
         deletePlan,
         addProject,
+        updateProject,
         deleteProject,
         addTask,
+        updateTask,
         updateTaskStatus,
         deleteTask,
         updateProjectGoal,
         updateTaskGoal,
         addGoal,
+        updateGoal,
         updateGoalProgress,
         deleteGoal,
         addHabit,

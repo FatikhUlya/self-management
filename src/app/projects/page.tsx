@@ -12,14 +12,17 @@ import { Icon } from '@/components/ui/Icon';
 import { formatDate, percent } from '@/lib/utils';
 import { PRIORITY_OPTIONS, Priority } from '@/lib/constants';
 import { isGoogleCalendarConfigured, initGoogleCalendar, restoreGoogleToken, fetchCalendarEvents, signInGoogle } from '@/lib/google-calendar';
+import { Modal } from '@/components/ui/Modal';
 
 
 export default function ProjectsPage() {
   const { 
     state, 
     addProject, 
+    updateProject,
     deleteProject, 
     addTask, 
+    updateTask,
     updateTaskStatus, 
     deleteTask,
     updateProjectGoal,
@@ -44,6 +47,70 @@ export default function ProjectsPage() {
 
   const activeProjectsCount = state.projects.filter(p => p.status === 'active').length;
   const activeTasksCount = state.tasks.filter(t => t.status !== 'done').length;
+
+  // New Project & Task Modal states
+  const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
+  const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
+
+  // Edit Project Modal state
+  const [editingProject, setEditingProject] = useState<any | null>(null);
+  const [editProjectName, setEditProjectName] = useState('');
+  const [editProjectArea, setEditProjectArea] = useState('');
+  const [editProjectStatus, setEditProjectStatus] = useState<'active' | 'paused' | 'done'>('active');
+  const [editProjectGoalId, setEditProjectGoalId] = useState('');
+
+  // Edit Task Modal state
+  const [editingTask, setEditingTask] = useState<any | null>(null);
+  const [editTaskTitle, setEditTaskTitle] = useState('');
+  const [editTaskProjectId, setEditTaskProjectId] = useState('');
+  const [editTaskDue, setEditTaskDue] = useState('');
+  const [editTaskPriority, setEditTaskPriority] = useState<Priority>('Medium');
+  const [editTaskGoalId, setEditTaskGoalId] = useState('');
+  const [editTaskStatus, setEditTaskStatus] = useState<'todo' | 'doing' | 'done'>('todo');
+
+  const handleOpenEditProject = (proj: any) => {
+    setEditingProject(proj);
+    setEditProjectName(proj.name);
+    setEditProjectArea(proj.area || 'Career');
+    setEditProjectStatus(proj.status);
+    setEditProjectGoalId(proj.goalId || '');
+  };
+
+  const handleSaveEditProject = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProject || !editProjectName.trim()) return;
+    await updateProject(editingProject.id, {
+      name: editProjectName.trim(),
+      area: editProjectArea,
+      status: editProjectStatus,
+      goalId: editProjectGoalId || ''
+    });
+    setEditingProject(null);
+  };
+
+  const handleOpenEditTask = (task: any) => {
+    setEditingTask(task);
+    setEditTaskTitle(task.title);
+    setEditTaskProjectId(task.projectId || '');
+    setEditTaskDue(task.due || '');
+    setEditTaskPriority(task.priority || 'Medium');
+    setEditTaskGoalId(task.goalId || '');
+    setEditTaskStatus(task.status);
+  };
+
+  const handleSaveEditTask = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingTask || !editTaskTitle.trim()) return;
+    await updateTask(editingTask.id, {
+      title: editTaskTitle.trim(),
+      projectId: editTaskProjectId,
+      due: editTaskDue,
+      priority: editTaskPriority,
+      goalId: editTaskGoalId || '',
+      status: editTaskStatus
+    });
+    setEditingTask(null);
+  };
 
   const [isGCalConfigured, setIsGCalConfigured] = useState(false);
   const [isGCalConnected, setIsGCalConnected] = useState(false);
@@ -222,6 +289,7 @@ export default function ProjectsPage() {
     setProjectArea('');
     setProjectStatus('active');
     setProjectGoalId('');
+    setIsNewProjectModalOpen(false);
   };
 
   const handleTaskSubmit = async (e: React.FormEvent) => {
@@ -238,8 +306,10 @@ export default function ProjectsPage() {
 
     setTaskTitle('');
     setTaskProjectId('');
+    setTaskDue(state.selectedDate);
     setTaskPriority('Medium');
     setTaskGoalId('');
+    setIsNewTaskModalOpen(false);
   };
 
   // Helper to render task board columns (Todo / Doing / Done)
@@ -335,6 +405,13 @@ export default function ProjectsPage() {
                         </button>
                       )}
                       <button
+                        onClick={() => handleOpenEditTask(task)}
+                        className="w-5 h-5 rounded bg-white/[0.02] border border-life-line hover:bg-life-teal/20 text-life-muted hover:text-life-text flex items-center justify-center"
+                        title="Edit Task"
+                      >
+                        <Icon name="edit" size={10} />
+                      </button>
+                      <button
                         onClick={() => deleteTask(task.id)}
                         className="w-5 h-5 rounded bg-white/[0.02] border border-life-line hover:bg-life-rose/20 text-life-muted hover:text-life-rose flex items-center justify-center"
                         title={t('delete')}
@@ -417,7 +494,14 @@ export default function ProjectsPage() {
                       <option value="done">{t('tasks_done')}</option>
                     </select>
                   </td>
-                  <td className="py-3 pl-4 text-right">
+                  <td className="py-3 pl-4 text-right flex items-center justify-end space-x-1.5">
+                    <button
+                      onClick={() => handleOpenEditTask(task)}
+                      className="w-7 h-7 rounded bg-white/[0.02] border border-life-line hover:bg-life-teal/20 text-life-muted hover:text-life-text inline-flex items-center justify-center transition-all"
+                      title="Edit"
+                    >
+                      <Icon name="edit" size={12} />
+                    </button>
                     <button
                       onClick={() => deleteTask(task.id)}
                       className="w-7 h-7 rounded bg-white/[0.02] border border-life-line hover:bg-life-rose/20 text-life-muted hover:text-life-rose inline-flex items-center justify-center transition-all"
@@ -440,210 +524,35 @@ export default function ProjectsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-cyan-600 dark:from-blue-300 dark:to-cyan-500 flex items-center gap-2">
+          <h1 className="text-3xl font-black text-life-text flex items-center gap-2 tracking-tight">
             <Icon name="folder" size={28} className="text-blue-500" />
             {t('projects_title')}
           </h1>
-          <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
+          <p className="text-life-muted mt-1 text-sm font-medium">
             Kelola project, task, board kanban, dan timeline kerja Anda.
           </p>
         </div>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant="secondary"
+            icon="plus"
+            onClick={() => setIsNewProjectModalOpen(true)}
+            className="text-xs py-2 px-3"
+          >
+            {t('projects_add')}
+          </Button>
+          <Button
+            variant="primary"
+            icon="plus"
+            onClick={() => setIsNewTaskModalOpen(true)}
+            className="text-xs py-2 px-3"
+          >
+            {t('tasks_add')}
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left: Project Creation Form */}
-        <Surface className="p-6">
-          <div className="border-b border-life-line pb-3 mb-4">
-            <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-              {t('projects_add')}
-            </h3>
-            <p className="text-xs text-life-muted mt-0.5">
-              {activeProjectsCount} {t('projects_active')}
-            </p>
-          </div>
 
-          <form onSubmit={handleProjectSubmit} className="space-y-4">
-            <div className="flex flex-col space-y-1">
-              <label htmlFor="projectName" className="text-xs font-bold text-life-muted uppercase">
-                {t('projects_name')}
-              </label>
-              <input
-                id="projectName"
-                type="text"
-                required
-                placeholder="E.g. Portfolio Design, Thesis..."
-                value={projectName}
-                onChange={(e) => setProjectName(e.target.value)}
-                className="glass-input text-sm"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="projectArea" className="text-xs font-bold text-life-muted uppercase">
-                  {t('area')}
-                </label>
-                <select
-                  id="projectArea"
-                  value={projectArea || 'Career'}
-                  onChange={(e) => setProjectArea(e.target.value)}
-                  className="glass-select text-xs"
-                >
-                  <option value="Career">Career</option>
-                  <option value="Finance">Finance</option>
-                  <option value="Health">Health</option>
-                  <option value="Learning">Learning</option>
-                  <option value="Personal">Personal</option>
-                  <option value="Relationship">Relationship</option>
-                </select>
-              </div>
-
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="projectStatus" className="text-xs font-bold text-life-muted uppercase">
-                  {t('status')}
-                </label>
-                <select
-                  id="projectStatus"
-                  value={projectStatus}
-                  onChange={(e) => setProjectStatus(e.target.value as any)}
-                  className="glass-select text-xs"
-                >
-                  <option value="active">Active</option>
-                  <option value="paused">Paused</option>
-                  <option value="done">Done</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="flex flex-col space-y-1">
-              <label htmlFor="projectGoal" className="text-xs font-bold text-life-muted uppercase">
-                Hubungkan ke Target (Goal)
-              </label>
-              <select
-                id="projectGoal"
-                value={projectGoalId}
-                onChange={(e) => setProjectGoalId(e.target.value)}
-                className="glass-select text-xs"
-              >
-                <option value="">-- Tanpa Target --</option>
-                {state.goals.map((g) => (
-                  <option key={g.id} value={g.id}>
-                    {g.title} ({g.progress}%)
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <Button type="submit" variant="primary" icon="plus" className="w-full">
-              {t('projects_add_btn')}
-            </Button>
-          </form>
-        </Surface>
-
-        {/* Right: Task Creation Form */}
-        <Surface className="p-6">
-          <div className="border-b border-life-line pb-3 mb-4">
-            <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-              {t('tasks_add')}
-            </h3>
-            <p className="text-xs text-life-muted mt-0.5">
-              {activeTasksCount} {t('tasks_open')}
-            </p>
-          </div>
-
-          <form onSubmit={handleTaskSubmit} className="space-y-4">
-            <div className="flex flex-col space-y-1">
-              <label htmlFor="taskTitle" className="text-xs font-bold text-life-muted uppercase">
-                {t('tasks_title_label')}
-              </label>
-              <input
-                id="taskTitle"
-                type="text"
-                required
-                placeholder={t('tasks_what_todo')}
-                value={taskTitle}
-                onChange={(e) => setTaskTitle(e.target.value)}
-                className="glass-input text-sm"
-              />
-            </div>
-
-            <div className="grid grid-cols-3 gap-3">
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="taskProject" className="text-xs font-bold text-life-muted uppercase">
-                  {t('tasks_project')}
-                </label>
-                <select
-                  id="taskProject"
-                  value={taskProjectId}
-                  onChange={(e) => setTaskProjectId(e.target.value)}
-                  className="glass-select text-xs"
-                >
-                  <option value="">{t('tasks_inbox')}</option>
-                  {state.projects.map((proj) => (
-                    <option key={proj.id} value={proj.id}>
-                      {proj.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="taskDue" className="text-xs font-bold text-life-muted uppercase">
-                  {t('tasks_due')}
-                </label>
-                <input
-                  id="taskDue"
-                  type="date"
-                  value={taskDue}
-                  onChange={(e) => setTaskDue(e.target.value)}
-                  className="glass-input text-xs"
-                />
-              </div>
-
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="taskPriority" className="text-xs font-bold text-life-muted uppercase">
-                  {t('priority')}
-                </label>
-                <select
-                  id="taskPriority"
-                  value={taskPriority}
-                  onChange={(e) => setTaskPriority(e.target.value as Priority)}
-                  className="glass-select text-xs"
-                >
-                  {PRIORITY_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="flex flex-col space-y-1">
-              <label htmlFor="taskGoal" className="text-xs font-bold text-life-muted uppercase">
-                Hubungkan ke Target (Goal)
-              </label>
-              <select
-                id="taskGoal"
-                value={taskGoalId}
-                onChange={(e) => setTaskGoalId(e.target.value)}
-                className="glass-select text-xs"
-              >
-                <option value="">-- Tanpa Target --</option>
-                {state.goals.map((g) => (
-                  <option key={g.id} value={g.id}>
-                    {g.title} ({g.progress}%)
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <Button type="submit" variant="primary" icon="plus" className="w-full">
-              {t('tasks_add_btn')}
-            </Button>
-          </form>
-        </Surface>
-      </div>
 
       {/* Kanban Board columns */}
       <Surface className="p-6">
@@ -761,6 +670,13 @@ export default function ProjectsPage() {
                         {proj.status}
                       </Badge>
                       <button
+                        onClick={() => handleOpenEditProject(proj)}
+                        className="w-7 h-7 rounded bg-white/[0.02] border border-life-line hover:bg-life-teal/20 text-life-muted hover:text-life-text flex items-center justify-center transition-all"
+                        title="Edit Project"
+                      >
+                        <Icon name="edit" size={12} />
+                      </button>
+                      <button
                         onClick={() => deleteProject(proj.id)}
                         className="w-7 h-7 rounded bg-white/[0.02] border border-life-line hover:bg-life-rose/20 text-life-muted hover:text-life-rose flex items-center justify-center transition-all"
                         title={t('delete')}
@@ -792,6 +708,415 @@ export default function ProjectsPage() {
           )}
         </div>
       </Surface>
+
+      {/* Modal Edit Project */}
+      <Modal
+        isOpen={Boolean(editingProject)}
+        onClose={() => setEditingProject(null)}
+        title="Edit Proyek"
+        subtitle="Perbarui nama, area, status, atau target proyek Anda"
+      >
+        {editingProject && (
+          <form onSubmit={handleSaveEditProject} className="space-y-4">
+            <div className="flex flex-col space-y-1">
+              <label htmlFor="editProjectNameInput" className="text-xs font-bold text-life-muted uppercase">
+                {t('projects_name')}
+              </label>
+              <input
+                id="editProjectNameInput"
+                type="text"
+                required
+                value={editProjectName}
+                onChange={(e) => setEditProjectName(e.target.value)}
+                className="glass-input text-sm"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col space-y-1">
+                <label htmlFor="editProjectAreaInput" className="text-xs font-bold text-life-muted uppercase">
+                  {t('area')}
+                </label>
+                <select
+                  id="editProjectAreaInput"
+                  value={editProjectArea}
+                  onChange={(e) => setEditProjectArea(e.target.value)}
+                  className="glass-select text-xs"
+                >
+                  <option value="Career">Career</option>
+                  <option value="Finance">Finance</option>
+                  <option value="Health">Health</option>
+                  <option value="Learning">Learning</option>
+                  <option value="Personal">Personal</option>
+                  <option value="Relationship">Relationship</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label htmlFor="editProjectStatusInput" className="text-xs font-bold text-life-muted uppercase">
+                  {t('status')}
+                </label>
+                <select
+                  id="editProjectStatusInput"
+                  value={editProjectStatus}
+                  onChange={(e) => setEditProjectStatus(e.target.value as any)}
+                  className="glass-select text-xs"
+                >
+                  <option value="active">Active</option>
+                  <option value="paused">Paused</option>
+                  <option value="done">Done</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex flex-col space-y-1">
+              <label htmlFor="editProjectGoalInput" className="text-xs font-bold text-life-muted uppercase">
+                Hubungkan ke Target (Goal)
+              </label>
+              <select
+                id="editProjectGoalInput"
+                value={editProjectGoalId}
+                onChange={(e) => setEditProjectGoalId(e.target.value)}
+                className="glass-select text-xs"
+              >
+                <option value="">-- Tanpa Target --</option>
+                {state.goals.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.title} ({g.progress}%)
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-white/5">
+              <Button type="button" variant="secondary" onClick={() => setEditingProject(null)}>
+                Batal
+              </Button>
+              <Button type="submit" variant="primary">
+                Simpan Perubahan
+              </Button>
+            </div>
+          </form>
+        )}
+      </Modal>
+
+      {/* Modal Edit Task */}
+      <Modal
+        isOpen={Boolean(editingTask)}
+        onClose={() => setEditingTask(null)}
+        title="Edit Tugas"
+        subtitle="Perbarui rincian, tenggat waktu, atau prioritas tugas Anda"
+      >
+        {editingTask && (
+          <form onSubmit={handleSaveEditTask} className="space-y-4">
+            <div className="flex flex-col space-y-1">
+              <label htmlFor="editTaskTitleInput" className="text-xs font-bold text-life-muted uppercase">
+                {t('tasks_title_label')}
+              </label>
+              <input
+                id="editTaskTitleInput"
+                type="text"
+                required
+                value={editTaskTitle}
+                onChange={(e) => setEditTaskTitle(e.target.value)}
+                className="glass-input text-sm"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col space-y-1">
+                <label htmlFor="editTaskProjectInput" className="text-xs font-bold text-life-muted uppercase">
+                  {t('tasks_project')}
+                </label>
+                <select
+                  id="editTaskProjectInput"
+                  value={editTaskProjectId}
+                  onChange={(e) => setEditTaskProjectId(e.target.value)}
+                  className="glass-select text-xs"
+                >
+                  <option value="">{t('tasks_inbox')}</option>
+                  {state.projects.map((proj) => (
+                    <option key={proj.id} value={proj.id}>
+                      {proj.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label htmlFor="editTaskStatusInput" className="text-xs font-bold text-life-muted uppercase">
+                  {t('status')}
+                </label>
+                <select
+                  id="editTaskStatusInput"
+                  value={editTaskStatus}
+                  onChange={(e) => setEditTaskStatus(e.target.value as any)}
+                  className="glass-select text-xs"
+                >
+                  <option value="todo">{t('tasks_todo')}</option>
+                  <option value="doing">{t('tasks_doing')}</option>
+                  <option value="done">{t('tasks_done')}</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col space-y-1">
+                <label htmlFor="editTaskDueInput" className="text-xs font-bold text-life-muted uppercase">
+                  {t('tasks_due')}
+                </label>
+                <input
+                  id="editTaskDueInput"
+                  type="date"
+                  value={editTaskDue}
+                  onChange={(e) => setEditTaskDue(e.target.value)}
+                  className="glass-input text-xs"
+                />
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label htmlFor="editTaskPriorityInput" className="text-xs font-bold text-life-muted uppercase">
+                  {t('priority')}
+                </label>
+                <select
+                  id="editTaskPriorityInput"
+                  value={editTaskPriority}
+                  onChange={(e) => setEditTaskPriority(e.target.value as Priority)}
+                  className="glass-select text-xs"
+                >
+                  {PRIORITY_OPTIONS.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="flex flex-col space-y-1">
+              <label htmlFor="editTaskGoalInput" className="text-xs font-bold text-life-muted uppercase">
+                Hubungkan ke Target (Goal)
+              </label>
+              <select
+                id="editTaskGoalInput"
+                value={editTaskGoalId}
+                onChange={(e) => setEditTaskGoalId(e.target.value)}
+                className="glass-select text-xs"
+              >
+                <option value="">-- Tanpa Target --</option>
+                {state.goals.map((g) => (
+                  <option key={g.id} value={g.id}>
+                    {g.title} ({g.progress}%)
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-white/5">
+              <Button type="button" variant="secondary" onClick={() => setEditingTask(null)}>
+                Batal
+              </Button>
+              <Button type="submit" variant="primary">
+                Simpan Perubahan
+              </Button>
+            </div>
+          </form>
+        )}
+      </Modal>
+      {/* Modal Tambah Project Baru */}
+      <Modal
+        isOpen={isNewProjectModalOpen}
+        onClose={() => setIsNewProjectModalOpen(false)}
+        title={t('projects_add')}
+        subtitle={`${activeProjectsCount} ${t('projects_active')}`}
+      >
+        <form onSubmit={handleProjectSubmit} className="space-y-4">
+          <div className="flex flex-col space-y-1">
+            <label htmlFor="modalProjectName" className="text-xs font-bold text-life-muted uppercase">
+              {t('projects_name')}
+            </label>
+            <input
+              id="modalProjectName"
+              type="text"
+              required
+              placeholder="E.g. Portfolio Design, Thesis..."
+              value={projectName}
+              onChange={(e) => setProjectName(e.target.value)}
+              className="glass-input text-sm"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col space-y-1">
+              <label htmlFor="modalProjectArea" className="text-xs font-bold text-life-muted uppercase">
+                {t('area')}
+              </label>
+              <select
+                id="modalProjectArea"
+                value={projectArea || 'Career'}
+                onChange={(e) => setProjectArea(e.target.value)}
+                className="glass-select text-xs"
+              >
+                <option value="Career">Career</option>
+                <option value="Finance">Finance</option>
+                <option value="Health">Health</option>
+                <option value="Learning">Learning</option>
+                <option value="Personal">Personal</option>
+                <option value="Relationship">Relationship</option>
+              </select>
+            </div>
+
+            <div className="flex flex-col space-y-1">
+              <label htmlFor="modalProjectStatus" className="text-xs font-bold text-life-muted uppercase">
+                {t('status')}
+              </label>
+              <select
+                id="modalProjectStatus"
+                value={projectStatus}
+                onChange={(e) => setProjectStatus(e.target.value as any)}
+                className="glass-select text-xs"
+              >
+                <option value="active">Active</option>
+                <option value="paused">Paused</option>
+                <option value="done">Done</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex flex-col space-y-1">
+            <label htmlFor="modalProjectGoal" className="text-xs font-bold text-life-muted uppercase">
+              Hubungkan ke Target (Goal)
+            </label>
+            <select
+              id="modalProjectGoal"
+              value={projectGoalId}
+              onChange={(e) => setProjectGoalId(e.target.value)}
+              className="glass-select text-xs"
+            >
+              <option value="">-- Tanpa Target --</option>
+              {state.goals.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.title} ({g.progress}%)
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-white/5">
+            <Button type="button" variant="secondary" onClick={() => setIsNewProjectModalOpen(false)}>
+              Batal
+            </Button>
+            <Button type="submit" variant="primary" icon="plus">
+              {t('projects_add_btn')}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Modal Tambah Task Baru */}
+      <Modal
+        isOpen={isNewTaskModalOpen}
+        onClose={() => setIsNewTaskModalOpen(false)}
+        title={t('tasks_add')}
+        subtitle={`${activeTasksCount} ${t('tasks_open')}`}
+      >
+        <form onSubmit={handleTaskSubmit} className="space-y-4">
+          <div className="flex flex-col space-y-1">
+            <label htmlFor="modalTaskTitle" className="text-xs font-bold text-life-muted uppercase">
+              {t('tasks_title_label')}
+            </label>
+            <input
+              id="modalTaskTitle"
+              type="text"
+              required
+              placeholder={t('tasks_what_todo')}
+              value={taskTitle}
+              onChange={(e) => setTaskTitle(e.target.value)}
+              className="glass-input text-sm"
+            />
+          </div>
+
+          <div className="grid grid-cols-3 gap-3">
+            <div className="flex flex-col space-y-1">
+              <label htmlFor="modalTaskProject" className="text-xs font-bold text-life-muted uppercase">
+                {t('tasks_project')}
+              </label>
+              <select
+                id="modalTaskProject"
+                value={taskProjectId}
+                onChange={(e) => setTaskProjectId(e.target.value)}
+                className="glass-select text-xs"
+              >
+                <option value="">{t('tasks_inbox')}</option>
+                {state.projects.map((proj) => (
+                  <option key={proj.id} value={proj.id}>
+                    {proj.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex flex-col space-y-1">
+              <label htmlFor="modalTaskDue" className="text-xs font-bold text-life-muted uppercase">
+                {t('tasks_due')}
+              </label>
+              <input
+                id="modalTaskDue"
+                type="date"
+                value={taskDue}
+                onChange={(e) => setTaskDue(e.target.value)}
+                className="glass-input text-xs"
+              />
+            </div>
+
+            <div className="flex flex-col space-y-1">
+              <label htmlFor="modalTaskPriority" className="text-xs font-bold text-life-muted uppercase">
+                {t('priority')}
+              </label>
+              <select
+                id="modalTaskPriority"
+                value={taskPriority}
+                onChange={(e) => setTaskPriority(e.target.value as Priority)}
+                className="glass-select text-xs"
+              >
+                {PRIORITY_OPTIONS.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="flex flex-col space-y-1">
+            <label htmlFor="modalTaskGoal" className="text-xs font-bold text-life-muted uppercase">
+              Hubungkan ke Target (Goal)
+            </label>
+            <select
+              id="modalTaskGoal"
+              value={taskGoalId}
+              onChange={(e) => setTaskGoalId(e.target.value)}
+              className="glass-select text-xs"
+            >
+              <option value="">-- Tanpa Target --</option>
+              {state.goals.map((g) => (
+                <option key={g.id} value={g.id}>
+                  {g.title} ({g.progress}%)
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-white/5">
+            <Button type="button" variant="secondary" onClick={() => setIsNewTaskModalOpen(false)}>
+              Batal
+            </Button>
+            <Button type="submit" variant="primary" icon="plus">
+              {t('tasks_add_btn')}
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
