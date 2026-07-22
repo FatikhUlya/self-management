@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { useLocalStorageState } from '@/lib/hooks/useLocalStorageState';
 import { useI18n } from '@/lib/i18n/context';
@@ -10,7 +10,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
 import { Modal } from '@/components/ui/Modal';
-import { formatDate, percent } from '@/lib/utils';
+import { formatDate, percent, inLastDays } from '@/lib/utils';
 
 const EXPENSE_CATEGORIES = [
   'Makanan & Minuman',
@@ -98,6 +98,38 @@ export default function FinancePage() {
   // Quick adjustment state
   const [editingGoalId, setEditingGoalId] = useState<string | null>(null);
   const [newCurrentAmount, setNewCurrentAmount] = useState('');
+
+  // Transaction Ledger Filter state
+  const [ledgerTimeframe, setLedgerTimeframe] = useState<'all' | 'day' | 'week' | 'month' | 'year'>('all');
+
+  const filteredTransactions = useMemo(() => {
+    const baseDate = state.selectedDate || new Date().toISOString().split('T')[0];
+    const currentYear = baseDate.slice(0, 4);
+    const currentMonth = baseDate.slice(0, 7);
+
+    return state.transactions.filter((tx) => {
+      if (ledgerTimeframe === 'all') return true;
+      if (ledgerTimeframe === 'day') return tx.date === baseDate;
+      if (ledgerTimeframe === 'week') return inLastDays(tx.date, 7, baseDate);
+      if (ledgerTimeframe === 'month') return tx.date.startsWith(currentMonth);
+      if (ledgerTimeframe === 'year') return tx.date.startsWith(currentYear);
+      return true;
+    });
+  }, [state.transactions, ledgerTimeframe, state.selectedDate]);
+
+  const ledgerExpense = useMemo(() => {
+    return filteredTransactions
+      .filter((t) => t.type === 'expense')
+      .reduce((sum, t) => sum + t.amount, 0);
+  }, [filteredTransactions]);
+
+  const ledgerIncome = useMemo(() => {
+    return filteredTransactions
+      .filter((t) => t.type === 'income')
+      .reduce((sum, t) => sum + t.amount, 0);
+  }, [filteredTransactions]);
+
+  const ledgerCashflow = ledgerIncome - ledgerExpense;
 
   // Calculations
   const totalIncome = state.transactions
@@ -697,18 +729,74 @@ export default function FinancePage() {
 
           {/* Transaction Ledger History */}
           <Surface className="p-6">
-            <div className="border-b border-life-line pb-3 mb-4">
-              <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-                {locale === 'id' ? 'Buku Kas Transaksi' : 'Transaction Ledger'}
-              </h3>
-              <p className="text-xs text-life-muted mt-0.5">
-                {locale === 'id' ? 'Riwayat pemasukan & pengeluaran keuangan' : 'History of financial income & expenses'}
-              </p>
+            <div className="border-b border-life-line pb-3 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
+                  {locale === 'id' ? 'Buku Kas Transaksi' : 'Transaction Ledger'}
+                </h3>
+                <p className="text-xs text-life-muted mt-0.5">
+                  {locale === 'id' ? 'Riwayat pemasukan & pengeluaran keuangan' : 'History of financial income & expenses'}
+                </p>
+              </div>
+
+              {/* Filter Tabs (Semua / Hari Ini / Minggu Ini / Bulan Ini / Tahun Ini) */}
+              <div className="flex bg-white/[0.02] border border-life-line rounded-lg p-0.5 select-none self-start sm:self-auto shrink-0">
+                {[
+                  { id: 'all', labelId: 'Semua', labelEn: 'All' },
+                  { id: 'day', labelId: 'Hari Ini', labelEn: 'Today' },
+                  { id: 'week', labelId: 'Minggu Ini', labelEn: 'This Week' },
+                  { id: 'month', labelId: 'Bulan Ini', labelEn: 'This Month' },
+                  { id: 'year', labelId: 'Tahun Ini', labelEn: 'This Year' },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setLedgerTimeframe(tab.id as any)}
+                    className={`text-[10px] font-black uppercase py-1 px-2 rounded-md transition-all ${
+                      ledgerTimeframe === tab.id
+                        ? 'bg-life-teal text-white shadow-sm'
+                        : 'text-life-muted hover:text-life-text'
+                    }`}
+                  >
+                    {locale === 'id' ? tab.labelId : tab.labelEn}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Filtered Period Totals Summary Banner */}
+            <div className="p-3 mb-4 rounded-xl bg-white/[0.008] border border-life-line flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="flex items-center space-x-1.5">
+                <span className="text-[11px] font-semibold text-life-muted">
+                  {locale === 'id' ? 'Total Pengeluaran:' : 'Total Expenses:'}
+                </span>
+                <span className="font-black text-rose-400">
+                  - {formatCurrency(ledgerExpense)}
+                </span>
+              </div>
+
+              <div className="flex items-center space-x-1.5">
+                <span className="text-[11px] font-semibold text-life-muted">
+                  {locale === 'id' ? 'Total Pemasukan:' : 'Total Income:'}
+                </span>
+                <span className="font-black text-emerald-400">
+                  + {formatCurrency(ledgerIncome)}
+                </span>
+              </div>
+
+              <div className="flex items-center space-x-1.5 sm:border-l border-white/10 sm:pl-3">
+                <span className="text-[11px] font-semibold text-life-muted">
+                  {locale === 'id' ? 'Net Cashflow:' : 'Net Cashflow:'}
+                </span>
+                <span className={`font-black ${ledgerCashflow >= 0 ? 'text-teal-400' : 'text-rose-400'}`}>
+                  {ledgerCashflow >= 0 ? '+' : ''}{formatCurrency(ledgerCashflow)}
+                </span>
+              </div>
             </div>
 
             <div className="space-y-3 max-h-[350px] overflow-y-auto pr-1">
-              {state.transactions.length > 0 ? (
-                state.transactions.map((tx) => (
+              {filteredTransactions.length > 0 ? (
+                filteredTransactions.map((tx) => (
                   <div
                     key={tx.id}
                     className="p-3.5 rounded-xl bg-white/[0.005] border border-life-line flex items-center justify-between gap-4"

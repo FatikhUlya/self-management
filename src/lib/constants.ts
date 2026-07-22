@@ -132,7 +132,7 @@ export const NAV_ITEMS = [
   { id: 'goals', path: '/goals', icon: 'target', labelKey: 'nav_goals' as const },
   { id: 'projects', path: '/projects', icon: 'folder', labelKey: 'nav_projects' as const },
   { id: 'work', path: '/work', icon: 'briefcase', labelKey: 'nav_work' as const },
-  { id: 'finance', path: '/finance', icon: 'briefcase', labelKey: 'nav_finance' as const },
+  { id: 'finance', path: '/finance', icon: 'wallet', labelKey: 'nav_finance' as const },
   { id: 'health', path: '/health', icon: 'activity', labelKey: 'nav_health' as const },
   { id: 'learning', path: '/learning', icon: 'book', labelKey: 'nav_learning' as const },
   { id: 'reviews', path: '/reviews', icon: 'review', labelKey: 'nav_reviews' as const },
