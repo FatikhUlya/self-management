@@ -54,6 +54,35 @@ const getCategoryLabel = (cat: string, locale: string) => {
   return labels[cat] || cat;
 };
 
+function shiftDateStr(dateStr: string, days: number): string {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  dt.setDate(dt.getDate() + days);
+  const ny = dt.getFullYear();
+  const nm = String(dt.getMonth() + 1).padStart(2, '0');
+  const nd = String(dt.getDate()).padStart(2, '0');
+  return `${ny}-${nm}-${nd}`;
+}
+
+function shiftMonthStr(dateStr: string, months: number): string {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  dt.setMonth(dt.getMonth() + months);
+  const ny = dt.getFullYear();
+  const nm = String(dt.getMonth() + 1).padStart(2, '0');
+  const nd = String(dt.getDate()).padStart(2, '0');
+  return `${ny}-${nm}-${nd}`;
+}
+
+function shiftYearStr(dateStr: string, years: number): string {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dt = new Date(y + years, m - 1, d);
+  const ny = dt.getFullYear();
+  const nm = String(dt.getMonth() + 1).padStart(2, '0');
+  const nd = String(dt.getDate()).padStart(2, '0');
+  return `${ny}-${nm}-${nd}`;
+}
+
 export default function FinancePage() {
   const { 
     state, 
@@ -99,11 +128,26 @@ export default function FinancePage() {
   const [editingGoalId, setEditingGoalId] = useState<string | null>(null);
   const [newCurrentAmount, setNewCurrentAmount] = useState('');
 
-  // Transaction Ledger Filter state
+  // Transaction Ledger Filter & Date state
   const [ledgerTimeframe, setLedgerTimeframe] = useState<'all' | 'day' | 'week' | 'month' | 'year'>('all');
+  const [ledgerRefDate, setLedgerRefDate] = useState(state.selectedDate || new Date().toISOString().split('T')[0]);
+
+  const handleLedgerPrev = () => {
+    if (ledgerTimeframe === 'day') setLedgerRefDate(prev => shiftDateStr(prev, -1));
+    else if (ledgerTimeframe === 'week') setLedgerRefDate(prev => shiftDateStr(prev, -7));
+    else if (ledgerTimeframe === 'month') setLedgerRefDate(prev => shiftMonthStr(prev, -1));
+    else if (ledgerTimeframe === 'year') setLedgerRefDate(prev => shiftYearStr(prev, -1));
+  };
+
+  const handleLedgerNext = () => {
+    if (ledgerTimeframe === 'day') setLedgerRefDate(prev => shiftDateStr(prev, 1));
+    else if (ledgerTimeframe === 'week') setLedgerRefDate(prev => shiftDateStr(prev, 7));
+    else if (ledgerTimeframe === 'month') setLedgerRefDate(prev => shiftMonthStr(prev, 1));
+    else if (ledgerTimeframe === 'year') setLedgerRefDate(prev => shiftYearStr(prev, 1));
+  };
 
   const filteredTransactions = useMemo(() => {
-    const baseDate = state.selectedDate || new Date().toISOString().split('T')[0];
+    const baseDate = ledgerRefDate || state.selectedDate || new Date().toISOString().split('T')[0];
     const currentYear = baseDate.slice(0, 4);
     const currentMonth = baseDate.slice(0, 7);
 
@@ -115,7 +159,7 @@ export default function FinancePage() {
       if (ledgerTimeframe === 'year') return tx.date.startsWith(currentYear);
       return true;
     });
-  }, [state.transactions, ledgerTimeframe, state.selectedDate]);
+  }, [state.transactions, ledgerTimeframe, ledgerRefDate, state.selectedDate]);
 
   const ledgerExpense = useMemo(() => {
     return filteredTransactions
@@ -131,27 +175,57 @@ export default function FinancePage() {
 
   const ledgerCashflow = ledgerIncome - ledgerExpense;
 
-  // Calculations
-  const totalIncome = state.transactions
-    .filter(t => t.type === 'income')
-    .reduce((sum, t) => sum + t.amount, 0);
+  // Expense Distribution Filter & Date state
+  const [distributionTimeframe, setDistributionTimeframe] = useState<'all' | 'day' | 'week' | 'month' | 'year'>('all');
+  const [distributionRefDate, setDistributionRefDate] = useState(state.selectedDate || new Date().toISOString().split('T')[0]);
 
-  const totalExpense = state.transactions
-    .filter(t => t.type === 'expense')
-    .reduce((sum, t) => sum + t.amount, 0);
+  const handleDistributionPrev = () => {
+    if (distributionTimeframe === 'day') setDistributionRefDate(prev => shiftDateStr(prev, -1));
+    else if (distributionTimeframe === 'week') setDistributionRefDate(prev => shiftDateStr(prev, -7));
+    else if (distributionTimeframe === 'month') setDistributionRefDate(prev => shiftMonthStr(prev, -1));
+    else if (distributionTimeframe === 'year') setDistributionRefDate(prev => shiftYearStr(prev, -1));
+  };
 
-  const netBalance = totalIncome - totalExpense;
+  const handleDistributionNext = () => {
+    if (distributionTimeframe === 'day') setDistributionRefDate(prev => shiftDateStr(prev, 1));
+    else if (distributionTimeframe === 'week') setDistributionRefDate(prev => shiftDateStr(prev, 7));
+    else if (distributionTimeframe === 'month') setDistributionRefDate(prev => shiftMonthStr(prev, 1));
+    else if (distributionTimeframe === 'year') setDistributionRefDate(prev => shiftYearStr(prev, 1));
+  };
 
-  // Expense breakdown by category
-  const expenseByCategory = EXPENSE_CATEGORIES.reduce((acc, cat) => {
-    const amount = state.transactions
-      .filter(t => t.type === 'expense' && t.category === cat)
+  const filteredDistributionTransactions = useMemo(() => {
+    const baseDate = distributionRefDate || state.selectedDate || new Date().toISOString().split('T')[0];
+    const currentYear = baseDate.slice(0, 4);
+    const currentMonth = baseDate.slice(0, 7);
+
+    return state.transactions.filter((tx) => {
+      if (distributionTimeframe === 'all') return true;
+      if (distributionTimeframe === 'day') return tx.date === baseDate;
+      if (distributionTimeframe === 'week') return inLastDays(tx.date, 7, baseDate);
+      if (distributionTimeframe === 'month') return tx.date.startsWith(currentMonth);
+      if (distributionTimeframe === 'year') return tx.date.startsWith(currentYear);
+      return true;
+    });
+  }, [state.transactions, distributionTimeframe, distributionRefDate, state.selectedDate]);
+
+  const distributionTotalExpense = useMemo(() => {
+    return filteredDistributionTransactions
+      .filter((t) => t.type === 'expense')
       .reduce((sum, t) => sum + t.amount, 0);
-    if (amount > 0) {
-      acc.push({ category: cat, amount });
-    }
-    return acc;
-  }, [] as { category: string; amount: number }[]).sort((a, b) => b.amount - a.amount);
+  }, [filteredDistributionTransactions]);
+
+  const expenseByCategory = useMemo(() => {
+    const expenses = filteredDistributionTransactions.filter((t) => t.type === 'expense');
+    return EXPENSE_CATEGORIES.reduce((acc, cat) => {
+      const amount = expenses
+        .filter((t) => t.category === cat)
+        .reduce((sum, t) => sum + t.amount, 0);
+      if (amount > 0) {
+        acc.push({ category: cat, amount });
+      }
+      return acc;
+    }, [] as { category: string; amount: number }[]).sort((a, b) => b.amount - a.amount);
+  }, [filteredDistributionTransactions]);
 
   const handleTxSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -574,19 +648,121 @@ export default function FinancePage() {
 
           {/* Expenses Breakdown chart */}
           <Surface className="p-6">
-            <div className="border-b border-life-line pb-3 mb-4">
-              <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-                {locale === 'id' ? 'Distribusi Pengeluaran' : 'Expense Distribution'}
-              </h3>
-              <p className="text-xs text-life-muted mt-0.5">
-                {locale === 'id' ? 'Breakdown pengeluaran Anda per kategori' : 'Your expense breakdown by category'}
-              </p>
+            <div className="border-b border-life-line pb-3 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
+                  {locale === 'id' ? 'Distribusi Pengeluaran' : 'Expense Distribution'}
+                </h3>
+                <p className="text-xs text-life-muted mt-0.5">
+                  {locale === 'id' ? 'Breakdown pengeluaran Anda per kategori' : 'Your expense breakdown by category'}
+                </p>
+              </div>
+
+              {/* Navigation & Filter Controls */}
+              <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto shrink-0 select-none">
+                <div className="flex bg-white/[0.02] border border-life-line rounded-lg p-0.5">
+                  {[
+                    { id: 'all', labelId: 'Semua', labelEn: 'All' },
+                    { id: 'day', labelId: 'Hari', labelEn: 'Day' },
+                    { id: 'week', labelId: 'Minggu', labelEn: 'Week' },
+                    { id: 'month', labelId: 'Bulan', labelEn: 'Month' },
+                    { id: 'year', labelId: 'Tahun', labelEn: 'Year' },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setDistributionTimeframe(tab.id as any)}
+                      className={`text-[10px] font-black uppercase py-1 px-2 rounded-md transition-all ${
+                        distributionTimeframe === tab.id
+                          ? 'bg-life-teal text-white shadow-sm'
+                          : 'text-life-muted hover:text-life-text'
+                      }`}
+                    >
+                      {locale === 'id' ? tab.labelId : tab.labelEn}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Date Navigation & Calendar Picker */}
+                {distributionTimeframe !== 'all' && (
+                  <div className="flex items-center gap-1 bg-white/[0.02] border border-life-line rounded-lg px-2 py-0.5 text-xs">
+                    <button
+                      type="button"
+                      onClick={handleDistributionPrev}
+                      className="w-5 h-5 rounded hover:bg-white/10 flex items-center justify-center text-life-muted hover:text-life-text transition-colors"
+                      title={locale === 'id' ? 'Mundur' : 'Prev'}
+                    >
+                      <Icon name="chevronLeft" size={10} />
+                    </button>
+
+                    {distributionTimeframe === 'day' && (
+                      <input
+                        type="date"
+                        value={distributionRefDate}
+                        onChange={(e) => e.target.value && setDistributionRefDate(e.target.value)}
+                        className="bg-transparent border-0 text-life-text font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
+                      />
+                    )}
+
+                    {distributionTimeframe === 'week' && (
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="date"
+                          value={distributionRefDate}
+                          onChange={(e) => e.target.value && setDistributionRefDate(e.target.value)}
+                          className="bg-transparent border-0 text-life-text font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
+                        />
+                        <span className="text-[9px] text-life-muted font-bold">(7 hr)</span>
+                      </div>
+                    )}
+
+                    {distributionTimeframe === 'month' && (
+                      <input
+                        type="month"
+                        value={distributionRefDate.slice(0, 7)}
+                        onChange={(e) => e.target.value && setDistributionRefDate(`${e.target.value}-01`)}
+                        className="bg-transparent border-0 text-life-text font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
+                      />
+                    )}
+
+                    {distributionTimeframe === 'year' && (
+                      <input
+                        type="number"
+                        min="2000"
+                        max="2100"
+                        value={distributionRefDate.slice(0, 4)}
+                        onChange={(e) => e.target.value && setDistributionRefDate(`${e.target.value}-01-01`)}
+                        className="bg-transparent border-0 text-life-text font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-14"
+                      />
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={handleDistributionNext}
+                      className="w-5 h-5 rounded hover:bg-white/10 flex items-center justify-center text-life-muted hover:text-life-text transition-colors"
+                      title={locale === 'id' ? 'Maju' : 'Next'}
+                    >
+                      <Icon name="chevronRight" size={10} />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Total Summary Banner for selected period */}
+            <div className="p-3 mb-4 rounded-xl bg-white/[0.008] border border-life-line flex items-center justify-between gap-3 text-xs">
+              <span className="text-[11px] font-semibold text-life-muted">
+                {locale === 'id' ? 'Total Pengeluaran Periode Ini:' : 'Total Period Expenses:'}
+              </span>
+              <strong className="font-black text-rose-400 text-sm">
+                - {formatCurrency(distributionTotalExpense)}
+              </strong>
             </div>
 
             <div className="space-y-4">
               {expenseByCategory.length > 0 ? (
                 expenseByCategory.map((item) => {
-                  const pct = percent(item.amount, totalExpense);
+                  const pct = percent(item.amount, distributionTotalExpense);
                   return (
                     <div key={item.category} className="space-y-1">
                       <div className="flex justify-between items-center text-xs">
@@ -607,7 +783,7 @@ export default function FinancePage() {
                 })
               ) : (
                 <div className="py-6 text-center text-xs text-life-muted font-bold uppercase">
-                  {locale === 'id' ? 'Belum ada catatan pengeluaran bulan ini.' : 'No expense records for this month.'}
+                  {locale === 'id' ? 'Belum ada catatan pengeluaran pada periode ini.' : 'No expense records for this period.'}
                 </div>
               )}
             </div>
@@ -739,28 +915,94 @@ export default function FinancePage() {
                 </p>
               </div>
 
-              {/* Filter Tabs (Semua / Hari Ini / Minggu Ini / Bulan Ini / Tahun Ini) */}
-              <div className="flex bg-white/[0.02] border border-life-line rounded-lg p-0.5 select-none self-start sm:self-auto shrink-0">
-                {[
-                  { id: 'all', labelId: 'Semua', labelEn: 'All' },
-                  { id: 'day', labelId: 'Hari Ini', labelEn: 'Today' },
-                  { id: 'week', labelId: 'Minggu Ini', labelEn: 'This Week' },
-                  { id: 'month', labelId: 'Bulan Ini', labelEn: 'This Month' },
-                  { id: 'year', labelId: 'Tahun Ini', labelEn: 'This Year' },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setLedgerTimeframe(tab.id as any)}
-                    className={`text-[10px] font-black uppercase py-1 px-2 rounded-md transition-all ${
-                      ledgerTimeframe === tab.id
-                        ? 'bg-life-teal text-white shadow-sm'
-                        : 'text-life-muted hover:text-life-text'
-                    }`}
-                  >
-                    {locale === 'id' ? tab.labelId : tab.labelEn}
-                  </button>
-                ))}
+              {/* Navigation & Filter Controls */}
+              <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto shrink-0 select-none">
+                <div className="flex bg-white/[0.02] border border-life-line rounded-lg p-0.5">
+                  {[
+                    { id: 'all', labelId: 'Semua', labelEn: 'All' },
+                    { id: 'day', labelId: 'Hari', labelEn: 'Day' },
+                    { id: 'week', labelId: 'Minggu', labelEn: 'Week' },
+                    { id: 'month', labelId: 'Bulan', labelEn: 'Month' },
+                    { id: 'year', labelId: 'Tahun', labelEn: 'Year' },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setLedgerTimeframe(tab.id as any)}
+                      className={`text-[10px] font-black uppercase py-1 px-2 rounded-md transition-all ${
+                        ledgerTimeframe === tab.id
+                          ? 'bg-life-teal text-white shadow-sm'
+                          : 'text-life-muted hover:text-life-text'
+                      }`}
+                    >
+                      {locale === 'id' ? tab.labelId : tab.labelEn}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Date Navigation & Calendar Picker */}
+                {ledgerTimeframe !== 'all' && (
+                  <div className="flex items-center gap-1 bg-white/[0.02] border border-life-line rounded-lg px-2 py-0.5 text-xs">
+                    <button
+                      type="button"
+                      onClick={handleLedgerPrev}
+                      className="w-5 h-5 rounded hover:bg-white/10 flex items-center justify-center text-life-muted hover:text-life-text transition-colors"
+                      title={locale === 'id' ? 'Mundur' : 'Prev'}
+                    >
+                      <Icon name="chevronLeft" size={10} />
+                    </button>
+
+                    {ledgerTimeframe === 'day' && (
+                      <input
+                        type="date"
+                        value={ledgerRefDate}
+                        onChange={(e) => e.target.value && setLedgerRefDate(e.target.value)}
+                        className="bg-transparent border-0 text-life-text font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
+                      />
+                    )}
+
+                    {ledgerTimeframe === 'week' && (
+                      <div className="flex items-center gap-1">
+                        <input
+                          type="date"
+                          value={ledgerRefDate}
+                          onChange={(e) => e.target.value && setLedgerRefDate(e.target.value)}
+                          className="bg-transparent border-0 text-life-text font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
+                        />
+                        <span className="text-[9px] text-life-muted font-bold">(7 hr)</span>
+                      </div>
+                    )}
+
+                    {ledgerTimeframe === 'month' && (
+                      <input
+                        type="month"
+                        value={ledgerRefDate.slice(0, 7)}
+                        onChange={(e) => e.target.value && setLedgerRefDate(`${e.target.value}-01`)}
+                        className="bg-transparent border-0 text-life-text font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
+                      />
+                    )}
+
+                    {ledgerTimeframe === 'year' && (
+                      <input
+                        type="number"
+                        min="2000"
+                        max="2100"
+                        value={ledgerRefDate.slice(0, 4)}
+                        onChange={(e) => e.target.value && setLedgerRefDate(`${e.target.value}-01-01`)}
+                        className="bg-transparent border-0 text-life-text font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-14"
+                      />
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={handleLedgerNext}
+                      className="w-5 h-5 rounded hover:bg-white/10 flex items-center justify-center text-life-muted hover:text-life-text transition-colors"
+                      title={locale === 'id' ? 'Maju' : 'Next'}
+                    >
+                      <Icon name="chevronRight" size={10} />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 

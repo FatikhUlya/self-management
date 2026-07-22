@@ -11,10 +11,10 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/journal/page": [
+    "/finance/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/journal/page.js"
+      "static/chunks/app/finance/page.js"
     ]
   }
 }
