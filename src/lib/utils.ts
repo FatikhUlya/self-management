@@ -204,3 +204,35 @@ export function yearOptions(selectedYear: number, extraYears: number[] = []): nu
   const max = Math.max(...allYears);
   return Array.from({ length: max - min + 1 }, (_, i) => min + i);
 }
+
+/** Shift date by days */
+export function shiftDateStr(dateStr: string, days: number): string {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  dt.setDate(dt.getDate() + days);
+  const ny = dt.getFullYear();
+  const nm = String(dt.getMonth() + 1).padStart(2, '0');
+  const nd = String(dt.getDate()).padStart(2, '0');
+  return `${ny}-${nm}-${nd}`;
+}
+
+/** Shift date by months */
+export function shiftMonthStr(dateStr: string, months: number): string {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dt = new Date(y, m - 1, d);
+  dt.setMonth(dt.getMonth() + months);
+  const ny = dt.getFullYear();
+  const nm = String(dt.getMonth() + 1).padStart(2, '0');
+  const nd = String(dt.getDate()).padStart(2, '0');
+  return `${ny}-${nm}-${nd}`;
+}
+
+/** Shift date by years */
+export function shiftYearStr(dateStr: string, years: number): string {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dt = new Date(y + years, m - 1, d);
+  const ny = dt.getFullYear();
+  const nm = String(dt.getMonth() + 1).padStart(2, '0');
+  const nd = String(dt.getDate()).padStart(2, '0');
+  return `${ny}-${nm}-${nd}`;
+}

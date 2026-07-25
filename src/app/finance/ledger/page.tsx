@@ -10,7 +10,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
 import { Modal } from '@/components/ui/Modal';
-import { formatDate, percent, inLastDays, todayISO } from '@/lib/utils';
+import { formatDate, percent, inLastDays, shiftDateStr, shiftMonthStr, shiftYearStr, todayISO } from '@/lib/utils';
 
 const EXPENSE_CATEGORIES = [
   'Makanan & Minuman',
@@ -45,34 +45,6 @@ const getCategoryLabel = (cat: string, locale: string) => {
   return labels[cat] || cat;
 };
 
-function shiftDateStr(dateStr: string, days: number): string {
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const dt = new Date(y, m - 1, d);
-  dt.setDate(dt.getDate() + days);
-  const ny = dt.getFullYear();
-  const nm = String(dt.getMonth() + 1).padStart(2, '0');
-  const nd = String(dt.getDate()).padStart(2, '0');
-  return `${ny}-${nm}-${nd}`;
-}
-
-function shiftMonthStr(dateStr: string, months: number): string {
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const dt = new Date(y, m - 1, d);
-  dt.setMonth(dt.getMonth() + months);
-  const ny = dt.getFullYear();
-  const nm = String(dt.getMonth() + 1).padStart(2, '0');
-  const nd = String(dt.getDate()).padStart(2, '0');
-  return `${ny}-${nm}-${nd}`;
-}
-
-function shiftYearStr(dateStr: string, years: number): string {
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const dt = new Date(y + years, m - 1, d);
-  const ny = dt.getFullYear();
-  const nm = String(dt.getMonth() + 1).padStart(2, '0');
-  const nd = String(dt.getDate()).padStart(2, '0');
-  return `${ny}-${nm}-${nd}`;
-}
 
 export default function LedgerPage() {
   const { state, deleteTransaction, addBudget, updateBudget } = useLifeOS();
@@ -80,20 +52,20 @@ export default function LedgerPage() {
 
   // Transaction Ledger Filter & Date state
   const [ledgerTimeframe, setLedgerTimeframe] = useState<'all' | 'day' | 'week' | 'month' | 'year'>('all');
-  const [ledgerRefDate, setLedgerRefDate] = useState(state.selectedDate || todayISO());
+  const [ledgerRefDate, setLedgerRefDate] = useState<string>(state.selectedDate || todayISO());
 
   const handleLedgerPrev = () => {
-    if (ledgerTimeframe === 'day') setLedgerRefDate(prev => shiftDateStr(prev, -1));
-    else if (ledgerTimeframe === 'week') setLedgerRefDate(prev => shiftDateStr(prev, -7));
-    else if (ledgerTimeframe === 'month') setLedgerRefDate(prev => shiftMonthStr(prev, -1));
-    else if (ledgerTimeframe === 'year') setLedgerRefDate(prev => shiftYearStr(prev, -1));
+    if (ledgerTimeframe === 'day') setLedgerRefDate((prev: string) => shiftDateStr(prev, -1));
+    else if (ledgerTimeframe === 'week') setLedgerRefDate((prev: string) => shiftDateStr(prev, -7));
+    else if (ledgerTimeframe === 'month') setLedgerRefDate((prev: string) => shiftMonthStr(prev, -1));
+    else if (ledgerTimeframe === 'year') setLedgerRefDate((prev: string) => shiftYearStr(prev, -1));
   };
 
   const handleLedgerNext = () => {
-    if (ledgerTimeframe === 'day') setLedgerRefDate(prev => shiftDateStr(prev, 1));
-    else if (ledgerTimeframe === 'week') setLedgerRefDate(prev => shiftDateStr(prev, 7));
-    else if (ledgerTimeframe === 'month') setLedgerRefDate(prev => shiftMonthStr(prev, 1));
-    else if (ledgerTimeframe === 'year') setLedgerRefDate(prev => shiftYearStr(prev, 1));
+    if (ledgerTimeframe === 'day') setLedgerRefDate((prev: string) => shiftDateStr(prev, 1));
+    else if (ledgerTimeframe === 'week') setLedgerRefDate((prev: string) => shiftDateStr(prev, 7));
+    else if (ledgerTimeframe === 'month') setLedgerRefDate((prev: string) => shiftMonthStr(prev, 1));
+    else if (ledgerTimeframe === 'year') setLedgerRefDate((prev: string) => shiftYearStr(prev, 1));
   };
 
   const filteredTransactions = useMemo(() => {
@@ -127,20 +99,20 @@ export default function LedgerPage() {
 
   // Expense Distribution Filter & Date state
   const [distributionTimeframe, setDistributionTimeframe] = useState<'all' | 'day' | 'week' | 'month' | 'year'>('all');
-  const [distributionRefDate, setDistributionRefDate] = useState(state.selectedDate || todayISO());
+  const [distributionRefDate, setDistributionRefDate] = useState<string>(state.selectedDate || todayISO());
 
   const handleDistributionPrev = () => {
-    if (distributionTimeframe === 'day') setDistributionRefDate(prev => shiftDateStr(prev, -1));
-    else if (distributionTimeframe === 'week') setDistributionRefDate(prev => shiftDateStr(prev, -7));
-    else if (distributionTimeframe === 'month') setDistributionRefDate(prev => shiftMonthStr(prev, -1));
-    else if (distributionTimeframe === 'year') setDistributionRefDate(prev => shiftYearStr(prev, -1));
+    if (distributionTimeframe === 'day') setDistributionRefDate((prev: string) => shiftDateStr(prev, -1));
+    else if (distributionTimeframe === 'week') setDistributionRefDate((prev: string) => shiftDateStr(prev, -7));
+    else if (distributionTimeframe === 'month') setDistributionRefDate((prev: string) => shiftMonthStr(prev, -1));
+    else if (distributionTimeframe === 'year') setDistributionRefDate((prev: string) => shiftYearStr(prev, -1));
   };
 
   const handleDistributionNext = () => {
-    if (distributionTimeframe === 'day') setDistributionRefDate(prev => shiftDateStr(prev, 1));
-    else if (distributionTimeframe === 'week') setDistributionRefDate(prev => shiftDateStr(prev, 7));
-    else if (distributionTimeframe === 'month') setDistributionRefDate(prev => shiftMonthStr(prev, 1));
-    else if (distributionTimeframe === 'year') setDistributionRefDate(prev => shiftYearStr(prev, 1));
+    if (distributionTimeframe === 'day') setDistributionRefDate((prev: string) => shiftDateStr(prev, 1));
+    else if (distributionTimeframe === 'week') setDistributionRefDate((prev: string) => shiftDateStr(prev, 7));
+    else if (distributionTimeframe === 'month') setDistributionRefDate((prev: string) => shiftMonthStr(prev, 1));
+    else if (distributionTimeframe === 'year') setDistributionRefDate((prev: string) => shiftYearStr(prev, 1));
   };
 
   const filteredDistributionTransactions = useMemo(() => {
