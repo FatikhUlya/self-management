@@ -218,6 +218,8 @@ export interface Transaction {
   category: string;
   account: string;
   notes: string;
+  isRecurring?: boolean;
+  recurringInterval?: 'none' | 'daily' | 'weekly' | 'monthly' | 'yearly';
   createdAt: string;
 }
 
@@ -227,6 +229,15 @@ export interface FinancialGoal {
   targetAmount: number;
   currentAmount: number;
   targetDate: string;
+  linkedAccountName?: string;
+  createdAt: string;
+}
+
+export interface Budget {
+  id: string;
+  category: string;
+  limitAmount: number;
+  period: 'weekly' | 'monthly' | 'yearly';
   createdAt: string;
 }
 
@@ -343,6 +354,7 @@ export interface LifeOSState {
   reviews: Review[];
   transactions: Transaction[];
   financialGoals: FinancialGoal[];
+  budgets: Budget[];
   financialAccounts: FinancialAccount[];
   dictionary: DictionaryEntry[];
   selfAssessmentSnapshots: SelfAssessmentSnapshot[];
@@ -438,6 +450,9 @@ interface LifeOSContextProps {
   addFinancialGoal: (goal: Omit<FinancialGoal, 'id' | 'createdAt'>) => Promise<void>;
   updateFinancialGoal: (id: string, currentAmount: number) => Promise<void>;
   deleteFinancialGoal: (id: string) => Promise<void>;
+  addBudget: (budget: Omit<Budget, 'id' | 'createdAt'>) => Promise<void>;
+  updateBudget: (id: string, limitAmount: number) => Promise<void>;
+  deleteBudget: (id: string) => Promise<void>;
   addFinancialAccount: (name: string) => Promise<void>;
   updateFinancialAccount: (id: string, name: string) => Promise<void>;
   deleteFinancialAccount: (id: string) => Promise<void>;
@@ -515,6 +530,7 @@ const initialDefaultState = (today: string): LifeOSState => ({
   reviews: [],
   transactions: [],
   financialGoals: [],
+  budgets: [],
   financialAccounts: [
     { id: 'acc-tunai', name: 'Tunai', createdAt: new Date().toISOString() },
     { id: 'acc-bca', name: 'Bank BCA', createdAt: new Date().toISOString() },
@@ -692,6 +708,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
             { data: reviews },
             { data: transactions },
             { data: financialGoalsData },
+            { data: budgetsData },
             { data: dictionaryData, error: dictionaryError },
             { data: financialAccountsData },
             { data: selfRulesData },
@@ -714,6 +731,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
             supabase.from('reviews').select('*').eq('user_id', userId).order('date', { ascending: false }),
             supabase.from('transactions').select('*').eq('user_id', userId).order('date', { ascending: false }),
             supabase.from('financial_goals').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+            supabase.from('budgets').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
             supabase.from('dictionary').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
             supabase.from('financial_accounts').select('*').eq('user_id', userId).order('created_at', { ascending: true }),
             supabase.from('self_rules').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
@@ -1017,6 +1035,8 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
               category: t.category,
               account: t.account || 'Tunai',
               notes: t.notes || '',
+              isRecurring: t.is_recurring || false,
+              recurringInterval: t.recurring_interval || 'none',
               createdAt: t.created_at || t.createdAt
             })),
             financialGoals: (financialGoalsData as any[] || []).map(fg => ({
@@ -1025,7 +1045,15 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
               targetAmount: Number(fg.target_amount) || 0,
               currentAmount: Number(fg.current_amount) || 0,
               targetDate: fg.target_date || '',
+              linkedAccountName: fg.linked_account_name || '',
               createdAt: fg.created_at || fg.createdAt
+            })),
+            budgets: (budgetsData as any[] || []).map(b => ({
+              id: b.id,
+              category: b.category,
+              limitAmount: Number(b.limit_amount) || 0,
+              period: b.period || 'monthly',
+              createdAt: b.created_at || b.createdAt
             })),
             dictionary: dictEntries.map(d => ({
               id: d.id,
@@ -2223,7 +2251,9 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
           type: item.type,
           category: item.category,
           account: item.account,
-          notes: item.notes
+          notes: item.notes,
+          is_recurring: item.isRecurring || false,
+          recurring_interval: item.recurringInterval || 'none'
         });
         checkError(error, 'addTransaction');
       }
@@ -2263,7 +2293,8 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
           title: item.title,
           target_amount: item.targetAmount,
           current_amount: item.currentAmount,
-          target_date: item.targetDate || null
+          target_date: item.targetDate || null,
+          linked_account_name: item.linkedAccountName || ''
         });
         checkError(error, 'addFinancialGoal');
       }
@@ -2298,6 +2329,59 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
     if (isDbConnected) {
       const { error } = await supabase.from('financial_goals').delete().eq('id', id);
       checkError(error, 'deleteFinancialGoal');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const addBudget = useCallback(async (newBudget: Omit<Budget, 'id' | 'createdAt'>) => {
+    const item: Budget = {
+      ...newBudget,
+      id: generateId(),
+      createdAt: new Date().toISOString()
+    };
+
+    if (isDbConnected) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase.from('budgets').insert({
+          id: item.id,
+          user_id: user.id,
+          category: item.category,
+          limit_amount: item.limitAmount,
+          period: item.period
+        });
+        checkError(error, 'addBudget');
+      }
+    }
+
+    updateStateAndPersist(prev => ({
+      ...prev,
+      budgets: [item, ...prev.budgets]
+    }));
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const updateBudget = useCallback(async (id: string, limitAmount: number) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      budgets: prev.budgets.map(b => b.id === id ? { ...b, limitAmount } : b)
+    }));
+
+    if (isDbConnected) {
+      const { error } = await supabase.from('budgets').update({
+        limit_amount: limitAmount
+      }).eq('id', id);
+      checkError(error, 'updateBudget');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const deleteBudget = useCallback(async (id: string) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      budgets: prev.budgets.filter(b => b.id !== id)
+    }));
+
+    if (isDbConnected) {
+      const { error } = await supabase.from('budgets').delete().eq('id', id);
+      checkError(error, 'deleteBudget');
     }
   }, [isDbConnected, updateStateAndPersist, checkError]);
 
@@ -2726,6 +2810,9 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
         addFinancialGoal,
         updateFinancialGoal,
         deleteFinancialGoal,
+        addBudget,
+        updateBudget,
+        deleteBudget,
         addFinancialAccount,
         updateFinancialAccount,
         deleteFinancialAccount,

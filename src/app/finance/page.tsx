@@ -92,8 +92,12 @@ export default function FinancePage() {
     updateFinancialGoal, 
     deleteFinancialGoal,
     addFinancialAccount,
+    addFinancialAccount,
     updateFinancialAccount,
-    deleteFinancialAccount
+    deleteFinancialAccount,
+    addBudget,
+    updateBudget,
+    deleteBudget
   } = useLifeOS();
 
   const { t, locale } = useI18n();
@@ -116,13 +120,22 @@ export default function FinancePage() {
   const [newAccountName, setNewAccountName] = useState('');
   const [txNotes, setTxNotes] = useLocalStorageState('draft_tx_notes', '');
   const [txDate, setTxDate] = useLocalStorageState('draft_tx_date', state.selectedDate);
+  const [txIsRecurring, setTxIsRecurring] = useState(false);
+  const [txRecurringInterval, setTxRecurringInterval] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('monthly');
 
   // Financial Goal form states
   const [goalTitle, setGoalTitle] = useLocalStorageState('draft_finance_goal_title', '');
   const [goalTarget, setGoalTarget] = useLocalStorageState('draft_finance_goal_target', '');
   const [goalCurrent, setGoalCurrent] = useLocalStorageState('draft_finance_goal_current', '0');
   const [goalDate, setGoalDate] = useLocalStorageState('draft_finance_goal_date', '');
+  const [goalLinkedAccount, setGoalLinkedAccount] = useLocalStorageState('draft_finance_goal_linked_acc', '');
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
+
+  // Budget form states
+  const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
+  const [budgetCategory, setBudgetCategory] = useState(EXPENSE_CATEGORIES[0]);
+  const [budgetLimit, setBudgetLimit] = useState('');
+  const [budgetPeriod, setBudgetPeriod] = useState<'weekly' | 'monthly' | 'yearly'>('monthly');
 
   // Quick adjustment state
   const [editingGoalId, setEditingGoalId] = useState<string | null>(null);
@@ -275,7 +288,9 @@ export default function FinancePage() {
         category: txCategory,
         account: txAccount,
         notes: txNotes,
-        date: txDate
+        date: txDate,
+        isRecurring: txIsRecurring,
+        recurringInterval: txIsRecurring ? txRecurringInterval : 'none'
       });
     }
 
@@ -283,6 +298,7 @@ export default function FinancePage() {
     setTxAmount('');
     setTxAdminFee('');
     setTxNotes('');
+    setTxIsRecurring(false);
   };
 
   const handleGoalSubmit = async (e: React.FormEvent) => {
@@ -293,14 +309,36 @@ export default function FinancePage() {
       title: goalTitle,
       targetAmount: Number(goalTarget),
       currentAmount: Number(goalCurrent) || 0,
-      targetDate: goalDate
+      targetDate: goalDate,
+      linkedAccountName: goalLinkedAccount || ''
     });
 
     setGoalTitle('');
     setGoalTarget('');
     setGoalCurrent('0');
     setGoalDate('');
+    setGoalLinkedAccount('');
     setIsGoalModalOpen(false);
+  };
+
+  const handleBudgetSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!budgetCategory || !budgetLimit) return;
+    
+    // Check if budget exists for this category and period
+    const existing = state.budgets?.find(b => b.category === budgetCategory && b.period === budgetPeriod);
+    if (existing) {
+      await updateBudget(existing.id, Number(budgetLimit));
+    } else {
+      await addBudget({
+        category: budgetCategory,
+        limitAmount: Number(budgetLimit),
+        period: budgetPeriod
+      });
+    }
+
+    setBudgetLimit('');
+    setIsBudgetModalOpen(false);
   };
 
   const handleUpdateGoalCurrent = async (id: string) => {
@@ -596,6 +634,37 @@ export default function FinancePage() {
                 />
               </div>
 
+              {/* Recurring Transaction Toggle */}
+              {txType !== 'transfer' && (
+                <div className="flex flex-col space-y-2 pt-2">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      checked={txIsRecurring} 
+                      onChange={(e) => setTxIsRecurring(e.target.checked)} 
+                      className="form-checkbox h-4 w-4 text-life-accent rounded border-life-line bg-life-surface/50"
+                    />
+                    <span className="text-xs text-life-text font-medium">
+                      {locale === 'id' ? 'Transaksi Berulang (Recurring)' : 'Recurring Transaction'}
+                    </span>
+                  </label>
+                  {txIsRecurring && (
+                    <div className="pl-6">
+                      <select
+                        value={txRecurringInterval}
+                        onChange={(e) => setTxRecurringInterval(e.target.value as any)}
+                        className="glass-input text-xs"
+                      >
+                        <option value="daily">{locale === 'id' ? 'Harian' : 'Daily'}</option>
+                        <option value="weekly">{locale === 'id' ? 'Mingguan' : 'Weekly'}</option>
+                        <option value="monthly">{locale === 'id' ? 'Bulanan' : 'Monthly'}</option>
+                        <option value="yearly">{locale === 'id' ? 'Tahunan' : 'Yearly'}</option>
+                      </select>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <Button type="submit" variant="primary" icon="plus" className="w-full">
                 {locale === 'id' ? 'Simpan Transaksi' : 'Save Transaction'}
               </Button>
@@ -773,13 +842,39 @@ export default function FinancePage() {
               {expenseByCategory.length > 0 ? (
                 expenseByCategory.map((item) => {
                   const pct = percent(item.amount, distributionTotalExpense);
+                  const matchingBudget = state.budgets?.find(
+                    b => b.category === item.category &&
+                         (b.period === 'monthly' && distributionTimeframe === 'month' ||
+                          b.period === 'weekly' && distributionTimeframe === 'week' ||
+                          b.period === 'yearly' && distributionTimeframe === 'year')
+                  );
+                  const budgetLimit = matchingBudget?.limitAmount;
+                  const budgetPct = budgetLimit ? Math.round((item.amount / budgetLimit) * 100) : null;
+                  const displayBudgetPct = budgetPct !== null ? Math.min(100, budgetPct) : null;
+                  const overBudget = budgetPct !== null && budgetPct > 100;
+
                   return (
-                    <div key={item.category} className="space-y-1">
+                    <div key={item.category} className="space-y-2 pb-2">
                       <div className="flex justify-between items-center text-xs">
                         <strong className="text-life-text">{getCategoryLabel(item.category, locale)}</strong>
-                        <div className="space-x-1.5 font-bold">
+                        <div className="space-x-1.5 font-bold flex items-center">
                           <span className="text-life-muted">{formatCurrency(item.amount)}</span>
                           <Badge tone="rose">{`${pct}%`}</Badge>
+                          {(distributionTimeframe === 'month' || distributionTimeframe === 'week' || distributionTimeframe === 'year') && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setBudgetCategory(item.category);
+                                setBudgetLimit(budgetLimit ? String(budgetLimit) : '');
+                                setBudgetPeriod(distributionTimeframe === 'month' ? 'monthly' : distributionTimeframe === 'week' ? 'weekly' : 'yearly');
+                                setIsBudgetModalOpen(true);
+                              }}
+                              className="p-1 hover:bg-white/10 rounded ml-2"
+                              title={locale === 'id' ? 'Atur Budget' : 'Set Budget'}
+                            >
+                              <Icon name="edit" size={12} className="text-life-muted" />
+                            </button>
+                          )}
                         </div>
                       </div>
                       <div className="h-2 w-full bg-white/[0.02] rounded-full overflow-hidden">
@@ -788,6 +883,23 @@ export default function FinancePage() {
                           style={{ width: `${pct}%` }}
                         />
                       </div>
+
+                      {budgetLimit && (
+                        <div className="flex items-center gap-2 mt-1">
+                          <div className="flex-1 h-1 w-full bg-white/[0.05] rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full ${overBudget ? 'bg-rose-500' : 'bg-life-accent'}`}
+                              style={{ width: `${displayBudgetPct}%` }}
+                            />
+                          </div>
+                          <span className="text-[10px] text-life-muted font-mono">
+                            {formatCurrency(budgetLimit)} 
+                            <span className={overBudget ? 'text-amber-400 ml-1 font-bold' : 'ml-1'}>
+                              ({overBudget ? (locale === 'id' ? 'Area Perbaikan' : 'Area for Improvement') : `${budgetPct}%`})
+                            </span>
+                          </span>
+                        </div>
+                      )}
                     </div>
                   );
                 })
@@ -840,6 +952,11 @@ export default function FinancePage() {
                           {goal.targetDate && (
                             <span className="text-[10px] font-bold text-life-muted uppercase mt-0.5 block">
                               {locale === 'id' ? 'Target Waktu' : 'Target Date'}: {formatDate(goal.targetDate)}
+                            </span>
+                          )}
+                          {goal.linkedAccountName && (
+                            <span className="text-[10px] font-bold text-life-accent uppercase mt-0.5 block">
+                              {locale === 'id' ? 'Akun' : 'Account'}: {goal.linkedAccountName}
                             </span>
                           )}
                         </div>
@@ -1160,6 +1277,23 @@ export default function FinancePage() {
             />
           </div>
 
+          <div className="flex flex-col space-y-1">
+            <label htmlFor="gLinkAcc" className="text-xs font-bold text-life-muted uppercase">
+              {locale === 'id' ? 'Rekening Terkait (Opsional)' : 'Linked Account (Optional)'}
+            </label>
+            <select
+              id="gLinkAcc"
+              value={goalLinkedAccount}
+              onChange={(e) => setGoalLinkedAccount(e.target.value)}
+              className="glass-input text-xs"
+            >
+              <option value="">{locale === 'id' ? '-- Tidak ada --' : '-- None --'}</option>
+              {allAccounts.map(acc => (
+                <option key={acc} value={acc}>{acc}</option>
+              ))}
+            </select>
+          </div>
+
           <Button type="submit" variant="primary" icon="plus" className="w-full">
             {locale === 'id' ? 'Simpan Rencana Keuangan' : 'Save Financial Plan'}
           </Button>
@@ -1296,6 +1430,70 @@ export default function FinancePage() {
             </Button>
           </div>
         </div>
+      </Modal>
+
+      <Modal
+        isOpen={isBudgetModalOpen}
+        onClose={() => setIsBudgetModalOpen(false)}
+        title={locale === 'id' ? 'Atur Budget' : 'Set Budget'}
+      >
+        <form onSubmit={handleBudgetSubmit} className="space-y-4">
+          <div className="flex flex-col space-y-1">
+            <label className="text-xs font-bold text-life-muted uppercase">
+              {locale === 'id' ? 'Kategori' : 'Category'}
+            </label>
+            <input
+              type="text"
+              readOnly
+              value={getCategoryLabel(budgetCategory, locale)}
+              className="glass-input opacity-70 cursor-not-allowed"
+            />
+          </div>
+
+          <div className="flex flex-col space-y-1">
+            <label className="text-xs font-bold text-life-muted uppercase">
+              {locale === 'id' ? 'Batas Pengeluaran (Limit)' : 'Expense Limit'}
+            </label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-life-muted">
+                Rp
+              </span>
+              <input
+                type="number"
+                required
+                min="0"
+                value={budgetLimit}
+                onChange={(e) => setBudgetLimit(e.target.value)}
+                placeholder="0"
+                className="glass-input pl-10 text-lg font-bold"
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col space-y-1">
+            <label className="text-xs font-bold text-life-muted uppercase">
+              {locale === 'id' ? 'Periode' : 'Period'}
+            </label>
+            <select
+              value={budgetPeriod}
+              onChange={(e) => setBudgetPeriod(e.target.value as any)}
+              className="glass-input"
+            >
+              <option value="weekly">{locale === 'id' ? 'Mingguan' : 'Weekly'}</option>
+              <option value="monthly">{locale === 'id' ? 'Bulanan' : 'Monthly'}</option>
+              <option value="yearly">{locale === 'id' ? 'Tahunan' : 'Yearly'}</option>
+            </select>
+          </div>
+
+          <div className="pt-4 flex justify-end space-x-2 border-t border-white/5">
+            <Button type="button" variant="ghost" onClick={() => setIsBudgetModalOpen(false)}>
+              {locale === 'id' ? 'Batal' : 'Cancel'}
+            </Button>
+            <Button type="submit" variant="primary">
+              {locale === 'id' ? 'Simpan' : 'Save'}
+            </Button>
+          </div>
+        </form>
       </Modal>
     </div>
   );

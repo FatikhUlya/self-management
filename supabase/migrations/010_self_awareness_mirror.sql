@@ -120,34 +120,44 @@ ALTER TABLE growth_goals ENABLE ROW LEVEL SECURITY;
 ALTER TABLE growth_goal_milestones ENABLE ROW LEVEL SECURITY;
 
 -- 4.1. Authenticated User Policies (Standard)
+DROP POLICY IF EXISTS "sa_snapshots_user_policy" ON self_assessment_snapshots;
 CREATE POLICY "sa_snapshots_user_policy" ON self_assessment_snapshots FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+DROP POLICY IF EXISTS "sa_domains_user_policy" ON self_assessment_domains;
 CREATE POLICY "sa_domains_user_policy" ON self_assessment_domains FOR ALL USING (snapshot_id IN (SELECT id FROM self_assessment_snapshots WHERE user_id = auth.uid()));
 
+DROP POLICY IF EXISTS "growth_goals_user_policy" ON growth_goals;
 CREATE POLICY "growth_goals_user_policy" ON growth_goals FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+DROP POLICY IF EXISTS "gg_milestones_user_policy" ON growth_goal_milestones;
 CREATE POLICY "gg_milestones_user_policy" ON growth_goal_milestones FOR ALL USING (goal_id IN (SELECT id FROM growth_goals WHERE user_id = auth.uid()));
 
 -- 4.2. Feedback Requests (Owner can do everything, Anon can read specific open ones)
+DROP POLICY IF EXISTS "fr_owner_policy" ON feedback_requests;
 CREATE POLICY "fr_owner_policy" ON feedback_requests FOR ALL USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
 
 -- Allow anonymous read access to specific columns of feedback_requests using the token, IF it is open.
 -- We must restrict what anon can select, but since Supabase RLS is row-level, they can select the whole row if they have the token.
 -- In our client we will only fetch by token anyway.
+DROP POLICY IF EXISTS "fr_anon_read_policy" ON feedback_requests;
 CREATE POLICY "fr_anon_read_policy" ON feedback_requests FOR SELECT USING (status = 'open');
 
 -- 4.3. Feedback Responses (Owner can read all their requests' responses)
+DROP POLICY IF EXISTS "fres_owner_policy" ON feedback_responses;
 CREATE POLICY "fres_owner_policy" ON feedback_responses FOR SELECT USING (
   request_id IN (SELECT id FROM feedback_requests WHERE user_id = auth.uid())
 );
+DROP POLICY IF EXISTS "fres_owner_delete_policy" ON feedback_responses;
 CREATE POLICY "fres_owner_delete_policy" ON feedback_responses FOR DELETE USING (
   request_id IN (SELECT id FROM feedback_requests WHERE user_id = auth.uid())
 );
 
 -- Allow anonymous users to INSERT into feedback_responses
+DROP POLICY IF EXISTS "fres_anon_insert_policy" ON feedback_responses;
 CREATE POLICY "fres_anon_insert_policy" ON feedback_responses FOR INSERT WITH CHECK (
   request_id IN (SELECT id FROM feedback_requests WHERE status = 'open')
 );
 
 -- 4.4. Feedback Response Domains (Owner can read)
+DROP POLICY IF EXISTS "fresdom_owner_policy" ON feedback_response_domains;
 CREATE POLICY "fresdom_owner_policy" ON feedback_response_domains FOR SELECT USING (
   response_id IN (
     SELECT fr.id FROM feedback_responses fr 
@@ -155,6 +165,7 @@ CREATE POLICY "fresdom_owner_policy" ON feedback_response_domains FOR SELECT USI
     WHERE freq.user_id = auth.uid()
   )
 );
+DROP POLICY IF EXISTS "fresdom_owner_delete_policy" ON feedback_response_domains;
 CREATE POLICY "fresdom_owner_delete_policy" ON feedback_response_domains FOR DELETE USING (
   response_id IN (
     SELECT fr.id FROM feedback_responses fr 
@@ -164,6 +175,7 @@ CREATE POLICY "fresdom_owner_delete_policy" ON feedback_response_domains FOR DEL
 );
 
 -- Allow anonymous users to INSERT into feedback_response_domains
+DROP POLICY IF EXISTS "fresdom_anon_insert_policy" ON feedback_response_domains;
 CREATE POLICY "fresdom_anon_insert_policy" ON feedback_response_domains FOR INSERT WITH CHECK (
   response_id IN (
     SELECT id FROM feedback_responses

@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Topbar } from '@/components/layout/Topbar';
 import { MobileNav } from '@/components/layout/MobileNav';
+import { QuickAddTransaction } from '@/components/finance/QuickAddTransaction';
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -31,6 +32,9 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
 
       {/* Mobile Navigation bar */}
       <MobileNav />
+
+      {/* Global Quick Add Transaction */}
+      <QuickAddTransaction />
     </div>
   );
 }
