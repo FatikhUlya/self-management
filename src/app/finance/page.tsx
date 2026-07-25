@@ -10,7 +10,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
 import { Modal } from '@/components/ui/Modal';
-import { formatDate, percent, inLastDays } from '@/lib/utils';
+import { formatDate, percent, inLastDays, todayISO } from '@/lib/utils';
 
 const EXPENSE_CATEGORIES = [
   'Makanan & Minuman',
@@ -96,7 +96,10 @@ export default function FinancePage() {
     deleteFinancialAccount,
     addBudget,
     updateBudget,
-    deleteBudget
+    deleteBudget,
+    addDebt,
+    updateDebt,
+    deleteDebt
   } = useLifeOS();
 
   const { t, locale } = useI18n();
@@ -129,6 +132,15 @@ export default function FinancePage() {
   const [goalDate, setGoalDate] = useLocalStorageState('draft_finance_goal_date', '');
   const [goalLinkedAccount, setGoalLinkedAccount] = useLocalStorageState('draft_finance_goal_linked_acc', '');
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
+
+  // Debt form states
+  const [isDebtModalOpen, setIsDebtModalOpen] = useState(false);
+  const [debtName, setDebtName] = useState('');
+  const [debtTotal, setDebtTotal] = useState('');
+  const [debtRemaining, setDebtRemaining] = useState('');
+  const [debtInstallment, setDebtInstallment] = useState('');
+  const [debtDueDate, setDebtDueDate] = useState('');
+  const [debtNextDueDate, setDebtNextDueDate] = useState('');
 
   // Budget form states
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
@@ -352,6 +364,53 @@ export default function FinancePage() {
 
     setBudgetLimit('');
     setIsBudgetModalOpen(false);
+  };
+
+  const handleDebtSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!debtName.trim() || !debtTotal) return;
+
+    await addDebt({
+      name: debtName,
+      totalAmount: Number(debtTotal),
+      remainingAmount: Number(debtRemaining) || Number(debtTotal),
+      monthlyInstallment: Number(debtInstallment) || 0,
+      dueDate: debtDueDate || '',
+      nextDueDate: debtNextDueDate || ''
+    });
+
+    setDebtName('');
+    setDebtTotal('');
+    setDebtRemaining('');
+    setDebtInstallment('');
+    setDebtDueDate('');
+    setDebtNextDueDate('');
+    setIsDebtModalOpen(false);
+  };
+
+  const handlePayInstallment = async (debt: any) => {
+    if (debt.monthlyInstallment <= 0) return;
+    
+    // 1. Create expense transaction for the installment
+    await addTransaction({
+      title: `Bayar cicilan: ${debt.name}`,
+      amount: debt.monthlyInstallment,
+      type: 'expense',
+      category: 'Tagihan & Utilitas',
+      account: txAccount || 'Tunai', 
+      notes: '',
+      date: todayISO(),
+      isRecurring: false,
+      recurringInterval: 'none'
+    });
+
+    // 2. Reduce debt remaining amount & move next_due_date
+    const newRemaining = Math.max(0, debt.remainingAmount - debt.monthlyInstallment);
+    const newNextDue = debt.nextDueDate ? shiftMonthStr(debt.nextDueDate, 1) : '';
+    await updateDebt(debt.id, {
+      remainingAmount: newRemaining,
+      nextDueDate: newNextDue
+    });
   };
 
   const handleUpdateGoalCurrent = async (id: string) => {
@@ -1062,6 +1121,115 @@ export default function FinancePage() {
             </div>
           </Surface>
 
+          {/* Debts & Installments Widget */}
+          <Surface className="p-6">
+            <div className="border-b border-life-line pb-3 mb-4 flex justify-between items-center">
+              <div>
+                <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
+                  {locale === 'id' ? 'Liabilitas & Cicilan' : 'Debts & Installments'}
+                </h3>
+                <p className="text-xs text-life-muted mt-0.5">
+                  {locale === 'id' ? 'Pantau dan bayar tagihan/cicilan Anda' : 'Monitor and pay your debts/installments'}
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="primary"
+                icon="plus"
+                onClick={() => setIsDebtModalOpen(true)}
+              >
+                {locale === 'id' ? 'Cicilan' : 'Debt'}
+              </Button>
+            </div>
+
+            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
+              {state.debts.length > 0 ? (
+                state.debts.map((debt) => {
+                  const completionRate = percent(debt.totalAmount - debt.remainingAmount, debt.totalAmount);
+                  
+                  // Logic for urgency
+                  let isUrgent = false;
+                  let isWarning = false;
+                  let daysLeft = 999;
+                  
+                  if (debt.nextDueDate) {
+                    const today = new Date();
+                    today.setHours(0,0,0,0);
+                    const dueDate = new Date(debt.nextDueDate);
+                    daysLeft = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
+                    if (daysLeft < 0) isUrgent = true;
+                    else if (daysLeft <= 7) isWarning = true;
+                  }
+
+                  return (
+                    <div
+                      key={debt.id}
+                      className="p-4 rounded-xl bg-white/[0.005] border border-life-line hover:border-life-line-strong transition-all space-y-3 relative overflow-hidden"
+                    >
+                      {/* Urgency indicator strip */}
+                      {isUrgent && <div className="absolute top-0 left-0 w-1 h-full bg-life-rose" />}
+                      {isWarning && <div className="absolute top-0 left-0 w-1 h-full bg-amber-500" />}
+
+                      <div className="flex justify-between items-start gap-4">
+                        <div>
+                          <strong className="text-sm text-life-text block tracking-tight">{debt.name}</strong>
+                          {debt.nextDueDate && (
+                            <span className={`text-[10px] font-bold uppercase mt-0.5 block ${isUrgent ? 'text-life-rose' : isWarning ? 'text-amber-500' : 'text-life-muted'}`}>
+                              {locale === 'id' ? 'Jatuh Tempo:' : 'Due:'} {formatDate(debt.nextDueDate)}
+                              {daysLeft < 0 
+                                ? ` (Terlambat ${Math.abs(daysLeft)} hari)`
+                                : daysLeft === 0 
+                                  ? ' (Hari ini)' 
+                                  : daysLeft <= 7 
+                                    ? ` (${daysLeft} hari lagi)` 
+                                    : ''}
+                            </span>
+                          )}
+                          <span className="text-[10px] font-bold text-life-accent uppercase mt-0.5 block">
+                            {locale === 'id' ? 'Cicilan:' : 'Installment:'} {formatCurrency(debt.monthlyInstallment)}/bln
+                          </span>
+                        </div>
+
+                        <div className="flex flex-col items-end space-y-2 shrink-0">
+                          <button
+                            onClick={() => deleteDebt(debt.id)}
+                            className="w-7 h-7 rounded bg-white/[0.02] border border-life-line hover:bg-life-rose/20 text-life-muted hover:text-life-rose flex items-center justify-center transition-all"
+                            title={t('delete')}
+                          >
+                            <Icon name="trash" size={12} />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1 pt-1">
+                        <div className="flex justify-between text-[10px] text-life-muted font-bold uppercase">
+                          <span>{locale === 'id' ? 'Sisa:' : 'Remaining:'} {formatCurrency(debt.remainingAmount)}</span>
+                          <span>{locale === 'id' ? 'Total:' : 'Total:'} {formatCurrency(debt.totalAmount)}</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-white/[0.02] rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-gradient-to-r from-life-accent to-life-teal"
+                            style={{ width: `${Math.min(completionRate, 100)}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      {debt.remainingAmount > 0 && debt.monthlyInstallment > 0 && (
+                        <div className="pt-2 border-t border-white/5 flex justify-end">
+                          <Button size="sm" variant="secondary" onClick={() => handlePayInstallment(debt)}>
+                            {locale === 'id' ? 'Bayar Cicilan' : 'Pay Installment'}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                <EmptyState />
+              )}
+            </div>
+          </Surface>
+
           {/* Transaction Ledger History */}
           <Surface className="p-6">
             <div className="border-b border-life-line pb-3 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -1328,6 +1496,95 @@ export default function FinancePage() {
 
           <Button type="submit" variant="primary" icon="plus" className="w-full">
             {locale === 'id' ? 'Simpan Rencana Keuangan' : 'Save Financial Plan'}
+          </Button>
+        </form>
+      </Modal>
+
+      {/* Debt Modal dialog */}
+      <Modal
+        isOpen={isDebtModalOpen}
+        onClose={() => setIsDebtModalOpen(false)}
+        title={locale === 'id' ? 'Tambah Utang/Cicilan' : 'Add Debt/Installment'}
+        subtitle={locale === 'id' ? 'Catat liabilitas untuk dipantau pengeluarannya' : 'Record liabilities to track expenses'}
+      >
+        <form onSubmit={handleDebtSubmit} className="space-y-4">
+          <div className="flex flex-col space-y-1">
+            <label htmlFor="dName" className="text-xs font-bold text-life-muted uppercase">
+              {locale === 'id' ? 'Nama Utang/Cicilan' : 'Debt/Installment Name'}
+            </label>
+            <input
+              id="dName"
+              type="text"
+              required
+              placeholder={locale === 'id' ? 'Misal: KPR, Cicilan Mobil, Paylater...' : 'E.g.: Mortgage, Car Loan, Paylater...'}
+              value={debtName}
+              onChange={(e) => setDebtName(e.target.value)}
+              className="glass-input text-sm"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col space-y-1">
+              <label htmlFor="dTotal" className="text-xs font-bold text-life-muted uppercase">
+                {locale === 'id' ? 'Total Pinjaman' : 'Total Amount'}
+              </label>
+              <input
+                id="dTotal"
+                type="number"
+                required
+                placeholder="Rp..."
+                value={debtTotal}
+                onChange={(e) => setDebtTotal(e.target.value)}
+                className="glass-input text-xs"
+              />
+            </div>
+
+            <div className="flex flex-col space-y-1">
+              <label htmlFor="dRemaining" className="text-xs font-bold text-life-muted uppercase">
+                {locale === 'id' ? 'Sisa Utang Saat Ini' : 'Current Remaining'}
+              </label>
+              <input
+                id="dRemaining"
+                type="number"
+                placeholder={locale === 'id' ? '(Opsional, default = Total)' : '(Optional, default = Total)'}
+                value={debtRemaining}
+                onChange={(e) => setDebtRemaining(e.target.value)}
+                className="glass-input text-xs"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col space-y-1">
+              <label htmlFor="dInstallment" className="text-xs font-bold text-life-muted uppercase">
+                {locale === 'id' ? 'Cicilan per Bulan' : 'Monthly Installment'}
+              </label>
+              <input
+                id="dInstallment"
+                type="number"
+                placeholder="Rp..."
+                value={debtInstallment}
+                onChange={(e) => setDebtInstallment(e.target.value)}
+                className="glass-input text-xs"
+              />
+            </div>
+
+            <div className="flex flex-col space-y-1">
+              <label htmlFor="dNextDue" className="text-xs font-bold text-life-muted uppercase">
+                {locale === 'id' ? 'Jatuh Tempo Berikutnya' : 'Next Due Date'}
+              </label>
+              <input
+                id="dNextDue"
+                type="date"
+                value={debtNextDueDate}
+                onChange={(e) => setDebtNextDueDate(e.target.value)}
+                className="glass-input text-xs"
+              />
+            </div>
+          </div>
+
+          <Button type="submit" variant="primary" icon="plus" className="w-full">
+            {locale === 'id' ? 'Simpan Data' : 'Save Record'}
           </Button>
         </form>
       </Modal>

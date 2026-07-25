@@ -241,6 +241,17 @@ export interface Budget {
   createdAt: string;
 }
 
+export interface Debt {
+  id: string;
+  name: string;
+  totalAmount: number;
+  remainingAmount: number;
+  monthlyInstallment: number;
+  dueDate: string;
+  nextDueDate: string;
+  createdAt: string;
+}
+
 export interface FinancialAccount {
   id: string;
   name: string;
@@ -355,6 +366,7 @@ export interface LifeOSState {
   transactions: Transaction[];
   financialGoals: FinancialGoal[];
   budgets: Budget[];
+  debts: Debt[];
   financialAccounts: FinancialAccount[];
   dictionary: DictionaryEntry[];
   selfAssessmentSnapshots: SelfAssessmentSnapshot[];
@@ -453,6 +465,9 @@ interface LifeOSContextProps {
   addBudget: (budget: Omit<Budget, 'id' | 'createdAt'>) => Promise<void>;
   updateBudget: (id: string, limitAmount: number) => Promise<void>;
   deleteBudget: (id: string) => Promise<void>;
+  addDebt: (debt: Omit<Debt, 'id' | 'createdAt'>) => Promise<void>;
+  updateDebt: (id: string, updates: Partial<Omit<Debt, 'id' | 'createdAt'>>) => Promise<void>;
+  deleteDebt: (id: string) => Promise<void>;
   addFinancialAccount: (name: string) => Promise<void>;
   updateFinancialAccount: (id: string, name: string) => Promise<void>;
   deleteFinancialAccount: (id: string) => Promise<void>;
@@ -531,6 +546,7 @@ const initialDefaultState = (today: string): LifeOSState => ({
   transactions: [],
   financialGoals: [],
   budgets: [],
+  debts: [],
   financialAccounts: [
     { id: 'acc-tunai', name: 'Tunai', createdAt: new Date().toISOString() },
     { id: 'acc-bca', name: 'Bank BCA', createdAt: new Date().toISOString() },
@@ -709,6 +725,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
             { data: transactions },
             { data: financialGoalsData },
             { data: budgetsData },
+            { data: debtsData },
             { data: dictionaryData, error: dictionaryError },
             { data: financialAccountsData },
             { data: selfRulesData },
@@ -732,6 +749,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
             supabase.from('transactions').select('*').eq('user_id', userId).order('date', { ascending: false }),
             supabase.from('financial_goals').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
             supabase.from('budgets').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+            supabase.from('debts').select('*').eq('user_id', userId).order('next_due_date', { ascending: true }),
             supabase.from('dictionary').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
             supabase.from('financial_accounts').select('*').eq('user_id', userId).order('created_at', { ascending: true }),
             supabase.from('self_rules').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
@@ -1054,6 +1072,16 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
               limitAmount: Number(b.limit_amount) || 0,
               period: b.period || 'monthly',
               createdAt: b.created_at || b.createdAt
+            })),
+            debts: (debtsData as any[] || []).map(d => ({
+              id: d.id,
+              name: d.name,
+              totalAmount: Number(d.total_amount) || 0,
+              remainingAmount: Number(d.remaining_amount) || 0,
+              monthlyInstallment: Number(d.monthly_installment) || 0,
+              dueDate: d.due_date || '',
+              nextDueDate: d.next_due_date || '',
+              createdAt: d.created_at || d.createdAt
             })),
             dictionary: dictEntries.map(d => ({
               id: d.id,
@@ -2431,6 +2459,64 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
     if (isDbConnected) {
       const { error } = await supabase.from('financial_accounts').update({ name }).eq('id', id);
       checkError(error, 'updateFinancialAccount');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const addDebt = useCallback(async (debt: Omit<Debt, 'id' | 'createdAt'>) => {
+    const item: Debt = {
+      ...debt,
+      id: generateId(),
+      createdAt: new Date().toISOString()
+    };
+    updateStateAndPersist(prev => ({
+      ...prev,
+      debts: [...prev.debts, item].sort((a, b) => new Date(a.nextDueDate || '9999-12-31').getTime() - new Date(b.nextDueDate || '9999-12-31').getTime())
+    }));
+    if (isDbConnected) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase.from('debts').insert({
+          id: item.id,
+          user_id: user.id,
+          name: item.name,
+          total_amount: item.totalAmount,
+          remaining_amount: item.remainingAmount,
+          monthly_installment: item.monthlyInstallment,
+          due_date: item.dueDate,
+          next_due_date: item.nextDueDate,
+          created_at: item.createdAt
+        });
+        checkError(error, 'addDebt');
+      }
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const updateDebt = useCallback(async (id: string, updates: Partial<Omit<Debt, 'id' | 'createdAt'>>) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      debts: prev.debts.map(d => d.id === id ? { ...d, ...updates } : d).sort((a, b) => new Date(a.nextDueDate || '9999-12-31').getTime() - new Date(b.nextDueDate || '9999-12-31').getTime())
+    }));
+    if (isDbConnected) {
+      const payload: any = {};
+      if (updates.name !== undefined) payload.name = updates.name;
+      if (updates.totalAmount !== undefined) payload.total_amount = updates.totalAmount;
+      if (updates.remainingAmount !== undefined) payload.remaining_amount = updates.remainingAmount;
+      if (updates.monthlyInstallment !== undefined) payload.monthly_installment = updates.monthlyInstallment;
+      if (updates.dueDate !== undefined) payload.due_date = updates.dueDate;
+      if (updates.nextDueDate !== undefined) payload.next_due_date = updates.nextDueDate;
+      const { error } = await supabase.from('debts').update(payload).eq('id', id);
+      checkError(error, 'updateDebt');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const deleteDebt = useCallback(async (id: string) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      debts: prev.debts.filter(d => d.id !== id)
+    }));
+    if (isDbConnected) {
+      const { error } = await supabase.from('debts').delete().eq('id', id);
+      checkError(error, 'deleteDebt');
     }
   }, [isDbConnected, updateStateAndPersist, checkError]);
 
