@@ -1254,7 +1254,7 @@ export default function FinancePage() {
                           {asset.name}
                         </h4>
                         <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className="text-[10px] py-0.5">
+                          <Badge tone="gray" className="text-[10px] py-0.5">
                             {asset.category}
                           </Badge>
                         </div>
@@ -1294,9 +1294,7 @@ export default function FinancePage() {
                 ))
               ) : (
                 <EmptyState
-                  icon="briefcase"
-                  title={locale === 'id' ? 'Belum Ada Aset' : 'No Assets'}
-                  description={locale === 'id' ? 'Mulai catat properti, emas, atau aset lainnya.' : 'Start recording property, gold, or other assets.'}
+                  message={locale === 'id' ? 'Belum ada aset terdaftar. Mulai catat properti, emas, atau aset lainnya.' : 'No assets registered. Start recording property, gold, or other assets.'}
                 />
               )}
             </div>
@@ -2019,7 +2017,7 @@ export default function FinancePage() {
           </div>
 
           <div className="pt-4 flex justify-end gap-3">
-            <Button type="button" variant="ghost" onClick={() => setIsAssetModalOpen(false)}>
+            <Button type="button" variant="secondary" onClick={() => setIsAssetModalOpen(false)}>
               {locale === 'id' ? 'Batal' : 'Cancel'}
             </Button>
             <Button type="submit" variant="primary">
