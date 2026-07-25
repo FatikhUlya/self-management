@@ -1,38 +1,14 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
+import Link from 'next/link';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
-import { useLocalStorageState } from '@/lib/hooks/useLocalStorageState';
 import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
 import { Button } from '@/components/ui/Button';
-import { EmptyState } from '@/components/ui/EmptyState';
 import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
-import { Modal } from '@/components/ui/Modal';
-import { formatDate, percent, inLastDays, todayISO } from '@/lib/utils';
-
-const EXPENSE_CATEGORIES = [
-  'Makanan & Minuman',
-  'Transportasi',
-  'Belanja & Hiburan',
-  'Tagihan & Utilitas',
-  'Kesehatan',
-  'Pendidikan',
-  'Investasi',
-  'Biaya Admin',
-  'Transfer',
-  'Lainnya'
-];
-
-const INCOME_CATEGORIES = [
-  'Gaji',
-  'Bisnis / Side Hustle',
-  'Investasi',
-  'Hadiah / Pemberian',
-  'Transfer',
-  'Lainnya'
-];
+import { formatDate } from '@/lib/utils';
 
 const getCategoryLabel = (cat: string, locale: string) => {
   if (locale === 'id') return cat;
@@ -54,430 +30,9 @@ const getCategoryLabel = (cat: string, locale: string) => {
   return labels[cat] || cat;
 };
 
-function shiftDateStr(dateStr: string, days: number): string {
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const dt = new Date(y, m - 1, d);
-  dt.setDate(dt.getDate() + days);
-  const ny = dt.getFullYear();
-  const nm = String(dt.getMonth() + 1).padStart(2, '0');
-  const nd = String(dt.getDate()).padStart(2, '0');
-  return `${ny}-${nm}-${nd}`;
-}
-
-function shiftMonthStr(dateStr: string, months: number): string {
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const dt = new Date(y, m - 1, d);
-  dt.setMonth(dt.getMonth() + months);
-  const ny = dt.getFullYear();
-  const nm = String(dt.getMonth() + 1).padStart(2, '0');
-  const nd = String(dt.getDate()).padStart(2, '0');
-  return `${ny}-${nm}-${nd}`;
-}
-
-function shiftYearStr(dateStr: string, years: number): string {
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const dt = new Date(y + years, m - 1, d);
-  const ny = dt.getFullYear();
-  const nm = String(dt.getMonth() + 1).padStart(2, '0');
-  const nd = String(dt.getDate()).padStart(2, '0');
-  return `${ny}-${nm}-${nd}`;
-}
-
-export default function FinancePage() {
-  const { 
-    state, 
-    addTransaction, 
-    deleteTransaction, 
-    addFinancialGoal, 
-    updateFinancialGoal, 
-    deleteFinancialGoal,
-    addFinancialAccount,
-    updateFinancialAccount,
-    deleteFinancialAccount,
-    addBudget,
-    updateBudget,
-    deleteBudget,
-    addDebt,
-    updateDebt,
-    deleteDebt,
-    addAsset,
-    updateAsset,
-    deleteAsset
-  } = useLifeOS();
-
+export default function FinanceDashboard() {
+  const { state } = useLifeOS();
   const { t, locale } = useI18n();
-
-  const customAccounts = state.financialAccounts ? state.financialAccounts.map(fa => fa.name) : [];
-  const allAccounts = Array.from(new Set([...customAccounts, 'Lainnya']));
-
-  const [editingAccountId, setEditingAccountId] = useState<string | null>(null);
-  const [editingAccountName, setEditingAccountName] = useState('');
-
-  // Transaction form states
-  const [txTitle, setTxTitle] = useLocalStorageState('draft_tx_title', '');
-  const [txAmount, setTxAmount] = useLocalStorageState('draft_tx_amount', '');
-  const [txType, setTxType] = useLocalStorageState<'income' | 'expense' | 'transfer'>('draft_tx_type', 'expense');
-  const [txCategory, setTxCategory] = useLocalStorageState('draft_tx_category', EXPENSE_CATEGORIES[0]);
-  const [txAccount, setTxAccount] = useLocalStorageState('draft_tx_account', 'Tunai');
-  const [txToAccount, setTxToAccount] = useLocalStorageState('draft_tx_to_account', 'Tunai');
-  const [txAdminFee, setTxAdminFee] = useLocalStorageState('draft_tx_admin_fee', '');
-  const [isAccountModalOpen, setIsAccountModalOpen] = useState(false);
-  const [newAccountName, setNewAccountName] = useState('');
-  const [txNotes, setTxNotes] = useLocalStorageState('draft_tx_notes', '');
-  const [txDate, setTxDate] = useLocalStorageState('draft_tx_date', state.selectedDate);
-  const [txIsRecurring, setTxIsRecurring] = useState(false);
-  const [txRecurringInterval, setTxRecurringInterval] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('monthly');
-
-  // Financial Goal form states
-  const [goalTitle, setGoalTitle] = useLocalStorageState('draft_finance_goal_title', '');
-  const [goalTarget, setGoalTarget] = useLocalStorageState('draft_finance_goal_target', '');
-  const [goalCurrent, setGoalCurrent] = useLocalStorageState('draft_finance_goal_current', '0');
-  const [goalDate, setGoalDate] = useLocalStorageState('draft_finance_goal_date', '');
-  const [goalLinkedAccount, setGoalLinkedAccount] = useLocalStorageState('draft_finance_goal_linked_acc', '');
-  const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
-
-  // Debt form states
-  const [isDebtModalOpen, setIsDebtModalOpen] = useState(false);
-  const [debtName, setDebtName] = useState('');
-  const [debtTotal, setDebtTotal] = useState('');
-  const [debtRemaining, setDebtRemaining] = useState('');
-  const [debtInstallment, setDebtInstallment] = useState('');
-  const [debtDueDate, setDebtDueDate] = useState('');
-  const [debtNextDueDate, setDebtNextDueDate] = useState('');
-
-  // Asset form states
-  const [isAssetModalOpen, setIsAssetModalOpen] = useState(false);
-  const [editingAssetId, setEditingAssetId] = useState<string | null>(null);
-  const [assetName, setAssetName] = useState('');
-  const [assetValue, setAssetValue] = useState('');
-  const [assetCategory, setAssetCategory] = useState('Kas & Bank');
-
-  // Budget form states
-  const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
-  const [budgetCategory, setBudgetCategory] = useState(EXPENSE_CATEGORIES[0]);
-  const [budgetLimit, setBudgetLimit] = useState('');
-  const [budgetPeriod, setBudgetPeriod] = useState<'weekly' | 'monthly' | 'yearly'>('monthly');
-
-  // Quick adjustment state
-  const [editingGoalId, setEditingGoalId] = useState<string | null>(null);
-  const [newCurrentAmount, setNewCurrentAmount] = useState('');
-
-  // Transaction Ledger Filter & Date state
-  const [ledgerTimeframe, setLedgerTimeframe] = useState<'all' | 'day' | 'week' | 'month' | 'year'>('all');
-  const [ledgerRefDate, setLedgerRefDate] = useState(state.selectedDate || new Date().toISOString().split('T')[0]);
-
-  const handleLedgerPrev = () => {
-    if (ledgerTimeframe === 'day') setLedgerRefDate(prev => shiftDateStr(prev, -1));
-    else if (ledgerTimeframe === 'week') setLedgerRefDate(prev => shiftDateStr(prev, -7));
-    else if (ledgerTimeframe === 'month') setLedgerRefDate(prev => shiftMonthStr(prev, -1));
-    else if (ledgerTimeframe === 'year') setLedgerRefDate(prev => shiftYearStr(prev, -1));
-  };
-
-  const handleLedgerNext = () => {
-    if (ledgerTimeframe === 'day') setLedgerRefDate(prev => shiftDateStr(prev, 1));
-    else if (ledgerTimeframe === 'week') setLedgerRefDate(prev => shiftDateStr(prev, 7));
-    else if (ledgerTimeframe === 'month') setLedgerRefDate(prev => shiftMonthStr(prev, 1));
-    else if (ledgerTimeframe === 'year') setLedgerRefDate(prev => shiftYearStr(prev, 1));
-  };
-
-  const filteredTransactions = useMemo(() => {
-    const baseDate = ledgerRefDate || state.selectedDate || new Date().toISOString().split('T')[0];
-    const currentYear = baseDate.slice(0, 4);
-    const currentMonth = baseDate.slice(0, 7);
-
-    return state.transactions.filter((tx) => {
-      if (ledgerTimeframe === 'all') return true;
-      if (ledgerTimeframe === 'day') return tx.date === baseDate;
-      if (ledgerTimeframe === 'week') return inLastDays(tx.date, 7, baseDate);
-      if (ledgerTimeframe === 'month') return tx.date.startsWith(currentMonth);
-      if (ledgerTimeframe === 'year') return tx.date.startsWith(currentYear);
-      return true;
-    });
-  }, [state.transactions, ledgerTimeframe, ledgerRefDate, state.selectedDate]);
-
-  const ledgerExpense = useMemo(() => {
-    return filteredTransactions
-      .filter((t) => t.type === 'expense')
-      .reduce((sum, t) => sum + t.amount, 0);
-  }, [filteredTransactions]);
-
-  const ledgerIncome = useMemo(() => {
-    return filteredTransactions
-      .filter((t) => t.type === 'income')
-      .reduce((sum, t) => sum + t.amount, 0);
-  }, [filteredTransactions]);
-
-  const ledgerCashflow = ledgerIncome - ledgerExpense;
-
-  // Expense Distribution Filter & Date state
-  const [distributionTimeframe, setDistributionTimeframe] = useState<'all' | 'day' | 'week' | 'month' | 'year'>('all');
-  const [distributionRefDate, setDistributionRefDate] = useState(state.selectedDate || new Date().toISOString().split('T')[0]);
-
-  const handleDistributionPrev = () => {
-    if (distributionTimeframe === 'day') setDistributionRefDate(prev => shiftDateStr(prev, -1));
-    else if (distributionTimeframe === 'week') setDistributionRefDate(prev => shiftDateStr(prev, -7));
-    else if (distributionTimeframe === 'month') setDistributionRefDate(prev => shiftMonthStr(prev, -1));
-    else if (distributionTimeframe === 'year') setDistributionRefDate(prev => shiftYearStr(prev, -1));
-  };
-
-  const handleDistributionNext = () => {
-    if (distributionTimeframe === 'day') setDistributionRefDate(prev => shiftDateStr(prev, 1));
-    else if (distributionTimeframe === 'week') setDistributionRefDate(prev => shiftDateStr(prev, 7));
-    else if (distributionTimeframe === 'month') setDistributionRefDate(prev => shiftMonthStr(prev, 1));
-    else if (distributionTimeframe === 'year') setDistributionRefDate(prev => shiftYearStr(prev, 1));
-  };
-
-  const filteredDistributionTransactions = useMemo(() => {
-    const baseDate = distributionRefDate || state.selectedDate || new Date().toISOString().split('T')[0];
-    const currentYear = baseDate.slice(0, 4);
-    const currentMonth = baseDate.slice(0, 7);
-
-    return state.transactions.filter((tx) => {
-      if (distributionTimeframe === 'all') return true;
-      if (distributionTimeframe === 'day') return tx.date === baseDate;
-      if (distributionTimeframe === 'week') return inLastDays(tx.date, 7, baseDate);
-      if (distributionTimeframe === 'month') return tx.date.startsWith(currentMonth);
-      if (distributionTimeframe === 'year') return tx.date.startsWith(currentYear);
-      return true;
-    });
-  }, [state.transactions, distributionTimeframe, distributionRefDate, state.selectedDate]);
-
-  const distributionTotalExpense = useMemo(() => {
-    return filteredDistributionTransactions
-      .filter((t) => t.type === 'expense')
-      .reduce((sum, t) => sum + t.amount, 0);
-  }, [filteredDistributionTransactions]);
-
-  const expenseByCategory = useMemo(() => {
-    const expenses = filteredDistributionTransactions.filter((t) => t.type === 'expense');
-    return EXPENSE_CATEGORIES.reduce((acc, cat) => {
-      const amount = expenses
-        .filter((t) => t.category === cat)
-        .reduce((sum, t) => sum + t.amount, 0);
-      if (amount > 0) {
-        acc.push({ category: cat, amount });
-      }
-      return acc;
-    }, [] as { category: string; amount: number }[]).sort((a, b) => b.amount - a.amount);
-  }, [filteredDistributionTransactions]);
-
-  const avgMonthlySavings = useMemo(() => {
-    const totalIncome = state.transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0);
-    const totalExpense = state.transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0);
-    const totalSurplus = totalIncome - totalExpense;
-    
-    if (state.transactions.length === 0) return 0;
-    const sortedTx = [...state.transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-    const firstDate = new Date(sortedTx[0].date);
-    const today = new Date();
-    const monthsActive = Math.max(1, (today.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
-    
-    return totalSurplus / monthsActive;
-  }, [state.transactions]);
-
-  const totalAssets = useMemo(() => {
-    return state.assets ? state.assets.reduce((sum, a) => sum + a.value, 0) : 0;
-  }, [state.assets]);
-
-  const totalDebts = useMemo(() => {
-    return state.debts ? state.debts.reduce((sum, d) => sum + d.remainingAmount, 0) : 0;
-  }, [state.debts]);
-
-  const totalCash = useMemo(() => {
-    const income = state.transactions ? state.transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0) : 0;
-    const expense = state.transactions ? state.transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0) : 0;
-    return income - expense;
-  }, [state.transactions]);
-
-  const netWorth = totalCash + totalAssets - totalDebts;
-
-  const handleTxSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!txTitle.trim() || !txAmount) return;
-
-    if (txType === 'transfer') {
-      // 1. Expense from source account
-      await addTransaction({
-        title: `Transfer ke ${txToAccount}: ${txTitle}`,
-        amount: Number(txAmount),
-        type: 'expense',
-        category: 'Transfer',
-        account: txAccount,
-        notes: txNotes,
-        date: txDate
-      });
-
-      // 2. Income to destination account
-      await addTransaction({
-        title: `Transfer dari ${txAccount}: ${txTitle}`,
-        amount: Number(txAmount),
-        type: 'income',
-        category: 'Transfer',
-        account: txToAccount,
-        notes: txNotes,
-        date: txDate
-      });
-
-      // 3. Admin Fee (if any)
-      if (Number(txAdminFee) > 0) {
-        await addTransaction({
-          title: `Biaya Admin Transfer: ${txTitle}`,
-          amount: Number(txAdminFee),
-          type: 'expense',
-          category: 'Biaya Admin',
-          account: txAccount,
-          notes: txNotes,
-          date: txDate
-        });
-      }
-    } else {
-      // Normal income / expense
-      await addTransaction({
-        title: txTitle,
-        amount: Number(txAmount),
-        type: txType as 'income' | 'expense',
-        category: txCategory,
-        account: txAccount,
-        notes: txNotes,
-        date: txDate,
-        isRecurring: txIsRecurring,
-        recurringInterval: txIsRecurring ? txRecurringInterval : 'none'
-      });
-    }
-
-    setTxTitle('');
-    setTxAmount('');
-    setTxAdminFee('');
-    setTxNotes('');
-    setTxIsRecurring(false);
-  };
-
-  const handleGoalSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!goalTitle.trim() || !goalTarget) return;
-
-    await addFinancialGoal({
-      title: goalTitle,
-      targetAmount: Number(goalTarget),
-      currentAmount: Number(goalCurrent) || 0,
-      targetDate: goalDate,
-      linkedAccountName: goalLinkedAccount || ''
-    });
-
-    setGoalTitle('');
-    setGoalTarget('');
-    setGoalCurrent('0');
-    setGoalDate('');
-    setGoalLinkedAccount('');
-    setIsGoalModalOpen(false);
-  };
-
-  const handleBudgetSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!budgetCategory || !budgetLimit) return;
-    
-    // Check if budget exists for this category and period
-    const existing = state.budgets?.find(b => b.category === budgetCategory && b.period === budgetPeriod);
-    if (existing) {
-      await updateBudget(existing.id, Number(budgetLimit));
-    } else {
-      await addBudget({
-        category: budgetCategory,
-        limitAmount: Number(budgetLimit),
-        period: budgetPeriod
-      });
-    }
-
-    setBudgetLimit('');
-    setIsBudgetModalOpen(false);
-  };
-
-  const handleDebtSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!debtName.trim() || !debtTotal) return;
-
-    await addDebt({
-      name: debtName,
-      totalAmount: Number(debtTotal),
-      remainingAmount: Number(debtRemaining) || Number(debtTotal),
-      monthlyInstallment: Number(debtInstallment) || 0,
-      dueDate: debtDueDate || '',
-      nextDueDate: debtNextDueDate || ''
-    });
-
-    setDebtName('');
-    setDebtTotal('');
-    setDebtRemaining('');
-    setDebtInstallment('');
-    setDebtDueDate('');
-    setDebtNextDueDate('');
-    setIsDebtModalOpen(false);
-  };
-
-  const handlePayInstallment = async (debt: any) => {
-    if (debt.monthlyInstallment <= 0) return;
-    
-    // 1. Create expense transaction for the installment
-    await addTransaction({
-      title: `Bayar cicilan: ${debt.name}`,
-      amount: debt.monthlyInstallment,
-      type: 'expense',
-      category: 'Tagihan & Utilitas',
-      account: txAccount || 'Tunai', 
-      notes: '',
-      date: todayISO(),
-      isRecurring: false,
-      recurringInterval: 'none'
-    });
-
-    // 2. Reduce debt remaining amount & move next_due_date
-    const newRemaining = Math.max(0, debt.remainingAmount - debt.monthlyInstallment);
-    const newNextDue = debt.nextDueDate ? shiftMonthStr(debt.nextDueDate, 1) : '';
-    await updateDebt(debt.id, {
-      remainingAmount: newRemaining,
-      nextDueDate: newNextDue
-    });
-  };
-
-  const handleAssetSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!assetName.trim() || !assetValue) return;
-
-    if (editingAssetId) {
-      await updateAsset(editingAssetId, {
-        name: assetName,
-        value: Number(assetValue),
-        category: assetCategory
-      });
-    } else {
-      await addAsset({
-        name: assetName,
-        value: Number(assetValue),
-        category: assetCategory
-      });
-    }
-
-    setAssetName('');
-    setAssetValue('');
-    setAssetCategory('Kas & Bank');
-    setEditingAssetId(null);
-    setIsAssetModalOpen(false);
-  };
-
-  const openEditAssetModal = (asset: any) => {
-    setEditingAssetId(asset.id);
-    setAssetName(asset.name);
-    setAssetValue(asset.value.toString());
-    setAssetCategory(asset.category);
-    setIsAssetModalOpen(true);
-  };
-
-  const handleUpdateGoalCurrent = async (id: string) => {
-    if (!newCurrentAmount) return;
-    await updateFinancialGoal(id, Number(newCurrentAmount));
-    setEditingGoalId(null);
-    setNewCurrentAmount('');
-  };
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -497,21 +52,87 @@ export default function FinancePage() {
 
   const netBalance = totalIncome - totalExpense;
 
+  const totalAssets = useMemo(() => {
+    return state.assets ? state.assets.reduce((sum, a) => sum + a.value, 0) : 0;
+  }, [state.assets]);
+
+  const totalDebts = useMemo(() => {
+    return state.debts ? state.debts.reduce((sum, d) => sum + d.remainingAmount, 0) : 0;
+  }, [state.debts]);
+
+  const totalCash = netBalance;
+  const netWorth = totalCash + totalAssets - totalDebts;
+
+  const recentTransactions = useMemo(() => {
+    return [...state.transactions]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 3);
+  }, [state.transactions]);
+
+  const recentGoals = useMemo(() => {
+    return [...state.financialGoals]
+      .sort((a, b) => {
+        const pctA = a.currentAmount / a.targetAmount;
+        const pctB = b.currentAmount / b.targetAmount;
+        return pctB - pctA; // Sort by closest to completion
+      })
+      .slice(0, 2);
+  }, [state.financialGoals]);
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-600 dark:from-green-300 dark:to-emerald-500 flex items-center gap-2">
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-600 flex items-center gap-2">
             <Icon name="wallet" size={28} className="text-green-500" />
             {t('nav_finance')}
           </h1>
-          <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
+          <p className="text-zinc-500 mt-1 text-sm">
             {locale === 'id' 
-              ? 'Manajemen keuangan pribadi, pelacakan transaksi pengeluaran dan pemasukan.'
-              : 'Personal finance management, tracking of expense and income transactions.'}
+              ? 'Ringkasan keuangan pribadi Anda.'
+              : 'Your personal finance overview.'}
           </p>
         </div>
+        <Link href="/finance/record">
+          <Button variant="primary" icon="plus" className="text-xs">
+            {locale === 'id' ? 'Catat Transaksi' : 'Record Transaction'}
+          </Button>
+        </Link>
+      </div>
+
+      {/* Navigation Sub-Menus */}
+      <div className="grid grid-cols-3 gap-3 md:gap-4">
+        <Link href="/finance/ledger" className="group">
+          <Surface className="p-4 flex flex-col items-center justify-center text-center hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all">
+            <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+              <Icon name="book" size={20} />
+            </div>
+            <span className="text-xs font-bold text-life-text uppercase tracking-wider">
+              {locale === 'id' ? 'Buku Kas' : 'Ledger'}
+            </span>
+          </Surface>
+        </Link>
+        <Link href="/finance/wealth" className="group">
+          <Surface className="p-4 flex flex-col items-center justify-center text-center hover:border-indigo-500/30 hover:bg-indigo-500/5 transition-all">
+            <div className="w-10 h-10 rounded-full bg-indigo-500/10 text-indigo-500 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+              <Icon name="briefcase" size={20} />
+            </div>
+            <span className="text-xs font-bold text-life-text uppercase tracking-wider">
+              {locale === 'id' ? 'Kekayaan' : 'Wealth'}
+            </span>
+          </Surface>
+        </Link>
+        <Link href="/finance/goals" className="group">
+          <Surface className="p-4 flex flex-col items-center justify-center text-center hover:border-teal-500/30 hover:bg-teal-500/5 transition-all">
+            <div className="w-10 h-10 rounded-full bg-teal-500/10 text-teal-500 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform">
+              <Icon name="target" size={20} />
+            </div>
+            <span className="text-xs font-bold text-life-text uppercase tracking-wider">
+              {locale === 'id' ? 'Target' : 'Goals'}
+            </span>
+          </Surface>
+        </Link>
       </div>
 
       {/* Net Worth Widget */}
@@ -519,9 +140,9 @@ export default function FinancePage() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="text-center md:text-left">
             <p className="text-xs font-black uppercase text-indigo-500/70 tracking-widest mb-1">
-              {locale === 'id' ? 'Total Kekayaan Bersih (Net Worth)' : 'Total Net Worth'}
+              {locale === 'id' ? 'Kekayaan Bersih (Net Worth)' : 'Total Net Worth'}
             </p>
-            <h2 className="text-3xl md:text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600 tracking-tight">
+            <h2 className="text-4xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600 tracking-tight">
               {formatCurrency(netWorth)}
             </h2>
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-3 text-xs font-bold text-life-muted">
@@ -539,8 +160,8 @@ export default function FinancePage() {
               </span>
             </div>
           </div>
-          <div className="hidden md:flex w-16 h-16 rounded-2xl bg-indigo-500/10 text-indigo-500 items-center justify-center border border-indigo-500/20 shadow-lg shadow-indigo-500/5">
-            <Icon name="barChart2" size={32} />
+          <div className="hidden md:flex w-20 h-20 rounded-2xl bg-indigo-500/10 text-indigo-500 items-center justify-center border border-indigo-500/20 shadow-lg shadow-indigo-500/5">
+            <Icon name="barChart2" size={40} />
           </div>
         </div>
       </Surface>
@@ -596,1436 +217,86 @@ export default function FinancePage() {
         </Surface>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left: Input Transaction & Category Breakdown */}
-        <div className="space-y-6">
-          {/* Record Transaction Form */}
-          <Surface className="p-6">
-            <div className="border-b border-life-line pb-3 mb-4 flex justify-between items-center">
-              <div>
-                <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-                  {locale === 'id' ? 'Catat Transaksi' : 'Record Transaction'}
-                </h3>
-                <p className="text-xs text-life-muted mt-0.5">
-                  {locale === 'id' ? 'Tambahkan pemasukan atau pengeluaran harian' : 'Add daily income or expense'}
-                </p>
-              </div>
-            </div>
-
-            <form onSubmit={handleTxSubmit} className="space-y-4">
-              <div className="grid grid-cols-3 gap-2 p-0.5 bg-white/[0.02] border border-life-line rounded-lg">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTxType('expense');
-                    setTxCategory(EXPENSE_CATEGORIES[0]);
-                  }}
-                  className={`py-2 rounded-md text-[10px] font-black uppercase tracking-wider transition-all duration-150 ${
-                    txType === 'expense'
-                      ? 'bg-rose-500 text-white shadow-md'
-                      : 'text-life-muted hover:text-life-text'
-                  }`}
-                >
-                  {locale === 'id' ? 'Pengeluaran' : 'Expense'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setTxType('income');
-                    setTxCategory(INCOME_CATEGORIES[0]);
-                  }}
-                  className={`py-2 rounded-md text-[10px] font-black uppercase tracking-wider transition-all duration-150 ${
-                    txType === 'income'
-                      ? 'bg-emerald-500 text-white shadow-md'
-                      : 'text-life-muted hover:text-life-text'
-                  }`}
-                >
-                  {locale === 'id' ? 'Pemasukan' : 'Income'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTxType('transfer')}
-                  className={`py-2 rounded-md text-[10px] font-black uppercase tracking-wider transition-all duration-150 ${
-                    txType === 'transfer'
-                      ? 'bg-blue-500 text-white shadow-md'
-                      : 'text-life-muted hover:text-life-text'
-                  }`}
-                >
-                  Transfer
-                </button>
-              </div>
-
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="txTitle" className="text-xs font-bold text-life-muted uppercase">
-                  {locale === 'id' ? 'Nama Transaksi' : 'Transaction Name'}
-                </label>
-                <input
-                  id="txTitle"
-                  type="text"
-                  required
-                  placeholder={locale === 'id' ? 'Misal: Makan Siang, Gaji Bulanan...' : 'E.g.: Lunch, Monthly Salary...'}
-                  value={txTitle}
-                  onChange={(e) => setTxTitle(e.target.value)}
-                  className="glass-input text-sm"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex flex-col space-y-1">
-                  <label htmlFor="txAmount" className="text-xs font-bold text-life-muted uppercase">
-                    {locale === 'id' ? 'Jumlah (Nominal)' : 'Amount'}
-                  </label>
-                  <input
-                    id="txAmount"
-                    type="number"
-                    required
-                    placeholder={locale === 'id' ? 'Nominal...' : 'Amount...'}
-                    value={txAmount}
-                    onChange={(e) => setTxAmount(e.target.value)}
-                    className="glass-input text-sm"
-                  />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Recent Transactions */}
+        <Surface className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
+              {locale === 'id' ? 'Transaksi Terakhir' : 'Recent Transactions'}
+            </h3>
+            <Link href="/finance/ledger">
+              <button className="text-[10px] font-bold text-life-muted hover:text-life-text uppercase">
+                {locale === 'id' ? 'Lihat Semua' : 'View All'}
+              </button>
+            </Link>
+          </div>
+          <div className="space-y-3">
+            {recentTransactions.map((tx) => (
+              <div key={tx.id} className="flex justify-between items-center p-3 rounded-lg bg-white/[0.02] border border-life-line">
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                    tx.type === 'income' ? 'bg-emerald-500/10 text-emerald-400' : 
+                    tx.type === 'expense' ? 'bg-rose-500/10 text-rose-400' : 'bg-blue-500/10 text-blue-400'
+                  }`}>
+                    <Icon name={tx.type === 'income' ? 'arrowUpRight' : tx.type === 'expense' ? 'arrowDownRight' : 'refreshCw'} size={14} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-life-text truncate w-32 md:w-40">{tx.title}</p>
+                    <p className="text-[9px] text-life-muted">{formatDate(tx.date)}</p>
+                  </div>
                 </div>
+                <div className="text-right">
+                  <p className={`text-xs font-black ${
+                    tx.type === 'income' ? 'text-emerald-400' : 
+                    tx.type === 'expense' ? 'text-rose-400' : 'text-blue-400'
+                  }`}>
+                    {tx.type === 'income' ? '+' : tx.type === 'expense' ? '-' : ''}
+                    {formatCurrency(tx.amount)}
+                  </p>
+                  <p className="text-[9px] text-life-muted">{getCategoryLabel(tx.category, locale)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Surface>
 
-                {txType === 'transfer' ? (
-                  <div className="flex flex-col space-y-1">
-                    <label htmlFor="txAdminFee" className="text-xs font-bold text-life-muted uppercase">
-                      {locale === 'id' ? 'Biaya Admin' : 'Admin Fee'}
-                    </label>
-                    <input
-                      id="txAdminFee"
-                      type="number"
-                      placeholder={locale === 'id' ? 'Opsional...' : 'Optional...'}
-                      value={txAdminFee}
-                      onChange={(e) => setTxAdminFee(e.target.value)}
-                      className="glass-input text-sm"
+        {/* Goals Progress */}
+        <Surface className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
+              {locale === 'id' ? 'Progres Target' : 'Goals Progress'}
+            </h3>
+            <Link href="/finance/goals">
+              <button className="text-[10px] font-bold text-life-muted hover:text-life-text uppercase">
+                {locale === 'id' ? 'Lihat Semua' : 'View All'}
+              </button>
+            </Link>
+          </div>
+          <div className="space-y-4">
+            {recentGoals.map((goal) => {
+              const pct = Math.min(100, Math.round((goal.currentAmount / goal.targetAmount) * 100));
+              return (
+                <div key={goal.id} className="p-3 rounded-lg bg-white/[0.02] border border-life-line space-y-2">
+                  <div className="flex justify-between items-center text-xs">
+                    <strong className="text-life-text">{goal.title}</strong>
+                    <Badge tone={pct >= 100 ? 'green' : pct >= 50 ? 'teal' : 'amber'}>{`${pct}%`}</Badge>
+                  </div>
+                  <div className="h-1.5 w-full bg-white/[0.05] rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400"
+                      style={{ width: `${pct}%` }}
                     />
                   </div>
-                ) : (
-                  <div className="flex flex-col space-y-1">
-                    <label htmlFor="txCategory" className="text-xs font-bold text-life-muted uppercase">
-                      {t('category')}
-                    </label>
-                    <select
-                      id="txCategory"
-                      value={txCategory}
-                      onChange={(e) => setTxCategory(e.target.value)}
-                      className="glass-select text-xs"
-                    >
-                      {txType === 'expense'
-                        ? EXPENSE_CATEGORIES.map((c) => <option key={c} value={c}>{getCategoryLabel(c, locale)}</option>)
-                        : INCOME_CATEGORIES.map((c) => <option key={c} value={c}>{getCategoryLabel(c, locale)}</option>)}
-                    </select>
-                  </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex flex-col space-y-1">
-                  <label htmlFor="txDate" className="text-xs font-bold text-life-muted uppercase">
-                    {t('date')}
-                  </label>
-                  <input
-                    id="txDate"
-                    type="date"
-                    required
-                    value={txDate}
-                    onChange={(e) => setTxDate(e.target.value)}
-                    className="glass-input text-xs"
-                  />
-                </div>
-
-                <div className="flex flex-col space-y-1">
-                   <div className="flex justify-between items-center">
-                     <label htmlFor="txAccount" className="text-xs font-bold text-life-muted uppercase">
-                       {txType === 'transfer' 
-                         ? (locale === 'id' ? 'Dari Rekening' : 'From Account') 
-                         : (locale === 'id' ? 'Rekening / Akun' : 'Account / Wallet')}
-                     </label>
-                      <button
-                        type="button"
-                        onClick={() => setIsAccountModalOpen(true)}
-                        className="flex items-center gap-1 text-[10px] font-black uppercase text-teal-400 hover:underline"
-                      >
-                        <Icon name="settings" size={10} /> {locale === 'id' ? 'Kelola' : 'Manage'}
-                      </button>
-                    </div>
-                   <select
-                     id="txAccount"
-                     value={txAccount}
-                     onChange={(e) => setTxAccount(e.target.value)}
-                     className="glass-select text-xs"
-                   >
-                     {allAccounts.map((acc) => (
-                       <option key={acc} value={acc}>{acc === 'Tunai' ? (locale === 'id' ? 'Tunai' : 'Cash') : acc}</option>
-                     ))}
-                   </select>
-                </div>
-              </div>
-
-              {txType === 'transfer' && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="flex flex-col space-y-1">
-                    <label htmlFor="txToAccount" className="text-xs font-bold text-life-muted uppercase">
-                      {locale === 'id' ? 'Ke Rekening' : 'To Account'}
-                    </label>
-                    <select
-                      id="txToAccount"
-                      value={txToAccount}
-                      onChange={(e) => setTxToAccount(e.target.value)}
-                      className="glass-select text-xs"
-                    >
-                      {allAccounts.map((acc) => (
-                        <option key={acc} value={acc}>{acc === 'Tunai' ? (locale === 'id' ? 'Tunai' : 'Cash') : acc}</option>
-                      ))}
-                    </select>
+                  <div className="flex justify-between text-[9px] text-life-muted font-bold uppercase">
+                    <span>{formatCurrency(goal.currentAmount)}</span>
+                    <span>{formatCurrency(goal.targetAmount)}</span>
                   </div>
                 </div>
-              )}
-
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="txNotes" className="text-xs font-bold text-life-muted uppercase">
-                  {locale === 'id' ? 'Catatan (Opsional)' : 'Notes (Optional)'}
-                </label>
-                <input
-                  id="txNotes"
-                  type="text"
-                  placeholder="..."
-                  value={txNotes}
-                  onChange={(e) => setTxNotes(e.target.value)}
-                  className="glass-input text-xs"
-                />
-              </div>
-
-              {/* Recurring Transaction Toggle */}
-              {txType !== 'transfer' && (
-                <div className="flex flex-col space-y-2 pt-2">
-                  <label className="flex items-center space-x-2 cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      checked={txIsRecurring} 
-                      onChange={(e) => setTxIsRecurring(e.target.checked)} 
-                      className="form-checkbox h-4 w-4 text-life-accent rounded border-life-line bg-life-surface/50"
-                    />
-                    <span className="text-xs text-life-text font-medium">
-                      {locale === 'id' ? 'Transaksi Berulang (Recurring)' : 'Recurring Transaction'}
-                    </span>
-                  </label>
-                  {txIsRecurring && (
-                    <div className="pl-6">
-                      <select
-                        value={txRecurringInterval}
-                        onChange={(e) => setTxRecurringInterval(e.target.value as any)}
-                        className="glass-input text-xs"
-                      >
-                        <option value="daily">{locale === 'id' ? 'Harian' : 'Daily'}</option>
-                        <option value="weekly">{locale === 'id' ? 'Mingguan' : 'Weekly'}</option>
-                        <option value="monthly">{locale === 'id' ? 'Bulanan' : 'Monthly'}</option>
-                        <option value="yearly">{locale === 'id' ? 'Tahunan' : 'Yearly'}</option>
-                      </select>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <Button type="submit" variant="primary" icon="plus" className="w-full">
-                {locale === 'id' ? 'Simpan Transaksi' : 'Save Transaction'}
-              </Button>
-            </form>
-          </Surface>
-
-          {/* Account Balances Summary */}
-          <Surface className="p-6">
-            <div className="border-b border-life-line pb-3 mb-4">
-              <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-                {locale === 'id' ? 'Saldo per Rekening' : 'Balance per Account'}
-              </h3>
-              <p className="text-xs text-life-muted mt-0.5">
-                {locale === 'id' ? 'Rincian saldo aktif di setiap rekening / dompet' : 'Detailed active balances in each account / wallet'}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {allAccounts.map((acc) => {
-                const accIncome = state.transactions
-                  .filter(t => t.type === 'income' && t.account === acc)
-                  .reduce((sum, t) => sum + t.amount, 0);
-
-                const accExpense = state.transactions
-                  .filter(t => t.type === 'expense' && t.account === acc)
-                  .reduce((sum, t) => sum + t.amount, 0);
-
-                const accBalance = accIncome - accExpense;
-
-                // Only show if there's activity or if it's a primary account or custom account
-                const isPrimary = ['Tunai', 'Bank BCA', 'Bank Mandiri'].includes(acc);
-                const isCustom = customAccounts.includes(acc);
-                if (accBalance === 0 && !isPrimary && !isCustom) return null;
-
-                return (
-                  <div 
-                    key={acc}
-                    className="p-3 rounded-xl bg-white/[0.005] border border-life-line flex justify-between items-center"
-                  >
-                    <div>
-                      <span className="text-[10px] font-black uppercase text-life-muted tracking-wider block">
-                        {acc === 'Tunai' ? (locale === 'id' ? 'Tunai' : 'Cash') : acc}
-                      </span>
-                      <span className={`text-xs font-black block mt-0.5 ${accBalance >= 0 ? 'text-teal-400' : 'text-rose-400'}`}>
-                        {formatCurrency(accBalance)}
-                      </span>
-                    </div>
-                    <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded ${
-                      accBalance >= 0 
-                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
-                        : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
-                    }`}>
-                      {accBalance >= 0 ? (locale === 'id' ? 'Surplus' : 'Surplus') : (locale === 'id' ? 'Defisit' : 'Deficit')}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </Surface>
-
-          {/* Expenses Breakdown chart */}
-          <Surface className="p-6">
-            <div className="border-b border-life-line pb-3 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-                  {locale === 'id' ? 'Distribusi Pengeluaran' : 'Expense Distribution'}
-                </h3>
-                <p className="text-xs text-life-muted mt-0.5">
-                  {locale === 'id' ? 'Breakdown pengeluaran Anda per kategori' : 'Your expense breakdown by category'}
-                </p>
-              </div>
-
-              {/* Navigation & Filter Controls */}
-              <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto shrink-0 select-none">
-                <div className="flex bg-white/[0.02] border border-life-line rounded-lg p-0.5">
-                  {[
-                    { id: 'all', labelId: 'Semua', labelEn: 'All' },
-                    { id: 'day', labelId: 'Hari', labelEn: 'Day' },
-                    { id: 'week', labelId: 'Minggu', labelEn: 'Week' },
-                    { id: 'month', labelId: 'Bulan', labelEn: 'Month' },
-                    { id: 'year', labelId: 'Tahun', labelEn: 'Year' },
-                  ].map((tab) => (
-                    <button
-                      key={tab.id}
-                      type="button"
-                      onClick={() => setDistributionTimeframe(tab.id as any)}
-                      className={`text-[10px] font-black uppercase py-1 px-2 rounded-md transition-all ${
-                        distributionTimeframe === tab.id
-                          ? 'bg-life-teal text-white shadow-sm'
-                          : 'text-life-muted hover:text-life-text'
-                      }`}
-                    >
-                      {locale === 'id' ? tab.labelId : tab.labelEn}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Date Navigation & Calendar Picker */}
-                {distributionTimeframe !== 'all' && (
-                  <div className="flex items-center gap-1 bg-white/[0.02] border border-life-line rounded-lg px-2 py-0.5 text-xs">
-                    <button
-                      type="button"
-                      onClick={handleDistributionPrev}
-                      className="w-5 h-5 rounded hover:bg-white/10 flex items-center justify-center text-life-muted hover:text-life-text transition-colors"
-                      title={locale === 'id' ? 'Mundur' : 'Prev'}
-                    >
-                      <Icon name="chevronLeft" size={10} />
-                    </button>
-
-                    {distributionTimeframe === 'day' && (
-                      <input
-                        type="date"
-                        value={distributionRefDate}
-                        onChange={(e) => e.target.value && setDistributionRefDate(e.target.value)}
-                        className="bg-transparent border-0 text-life-text font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
-                      />
-                    )}
-
-                    {distributionTimeframe === 'week' && (
-                      <div className="flex items-center gap-1">
-                        <input
-                          type="date"
-                          value={distributionRefDate}
-                          onChange={(e) => e.target.value && setDistributionRefDate(e.target.value)}
-                          className="bg-transparent border-0 text-life-text font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
-                        />
-                        <span className="text-[9px] text-life-muted font-bold">(7 hr)</span>
-                      </div>
-                    )}
-
-                    {distributionTimeframe === 'month' && (
-                      <input
-                        type="month"
-                        value={distributionRefDate.slice(0, 7)}
-                        onChange={(e) => e.target.value && setDistributionRefDate(`${e.target.value}-01`)}
-                        className="bg-transparent border-0 text-life-text font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
-                      />
-                    )}
-
-                    {distributionTimeframe === 'year' && (
-                      <input
-                        type="number"
-                        min="2000"
-                        max="2100"
-                        value={distributionRefDate.slice(0, 4)}
-                        onChange={(e) => e.target.value && setDistributionRefDate(`${e.target.value}-01-01`)}
-                        className="bg-transparent border-0 text-life-text font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-14"
-                      />
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={handleDistributionNext}
-                      className="w-5 h-5 rounded hover:bg-white/10 flex items-center justify-center text-life-muted hover:text-life-text transition-colors"
-                      title={locale === 'id' ? 'Maju' : 'Next'}
-                    >
-                      <Icon name="chevronRight" size={10} />
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Total Summary Banner for selected period */}
-            <div className="p-3 mb-4 rounded-xl bg-white/[0.008] border border-life-line flex items-center justify-between gap-3 text-xs">
-              <span className="text-[11px] font-semibold text-life-muted">
-                {locale === 'id' ? 'Total Pengeluaran Periode Ini:' : 'Total Period Expenses:'}
-              </span>
-              <strong className="font-black text-rose-400 text-sm">
-                - {formatCurrency(distributionTotalExpense)}
-              </strong>
-            </div>
-
-            <div className="space-y-4">
-              {expenseByCategory.length > 0 ? (
-                expenseByCategory.map((item) => {
-                  const pct = percent(item.amount, distributionTotalExpense);
-                  const matchingBudget = state.budgets?.find(
-                    b => b.category === item.category &&
-                         (b.period === 'monthly' && distributionTimeframe === 'month' ||
-                          b.period === 'weekly' && distributionTimeframe === 'week' ||
-                          b.period === 'yearly' && distributionTimeframe === 'year')
-                  );
-                  const budgetLimit = matchingBudget?.limitAmount;
-                  const budgetPct = budgetLimit ? Math.round((item.amount / budgetLimit) * 100) : null;
-                  const displayBudgetPct = budgetPct !== null ? Math.min(100, budgetPct) : null;
-                  const overBudget = budgetPct !== null && budgetPct > 100;
-
-                  return (
-                    <div key={item.category} className="space-y-2 pb-2">
-                      <div className="flex justify-between items-center text-xs">
-                        <strong className="text-life-text">{getCategoryLabel(item.category, locale)}</strong>
-                        <div className="space-x-1.5 font-bold flex items-center">
-                          <span className="text-life-muted">{formatCurrency(item.amount)}</span>
-                          <Badge tone="rose">{`${pct}%`}</Badge>
-                          {(distributionTimeframe === 'month' || distributionTimeframe === 'week' || distributionTimeframe === 'year') && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setBudgetCategory(item.category);
-                                setBudgetLimit(budgetLimit ? String(budgetLimit) : '');
-                                setBudgetPeriod(distributionTimeframe === 'month' ? 'monthly' : distributionTimeframe === 'week' ? 'weekly' : 'yearly');
-                                setIsBudgetModalOpen(true);
-                              }}
-                              className="p-1 hover:bg-white/10 rounded ml-2"
-                              title={locale === 'id' ? 'Atur Budget' : 'Set Budget'}
-                            >
-                              <Icon name="edit" size={12} className="text-life-muted" />
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                      <div className="h-2 w-full bg-white/[0.02] rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-gradient-to-r from-rose-500 to-amber-500 shadow-[0_0_8px_rgba(239,68,68,0.3)]"
-                          style={{ width: `${pct}%` }}
-                        />
-                      </div>
-
-                      {budgetLimit && (
-                        <div className="flex items-center gap-2 mt-1">
-                          <div className="flex-1 h-1 w-full bg-white/[0.05] rounded-full overflow-hidden">
-                            <div
-                              className={`h-full rounded-full ${overBudget ? 'bg-rose-500' : 'bg-life-accent'}`}
-                              style={{ width: `${displayBudgetPct}%` }}
-                            />
-                          </div>
-                          <span className="text-[10px] text-life-muted font-mono">
-                            {formatCurrency(budgetLimit)} 
-                            <span className={overBudget ? 'text-amber-400 ml-1 font-bold' : 'ml-1'}>
-                              ({overBudget ? (locale === 'id' ? 'Area Perbaikan' : 'Area for Improvement') : `${budgetPct}%`})
-                            </span>
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })
-              ) : (
-                <div className="py-6 text-center text-xs text-life-muted font-bold uppercase">
-                  {locale === 'id' ? 'Belum ada catatan pengeluaran pada periode ini.' : 'No expense records for this period.'}
-                </div>
-              )}
-            </div>
-          </Surface>
-        </div>
-
-        {/* Right: Goals & History */}
-        <div className="space-y-6">
-          {/* Financial Goals Widget */}
-          <Surface className="p-6">
-            <div className="border-b border-life-line pb-3 mb-4 flex justify-between items-center">
-              <div>
-                <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-                  {locale === 'id' ? 'Target Keuangan' : 'Financial Goals'}
-                </h3>
-                <p className="text-xs text-life-muted mt-0.5">
-                  {locale === 'id' ? 'Tabungan, investasi, atau impian finansial Anda' : 'Your savings, investments, or financial dreams'}
-                </p>
-              </div>
-              <Button
-                size="sm"
-                variant="primary"
-                icon="plus"
-                onClick={() => setIsGoalModalOpen(true)}
-              >
-                {locale === 'id' ? 'Target' : 'Goal'}
-              </Button>
-            </div>
-
-            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
-              {state.financialGoals.length > 0 ? (
-                state.financialGoals.map((goal) => {
-                  const completionRate = percent(goal.currentAmount, goal.targetAmount);
-                  const isEditing = editingGoalId === goal.id;
-
-                  return (
-                    <div
-                      key={goal.id}
-                      className="p-4 rounded-xl bg-white/[0.005] border border-life-line hover:border-life-line-strong hover:bg-white/[0.01] transition-all space-y-3"
-                    >
-                      <div className="flex justify-between items-start gap-4">
-                        <div>
-                          <strong className="text-sm text-life-text block tracking-tight">{goal.title}</strong>
-                          {goal.targetDate && (
-                            <span className="text-[10px] font-bold text-life-muted uppercase mt-0.5 block">
-                              {locale === 'id' ? 'Target Waktu' : 'Target Date'}: {formatDate(goal.targetDate)}
-                            </span>
-                          )}
-                          {goal.linkedAccountName && (
-                            <span className="text-[10px] font-bold text-life-accent uppercase mt-0.5 block">
-                              {locale === 'id' ? 'Akun' : 'Account'}: {goal.linkedAccountName}
-                            </span>
-                          )}
-                          {(() => {
-                            const remainingAmount = Math.max(0, goal.targetAmount - goal.currentAmount);
-                            let projectionText = '';
-                            if (remainingAmount === 0) {
-                              projectionText = locale === 'id' ? 'Tercapai! 🎉' : 'Achieved! 🎉';
-                            } else if (avgMonthlySavings <= 0) {
-                              projectionText = locale === 'id' ? 'Surplus negatif/nol' : 'Negative/zero surplus';
-                            } else {
-                              const monthsLeft = remainingAmount / avgMonthlySavings;
-                              const estDate = shiftMonthStr(new Date().toISOString().split('T')[0], Math.ceil(monthsLeft));
-                              const { monthLabel } = require('@/lib/utils');
-                              projectionText = `${locale === 'id' ? 'Estimasi:' : 'Est:'} ${monthLabel(estDate, locale === 'id' ? 'id-ID' : 'en-US')}`;
-                            }
-                            return (
-                              <span className="text-[10px] font-bold text-amber-400 uppercase mt-0.5 block">
-                                {projectionText}
-                              </span>
-                            );
-                          })()}
-                        </div>
-
-                        <div className="flex items-center space-x-2 shrink-0">
-                          <Badge tone={completionRate >= 100 ? 'green' : completionRate >= 50 ? 'teal' : 'amber'}>
-                            {`${completionRate}%`}
-                          </Badge>
-                          <button
-                            onClick={() => {
-                              setEditingGoalId(isEditing ? null : goal.id);
-                              setNewCurrentAmount(String(goal.currentAmount));
-                            }}
-                            className="w-7 h-7 rounded bg-white/[0.02] border border-life-line hover:bg-life-teal/20 text-life-muted hover:text-life-text flex items-center justify-center transition-all"
-                            title={locale === 'id' ? 'Update Saldo Terkumpul' : 'Update Collected Balance'}
-                          >
-                            <Icon name="edit" size={12} />
-                          </button>
-                          <button
-                            onClick={() => deleteFinancialGoal(goal.id)}
-                            className="w-7 h-7 rounded bg-white/[0.02] border border-life-line hover:bg-life-rose/20 text-life-muted hover:text-life-rose flex items-center justify-center transition-all"
-                            title={t('delete')}
-                          >
-                            <Icon name="trash" size={12} />
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Editing panel */}
-                      {isEditing && (
-                        <div className="flex items-center gap-2 bg-black/30 p-2.5 rounded-lg border border-life-line">
-                          <div className="flex-1 flex flex-col space-y-1">
-                            <label className="text-[9px] font-black uppercase text-life-muted">{locale === 'id' ? 'Saldo Terkumpul Baru' : 'New Collected Balance'}</label>
-                            <input
-                              type="number"
-                              className="glass-input py-1 text-xs"
-                              value={newCurrentAmount}
-                              onChange={(e) => setNewCurrentAmount(e.target.value)}
-                              placeholder={locale === 'id' ? 'Rp...' : 'Amount...'}
-                            />
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="primary"
-                            onClick={() => handleUpdateGoalCurrent(goal.id)}
-                            className="self-end"
-                          >
-                            {t('save')}
-                          </Button>
-                        </div>
-                      )}
-
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-[10px] text-life-muted font-bold uppercase">
-                          <span>{formatCurrency(goal.currentAmount)} {locale === 'id' ? 'terkumpul' : 'collected'}</span>
-                          <span>{locale === 'id' ? 'Target' : 'Target'}: {formatCurrency(goal.targetAmount)}</span>
-                        </div>
-                        <div className="h-1.5 w-full bg-white/[0.02] rounded-full overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400"
-                            style={{ width: `${Math.min(completionRate, 100)}%` }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
-              ) : (
-                <EmptyState />
-              )}
-            </div>
-          </Surface>
-
-          {/* Assets Widget */}
-          <Surface className="p-6">
-            <div className="border-b border-life-line pb-3 mb-4 flex justify-between items-center">
-              <div>
-                <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-                  {locale === 'id' ? 'Aset & Investasi' : 'Assets & Investments'}
-                </h3>
-                <p className="text-xs text-life-muted mt-0.5">
-                  {locale === 'id' ? 'Kelola daftar kekayaan selain kas' : 'Manage wealth list other than cash'}
-                </p>
-              </div>
-              <Button
-                size="sm"
-                variant="primary"
-                icon="plus"
-                onClick={() => {
-                  setEditingAssetId(null);
-                  setAssetName('');
-                  setAssetValue('');
-                  setAssetCategory('Kas & Bank');
-                  setIsAssetModalOpen(true);
-                }}
-              >
-                {locale === 'id' ? 'Aset' : 'Asset'}
-              </Button>
-            </div>
-
-            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
-              {state.assets && state.assets.length > 0 ? (
-                state.assets.map((asset) => (
-                  <div
-                    key={asset.id}
-                    className="p-4 rounded-xl bg-white/[0.005] border border-life-line hover:border-life-line-strong transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 group"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center border border-emerald-500/20 shrink-0">
-                        <Icon name="briefcase" size={20} />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-life-text group-hover:text-emerald-500 transition-colors">
-                          {asset.name}
-                        </h4>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge tone="gray" className="text-[10px] py-0.5">
-                            {asset.category}
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between md:justify-end gap-6 w-full md:w-auto">
-                      <div className="text-right">
-                        <p className="text-[10px] font-bold text-life-muted uppercase tracking-wider mb-0.5">
-                          {locale === 'id' ? 'Nilai Aset' : 'Asset Value'}
-                        </p>
-                        <p className="font-black text-emerald-500 tracking-tight">
-                          {formatCurrency(asset.value)}
-                        </p>
-                      </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => openEditAssetModal(asset)}
-                          className="w-7 h-7 rounded bg-white/[0.02] border border-life-line hover:bg-indigo-500/20 text-life-muted hover:text-indigo-400 flex items-center justify-center transition-all"
-                          title={t('edit')}
-                        >
-                          <Icon name="edit2" size={12} />
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (confirm(locale === 'id' ? 'Hapus aset ini?' : 'Delete this asset?')) {
-                              deleteAsset(asset.id);
-                            }
-                          }}
-                          className="w-7 h-7 rounded bg-white/[0.02] border border-life-line hover:bg-life-rose/20 text-life-muted hover:text-life-rose flex items-center justify-center transition-all"
-                          title={t('delete')}
-                        >
-                          <Icon name="trash" size={12} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <EmptyState
-                  message={locale === 'id' ? 'Belum ada aset terdaftar. Mulai catat properti, emas, atau aset lainnya.' : 'No assets registered. Start recording property, gold, or other assets.'}
-                />
-              )}
-            </div>
-          </Surface>
-
-          {/* Debts & Installments Widget */}
-          <Surface className="p-6">
-            <div className="border-b border-life-line pb-3 mb-4 flex justify-between items-center">
-              <div>
-                <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-                  {locale === 'id' ? 'Liabilitas & Cicilan' : 'Debts & Installments'}
-                </h3>
-                <p className="text-xs text-life-muted mt-0.5">
-                  {locale === 'id' ? 'Pantau dan bayar tagihan/cicilan Anda' : 'Monitor and pay your debts/installments'}
-                </p>
-              </div>
-              <Button
-                size="sm"
-                variant="primary"
-                icon="plus"
-                onClick={() => setIsDebtModalOpen(true)}
-              >
-                {locale === 'id' ? 'Cicilan' : 'Debt'}
-              </Button>
-            </div>
-
-            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
-              {state.debts.length > 0 ? (
-                state.debts.map((debt) => {
-                  const completionRate = percent(debt.totalAmount - debt.remainingAmount, debt.totalAmount);
-                  
-                  // Logic for urgency
-                  let isUrgent = false;
-                  let isWarning = false;
-                  let daysLeft = 999;
-                  
-                  if (debt.nextDueDate) {
-                    const today = new Date();
-                    today.setHours(0,0,0,0);
-                    const dueDate = new Date(debt.nextDueDate);
-                    daysLeft = Math.ceil((dueDate.getTime() - today.getTime()) / (1000 * 3600 * 24));
-                    if (daysLeft < 0) isUrgent = true;
-                    else if (daysLeft <= 7) isWarning = true;
-                  }
-
-                  return (
-                    <div
-                      key={debt.id}
-                      className="p-4 rounded-xl bg-white/[0.005] border border-life-line hover:border-life-line-strong transition-all space-y-3 relative overflow-hidden"
-                    >
-                      {/* Urgency indicator strip */}
-                      {isUrgent && <div className="absolute top-0 left-0 w-1 h-full bg-life-rose" />}
-                      {isWarning && <div className="absolute top-0 left-0 w-1 h-full bg-amber-500" />}
-
-                      <div className="flex justify-between items-start gap-4">
-                        <div>
-                          <strong className="text-sm text-life-text block tracking-tight">{debt.name}</strong>
-                          {debt.nextDueDate && (
-                            <span className={`text-[10px] font-bold uppercase mt-0.5 block ${isUrgent ? 'text-life-rose' : isWarning ? 'text-amber-500' : 'text-life-muted'}`}>
-                              {locale === 'id' ? 'Jatuh Tempo:' : 'Due:'} {formatDate(debt.nextDueDate)}
-                              {daysLeft < 0 
-                                ? ` (Terlambat ${Math.abs(daysLeft)} hari)`
-                                : daysLeft === 0 
-                                  ? ' (Hari ini)' 
-                                  : daysLeft <= 7 
-                                    ? ` (${daysLeft} hari lagi)` 
-                                    : ''}
-                            </span>
-                          )}
-                          <span className="text-[10px] font-bold text-life-accent uppercase mt-0.5 block">
-                            {locale === 'id' ? 'Cicilan:' : 'Installment:'} {formatCurrency(debt.monthlyInstallment)}/bln
-                          </span>
-                        </div>
-
-                        <div className="flex flex-col items-end space-y-2 shrink-0">
-                          <button
-                            onClick={() => deleteDebt(debt.id)}
-                            className="w-7 h-7 rounded bg-white/[0.02] border border-life-line hover:bg-life-rose/20 text-life-muted hover:text-life-rose flex items-center justify-center transition-all"
-                            title={t('delete')}
-                          >
-                            <Icon name="trash" size={12} />
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className="space-y-1 pt-1">
-                        <div className="flex justify-between text-[10px] text-life-muted font-bold uppercase">
-                          <span>{locale === 'id' ? 'Sisa:' : 'Remaining:'} {formatCurrency(debt.remainingAmount)}</span>
-                          <span>{locale === 'id' ? 'Total:' : 'Total:'} {formatCurrency(debt.totalAmount)}</span>
-                        </div>
-                        <div className="h-1.5 w-full bg-white/[0.02] rounded-full overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-gradient-to-r from-life-accent to-life-teal"
-                            style={{ width: `${Math.min(completionRate, 100)}%` }}
-                          />
-                        </div>
-                      </div>
-
-                      {debt.remainingAmount > 0 && debt.monthlyInstallment > 0 && (
-                        <div className="pt-2 border-t border-white/5 flex justify-end">
-                          <Button size="sm" variant="secondary" onClick={() => handlePayInstallment(debt)}>
-                            {locale === 'id' ? 'Bayar Cicilan' : 'Pay Installment'}
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  );
-                })
-              ) : (
-                <EmptyState />
-              )}
-            </div>
-          </Surface>
-
-          {/* Transaction Ledger History */}
-          <Surface className="p-6">
-            <div className="border-b border-life-line pb-3 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
-                <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-                  {locale === 'id' ? 'Buku Kas Transaksi' : 'Transaction Ledger'}
-                </h3>
-                <p className="text-xs text-life-muted mt-0.5">
-                  {locale === 'id' ? 'Riwayat pemasukan & pengeluaran keuangan' : 'History of financial income & expenses'}
-                </p>
-              </div>
-
-              {/* Navigation & Filter Controls */}
-              <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto shrink-0 select-none">
-                <div className="flex bg-white/[0.02] border border-life-line rounded-lg p-0.5">
-                  {[
-                    { id: 'all', labelId: 'Semua', labelEn: 'All' },
-                    { id: 'day', labelId: 'Hari', labelEn: 'Day' },
-                    { id: 'week', labelId: 'Minggu', labelEn: 'Week' },
-                    { id: 'month', labelId: 'Bulan', labelEn: 'Month' },
-                    { id: 'year', labelId: 'Tahun', labelEn: 'Year' },
-                  ].map((tab) => (
-                    <button
-                      key={tab.id}
-                      type="button"
-                      onClick={() => setLedgerTimeframe(tab.id as any)}
-                      className={`text-[10px] font-black uppercase py-1 px-2 rounded-md transition-all ${
-                        ledgerTimeframe === tab.id
-                          ? 'bg-life-teal text-white shadow-sm'
-                          : 'text-life-muted hover:text-life-text'
-                      }`}
-                    >
-                      {locale === 'id' ? tab.labelId : tab.labelEn}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Date Navigation & Calendar Picker */}
-                {ledgerTimeframe !== 'all' && (
-                  <div className="flex items-center gap-1 bg-white/[0.02] border border-life-line rounded-lg px-2 py-0.5 text-xs">
-                    <button
-                      type="button"
-                      onClick={handleLedgerPrev}
-                      className="w-5 h-5 rounded hover:bg-white/10 flex items-center justify-center text-life-muted hover:text-life-text transition-colors"
-                      title={locale === 'id' ? 'Mundur' : 'Prev'}
-                    >
-                      <Icon name="chevronLeft" size={10} />
-                    </button>
-
-                    {ledgerTimeframe === 'day' && (
-                      <input
-                        type="date"
-                        value={ledgerRefDate}
-                        onChange={(e) => e.target.value && setLedgerRefDate(e.target.value)}
-                        className="bg-transparent border-0 text-life-text font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
-                      />
-                    )}
-
-                    {ledgerTimeframe === 'week' && (
-                      <div className="flex items-center gap-1">
-                        <input
-                          type="date"
-                          value={ledgerRefDate}
-                          onChange={(e) => e.target.value && setLedgerRefDate(e.target.value)}
-                          className="bg-transparent border-0 text-life-text font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
-                        />
-                        <span className="text-[9px] text-life-muted font-bold">(7 hr)</span>
-                      </div>
-                    )}
-
-                    {ledgerTimeframe === 'month' && (
-                      <input
-                        type="month"
-                        value={ledgerRefDate.slice(0, 7)}
-                        onChange={(e) => e.target.value && setLedgerRefDate(`${e.target.value}-01`)}
-                        className="bg-transparent border-0 text-life-text font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
-                      />
-                    )}
-
-                    {ledgerTimeframe === 'year' && (
-                      <input
-                        type="number"
-                        min="2000"
-                        max="2100"
-                        value={ledgerRefDate.slice(0, 4)}
-                        onChange={(e) => e.target.value && setLedgerRefDate(`${e.target.value}-01-01`)}
-                        className="bg-transparent border-0 text-life-text font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-14"
-                      />
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={handleLedgerNext}
-                      className="w-5 h-5 rounded hover:bg-white/10 flex items-center justify-center text-life-muted hover:text-life-text transition-colors"
-                      title={locale === 'id' ? 'Maju' : 'Next'}
-                    >
-                      <Icon name="chevronRight" size={10} />
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Filtered Period Totals Summary Banner */}
-            <div className="p-3 mb-4 rounded-xl bg-white/[0.008] border border-life-line flex flex-wrap items-center justify-between gap-3 text-xs">
-              <div className="flex items-center space-x-1.5">
-                <span className="text-[11px] font-semibold text-life-muted">
-                  {locale === 'id' ? 'Total Pengeluaran:' : 'Total Expenses:'}
-                </span>
-                <span className="font-black text-rose-400">
-                  - {formatCurrency(ledgerExpense)}
-                </span>
-              </div>
-
-              <div className="flex items-center space-x-1.5">
-                <span className="text-[11px] font-semibold text-life-muted">
-                  {locale === 'id' ? 'Total Pemasukan:' : 'Total Income:'}
-                </span>
-                <span className="font-black text-emerald-400">
-                  + {formatCurrency(ledgerIncome)}
-                </span>
-              </div>
-
-              <div className="flex items-center space-x-1.5 sm:border-l border-white/10 sm:pl-3">
-                <span className="text-[11px] font-semibold text-life-muted">
-                  {locale === 'id' ? 'Net Cashflow:' : 'Net Cashflow:'}
-                </span>
-                <span className={`font-black ${ledgerCashflow >= 0 ? 'text-teal-400' : 'text-rose-400'}`}>
-                  {ledgerCashflow >= 0 ? '+' : ''}{formatCurrency(ledgerCashflow)}
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-3 max-h-[350px] overflow-y-auto pr-1">
-              {filteredTransactions.length > 0 ? (
-                filteredTransactions.map((tx) => (
-                  <div
-                    key={tx.id}
-                    className="p-3.5 rounded-xl bg-white/[0.005] border border-life-line flex items-center justify-between gap-4"
-                  >
-                    <div className="min-w-0">
-                      <strong className="text-xs font-bold text-life-text block leading-snug">{tx.title}</strong>
-                      <div className="flex flex-wrap items-center gap-1.5 mt-1 text-[10px] text-life-muted uppercase font-black tracking-wider">
-                        <span>{formatDate(tx.date)}</span>
-                        <span>•</span>
-                        <span>{getCategoryLabel(tx.category, locale)}</span>
-                        <span>•</span>
-                        <span className="flex items-center gap-1 text-teal-400 font-semibold bg-teal-500/10 border border-teal-500/20 px-1.5 py-0.5 rounded text-[8px] tracking-normal normal-case">
-                          <Icon name="wallet" size={8} /> {tx.account ? (tx.account === 'Tunai' ? (locale === 'id' ? 'Tunai' : 'Cash') : tx.account) : (locale === 'id' ? 'Tunai' : 'Cash')}
-                        </span>
-                      </div>
-                      {tx.notes && (
-                        <p className="text-[10px] text-life-muted italic mt-1 font-medium">
-                          &ldquo;{tx.notes}&rdquo;
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex items-center space-x-3 shrink-0">
-                      <span className={`text-xs font-black ${tx.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                        {tx.type === 'income' ? '+' : '-'} {formatCurrency(tx.amount)}
-                      </span>
-                      <button
-                        onClick={() => deleteTransaction(tx.id)}
-                        className="text-life-muted hover:text-life-rose transition-colors p-1"
-                        title={t('delete')}
-                      >
-                        <Icon name="trash" size={12} />
-                      </button>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <EmptyState />
-              )}
-            </div>
-          </Surface>
-        </div>
+              );
+            })}
+          </div>
+        </Surface>
       </div>
-
-      {/* Goal Modal dialog */}
-      <Modal
-        isOpen={isGoalModalOpen}
-        onClose={() => setIsGoalModalOpen(false)}
-        title={locale === 'id' ? 'Buat Target Keuangan Baru' : 'Create New Financial Goal'}
-        subtitle={locale === 'id' ? 'Tetapkan rencana finansial jangka panjang Anda' : 'Set your long-term financial plans'}
-      >
-        <form onSubmit={handleGoalSubmit} className="space-y-4">
-          <div className="flex flex-col space-y-1">
-            <label htmlFor="gTitle" className="text-xs font-bold text-life-muted uppercase">
-              {locale === 'id' ? 'Nama Rencana / Target' : 'Plan Name / Target'}
-            </label>
-            <input
-              id="gTitle"
-              type="text"
-              required
-              placeholder={locale === 'id' ? 'Misal: Liburan Akhir Tahun, Tabungan Dana Darurat...' : 'E.g.: Year-end Holiday, Emergency Fund Savings...'}
-              value={goalTitle}
-              onChange={(e) => setGoalTitle(e.target.value)}
-              className="glass-input text-sm"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col space-y-1">
-              <label htmlFor="gTarget" className="text-xs font-bold text-life-muted uppercase">
-                {locale === 'id' ? 'Nominal Target' : 'Target Amount'}
-              </label>
-              <input
-                id="gTarget"
-                type="number"
-                required
-                placeholder={locale === 'id' ? 'Rp...' : 'Amount...'}
-                value={goalTarget}
-                onChange={(e) => setGoalTarget(e.target.value)}
-                className="glass-input text-xs"
-              />
-            </div>
-
-            <div className="flex flex-col space-y-1">
-              <label htmlFor="gCurrent" className="text-xs font-bold text-life-muted uppercase">
-                {locale === 'id' ? 'Saldo Saat Ini' : 'Current Balance'}
-              </label>
-              <input
-                id="gCurrent"
-                type="number"
-                placeholder={locale === 'id' ? 'Rp...' : 'Amount...'}
-                value={goalCurrent}
-                onChange={(e) => setGoalCurrent(e.target.value)}
-                className="glass-input text-xs"
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col space-y-1">
-            <label htmlFor="gDate" className="text-xs font-bold text-life-muted uppercase">
-              {locale === 'id' ? 'Target Tanggal (Opsional)' : 'Target Date (Optional)'}
-            </label>
-            <input
-              id="gDate"
-              type="date"
-              value={goalDate}
-              onChange={(e) => setGoalDate(e.target.value)}
-              className="glass-input text-xs"
-            />
-          </div>
-
-          <div className="flex flex-col space-y-1">
-            <label htmlFor="gLinkAcc" className="text-xs font-bold text-life-muted uppercase">
-              {locale === 'id' ? 'Rekening Terkait (Opsional)' : 'Linked Account (Optional)'}
-            </label>
-            <select
-              id="gLinkAcc"
-              value={goalLinkedAccount}
-              onChange={(e) => setGoalLinkedAccount(e.target.value)}
-              className="glass-input text-xs"
-            >
-              <option value="">{locale === 'id' ? '-- Tidak ada --' : '-- None --'}</option>
-              {allAccounts.map(acc => (
-                <option key={acc} value={acc}>{acc}</option>
-              ))}
-            </select>
-          </div>
-
-          <Button type="submit" variant="primary" icon="plus" className="w-full">
-            {locale === 'id' ? 'Simpan Rencana Keuangan' : 'Save Financial Plan'}
-          </Button>
-        </form>
-      </Modal>
-
-      {/* Debt Modal dialog */}
-      <Modal
-        isOpen={isDebtModalOpen}
-        onClose={() => setIsDebtModalOpen(false)}
-        title={locale === 'id' ? 'Tambah Utang/Cicilan' : 'Add Debt/Installment'}
-        subtitle={locale === 'id' ? 'Catat liabilitas untuk dipantau pengeluarannya' : 'Record liabilities to track expenses'}
-      >
-        <form onSubmit={handleDebtSubmit} className="space-y-4">
-          <div className="flex flex-col space-y-1">
-            <label htmlFor="dName" className="text-xs font-bold text-life-muted uppercase">
-              {locale === 'id' ? 'Nama Utang/Cicilan' : 'Debt/Installment Name'}
-            </label>
-            <input
-              id="dName"
-              type="text"
-              required
-              placeholder={locale === 'id' ? 'Misal: KPR, Cicilan Mobil, Paylater...' : 'E.g.: Mortgage, Car Loan, Paylater...'}
-              value={debtName}
-              onChange={(e) => setDebtName(e.target.value)}
-              className="glass-input text-sm"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col space-y-1">
-              <label htmlFor="dTotal" className="text-xs font-bold text-life-muted uppercase">
-                {locale === 'id' ? 'Total Pinjaman' : 'Total Amount'}
-              </label>
-              <input
-                id="dTotal"
-                type="number"
-                required
-                placeholder="Rp..."
-                value={debtTotal}
-                onChange={(e) => setDebtTotal(e.target.value)}
-                className="glass-input text-xs"
-              />
-            </div>
-
-            <div className="flex flex-col space-y-1">
-              <label htmlFor="dRemaining" className="text-xs font-bold text-life-muted uppercase">
-                {locale === 'id' ? 'Sisa Utang Saat Ini' : 'Current Remaining'}
-              </label>
-              <input
-                id="dRemaining"
-                type="number"
-                placeholder={locale === 'id' ? '(Opsional, default = Total)' : '(Optional, default = Total)'}
-                value={debtRemaining}
-                onChange={(e) => setDebtRemaining(e.target.value)}
-                className="glass-input text-xs"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col space-y-1">
-              <label htmlFor="dInstallment" className="text-xs font-bold text-life-muted uppercase">
-                {locale === 'id' ? 'Cicilan per Bulan' : 'Monthly Installment'}
-              </label>
-              <input
-                id="dInstallment"
-                type="number"
-                placeholder="Rp..."
-                value={debtInstallment}
-                onChange={(e) => setDebtInstallment(e.target.value)}
-                className="glass-input text-xs"
-              />
-            </div>
-
-            <div className="flex flex-col space-y-1">
-              <label htmlFor="dNextDue" className="text-xs font-bold text-life-muted uppercase">
-                {locale === 'id' ? 'Jatuh Tempo Berikutnya' : 'Next Due Date'}
-              </label>
-              <input
-                id="dNextDue"
-                type="date"
-                value={debtNextDueDate}
-                onChange={(e) => setDebtNextDueDate(e.target.value)}
-                className="glass-input text-xs"
-              />
-            </div>
-          </div>
-
-          <Button type="submit" variant="primary" icon="plus" className="w-full">
-            {locale === 'id' ? 'Simpan Data' : 'Save Record'}
-          </Button>
-        </form>
-      </Modal>
-
-      {/* Manage Accounts Modal */}
-      <Modal
-        isOpen={isAccountModalOpen}
-        onClose={() => setIsAccountModalOpen(false)}
-        title={locale === 'id' ? 'Kelola Rekening / Dompet' : 'Manage Accounts / Wallets'}
-        subtitle={locale === 'id' ? 'Kelola semua akun rekening/dompet Anda' : 'Manage all of your accounts/wallets'}
-      >
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <h4 className="text-[10px] font-black uppercase text-life-muted tracking-wider border-b border-white/5 pb-1">
-              {locale === 'id' ? 'Daftar Rekening Aktif' : 'Active Accounts List'}
-            </h4>
-            <div className="space-y-2 max-h-[180px] overflow-y-auto pr-1">
-              {state.financialAccounts && state.financialAccounts.length > 0 ? (
-                state.financialAccounts.map((acc) => (
-                  <div key={acc.id} className="flex justify-between items-center p-2 rounded bg-white/[0.01] border border-life-line">
-                    {editingAccountId === acc.id ? (
-                      <div className="flex items-center gap-1.5 flex-1 mr-2">
-                        <input
-                          type="text"
-                          value={editingAccountName}
-                          onChange={(e) => setEditingAccountName(e.target.value)}
-                          className="glass-input text-xs py-0.5 px-2 flex-1"
-                          autoFocus
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              if (editingAccountName.trim()) {
-                                updateFinancialAccount(acc.id, editingAccountName.trim());
-                                setEditingAccountId(null);
-                              }
-                            } else if (e.key === 'Escape') {
-                              setEditingAccountId(null);
-                            }
-                          }}
-                        />
-                        <button
-                          onClick={() => {
-                            if (editingAccountName.trim()) {
-                              updateFinancialAccount(acc.id, editingAccountName.trim());
-                              setEditingAccountId(null);
-                            }
-                          }}
-                          className="p-1 text-emerald-400 hover:text-emerald-300"
-                          title={t('save')}
-                        >
-                          <Icon name="check" size={12} />
-                        </button>
-                        <button
-                          onClick={() => setEditingAccountId(null)}
-                          className="p-1 text-life-muted hover:text-life-text"
-                          title={t('cancel')}
-                        >
-                          <Icon name="x" size={12} />
-                        </button>
-                      </div>
-                    ) : (
-                      <span className="flex items-center gap-1.5 text-xs font-semibold text-life-text truncate mr-2">
-                        <Icon name="wallet" size={12} className="text-life-muted shrink-0" />
-                        <span>{acc.name}</span>
-                      </span>
-                    )}
-
-                    {editingAccountId !== acc.id && (
-                      <div className="flex items-center space-x-1 shrink-0">
-                        <button
-                          onClick={() => {
-                            setEditingAccountId(acc.id);
-                            setEditingAccountName(acc.name);
-                          }}
-                          className="text-life-muted hover:text-life-teal p-1 transition-colors"
-                          title={locale === 'id' ? 'Ubah Nama' : 'Change Name'}
-                        >
-                          <Icon name="edit" size={12} />
-                        </button>
-                        <button
-                          onClick={() => deleteFinancialAccount(acc.id)}
-                          className="text-life-muted hover:text-life-rose p-1 transition-colors"
-                          title={locale === 'id' ? 'Hapus Rekening' : 'Delete Account'}
-                        >
-                          <Icon name="trash" size={12} />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ))
-              ) : (
-                <p className="text-xs text-life-muted italic py-2 text-center">{locale === 'id' ? 'Belum ada rekening aktif. Tambahkan di bawah.' : 'No active accounts yet. Add one below.'}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="border-t border-white/5 pt-3">
-            <h4 className="text-[10px] font-black uppercase text-life-muted tracking-wider mb-2">
-              {locale === 'id' ? 'Tambah Rekening Baru' : 'Add New Account'}
-            </h4>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                className="glass-input text-xs flex-1"
-                placeholder={locale === 'id' ? 'Misal: Bank BNI, DANA, dll...' : 'E.g.: Bank BNI, DANA, etc...'}
-                value={newAccountName}
-                onChange={(e) => setNewAccountName(e.target.value)}
-                onKeyDown={async (e) => {
-                  if (e.key === 'Enter' && newAccountName.trim()) {
-                    e.preventDefault();
-                    await addFinancialAccount(newAccountName.trim());
-                    setNewAccountName('');
-                  }
-                }}
-              />
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={async () => {
-                  if (!newAccountName.trim()) return;
-                  await addFinancialAccount(newAccountName.trim());
-                  setNewAccountName('');
-                }}
-              >
-                {t('add')}
-              </Button>
-            </div>
-          </div>
-
-          <div className="flex justify-end pt-2 border-t border-white/5">
-            <Button variant="secondary" onClick={() => setIsAccountModalOpen(false)}>
-              {locale === 'id' ? 'Selesai' : 'Done'}
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
-      <Modal
-        isOpen={isBudgetModalOpen}
-        onClose={() => setIsBudgetModalOpen(false)}
-        title={locale === 'id' ? 'Atur Budget' : 'Set Budget'}
-      >
-        <form onSubmit={handleBudgetSubmit} className="space-y-4">
-          <div className="flex flex-col space-y-1">
-            <label className="text-xs font-bold text-life-muted uppercase">
-              {locale === 'id' ? 'Kategori' : 'Category'}
-            </label>
-            <input
-              type="text"
-              readOnly
-              value={getCategoryLabel(budgetCategory, locale)}
-              className="glass-input opacity-70 cursor-not-allowed"
-            />
-          </div>
-
-          <div className="flex flex-col space-y-1">
-            <label className="text-xs font-bold text-life-muted uppercase">
-              {locale === 'id' ? 'Batas Pengeluaran (Limit)' : 'Expense Limit'}
-            </label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-life-muted">
-                Rp
-              </span>
-              <input
-                type="number"
-                required
-                min="0"
-                value={budgetLimit}
-                onChange={(e) => setBudgetLimit(e.target.value)}
-                placeholder="0"
-                className="glass-input pl-10 text-lg font-bold"
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col space-y-1">
-            <label className="text-xs font-bold text-life-muted uppercase">
-              {locale === 'id' ? 'Periode' : 'Period'}
-            </label>
-            <select
-              value={budgetPeriod}
-              onChange={(e) => setBudgetPeriod(e.target.value as any)}
-              className="glass-input"
-            >
-              <option value="weekly">{locale === 'id' ? 'Mingguan' : 'Weekly'}</option>
-              <option value="monthly">{locale === 'id' ? 'Bulanan' : 'Monthly'}</option>
-              <option value="yearly">{locale === 'id' ? 'Tahunan' : 'Yearly'}</option>
-            </select>
-          </div>
-
-          <div className="pt-4 flex justify-end space-x-2 border-t border-white/5">
-            <Button type="button" variant="secondary" onClick={() => setIsBudgetModalOpen(false)}>
-              {locale === 'id' ? 'Batal' : 'Cancel'}
-            </Button>
-            <Button type="submit" variant="primary">
-              {locale === 'id' ? 'Simpan' : 'Save'}
-            </Button>
-          </div>
-        </form>
-      </Modal>
-      {/* Asset Form Modal */}
-      <Modal
-        isOpen={isAssetModalOpen}
-        onClose={() => setIsAssetModalOpen(false)}
-        title={editingAssetId 
-          ? (locale === 'id' ? 'Edit Aset' : 'Edit Asset')
-          : (locale === 'id' ? 'Tambah Aset' : 'Add Asset')}
-      >
-        <form onSubmit={handleAssetSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-bold text-life-muted uppercase tracking-wider mb-2">
-              {locale === 'id' ? 'Nama Aset' : 'Asset Name'}
-            </label>
-            <input
-              type="text"
-              required
-              value={assetName}
-              onChange={(e) => setAssetName(e.target.value)}
-              className="w-full bg-life-bg border border-life-line rounded-xl px-4 py-3 text-life-text focus:outline-none focus:border-indigo-500 transition-colors font-medium"
-              placeholder={locale === 'id' ? 'Contoh: Emas 10g, Saham BBCA' : 'E.g. Gold 10g, AAPL Stocks'}
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-life-muted uppercase tracking-wider mb-2">
-              {locale === 'id' ? 'Kategori Aset' : 'Asset Category'}
-            </label>
-            <select
-              value={assetCategory}
-              onChange={(e) => setAssetCategory(e.target.value)}
-              className="w-full bg-life-bg border border-life-line rounded-xl px-4 py-3 text-life-text focus:outline-none focus:border-indigo-500 transition-colors font-medium appearance-none"
-            >
-              {['Kas & Bank', 'Emas & Logam Mulia', 'Properti', 'Kendaraan', 'Saham & Reksadana', 'Kripto', 'Lainnya'].map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-life-muted uppercase tracking-wider mb-2">
-              {locale === 'id' ? 'Nilai Saat Ini (Rp)' : 'Current Value (Rp)'}
-            </label>
-            <input
-              type="number"
-              required
-              min="0"
-              value={assetValue}
-              onChange={(e) => setAssetValue(e.target.value)}
-              className="w-full bg-life-bg border border-life-line rounded-xl px-4 py-3 text-life-text focus:outline-none focus:border-indigo-500 transition-colors font-bold text-lg"
-              placeholder="0"
-            />
-          </div>
-
-          <div className="pt-4 flex justify-end gap-3">
-            <Button type="button" variant="secondary" onClick={() => setIsAssetModalOpen(false)}>
-              {locale === 'id' ? 'Batal' : 'Cancel'}
-            </Button>
-            <Button type="submit" variant="primary">
-              {locale === 'id' ? 'Simpan' : 'Save'}
-            </Button>
-          </div>
-        </form>
-      </Modal>
 
     </div>
   );
