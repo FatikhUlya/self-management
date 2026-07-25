@@ -252,6 +252,14 @@ export interface Debt {
   createdAt: string;
 }
 
+export interface Asset {
+  id: string;
+  name: string;
+  value: number;
+  category: string;
+  createdAt: string;
+}
+
 export interface FinancialAccount {
   id: string;
   name: string;
@@ -367,6 +375,7 @@ export interface LifeOSState {
   financialGoals: FinancialGoal[];
   budgets: Budget[];
   debts: Debt[];
+  assets: Asset[];
   financialAccounts: FinancialAccount[];
   dictionary: DictionaryEntry[];
   selfAssessmentSnapshots: SelfAssessmentSnapshot[];
@@ -468,6 +477,9 @@ interface LifeOSContextProps {
   addDebt: (debt: Omit<Debt, 'id' | 'createdAt'>) => Promise<void>;
   updateDebt: (id: string, updates: Partial<Omit<Debt, 'id' | 'createdAt'>>) => Promise<void>;
   deleteDebt: (id: string) => Promise<void>;
+  addAsset: (asset: Omit<Asset, 'id' | 'createdAt'>) => Promise<void>;
+  updateAsset: (id: string, updates: Partial<Omit<Asset, 'id' | 'createdAt'>>) => Promise<void>;
+  deleteAsset: (id: string) => Promise<void>;
   addFinancialAccount: (name: string) => Promise<void>;
   updateFinancialAccount: (id: string, name: string) => Promise<void>;
   deleteFinancialAccount: (id: string) => Promise<void>;
@@ -547,6 +559,7 @@ const initialDefaultState = (today: string): LifeOSState => ({
   financialGoals: [],
   budgets: [],
   debts: [],
+  assets: [],
   financialAccounts: [
     { id: 'acc-tunai', name: 'Tunai', createdAt: new Date().toISOString() },
     { id: 'acc-bca', name: 'Bank BCA', createdAt: new Date().toISOString() },
@@ -726,6 +739,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
             { data: financialGoalsData },
             { data: budgetsData },
             { data: debtsData },
+            { data: assetsData },
             { data: dictionaryData, error: dictionaryError },
             { data: financialAccountsData },
             { data: selfRulesData },
@@ -750,6 +764,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
             supabase.from('financial_goals').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
             supabase.from('budgets').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
             supabase.from('debts').select('*').eq('user_id', userId).order('next_due_date', { ascending: true }),
+            supabase.from('assets').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
             supabase.from('dictionary').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
             supabase.from('financial_accounts').select('*').eq('user_id', userId).order('created_at', { ascending: true }),
             supabase.from('self_rules').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
@@ -1082,6 +1097,13 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
               dueDate: d.due_date || '',
               nextDueDate: d.next_due_date || '',
               createdAt: d.created_at || d.createdAt
+            })),
+            assets: (assetsData as any[] || []).map(a => ({
+              id: a.id,
+              name: a.name,
+              value: Number(a.value) || 0,
+              category: a.category || '',
+              createdAt: a.created_at || a.createdAt
             })),
             dictionary: dictEntries.map(d => ({
               id: d.id,
@@ -2520,6 +2542,58 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
     }
   }, [isDbConnected, updateStateAndPersist, checkError]);
 
+  const addAsset = useCallback(async (asset: Omit<Asset, 'id' | 'createdAt'>) => {
+    const item: Asset = {
+      ...asset,
+      id: generateId(),
+      createdAt: new Date().toISOString()
+    };
+    updateStateAndPersist(prev => ({
+      ...prev,
+      assets: [item, ...prev.assets].sort((a, b) => b.value - a.value)
+    }));
+    if (isDbConnected) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase.from('assets').insert({
+          id: item.id,
+          user_id: user.id,
+          name: item.name,
+          value: item.value,
+          category: item.category,
+          created_at: item.createdAt
+        });
+        checkError(error, 'addAsset');
+      }
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const updateAsset = useCallback(async (id: string, updates: Partial<Omit<Asset, 'id' | 'createdAt'>>) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      assets: prev.assets.map(a => a.id === id ? { ...a, ...updates } : a).sort((a, b) => b.value - a.value)
+    }));
+    if (isDbConnected) {
+      const payload: any = {};
+      if (updates.name !== undefined) payload.name = updates.name;
+      if (updates.value !== undefined) payload.value = updates.value;
+      if (updates.category !== undefined) payload.category = updates.category;
+      const { error } = await supabase.from('assets').update(payload).eq('id', id);
+      checkError(error, 'updateAsset');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const deleteAsset = useCallback(async (id: string) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      assets: prev.assets.filter(a => a.id !== id)
+    }));
+    if (isDbConnected) {
+      const { error } = await supabase.from('assets').delete().eq('id', id);
+      checkError(error, 'deleteAsset');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
   const addSelfRule = useCallback(async (rule_text: string) => {
     const item: SelfRule = {
       id: generateId(),
@@ -2902,6 +2976,9 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
         addDebt,
         updateDebt,
         deleteDebt,
+        addAsset,
+        updateAsset,
+        deleteAsset,
         addFinancialAccount,
         updateFinancialAccount,
         deleteFinancialAccount,

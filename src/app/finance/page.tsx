@@ -99,7 +99,10 @@ export default function FinancePage() {
     deleteBudget,
     addDebt,
     updateDebt,
-    deleteDebt
+    deleteDebt,
+    addAsset,
+    updateAsset,
+    deleteAsset
   } = useLifeOS();
 
   const { t, locale } = useI18n();
@@ -141,6 +144,13 @@ export default function FinancePage() {
   const [debtInstallment, setDebtInstallment] = useState('');
   const [debtDueDate, setDebtDueDate] = useState('');
   const [debtNextDueDate, setDebtNextDueDate] = useState('');
+
+  // Asset form states
+  const [isAssetModalOpen, setIsAssetModalOpen] = useState(false);
+  const [editingAssetId, setEditingAssetId] = useState<string | null>(null);
+  const [assetName, setAssetName] = useState('');
+  const [assetValue, setAssetValue] = useState('');
+  const [assetCategory, setAssetCategory] = useState('Kas & Bank');
 
   // Budget form states
   const [isBudgetModalOpen, setIsBudgetModalOpen] = useState(false);
@@ -264,6 +274,22 @@ export default function FinancePage() {
     
     return totalSurplus / monthsActive;
   }, [state.transactions]);
+
+  const totalAssets = useMemo(() => {
+    return state.assets ? state.assets.reduce((sum, a) => sum + a.value, 0) : 0;
+  }, [state.assets]);
+
+  const totalDebts = useMemo(() => {
+    return state.debts ? state.debts.reduce((sum, d) => sum + d.remainingAmount, 0) : 0;
+  }, [state.debts]);
+
+  const totalCash = useMemo(() => {
+    const income = state.transactions ? state.transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0) : 0;
+    const expense = state.transactions ? state.transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0) : 0;
+    return income - expense;
+  }, [state.transactions]);
+
+  const netWorth = totalCash + totalAssets - totalDebts;
 
   const handleTxSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -413,6 +439,39 @@ export default function FinancePage() {
     });
   };
 
+  const handleAssetSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!assetName.trim() || !assetValue) return;
+
+    if (editingAssetId) {
+      await updateAsset(editingAssetId, {
+        name: assetName,
+        value: Number(assetValue),
+        category: assetCategory
+      });
+    } else {
+      await addAsset({
+        name: assetName,
+        value: Number(assetValue),
+        category: assetCategory
+      });
+    }
+
+    setAssetName('');
+    setAssetValue('');
+    setAssetCategory('Kas & Bank');
+    setEditingAssetId(null);
+    setIsAssetModalOpen(false);
+  };
+
+  const openEditAssetModal = (asset: any) => {
+    setEditingAssetId(asset.id);
+    setAssetName(asset.name);
+    setAssetValue(asset.value.toString());
+    setAssetCategory(asset.category);
+    setIsAssetModalOpen(true);
+  };
+
   const handleUpdateGoalCurrent = async (id: string) => {
     if (!newCurrentAmount) return;
     await updateFinancialGoal(id, Number(newCurrentAmount));
@@ -454,6 +513,37 @@ export default function FinancePage() {
           </p>
         </div>
       </div>
+
+      {/* Net Worth Widget */}
+      <Surface className="p-6 relative overflow-hidden bg-gradient-to-br from-indigo-500/[0.03] to-purple-500/[0.05] border border-indigo-500/10">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div className="text-center md:text-left">
+            <p className="text-xs font-black uppercase text-indigo-500/70 tracking-widest mb-1">
+              {locale === 'id' ? 'Total Kekayaan Bersih (Net Worth)' : 'Total Net Worth'}
+            </p>
+            <h2 className="text-3xl md:text-4xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-600 tracking-tight">
+              {formatCurrency(netWorth)}
+            </h2>
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 mt-3 text-xs font-bold text-life-muted">
+              <span className="flex items-center gap-1">
+                <Icon name="wallet" size={14} className="text-teal-500" />
+                Cash: {formatCurrency(totalCash)}
+              </span>
+              <span className="flex items-center gap-1">
+                <Icon name="briefcase" size={14} className="text-emerald-500" />
+                Aset: {formatCurrency(totalAssets)}
+              </span>
+              <span className="flex items-center gap-1">
+                <Icon name="alertCircle" size={14} className="text-rose-500" />
+                Utang: {formatCurrency(totalDebts)}
+              </span>
+            </div>
+          </div>
+          <div className="hidden md:flex w-16 h-16 rounded-2xl bg-indigo-500/10 text-indigo-500 items-center justify-center border border-indigo-500/20 shadow-lg shadow-indigo-500/5">
+            <Icon name="barChart2" size={32} />
+          </div>
+        </div>
+      </Surface>
 
       {/* Financial Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1121,6 +1211,97 @@ export default function FinancePage() {
             </div>
           </Surface>
 
+          {/* Assets Widget */}
+          <Surface className="p-6">
+            <div className="border-b border-life-line pb-3 mb-4 flex justify-between items-center">
+              <div>
+                <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
+                  {locale === 'id' ? 'Aset & Investasi' : 'Assets & Investments'}
+                </h3>
+                <p className="text-xs text-life-muted mt-0.5">
+                  {locale === 'id' ? 'Kelola daftar kekayaan selain kas' : 'Manage wealth list other than cash'}
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="primary"
+                icon="plus"
+                onClick={() => {
+                  setEditingAssetId(null);
+                  setAssetName('');
+                  setAssetValue('');
+                  setAssetCategory('Kas & Bank');
+                  setIsAssetModalOpen(true);
+                }}
+              >
+                {locale === 'id' ? 'Aset' : 'Asset'}
+              </Button>
+            </div>
+
+            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
+              {state.assets && state.assets.length > 0 ? (
+                state.assets.map((asset) => (
+                  <div
+                    key={asset.id}
+                    className="p-4 rounded-xl bg-white/[0.005] border border-life-line hover:border-life-line-strong transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 group"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center border border-emerald-500/20 shrink-0">
+                        <Icon name="briefcase" size={20} />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-life-text group-hover:text-emerald-500 transition-colors">
+                          {asset.name}
+                        </h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="text-[10px] py-0.5">
+                            {asset.category}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between md:justify-end gap-6 w-full md:w-auto">
+                      <div className="text-right">
+                        <p className="text-[10px] font-bold text-life-muted uppercase tracking-wider mb-0.5">
+                          {locale === 'id' ? 'Nilai Aset' : 'Asset Value'}
+                        </p>
+                        <p className="font-black text-emerald-500 tracking-tight">
+                          {formatCurrency(asset.value)}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => openEditAssetModal(asset)}
+                          className="w-7 h-7 rounded bg-white/[0.02] border border-life-line hover:bg-indigo-500/20 text-life-muted hover:text-indigo-400 flex items-center justify-center transition-all"
+                          title={t('edit')}
+                        >
+                          <Icon name="edit2" size={12} />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm(locale === 'id' ? 'Hapus aset ini?' : 'Delete this asset?')) {
+                              deleteAsset(asset.id);
+                            }
+                          }}
+                          className="w-7 h-7 rounded bg-white/[0.02] border border-life-line hover:bg-life-rose/20 text-life-muted hover:text-life-rose flex items-center justify-center transition-all"
+                          title={t('delete')}
+                        >
+                          <Icon name="trash" size={12} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <EmptyState
+                  icon="briefcase"
+                  title={locale === 'id' ? 'Belum Ada Aset' : 'No Assets'}
+                  description={locale === 'id' ? 'Mulai catat properti, emas, atau aset lainnya.' : 'Start recording property, gold, or other assets.'}
+                />
+              )}
+            </div>
+          </Surface>
+
           {/* Debts & Installments Widget */}
           <Surface className="p-6">
             <div className="border-b border-life-line pb-3 mb-4 flex justify-between items-center">
@@ -1784,6 +1965,70 @@ export default function FinancePage() {
           </div>
         </form>
       </Modal>
+      {/* Asset Form Modal */}
+      <Modal
+        isOpen={isAssetModalOpen}
+        onClose={() => setIsAssetModalOpen(false)}
+        title={editingAssetId 
+          ? (locale === 'id' ? 'Edit Aset' : 'Edit Asset')
+          : (locale === 'id' ? 'Tambah Aset' : 'Add Asset')}
+      >
+        <form onSubmit={handleAssetSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold text-life-muted uppercase tracking-wider mb-2">
+              {locale === 'id' ? 'Nama Aset' : 'Asset Name'}
+            </label>
+            <input
+              type="text"
+              required
+              value={assetName}
+              onChange={(e) => setAssetName(e.target.value)}
+              className="w-full bg-life-bg border border-life-line rounded-xl px-4 py-3 text-life-text focus:outline-none focus:border-indigo-500 transition-colors font-medium"
+              placeholder={locale === 'id' ? 'Contoh: Emas 10g, Saham BBCA' : 'E.g. Gold 10g, AAPL Stocks'}
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-life-muted uppercase tracking-wider mb-2">
+              {locale === 'id' ? 'Kategori Aset' : 'Asset Category'}
+            </label>
+            <select
+              value={assetCategory}
+              onChange={(e) => setAssetCategory(e.target.value)}
+              className="w-full bg-life-bg border border-life-line rounded-xl px-4 py-3 text-life-text focus:outline-none focus:border-indigo-500 transition-colors font-medium appearance-none"
+            >
+              {['Kas & Bank', 'Emas & Logam Mulia', 'Properti', 'Kendaraan', 'Saham & Reksadana', 'Kripto', 'Lainnya'].map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-life-muted uppercase tracking-wider mb-2">
+              {locale === 'id' ? 'Nilai Saat Ini (Rp)' : 'Current Value (Rp)'}
+            </label>
+            <input
+              type="number"
+              required
+              min="0"
+              value={assetValue}
+              onChange={(e) => setAssetValue(e.target.value)}
+              className="w-full bg-life-bg border border-life-line rounded-xl px-4 py-3 text-life-text focus:outline-none focus:border-indigo-500 transition-colors font-bold text-lg"
+              placeholder="0"
+            />
+          </div>
+
+          <div className="pt-4 flex justify-end gap-3">
+            <Button type="button" variant="ghost" onClick={() => setIsAssetModalOpen(false)}>
+              {locale === 'id' ? 'Batal' : 'Cancel'}
+            </Button>
+            <Button type="submit" variant="primary">
+              {locale === 'id' ? 'Simpan' : 'Save'}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
     </div>
   );
 }
