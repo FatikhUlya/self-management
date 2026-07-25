@@ -375,7 +375,7 @@ export default function PlanningTimelinePage() {
                             <span className="text-xs font-black text-life-text uppercase tracking-wider">
                               {plan.startTime} — {plan.endTime}
                             </span>
-                            <Badge tone={plan.kind === 'event' ? 'indigo' : 'emerald'} className="text-[9px] py-0 px-1.5 uppercase font-black tracking-widest">
+                            <Badge tone={plan.kind === 'event' ? 'indigo' : 'teal'} className="text-[9px] py-0 px-1.5 uppercase font-black tracking-widest">
                               {plan.kind}
                             </Badge>
                             {plan.googleEventId && (

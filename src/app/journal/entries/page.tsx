@@ -133,7 +133,7 @@ export default function JournalEntriesPage() {
                   <div className="flex justify-between items-start">
                     <strong className="text-sm font-bold text-life-text">{formatDate(journal.date)}</strong>
                     <div className="flex items-center space-x-1.5" onClick={(e) => e.stopPropagation()}>
-                      <Badge tone="purple" className="flex items-center gap-1.5 px-2 py-0.5">
+                      <Badge tone="indigo" className="flex items-center gap-1.5 px-2 py-0.5">
                         <Icon
                           name={`mood${journal.mood || 3}`}
                           size={14}

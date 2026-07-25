@@ -132,6 +132,11 @@ export const id = {
   planning_sort_time: 'Urut berdasarkan jam mulai.',
   planning_empty_hour: 'Kosong',
   planning_google_sync: 'Sync Google Calendar',
+  planning_plan_name: 'Nama Agenda',
+  planning_plan_name_placeholder: 'Contoh: meeting, belajar...',
+  planning_notes: 'Catatan',
+  planning_add_btn: 'Tambah Agenda',
+  planning_timeline: 'Timeline',
 
   // Projects & Tasks
   projects_title: 'Project & Task Management',

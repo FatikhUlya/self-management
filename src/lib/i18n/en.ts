@@ -134,6 +134,11 @@ export const en: Record<TranslationKey, string> = {
   planning_sort_time: 'Sorted by start time.',
   planning_empty_hour: 'Empty',
   planning_google_sync: 'Sync Google Calendar',
+  planning_plan_name: 'Plan Name',
+  planning_plan_name_placeholder: 'E.g.: meeting, studying...',
+  planning_notes: 'Notes',
+  planning_add_btn: 'Add Plan',
+  planning_timeline: 'Timeline',
 
   // Projects & Tasks
   projects_title: 'Project & Task Management',
