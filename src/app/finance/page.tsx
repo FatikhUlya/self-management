@@ -1485,7 +1485,7 @@ export default function FinancePage() {
           </div>
 
           <div className="pt-4 flex justify-end space-x-2 border-t border-white/5">
-            <Button type="button" variant="ghost" onClick={() => setIsBudgetModalOpen(false)}>
+            <Button type="button" variant="secondary" onClick={() => setIsBudgetModalOpen(false)}>
               {locale === 'id' ? 'Batal' : 'Cancel'}
             </Button>
             <Button type="submit" variant="primary">

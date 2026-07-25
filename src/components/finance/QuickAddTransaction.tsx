@@ -168,7 +168,7 @@ export function QuickAddTransaction() {
           </div>
 
           <div className="pt-4 flex justify-end space-x-2">
-            <Button type="button" variant="ghost" onClick={() => setIsOpen(false)}>
+            <Button type="button" variant="secondary" onClick={() => setIsOpen(false)}>
               Batal
             </Button>
             <Button type="submit" variant="primary">
