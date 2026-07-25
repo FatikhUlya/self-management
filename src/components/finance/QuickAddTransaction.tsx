@@ -87,7 +87,7 @@ export function QuickAddTransaction() {
         className="fixed bottom-20 right-6 md:bottom-8 md:right-8 w-14 h-14 bg-life-accent text-white rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all z-40 focus:outline-none focus:ring-4 focus:ring-life-accent/30"
         aria-label="Quick Add Transaction"
       >
-        <Icon name="plus" size="lg" />
+        <Icon name="plus" size={24} />
       </button>
 
       <Modal
@@ -103,7 +103,7 @@ export function QuickAddTransaction() {
               onClick={() => { setType('expense'); setCategory(EXPENSE_CATEGORIES[0]); }}
               className="flex-1"
             >
-              <Icon name="arrowDownRight" size="sm" className="mr-2" />
+              <Icon name="arrowDownRight" size={16} className="mr-2" />
               {locale === 'id' ? 'Pengeluaran' : 'Expense'}
             </Button>
             <Button
@@ -112,7 +112,7 @@ export function QuickAddTransaction() {
               onClick={() => { setType('income'); setCategory(INCOME_CATEGORIES[0]); }}
               className="flex-1"
             >
-              <Icon name="arrowUpRight" size="sm" className="mr-2" />
+              <Icon name="arrowUpRight" size={16} className="mr-2" />
               {locale === 'id' ? 'Pemasukan' : 'Income'}
             </Button>
           </div>
