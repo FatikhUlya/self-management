@@ -242,6 +242,87 @@ export interface SelfRule {
   createdAt: string;
 }
 
+// ─── Self Awareness Mirror ───
+
+export interface SelfAssessmentSnapshot {
+  id: string;
+  periodType: 'weekly' | 'monthly' | 'custom';
+  periodLabel: string;
+  periodStart: string;
+  periodEnd: string;
+  overallReflection: string;
+  isDraft: boolean;
+  createdAt: string;
+}
+
+export interface SelfAssessmentDomain {
+  id: string;
+  snapshotId: string;
+  domainKey: string;
+  domainLabel: string;
+  rating: number;
+  strengthObservation: string;
+  strengthReasoning: string;
+  growthObservation: string;
+  growthReasoning: string;
+  sortOrder: number;
+}
+
+export interface FeedbackRequest {
+  id: string;
+  title: string;
+  token: string;
+  privacyMode: 'anonymous' | 'optional' | 'required';
+  status: 'open' | 'closed';
+  deadline: string | null;
+  domains: string[];
+  createdAt: string;
+}
+
+export interface FeedbackResponse {
+  id: string;
+  requestId: string;
+  respondentName: string | null;
+  status: string;
+  createdAt: string;
+}
+
+export interface FeedbackResponseDomain {
+  id: string;
+  responseId: string;
+  domainKey: string;
+  rating: number;
+  strengthObservation: string;
+  growthObservation: string;
+}
+
+export interface GrowthGoal {
+  id: string;
+  domainKey: string | null;
+  source: 'self' | 'feedback' | 'mixed';
+  currentState: string;
+  targetState: string;
+  smartSpecific: string;
+  smartMeasurable: string;
+  smartAchievable: string;
+  smartRelevant: string;
+  smartTimebound: string;
+  status: 'not_started' | 'in_progress' | 'achieved' | 'stopped';
+  progress: number;
+  targetDate: string | null;
+  nextCheckinDate: string | null;
+  createdAt: string;
+}
+
+export interface GrowthGoalMilestone {
+  id: string;
+  goalId: string;
+  title: string;
+  isCompleted: boolean;
+  completedAt: string | null;
+  sortOrder: number;
+}
+
 export interface LifeOSState {
   selfRules: SelfRule[];
   ideas: Idea[];
@@ -264,6 +345,13 @@ export interface LifeOSState {
   financialGoals: FinancialGoal[];
   financialAccounts: FinancialAccount[];
   dictionary: DictionaryEntry[];
+  selfAssessmentSnapshots: SelfAssessmentSnapshot[];
+  selfAssessmentDomains: SelfAssessmentDomain[];
+  feedbackRequests: FeedbackRequest[];
+  feedbackResponses: FeedbackResponse[];
+  feedbackResponseDomains: FeedbackResponseDomain[];
+  growthGoals: GrowthGoal[];
+  growthGoalMilestones: GrowthGoalMilestone[];
   displayMode: 'auto' | 'desktop' | 'mobile';
   reviewPeriod: 'weekly' | 'monthly';
   selectedDate: string;
@@ -357,6 +445,16 @@ interface LifeOSContextProps {
   // Self Rules
   addSelfRule: (ruleText: string) => Promise<void>;
   deleteSelfRule: (id: string) => Promise<void>;
+
+  // Self Awareness Mirror
+  saveSelfAssessment: (snapshot: Omit<SelfAssessmentSnapshot, 'id' | 'createdAt'>, domains: Omit<SelfAssessmentDomain, 'id' | 'snapshotId'>[]) => Promise<void>;
+  createFeedbackRequest: (request: Omit<FeedbackRequest, 'id' | 'createdAt' | 'status' | 'token'>) => Promise<string>;
+  closeFeedbackRequest: (id: string) => Promise<void>;
+  submitPublicFeedback: (token: string, respondentName: string | null, domains: Omit<FeedbackResponseDomain, 'id' | 'responseId'>[]) => Promise<void>;
+  addGrowthGoal: (goal: Omit<GrowthGoal, 'id' | 'createdAt'>) => Promise<void>;
+  updateGrowthGoal: (id: string, updates: Partial<Omit<GrowthGoal, 'id' | 'createdAt'>>) => Promise<void>;
+  addGrowthGoalMilestone: (milestone: Omit<GrowthGoalMilestone, 'id'>) => Promise<void>;
+  toggleGrowthGoalMilestone: (id: string) => Promise<void>;
 }
 
 const LifeOSContext = createContext<LifeOSContextProps | undefined>(undefined);
@@ -426,6 +524,13 @@ const initialDefaultState = (today: string): LifeOSState => ({
     { id: 'acc-shopeepay', name: 'ShopeePay', createdAt: new Date().toISOString() }
   ],
   dictionary: [],
+  selfAssessmentSnapshots: [],
+  selfAssessmentDomains: [],
+  feedbackRequests: [],
+  feedbackResponses: [],
+  feedbackResponseDomains: [],
+  growthGoals: [],
+  growthGoalMilestones: [],
   displayMode: 'auto',
   reviewPeriod: 'weekly',
   selectedDate: today
@@ -615,6 +720,24 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
             supabase.from('learning_schedules').select('*').eq('user_id', userId).limit(1),
           ]);
 
+          const [
+            { data: saSnapshotsData },
+            { data: saDomainsData },
+            { data: feedbackRequestsData },
+            { data: feedbackResponsesData },
+            { data: feedbackResponseDomainsData },
+            { data: growthGoalsData },
+            { data: growthGoalMilestonesData },
+          ] = await Promise.all([
+            supabase.from('self_assessment_snapshots').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+            supabase.from('self_assessment_domains').select('*').order('sort_order', { ascending: true }),
+            supabase.from('feedback_requests').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+            supabase.from('feedback_responses').select('*').order('created_at', { ascending: false }),
+            supabase.from('feedback_response_domains').select('*'),
+            supabase.from('growth_goals').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+            supabase.from('growth_goal_milestones').select('*').order('sort_order', { ascending: true }),
+          ]);
+
           let dictEntries: any[] = [];
           if (dictionaryData) {
             dictEntries = dictionaryData;
@@ -744,6 +867,78 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
               notesNotes: l.notes_notes || '',
               notesSummary: l.notes_summary || '',
               createdAt: l.created_at || l.createdAt
+            })),
+            selfAssessmentSnapshots: (saSnapshotsData as any[] || []).map(s => ({
+              id: s.id,
+              periodType: s.period_type,
+              periodLabel: s.period_label,
+              periodStart: s.period_start,
+              periodEnd: s.period_end,
+              overallReflection: s.overall_reflection || '',
+              isDraft: s.is_draft,
+              createdAt: s.created_at
+            })),
+            selfAssessmentDomains: (saDomainsData as any[] || []).map(d => ({
+              id: d.id,
+              snapshotId: d.snapshot_id,
+              domainKey: d.domain_key,
+              domainLabel: d.domain_label,
+              rating: d.rating,
+              strengthObservation: d.strength_observation || '',
+              strengthReasoning: d.strength_reasoning || '',
+              growthObservation: d.growth_observation || '',
+              growthReasoning: d.growth_reasoning || '',
+              sortOrder: d.sort_order || 0
+            })),
+            feedbackRequests: (feedbackRequestsData as any[] || []).map(r => ({
+              id: r.id,
+              title: r.title,
+              token: r.token,
+              privacyMode: r.privacy_mode,
+              status: r.status,
+              deadline: r.deadline,
+              domains: r.domains || [],
+              createdAt: r.created_at
+            })),
+            feedbackResponses: (feedbackResponsesData as any[] || []).map(r => ({
+              id: r.id,
+              requestId: r.request_id,
+              respondentName: r.respondent_name,
+              status: r.status,
+              createdAt: r.created_at
+            })),
+            feedbackResponseDomains: (feedbackResponseDomainsData as any[] || []).map(d => ({
+              id: d.id,
+              responseId: d.response_id,
+              domainKey: d.domain_key,
+              rating: d.rating,
+              strengthObservation: d.strength_observation || '',
+              growthObservation: d.growth_observation || '',
+            })),
+            growthGoals: (growthGoalsData as any[] || []).map(g => ({
+              id: g.id,
+              domainKey: g.domain_key,
+              source: g.source,
+              currentState: g.current_state,
+              targetState: g.target_state,
+              smartSpecific: g.smart_specific || '',
+              smartMeasurable: g.smart_measurable || '',
+              smartAchievable: g.smart_achievable || '',
+              smartRelevant: g.smart_relevant || '',
+              smartTimebound: g.smart_timebound || '',
+              status: g.status,
+              progress: g.progress || 0,
+              targetDate: g.target_date,
+              nextCheckinDate: g.next_checkin_date,
+              createdAt: g.created_at
+            })),
+            growthGoalMilestones: (growthGoalMilestonesData as any[] || []).map(m => ({
+              id: m.id,
+              goalId: m.goal_id,
+              title: m.title,
+              isCompleted: m.is_completed,
+              completedAt: m.completed_at,
+              sortOrder: m.sort_order || 0
             })),
             weightLogs: (weightLogs as any[] || []).map(w => ({
               id: w.id,
@@ -2193,6 +2388,256 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
     }
   }, [isDbConnected, updateStateAndPersist, checkError]);
 
+  // =========================================================================
+  // SELF AWARENESS MIRROR
+  // =========================================================================
+
+  const saveSelfAssessment = useCallback(async (snapshot: Omit<SelfAssessmentSnapshot, 'id' | 'createdAt'>, domains: Omit<SelfAssessmentDomain, 'id' | 'snapshotId'>[]) => {
+    const snapItem: SelfAssessmentSnapshot = {
+      ...snapshot,
+      id: generateId(),
+      createdAt: new Date().toISOString()
+    };
+    
+    const domItems: SelfAssessmentDomain[] = domains.map(d => ({
+      ...d,
+      id: generateId(),
+      snapshotId: snapItem.id
+    }));
+
+    updateStateAndPersist(prev => ({
+      ...prev,
+      selfAssessmentSnapshots: [snapItem, ...prev.selfAssessmentSnapshots],
+      selfAssessmentDomains: [...prev.selfAssessmentDomains, ...domItems]
+    }));
+
+    if (isDbConnected) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error: snapErr } = await supabase.from('self_assessment_snapshots').insert({
+          id: snapItem.id,
+          user_id: user.id,
+          period_type: snapItem.periodType,
+          period_label: snapItem.periodLabel,
+          period_start: snapItem.periodStart,
+          period_end: snapItem.periodEnd,
+          overall_reflection: snapItem.overallReflection,
+          is_draft: snapItem.isDraft
+        });
+        checkError(snapErr, 'saveSelfAssessment (snapshot)');
+        
+        if (!snapErr) {
+          const domPayload = domItems.map(d => ({
+            id: d.id,
+            snapshot_id: d.snapshotId,
+            domain_key: d.domainKey,
+            domain_label: d.domainLabel,
+            rating: d.rating,
+            strength_observation: d.strengthObservation,
+            strength_reasoning: d.strengthReasoning,
+            growth_observation: d.growthObservation,
+            growth_reasoning: d.growthReasoning,
+            sort_order: d.sortOrder
+          }));
+          const { error: domErr } = await supabase.from('self_assessment_domains').insert(domPayload);
+          checkError(domErr, 'saveSelfAssessment (domains)');
+        }
+      }
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const createFeedbackRequest = useCallback(async (request: Omit<FeedbackRequest, 'id' | 'createdAt' | 'status' | 'token'>) => {
+    const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    const item: FeedbackRequest = {
+      ...request,
+      id: generateId(),
+      token,
+      status: 'open',
+      createdAt: new Date().toISOString()
+    };
+
+    updateStateAndPersist(prev => ({
+      ...prev,
+      feedbackRequests: [item, ...prev.feedbackRequests]
+    }));
+
+    if (isDbConnected) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase.from('feedback_requests').insert({
+          id: item.id,
+          user_id: user.id,
+          title: item.title,
+          token: item.token,
+          privacy_mode: item.privacyMode,
+          status: item.status,
+          deadline: item.deadline,
+          domains: item.domains
+        });
+        checkError(error, 'createFeedbackRequest');
+      }
+    }
+    return token;
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const closeFeedbackRequest = useCallback(async (id: string) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      feedbackRequests: prev.feedbackRequests.map(r => r.id === id ? { ...r, status: 'closed' } : r)
+    }));
+
+    if (isDbConnected) {
+      const { error } = await supabase.from('feedback_requests').update({ status: 'closed' }).eq('id', id);
+      checkError(error, 'closeFeedbackRequest');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  // Special function for unauthenticated users submitting feedback
+  const submitPublicFeedback = useCallback(async (token: string, respondentName: string | null, domains: Omit<FeedbackResponseDomain, 'id' | 'responseId'>[]) => {
+    // 1. Find request ID by token
+    const { data: reqData, error: reqErr } = await supabase.from('feedback_requests').select('id, status').eq('token', token).single();
+    if (reqErr || !reqData) throw new Error('Feedback request not found or invalid token');
+    if (reqData.status !== 'open') throw new Error('Feedback request is already closed');
+    
+    const requestId = reqData.id;
+    const responseId = generateId();
+
+    // 2. Insert response
+    const { error: resErr } = await supabase.from('feedback_responses').insert({
+      id: responseId,
+      request_id: requestId,
+      respondent_name: respondentName,
+      status: 'submitted'
+    });
+    if (resErr) throw resErr;
+
+    // 3. Insert response domains
+    const domPayload = domains.map(d => ({
+      id: generateId(),
+      response_id: responseId,
+      domain_key: d.domainKey,
+      rating: d.rating,
+      strength_observation: d.strengthObservation,
+      growth_observation: d.growthObservation
+    }));
+    
+    const { error: domErr } = await supabase.from('feedback_response_domains').insert(domPayload);
+    if (domErr) throw domErr;
+
+  }, []);
+
+  const addGrowthGoal = useCallback(async (goal: Omit<GrowthGoal, 'id' | 'createdAt'>) => {
+    const item: GrowthGoal = {
+      ...goal,
+      id: generateId(),
+      createdAt: new Date().toISOString()
+    };
+
+    updateStateAndPersist(prev => ({
+      ...prev,
+      growthGoals: [item, ...prev.growthGoals]
+    }));
+
+    if (isDbConnected) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase.from('growth_goals').insert({
+          id: item.id,
+          user_id: user.id,
+          domain_key: item.domainKey,
+          source: item.source,
+          current_state: item.currentState,
+          target_state: item.targetState,
+          smart_specific: item.smartSpecific,
+          smart_measurable: item.smartMeasurable,
+          smart_achievable: item.smartAchievable,
+          smart_relevant: item.smartRelevant,
+          smart_timebound: item.smartTimebound,
+          status: item.status,
+          progress: item.progress,
+          target_date: item.targetDate,
+          next_checkin_date: item.nextCheckinDate
+        });
+        checkError(error, 'addGrowthGoal');
+      }
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const updateGrowthGoal = useCallback(async (id: string, updates: Partial<Omit<GrowthGoal, 'id' | 'createdAt'>>) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      growthGoals: prev.growthGoals.map(g => g.id === id ? { ...g, ...updates } : g)
+    }));
+
+    if (isDbConnected) {
+      const dbUpdates: any = {};
+      if (updates.currentState !== undefined) dbUpdates.current_state = updates.currentState;
+      if (updates.targetState !== undefined) dbUpdates.target_state = updates.targetState;
+      if (updates.smartSpecific !== undefined) dbUpdates.smart_specific = updates.smartSpecific;
+      if (updates.smartMeasurable !== undefined) dbUpdates.smart_measurable = updates.smartMeasurable;
+      if (updates.smartAchievable !== undefined) dbUpdates.smart_achievable = updates.smartAchievable;
+      if (updates.smartRelevant !== undefined) dbUpdates.smart_relevant = updates.smartRelevant;
+      if (updates.smartTimebound !== undefined) dbUpdates.smart_timebound = updates.smartTimebound;
+      if (updates.status !== undefined) dbUpdates.status = updates.status;
+      if (updates.progress !== undefined) dbUpdates.progress = updates.progress;
+      if (updates.targetDate !== undefined) dbUpdates.target_date = updates.targetDate;
+      if (updates.nextCheckinDate !== undefined) dbUpdates.next_checkin_date = updates.nextCheckinDate;
+      
+      const { error } = await supabase.from('growth_goals').update(dbUpdates).eq('id', id);
+      checkError(error, 'updateGrowthGoal');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const addGrowthGoalMilestone = useCallback(async (milestone: Omit<GrowthGoalMilestone, 'id'>) => {
+    const item: GrowthGoalMilestone = {
+      ...milestone,
+      id: generateId(),
+    };
+
+    updateStateAndPersist(prev => ({
+      ...prev,
+      growthGoalMilestones: [...prev.growthGoalMilestones, item].sort((a, b) => a.sortOrder - b.sortOrder)
+    }));
+
+    if (isDbConnected) {
+      const { error } = await supabase.from('growth_goal_milestones').insert({
+        id: item.id,
+        goal_id: item.goalId,
+        title: item.title,
+        is_completed: item.isCompleted,
+        completed_at: item.completedAt,
+        sort_order: item.sortOrder
+      });
+      checkError(error, 'addGrowthGoalMilestone');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const toggleGrowthGoalMilestone = useCallback(async (id: string) => {
+    let newStatus = false;
+    let completedAt: string | null = null;
+    
+    updateStateAndPersist(prev => ({
+      ...prev,
+      growthGoalMilestones: prev.growthGoalMilestones.map(m => {
+        if (m.id === id) {
+          newStatus = !m.isCompleted;
+          completedAt = newStatus ? new Date().toISOString() : null;
+          return { ...m, isCompleted: newStatus, completedAt };
+        }
+        return m;
+      })
+    }));
+
+    if (isDbConnected) {
+      const { error } = await supabase.from('growth_goal_milestones').update({
+        is_completed: newStatus,
+        completed_at: completedAt
+      }).eq('id', id);
+      checkError(error, 'toggleGrowthGoalMilestone');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+
   // Dynamically compute goal progress based on linked projects and tasks
   const processedGoals = useMemo(() => {
     return state.goals.map(goal => {
@@ -2286,6 +2731,14 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
         deleteFinancialAccount,
         addSelfRule,
         deleteSelfRule,
+        saveSelfAssessment,
+        createFeedbackRequest,
+        closeFeedbackRequest,
+        submitPublicFeedback,
+        addGrowthGoal,
+        updateGrowthGoal,
+        addGrowthGoalMilestone,
+        toggleGrowthGoalMilestone,
       }}
     >
       {children}

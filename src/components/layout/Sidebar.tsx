@@ -67,6 +67,12 @@ export function Sidebar() {
         const applied = state.workApplications.filter((app) => app.status !== 'wishlist').length;
         return `${applied}/${state.workApplications.length}`;
       }
+      case 'mirror': {
+        const activeRequests = state.feedbackRequests.filter(r => r.status === 'open').length;
+        const activeGoals = state.growthGoals.filter(g => g.progress < 100 && g.status !== 'stopped').length;
+        const total = activeRequests + activeGoals;
+        return total > 0 ? total : '';
+      }
       case 'reviews': {
         return state.reviews.length > 0 ? state.reviews.length : '';
       }

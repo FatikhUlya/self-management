@@ -135,10 +135,30 @@ export const NAV_ITEMS = [
   { id: 'finance', path: '/finance', icon: 'wallet', labelKey: 'nav_finance' as const },
   { id: 'health', path: '/health', icon: 'activity', labelKey: 'nav_health' as const },
   { id: 'learning', path: '/learning', icon: 'book', labelKey: 'nav_learning' as const },
+  { id: 'mirror', path: '/mirror', icon: 'lightbulb', labelKey: 'nav_mirror' as const },
   { id: 'reviews', path: '/reviews', icon: 'review', labelKey: 'nav_reviews' as const },
   { id: 'rules', path: '/rules', icon: 'shield', labelKey: 'nav_rules' as const },
   { id: 'settings', path: '/settings', icon: 'settings', labelKey: 'nav_settings' as const },
 ] as const;
+
+export const SELF_AWARENESS_DOMAINS = [
+  { key: 'komunikasi', label: 'Komunikasi', labelEn: 'Communication', icon: 'journal' },
+  { key: 'networking', label: 'Networking & Relasi', labelEn: 'Networking & Relationships', icon: 'globe' },
+  { key: 'kepemimpinan', label: 'Kepemimpinan', labelEn: 'Leadership', icon: 'shield' },
+  { key: 'manajemen_waktu', label: 'Manajemen Waktu', labelEn: 'Time Management', icon: 'calendar' },
+  { key: 'personal_branding', label: 'Personal Branding', labelEn: 'Personal Branding', icon: 'star' },
+  { key: 'keterampilan_teknis', label: 'Keterampilan Teknis', labelEn: 'Technical Skills', icon: 'zap' },
+  { key: 'kesehatan_mental', label: 'Kesehatan Emosional', labelEn: 'Emotional Health', icon: 'activity' },
+] as const;
+
+export const GROWTH_GOAL_STATUSES = [
+  { id: 'not_started', label: 'Belum Mulai', labelEn: 'Not Started', tone: 'gray' as const, progress: 0 },
+  { id: 'in_progress', label: 'Berjalan', labelEn: 'In Progress', tone: 'teal' as const, progress: 50 },
+  { id: 'achieved', label: 'Tercapai', labelEn: 'Achieved', tone: 'green' as const, progress: 100 },
+  { id: 'stopped', label: 'Dihentikan', labelEn: 'Stopped', tone: 'amber' as const, progress: 100 },
+] as const;
+
+export const FEEDBACK_MIN_RESPONSES = 3;
 
 // ─── Case Compatibility Aliases ───
 export const workoutPrograms = WORKOUT_PROGRAMS;

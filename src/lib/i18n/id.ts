@@ -423,6 +423,74 @@ export const id = {
   rules_placeholder: 'Tulis peraturan baru...',
   rules_active: 'peraturan aktif',
   rules_no_data: 'Belum ada peraturan yang dibuat.',
+
+  // Mirror (Self-Awareness)
+  nav_mirror: 'Cermin Diri',
+  mirror_title: 'Cermin Diri — Self-Awareness Mirror',
+  mirror_desc: 'Ruang refleksi untuk memahami diri dari sudut pandangmu dan orang lain.',
+  mirror_new_reflection: 'Refleksi Baru',
+  mirror_request_feedback: 'Minta Feedback',
+  mirror_dashboard_snapshots: 'Snapshot Refleksi',
+  mirror_dashboard_feedback: 'Feedback Aktif',
+  mirror_dashboard_goals: 'Growth Goals',
+  
+  // Mirror - Wizard
+  mirror_step1_title: 'Pilih Domain Refleksi',
+  mirror_step1_hint: 'Pilih aspek kehidupan yang ingin kamu refleksikan kali ini. Fokus pada yang paling relevan.',
+  mirror_step2_title: 'Observasi & Refleksi',
+  mirror_strength_title: 'Hal yang Sudah Berjalan Baik',
+  mirror_strength_obs_hint: 'Ceritakan momen konkret — apa yang terjadi? Situasi apa yang kamu tangani dengan baik?',
+  mirror_strength_why_hint: 'Kenapa menurutmu ini berjalan baik? Apa yang kamu lakukan berbeda?',
+  mirror_growth_title: 'Area untuk Dikembangkan',
+  mirror_growth_obs_hint: 'Ceritakan situasi spesifik yang menurutmu bisa ditangani lebih baik. Ini bukan tentang menghakimi, tapi memahami.',
+  mirror_growth_why_hint: 'Kenapa aspek ini penting untuk dikembangkan? Apa dampaknya jika berkembang?',
+  mirror_rating_hint: 'Berikan penilaian jujur (1-5) — angka ini bukan label, tapi titik awal untuk melihat perkembangan.',
+  mirror_rating_1: '1 - Baru memulai',
+  mirror_rating_5: '5 - Sangat percaya diri',
+  mirror_step3_title: 'Review Keseluruhan',
+  mirror_step3_hint: 'Lihat kembali apa yang sudah kamu tulis. Apakah ada pola yang menarik?',
+  
+  // Mirror - Feedback
+  mirror_feedback_title: 'Permintaan Feedback',
+  mirror_feedback_new: 'Buat Permintaan Baru',
+  mirror_feedback_req_title: 'Judul Permintaan',
+  mirror_feedback_req_title_hint: 'Contoh: Feedback untuk perkembangan karier Q3',
+  mirror_feedback_privacy: 'Mode Privasi',
+  mirror_feedback_priv_anon: 'Anonim Penuh (Responden tidak bisa mengisi nama)',
+  mirror_feedback_priv_opt: 'Opsional (Responden boleh mengisi nama atau anonim)',
+  mirror_feedback_priv_req: 'Wajib (Responden harus mengisi nama)',
+  mirror_feedback_link: 'Link Feedback Publik',
+  mirror_feedback_copy: 'Salin Link',
+  mirror_feedback_copied: 'Link disalin!',
+  mirror_feedback_status_open: 'Menerima Respon',
+  mirror_feedback_status_closed: 'Ditutup',
+  mirror_feedback_responses: 'Respon diterima',
+  mirror_feedback_min_req: 'Menunggu lebih banyak respon (minimal 3) untuk menjaga anonimitas.',
+  mirror_feedback_aggregated: 'Hasil Agregat Feedback',
+  
+  // Johari Window
+  mirror_johari_title: 'Analisis Johari Window',
+  mirror_johari_aligned: 'Selaras (Kekuatan Bersama)',
+  mirror_johari_aligned_desc: 'Kamu dan orang lain melihat ini sebagai area yang kuat.',
+  mirror_johari_blindspot: 'Blind Spot (Titik Buta)',
+  mirror_johari_blindspot_desc: 'Orang lain melihat ini sebagai area untuk berkembang, tapi kamu mungkin belum menyadarinya.',
+  mirror_johari_hidden: 'Tersembunyi',
+  mirror_johari_hidden_desc: 'Kamu merasa perlu berkembang di sini, tapi orang lain tidak melihatnya sebagai isu.',
+  mirror_johari_potential: 'Potensi Tersembunyi',
+  mirror_johari_potential_desc: 'Orang lain melihat kekuatanmu di area ini, tapi kamu kurang menyadarinya.',
+
+  // Growth Goals
+  mirror_goal_title: 'Growth Goals',
+  mirror_goal_new: 'Buat Growth Goal',
+  mirror_goal_current: 'Kondisi Saat Ini',
+  mirror_goal_target: 'Versi Lebih Baik yang Diinginkan',
+  mirror_smart_specific: 'Apa tepatnya yang ingin kamu capai? (Specific)',
+  mirror_smart_measurable: 'Bagaimana kamu akan mengukur kemajuan? (Measurable)',
+  mirror_smart_achievable: 'Langkah realistis apa yang bisa kamu lakukan? (Achievable)',
+  mirror_smart_relevant: 'Kenapa ini penting bagi kamu sekarang? (Relevant)',
+  mirror_smart_timebound: 'Kapan kamu ingin mencapai ini? (Time-bound)',
+  mirror_milestone_add: 'Tambah Langkah Kecil',
+  
 } as const;
 
 export type TranslationKey = keyof typeof id;

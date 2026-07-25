@@ -94,6 +94,41 @@ export interface Database {
         Insert: Omit<ReviewRow, 'id' | 'created_at' | 'updated_at'> & { id?: string };
         Update: Partial<ReviewRow>;
       };
+      self_assessment_snapshots: {
+        Row: SelfAssessmentSnapshotRow;
+        Insert: Omit<SelfAssessmentSnapshotRow, 'id' | 'created_at' | 'updated_at'> & { id?: string };
+        Update: Partial<SelfAssessmentSnapshotRow>;
+      };
+      self_assessment_domains: {
+        Row: SelfAssessmentDomainRow;
+        Insert: Omit<SelfAssessmentDomainRow, 'id' | 'created_at'> & { id?: string };
+        Update: Partial<SelfAssessmentDomainRow>;
+      };
+      feedback_requests: {
+        Row: FeedbackRequestRow;
+        Insert: Omit<FeedbackRequestRow, 'id' | 'created_at' | 'updated_at'> & { id?: string };
+        Update: Partial<FeedbackRequestRow>;
+      };
+      feedback_responses: {
+        Row: FeedbackResponseRow;
+        Insert: Omit<FeedbackResponseRow, 'id' | 'created_at'> & { id?: string };
+        Update: Partial<FeedbackResponseRow>;
+      };
+      feedback_response_domains: {
+        Row: FeedbackResponseDomainRow;
+        Insert: Omit<FeedbackResponseDomainRow, 'id' | 'created_at'> & { id?: string };
+        Update: Partial<FeedbackResponseDomainRow>;
+      };
+      growth_goals: {
+        Row: GrowthGoalRow;
+        Insert: Omit<GrowthGoalRow, 'id' | 'created_at' | 'updated_at'> & { id?: string };
+        Update: Partial<GrowthGoalRow>;
+      };
+      growth_goal_milestones: {
+        Row: GrowthGoalMilestoneRow;
+        Insert: Omit<GrowthGoalMilestoneRow, 'id' | 'created_at'> & { id?: string };
+        Update: Partial<GrowthGoalMilestoneRow>;
+      };
     };
   };
 }
@@ -321,4 +356,92 @@ export interface ReviewRow {
   auto_metrics: Record<string, unknown>;
   created_at: string;
   updated_at: string;
+}
+
+export interface SelfAssessmentSnapshotRow {
+  id: string;
+  user_id: string;
+  period_type: 'weekly' | 'monthly' | 'custom';
+  period_label: string;
+  period_start: string;
+  period_end: string;
+  overall_reflection: string;
+  is_draft: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface SelfAssessmentDomainRow {
+  id: string;
+  snapshot_id: string;
+  domain_key: string;
+  domain_label: string;
+  rating: number;
+  strength_observation: string;
+  strength_reasoning: string;
+  growth_observation: string;
+  growth_reasoning: string;
+  sort_order: number;
+  created_at: string;
+}
+
+export interface FeedbackRequestRow {
+  id: string;
+  user_id: string;
+  title: string;
+  token: string;
+  privacy_mode: 'anonymous' | 'optional' | 'required';
+  status: 'open' | 'closed';
+  deadline: string | null;
+  domains: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FeedbackResponseRow {
+  id: string;
+  request_id: string;
+  respondent_name: string | null;
+  status: string;
+  created_at: string;
+}
+
+export interface FeedbackResponseDomainRow {
+  id: string;
+  response_id: string;
+  domain_key: string;
+  rating: number;
+  strength_observation: string;
+  growth_observation: string;
+  created_at: string;
+}
+
+export interface GrowthGoalRow {
+  id: string;
+  user_id: string;
+  domain_key: string | null;
+  source: 'self' | 'feedback' | 'mixed';
+  current_state: string;
+  target_state: string;
+  smart_specific: string;
+  smart_measurable: string;
+  smart_achievable: string;
+  smart_relevant: string;
+  smart_timebound: string;
+  status: 'not_started' | 'in_progress' | 'achieved' | 'stopped';
+  progress: number;
+  target_date: string | null;
+  next_checkin_date: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GrowthGoalMilestoneRow {
+  id: string;
+  goal_id: string;
+  title: string;
+  is_completed: boolean;
+  completed_at: string | null;
+  sort_order: number;
+  created_at: string;
 }
