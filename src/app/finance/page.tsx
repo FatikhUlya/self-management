@@ -318,6 +318,16 @@ export default function FinancePage() {
     }).format(val);
   };
 
+  const totalIncome = useMemo(() => {
+    return state.transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+  }, [state.transactions]);
+
+  const totalExpense = useMemo(() => {
+    return state.transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+  }, [state.transactions]);
+
+  const netBalance = totalIncome - totalExpense;
+
   return (
     <div className="space-y-6">
       {/* Header */}
