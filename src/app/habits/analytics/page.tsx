@@ -169,7 +169,7 @@ export default function HabitsAnalyticsPage() {
         <div>
           <h1 className="text-2xl font-bold text-life-text flex items-center gap-2">
             <Icon name="barChart2" size={24} className="text-cyan-500" />
-            {t('habits_analytics', 'Analytics')}
+            {t('habits_analytics')}
           </h1>
           <p className="text-zinc-500 text-xs mt-1">
             Analisis performa dan tingkat penyelesaian kebiasaan Anda.
