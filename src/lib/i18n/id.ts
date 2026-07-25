@@ -142,11 +142,15 @@ export const id = {
 
   // Projects & Tasks
   projects_title: 'Project & Task Management',
+  projects_list: 'Daftar Proyek',
   projects_add: 'Tambah Proyek',
   projects_form_desc: 'Mulai inisiatif baru Anda.',
   projects_active: 'project aktif',
   projects_name: 'Nama project',
+  projects_name_placeholder: 'Contoh: Redesign Website',
   projects_area_placeholder: 'Career, health, finance',
+  projects_tasks: 'tasks',
+  projects_completed: 'Selesai',
   projects_add_btn: 'Tambah Project',
   tasks_add: 'Tambah Task',
   tasks_open: 'task terbuka',
