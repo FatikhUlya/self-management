@@ -75,7 +75,7 @@ export default function LearningDashboardPage() {
           detail={t('learning_chart_desc')}
         >
           <div className="h-12 mt-2">
-            <MiniChart data={chartPoints} color="#f59e0b" />
+            <MiniChart points={chartPoints} colorClass="bg-gradient-to-t from-amber-500/40 to-amber-500" />
           </div>
         </DashboardCard>
 
