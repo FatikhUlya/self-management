@@ -145,6 +145,7 @@ export const en: Record<TranslationKey, string> = {
   // Projects & Tasks
   projects_title: 'Project & Task Management',
   projects_add: 'Add Project',
+  projects_form_desc: 'Start your new initiative.',
   projects_active: 'active projects',
   projects_name: 'Project name',
   projects_area_placeholder: 'Career, health, finance',

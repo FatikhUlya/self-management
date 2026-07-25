@@ -142,7 +142,8 @@ export const id = {
 
   // Projects & Tasks
   projects_title: 'Project & Task Management',
-  projects_add: 'Tambah Project',
+  projects_add: 'Tambah Proyek',
+  projects_form_desc: 'Mulai inisiatif baru Anda.',
   projects_active: 'project aktif',
   projects_name: 'Nama project',
   projects_area_placeholder: 'Career, health, finance',
