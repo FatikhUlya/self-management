@@ -92,7 +92,6 @@ export default function FinancePage() {
     updateFinancialGoal, 
     deleteFinancialGoal,
     addFinancialAccount,
-    addFinancialAccount,
     updateFinancialAccount,
     deleteFinancialAccount,
     addBudget,
