@@ -239,6 +239,20 @@ export default function FinancePage() {
     }, [] as { category: string; amount: number }[]).sort((a, b) => b.amount - a.amount);
   }, [filteredDistributionTransactions]);
 
+  const avgMonthlySavings = useMemo(() => {
+    const totalIncome = state.transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.amount, 0);
+    const totalExpense = state.transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.amount, 0);
+    const totalSurplus = totalIncome - totalExpense;
+    
+    if (state.transactions.length === 0) return 0;
+    const sortedTx = [...state.transactions].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    const firstDate = new Date(sortedTx[0].date);
+    const today = new Date();
+    const monthsActive = Math.max(1, (today.getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24 * 30));
+    
+    return totalSurplus / monthsActive;
+  }, [state.transactions]);
+
   const handleTxSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!txTitle.trim() || !txAmount) return;
@@ -958,6 +972,25 @@ export default function FinancePage() {
                               {locale === 'id' ? 'Akun' : 'Account'}: {goal.linkedAccountName}
                             </span>
                           )}
+                          {(() => {
+                            const remainingAmount = Math.max(0, goal.targetAmount - goal.currentAmount);
+                            let projectionText = '';
+                            if (remainingAmount === 0) {
+                              projectionText = locale === 'id' ? 'Tercapai! 🎉' : 'Achieved! 🎉';
+                            } else if (avgMonthlySavings <= 0) {
+                              projectionText = locale === 'id' ? 'Surplus negatif/nol' : 'Negative/zero surplus';
+                            } else {
+                              const monthsLeft = remainingAmount / avgMonthlySavings;
+                              const estDate = shiftMonthStr(new Date().toISOString().split('T')[0], Math.ceil(monthsLeft));
+                              const { monthLabel } = require('@/lib/utils');
+                              projectionText = `${locale === 'id' ? 'Estimasi:' : 'Est:'} ${monthLabel(estDate, locale === 'id' ? 'id-ID' : 'en-US')}`;
+                            }
+                            return (
+                              <span className="text-[10px] font-bold text-amber-400 uppercase mt-0.5 block">
+                                {projectionText}
+                              </span>
+                            );
+                          })()}
                         </div>
 
                         <div className="flex items-center space-x-2 shrink-0">
