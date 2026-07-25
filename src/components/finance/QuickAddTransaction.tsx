@@ -99,7 +99,7 @@ export function QuickAddTransaction() {
           <div className="flex space-x-2">
             <Button
               type="button"
-              variant={type === 'expense' ? 'primary' : 'outline'}
+              variant={type === 'expense' ? 'primary' : 'secondary'}
               onClick={() => { setType('expense'); setCategory(EXPENSE_CATEGORIES[0]); }}
               className="flex-1"
             >
@@ -108,7 +108,7 @@ export function QuickAddTransaction() {
             </Button>
             <Button
               type="button"
-              variant={type === 'income' ? 'primary' : 'outline'}
+              variant={type === 'income' ? 'primary' : 'secondary'}
               onClick={() => { setType('income'); setCategory(INCOME_CATEGORIES[0]); }}
               className="flex-1"
             >
