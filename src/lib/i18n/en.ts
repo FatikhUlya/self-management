@@ -139,6 +139,8 @@ export const en: Record<TranslationKey, string> = {
   planning_notes: 'Notes',
   planning_add_btn: 'Add Plan',
   planning_timeline: 'Timeline',
+  habits_history_desc: 'Your past activity logs.',
+  habits_analytics: 'Habits Analytics',
 
   // Projects & Tasks
   projects_title: 'Project & Task Management',
@@ -239,6 +241,7 @@ export const en: Record<TranslationKey, string> = {
   learning_chart: 'Learning Chart',
   learning_chart_desc: 'Minutes studied per day',
   learning_log: 'Learning Log',
+  learning_notes: 'Notes',
   learning_saved: 'sessions saved',
   learning_no_notes: 'No notes',
 

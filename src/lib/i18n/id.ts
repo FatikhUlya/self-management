@@ -137,6 +137,8 @@ export const id = {
   planning_notes: 'Catatan',
   planning_add_btn: 'Tambah Agenda',
   planning_timeline: 'Timeline',
+  habits_history_desc: 'Log aktivitas Anda di masa lalu.',
+  habits_analytics: 'Analitik Kebiasaan',
 
   // Projects & Tasks
   projects_title: 'Project & Task Management',
@@ -237,6 +239,7 @@ export const id = {
   learning_chart: 'Learning Chart',
   learning_chart_desc: 'Menit belajar per hari',
   learning_log: 'Learning Log',
+  learning_notes: 'Catatan',
   learning_saved: 'sesi tersimpan',
   learning_no_notes: 'Tanpa notes',
 
