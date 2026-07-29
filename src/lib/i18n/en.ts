@@ -167,9 +167,7 @@ export const en: Record<TranslationKey, string> = {
   tasks_todo: 'Todo',
   tasks_doing: 'Doing',
   tasks_done: 'Done',
-  projects_list: 'Projects',
   projects_progress_desc: 'Progress calculated from tasks in project.',
-  projects_completed: 'completed',
   tasks_overdue: 'Overdue',
 
   // Goals

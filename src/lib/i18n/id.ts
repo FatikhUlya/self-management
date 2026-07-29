@@ -165,9 +165,7 @@ export const id = {
   tasks_todo: 'Todo',
   tasks_doing: 'Doing',
   tasks_done: 'Done',
-  projects_list: 'Projects',
   projects_progress_desc: 'Progress dihitung dari task di dalam project.',
-  projects_completed: 'selesai',
   tasks_overdue: 'Overdue',
 
   // Goals

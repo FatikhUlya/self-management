@@ -1,136 +1,44 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
-import { Button } from '@/components/ui/Button';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { Badge } from '@/components/ui/Badge';
-import { ProgressBar } from '@/components/ui/ProgressBar';
+import { DashboardCard } from '@/components/ui/DashboardCard';
+import { QuickNavGrid } from '@/components/ui/QuickNavGrid';
 import { Icon } from '@/components/ui/Icon';
-import { formatDate, avg, percent, inLastDays } from '@/lib/utils';
-import { REVIEW_PERIODS, ReviewPeriod } from '@/lib/constants';
+import { MiniChart } from '@/components/ui/MiniChart';
+import { lastSevenDays, dayName, inLastDays, avg } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
-export default function ReviewsPage() {
-  const { state, saveReview, deleteReview } = useLifeOS();
-  const { t } = useI18n();
+export default function ReviewsDashboardPage() {
+  const { state } = useLifeOS();
+  const { t, locale } = useI18n();
 
-  // Period tab state
-  const [activePeriod, setActivePeriod] = useState<ReviewPeriod>('weekly');
+  const totalReviews = state.reviews.length;
+  
+  const avgScore = totalReviews > 0 
+    ? Math.round(avg(state.reviews.map(r => r.score)) * 10) / 10 
+    : 0;
 
-  // Form states
-  const [score, setScore] = useState<number>(7);
-  const [wins, setWins] = useState('');
-  const [lessons, setLessons] = useState('');
-  const [challenges, setChallenges] = useState('');
-  const [focus, setFocus] = useState('');
-  const [evaluationNotes, setEvaluationNotes] = useState('');
+  const thisMonthReviews = state.reviews.filter(r => 
+    inLastDays(r.date, 30, state.selectedDate)
+  ).length;
 
-  // Auto-calculated metrics based on active tab period (e.g. 7 days for weekly, 30 days for monthly)
-  const getPeriodDays = (p: ReviewPeriod) => {
-    switch (p) {
-      case 'daily': return 1;
-      case 'weekly': return 7;
-      case 'monthly': return 30;
-      case 'yearly': return 365;
-    }
-  };
-
-  const calculateAggregatedMetrics = () => {
-    const days = getPeriodDays(activePeriod);
-    const today = state.selectedDate;
-
-    // Tasks completed
-    const periodTasks = state.tasks.filter((task) => !task.due || inLastDays(task.due, days, today));
-    const completedTasksCount = periodTasks.filter((task) => task.status === 'done').length;
-
-    // Habits completed
-    const periodHabitLogs = state.habitLogs.filter((log) => inLastDays(log.date, days, today));
-    const totalHabitsTarget = Math.max(state.habits.length * days, 1);
-
-    // Journals filled count
-    const periodJournals = state.journals.filter((j) => inLastDays(j.date, days, today));
-
-    // Goals average progress
-    const goalsAvgProgress = Math.round(avg(state.goals.map((g) => g.progress)));
-
-    // Learning & Workouts total minutes
-    const learnMins = state.learning
-      .filter((item) => inLastDays(item.date, days, today))
-      .reduce((sum, item) => sum + Number(item.minutes || 0), 0);
-
-    const workoutMins = state.workouts
-      .filter((item) => inLastDays(item.date, days, today))
-      .reduce((sum, item) => sum + Number(item.minutes || 0), 0);
-
-    // Finance Cashflow in the period
-    const periodTransactions = state.transactions.filter((t) => inLastDays(t.date, days, today));
-    const periodIncome = periodTransactions.filter((t) => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-    const periodExpense = periodTransactions.filter((t) => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-    const periodCashflow = periodIncome - periodExpense;
-
-    // Cornell Notes in the period
-    const periodSessions = state.learning.filter((item) => inLastDays(item.date, days, today));
-    const completedCornellNotesCount = periodSessions.filter((s) => s.notesCues || s.notesNotes || s.notesSummary).length;
-
+  const reviewChartPoints = lastSevenDays(state.selectedDate).map((day) => {
+    const reviewsOnDay = state.reviews.filter((r) => r.date === day);
+    const dayAvg = reviewsOnDay.length > 0 
+      ? avg(reviewsOnDay.map(r => r.score)) 
+      : 0;
+    
     return {
-      days,
-      tasksDone: completedTasksCount,
-      tasksTotal: periodTasks.length || 1,
-      habitsDone: periodHabitLogs.length,
-      habitsTotal: totalHabitsTarget,
-      journalsDone: periodJournals.length,
-      goalsAvg: goalsAvgProgress,
-      learningMinutes: learnMins,
-      workoutMinutes: workoutMins,
-      cashflow: periodCashflow,
-      sessionsCount: periodSessions.length,
-      cornellNotesCount: completedCornellNotesCount,
+      label: dayName(day, locale === 'id' ? 'id-ID' : 'en-US'),
+      value: dayAvg,
     };
-  };
-
-  const formatCurrency = (num: number) => {
-    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(num);
-  };
-
-  const metrics = calculateAggregatedMetrics();
-
-  // Populate Daily Win if journal today has one
-  useEffect(() => {
-    const todayJournal = state.journals.find((j) => j.date === state.selectedDate);
-    if (todayJournal) {
-      if (todayJournal.win && !wins) setWins(todayJournal.win);
-      if (todayJournal.next && !focus) setFocus(todayJournal.next);
-    }
-  }, [state.journals, state.selectedDate, wins, focus]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await saveReview({
-      date: state.selectedDate,
-      period: activePeriod,
-      score,
-      wins,
-      lessons,
-      challenges,
-      focus,
-      evaluationNotes,
-    });
-
-    setWins('');
-    setLessons('');
-    setChallenges('');
-    setFocus('');
-    setEvaluationNotes('');
-  };
-
-  const periodReviews = state.reviews
-    .filter((r) => r.period === activePeriod)
-    .sort((a, b) => b.date.localeCompare(a.date));
+  });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-5xl mx-auto pb-24">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -139,273 +47,73 @@ export default function ReviewsPage() {
             {t('reviews_title')}
           </h1>
           <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
-            Evaluasi berkala untuk pertumbuhan.
+            Tinjau ulang performa kehidupan Anda dan kelola evaluasi berkala.
           </p>
         </div>
       </div>
 
-      {/* Forms & Stats Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left: Review Form */}
-        <Surface className="p-6">
-          <div className="border-b border-life-line pb-3 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div>
-              <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-                {t('reviews_new')}
-              </h3>
-              <p className="text-xs text-life-muted mt-0.5">
-                {t('reviews_form_desc')}
-              </p>
-            </div>
+      <QuickNavGrid 
+        items={[
+          { label: 'Tulis Evaluasi Baru', icon: 'edit', iconColor: 'text-fuchsia-500', href: '/reviews/write' },
+          { label: 'Riwayat Evaluasi', icon: 'clock', iconColor: 'text-indigo-500', href: '/reviews/history' }
+        ]} 
+      />
 
-            {/* Segmented Period Tabs */}
-            <div className="flex bg-white/[0.02] border border-life-line rounded-lg p-0.5 select-none self-start">
-              {REVIEW_PERIODS.map((period) => (
-                <button
-                  key={period}
-                  type="button"
-                  onClick={() => setActivePeriod(period)}
-                  className={`text-[10px] font-black uppercase py-1.5 px-3 rounded-md transition-all ${
-                    activePeriod === period
-                      ? 'bg-life-teal text-white shadow-sm'
-                      : 'text-life-muted hover:text-life-text'
-                  }`}
-                >
-                  {period}
-                </button>
-              ))}
-            </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <DashboardCard
+          icon="review"
+          iconColor="text-fuchsia-500"
+          accentColor="fuchsia-500"
+          label="Total Evaluasi"
+          value={totalReviews}
+          detail="Selama Anda menggunakan aplikasi"
+        />
+        
+        <DashboardCard
+          icon="star"
+          iconColor="text-amber-500"
+          accentColor="amber-500"
+          label="Rata-rata Skor"
+          value={`${avgScore}/10`}
+          detail="Dari semua evaluasi tersimpan"
+        >
+          <div className="h-12 mt-2">
+            <MiniChart points={reviewChartPoints} colorClass="bg-gradient-to-t from-fuchsia-500/40 to-fuchsia-500" />
           </div>
+        </DashboardCard>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col space-y-1">
-                <label className="text-xs font-bold text-life-muted uppercase">
-                  {t('date')}
-                </label>
-                <input
-                  type="date"
-                  required
-                  value={state.selectedDate}
-                  disabled
-                  className="glass-input text-xs opacity-50 cursor-not-allowed"
-                />
-              </div>
-
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="score" className="text-xs font-bold text-life-muted uppercase">
-                  {t('reviews_score')} (1-10)
-                </label>
-                <select
-                  id="score"
-                  value={score}
-                  onChange={(e) => setScore(Number(e.target.value))}
-                  className="glass-select text-xs"
-                >
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((v) => (
-                    <option key={v} value={v}>
-                      ⭐ {v} / 10
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="flex flex-col space-y-1">
-              <label htmlFor="wins" className="text-xs font-bold text-life-muted uppercase">
-                {t('reviews_wins')}
-              </label>
-              <input
-                id="wins"
-                type="text"
-                placeholder="Pencapaian utama..."
-                value={wins}
-                onChange={(e) => setWins(e.target.value)}
-                className="glass-input text-xs"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="lessons" className="text-xs font-bold text-life-muted uppercase">
-                  {t('reviews_lessons')}
-                </label>
-                <input
-                  id="lessons"
-                  type="text"
-                  placeholder="Pelajaran berharga..."
-                  value={lessons}
-                  onChange={(e) => setLessons(e.target.value)}
-                  className="glass-input text-xs"
-                />
-              </div>
-
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="challenges" className="text-xs font-bold text-life-muted uppercase">
-                  {t('reviews_challenges')}
-                </label>
-                <input
-                  id="challenges"
-                  type="text"
-                  placeholder="Hambatan yang dihadapi..."
-                  value={challenges}
-                  onChange={(e) => setChallenges(e.target.value)}
-                  className="glass-input text-xs"
-                />
-              </div>
-            </div>
-
-            <div className="flex flex-col space-y-1">
-              <label htmlFor="focus" className="text-xs font-bold text-life-muted uppercase">
-                {t('reviews_focus')}
-              </label>
-              <input
-                id="focus"
-                type="text"
-                placeholder="Fokus utama langkah berikutnya..."
-                value={focus}
-                onChange={(e) => setFocus(e.target.value)}
-                className="glass-input text-xs"
-              />
-            </div>
-
-            <div className="flex flex-col space-y-1">
-              <label htmlFor="evalNotes" className="text-xs font-bold text-life-muted uppercase">
-                {t('reviews_evaluation')}
-              </label>
-              <textarea
-                id="evalNotes"
-                placeholder="Catatan khusus evaluasi menyeluruh..."
-                value={evaluationNotes}
-                onChange={(e) => setEvaluationNotes(e.target.value)}
-                className="glass-input text-xs h-16 resize-none"
-              />
-            </div>
-
-            <Button type="submit" variant="primary" icon="check" className="w-full">
-              {t('reviews_save')}
-            </Button>
-          </form>
-        </Surface>
-
-        {/* Right: Metrics Overview */}
-        <Surface className="p-6 flex flex-col justify-between">
-          <div className="border-b border-life-line pb-3 mb-4">
-            <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-              {t('reviews_metrics')}
-            </h3>
-            <p className="text-xs text-life-muted mt-0.5">
-              Statistik agregasi otomatis {metrics.days} hari terakhir
-            </p>
-          </div>
-
-          <div className="space-y-4 flex-1 flex flex-col justify-center">
-            <ProgressBar
-              value={metrics.tasksDone}
-              max={metrics.tasksTotal}
-              label={t('reviews_tasks_done')}
-              detail={`${metrics.tasksDone} / ${metrics.tasksTotal}`}
-            />
-            <ProgressBar
-              value={metrics.habitsDone}
-              max={metrics.habitsTotal}
-              label={t('reviews_habits_done')}
-              detail={`${metrics.habitsDone} / ${metrics.habitsTotal}`}
-              colorClass="from-life-green to-green-400"
-            />
-            <ProgressBar
-              value={metrics.journalsDone}
-              max={metrics.days}
-              label={t('reviews_journal_filled')}
-              detail={`${metrics.journalsDone} / ${metrics.days}`}
-              colorClass="from-life-amber to-amber-400"
-            />
-            <ProgressBar
-              value={metrics.goalsAvg}
-              max={100}
-              label={t('reviews_goal_progress')}
-              detail={`${metrics.goalsAvg}%`}
-              colorClass="from-life-indigo to-indigo-400"
-            />
-
-            <div className="flex flex-wrap gap-2 pt-3">
-              <Badge tone="indigo" className="flex items-center gap-1">
-                <Icon name="book" size={10} />
-                <span>{`${metrics.learningMinutes} ${t('reviews_learning_min')}`}</span>
-              </Badge>
-              <Badge tone="green" className="flex items-center gap-1">
-                <Icon name="activity" size={10} />
-                <span>{`${metrics.workoutMinutes} ${t('reviews_workout_min')}`}</span>
-              </Badge>
-              <Badge tone="amber" className="flex items-center gap-1">
-                <Icon name="book" size={10} />
-                <span>{`Cornell Notes: ${metrics.cornellNotesCount}/${metrics.sessionsCount}`}</span>
-              </Badge>
-              <Badge tone={metrics.cashflow >= 0 ? 'teal' : 'rose'} className="flex items-center gap-1">
-                <Icon name="wallet" size={10} />
-                <span>{`Cashflow: ${metrics.cashflow >= 0 ? '+' : ''}${formatCurrency(metrics.cashflow)}`}</span>
-              </Badge>
-            </div>
-          </div>
-        </Surface>
+        <DashboardCard
+          icon="calendar"
+          iconColor="text-indigo-500"
+          accentColor="indigo-500"
+          label="Evaluasi 30 Hari"
+          value={thisMonthReviews}
+          detail="Evaluasi dalam sebulan terakhir"
+        />
       </div>
-
-      {/* History Timeline */}
+      
+      {/* Quick Recent Overview */}
       <Surface className="p-6">
         <div className="border-b border-life-line pb-3 mb-4">
           <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-            {t('reviews_history')}
+            Evaluasi Terbaru
           </h3>
-          <p className="text-xs text-life-muted mt-0.5">
-            {periodReviews.length} {t('reviews_saved')}
-          </p>
         </div>
-
-        <div className="space-y-4 max-h-[400px] overflow-y-auto pr-1">
-          {periodReviews.length > 0 ? (
-            periodReviews.map((review) => (
-              <div 
-                key={review.id} 
-                className="p-4 rounded-xl bg-white/[0.005] border border-life-line space-y-2 relative"
-              >
-                <div className="flex justify-between items-start">
-                  <strong className="text-xs text-life-text">{formatDate(review.date)}</strong>
-                  <div className="flex items-center space-x-2 shrink-0">
-                    <Badge tone="teal">{review.period}</Badge>
-                    <Badge tone="amber">{`Score ${review.score}/10`}</Badge>
-                    <button
-                      onClick={() => deleteReview(review.id)}
-                      className="text-life-muted hover:text-life-rose transition-colors p-1"
-                      title={t('delete')}
-                    >
-                      <Icon name="trash" size={12} />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="text-xs space-y-1.5 font-medium pt-1 text-life-muted">
-                  {review.wins && (
-                    <p className="flex items-start gap-1.5">
-                      <Icon name="trophy" size={12} className="text-yellow-400 mt-0.5 shrink-0" />
-                      <span>Wins: <span className="text-life-text">{review.wins}</span></span>
-                    </p>
-                  )}
-                  {review.focus && (
-                    <p className="flex items-start gap-1.5">
-                      <Icon name="target" size={12} className="text-life-teal mt-0.5 shrink-0" />
-                      <span>Focus: <span className="text-life-text">{review.focus}</span></span>
-                    </p>
-                  )}
-                  {review.evaluationNotes && (
-                    <p className="border-t border-white/5 pt-1.5 italic text-[11px] leading-relaxed">
-                      &ldquo;{review.evaluationNotes}&rdquo;
-                    </p>
-                  )}
-                </div>
-              </div>
-            ))
+        <div className="space-y-3">
+          {state.reviews.length > 0 ? (
+             state.reviews.slice(0, 3).sort((a,b) => b.date.localeCompare(a.date)).map(review => (
+               <div key={review.id} className="p-3 bg-white/[0.01] border border-life-line rounded-lg flex justify-between items-center">
+                 <div>
+                   <strong className="text-xs text-life-text block">{review.date}</strong>
+                   <span className="text-[10px] text-life-muted uppercase font-bold">{review.period}</span>
+                 </div>
+                 <div className="text-xs font-black text-amber-500 bg-amber-500/10 px-2 py-1 rounded">
+                   {review.score}/10
+                 </div>
+               </div>
+             ))
           ) : (
-            <EmptyState />
+            <p className="text-xs text-life-muted">Belum ada evaluasi tersimpan.</p>
           )}
         </div>
       </Surface>
