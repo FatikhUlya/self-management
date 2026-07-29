@@ -43,7 +43,7 @@ const ICON_PATHS: Record<string, string> = {
   mirror: '<circle cx="12" cy="12" r="9" /><path d="M12 3v18" /><path d="M3 12h4" /><path d="M17 12h4" />',
   search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
   apple: '<path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/><path d="M10 2c1 .5 2 2 2 5"/>',
-  dumbbell: '<path d="m14.4 14.4 5.2-5.2"/><path d="M22.5 7.5a2.12 2.12 0 0 0-3-3L18 6l3 3 1.5-1.5Z"/><path d="m4.5 16.5-1.5 1.5a2.12 2.12 0 0 0 3 3l1.5-1.5-3-3Z"/><path d="m8.3 18.7 5.4-5.4"/><path d="M16 11l-5-5"/><path d="m13 19-8-8"/>',
+  dumbbell: '<path d="M5 7v10"/><path d="M19 7v10"/><path d="M2 9v6"/><path d="M22 9v6"/><path d="M5 12h14"/>',
   barChart: '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>',
   clock: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
   bookOpen: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
