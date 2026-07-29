@@ -7,6 +7,7 @@ import { Surface } from '@/components/ui/Surface';
 import { DashboardCard } from '@/components/ui/DashboardCard';
 import { QuickNavGrid } from '@/components/ui/QuickNavGrid';
 import { Icon } from '@/components/ui/Icon';
+import { Badge } from '@/components/ui/Badge';
 import { 
   monthCalendarDays, 
   yearOptions, 
