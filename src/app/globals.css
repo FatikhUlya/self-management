@@ -50,6 +50,12 @@
   ::-webkit-scrollbar-thumb:hover {
     background: var(--life-text);
   }
+
+  /* Fix for native select dropdown options readability */
+  select option {
+    background-color: var(--life-bg);
+    color: var(--life-text);
+  }
 }
 
 @layer components {
