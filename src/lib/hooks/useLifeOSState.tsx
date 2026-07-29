@@ -269,6 +269,7 @@ export interface FinancialAccount {
 export interface SelfRule {
   id: string;
   rule_text: string;
+  section?: string;
   createdAt: string;
 }
 
@@ -485,7 +486,8 @@ interface LifeOSContextProps {
   deleteFinancialAccount: (id: string) => Promise<void>;
 
   // Self Rules
-  addSelfRule: (ruleText: string) => Promise<void>;
+  addSelfRule: (ruleText: string, section?: string) => Promise<void>;
+  updateSelfRuleSection: (id: string, newSection: string) => Promise<void>;
   deleteSelfRule: (id: string) => Promise<void>;
 
   // Self Awareness Mirror
@@ -822,6 +824,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
             selfRules: (selfRulesData as any[] || []).map(r => ({
               id: r.id,
               rule_text: r.rule_text,
+              section: r.section || 'General',
               createdAt: r.created_at || r.createdAt
             })),
             ideas: (ideas as any[] || []).map(i => ({
@@ -2594,10 +2597,11 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
     }
   }, [isDbConnected, updateStateAndPersist, checkError]);
 
-  const addSelfRule = useCallback(async (rule_text: string) => {
+  const addSelfRule = useCallback(async (rule_text: string, section: string = 'General') => {
     const item: SelfRule = {
       id: generateId(),
       rule_text,
+      section,
       createdAt: new Date().toISOString()
     };
 
@@ -2613,10 +2617,23 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
           id: item.id,
           user_id: user.id,
           rule_text: item.rule_text,
+          section: item.section,
           created_at: item.createdAt
         });
         checkError(error, 'addSelfRule');
       }
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const updateSelfRuleSection = useCallback(async (id: string, newSection: string) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      selfRules: prev.selfRules.map(r => r.id === id ? { ...r, section: newSection } : r)
+    }));
+
+    if (isDbConnected) {
+      const { error } = await supabase.from('self_rules').update({ section: newSection }).eq('id', id);
+      checkError(error, 'updateSelfRuleSection');
     }
   }, [isDbConnected, updateStateAndPersist, checkError]);
 
@@ -2983,6 +3000,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
         updateFinancialAccount,
         deleteFinancialAccount,
         addSelfRule,
+        updateSelfRuleSection,
         deleteSelfRule,
         saveSelfAssessment,
         createFeedbackRequest,
