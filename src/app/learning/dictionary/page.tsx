@@ -84,7 +84,7 @@ export default function DictionaryPage() {
         </Link>
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-life-text flex items-center gap-2">
-            <Icon name="globe" size={24} className="text-amber-500" />
+            <Icon name="bookOpen" size={24} className="text-amber-500" />
             {t('dictionary_title')}
           </h1>
           <p className="text-zinc-500 text-xs mt-1">

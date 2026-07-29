@@ -327,7 +327,7 @@ export default function HealthWorkoutPage() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-life-text flex items-center gap-2">
-            <Icon name="zap" size={24} className="text-emerald-500" />
+            <Icon name="dumbbell" size={24} className="text-emerald-500" />
             Workout
           </h1>
           <p className="text-zinc-500 text-xs">

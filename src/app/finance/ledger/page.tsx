@@ -188,7 +188,7 @@ export default function LedgerPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-600 flex items-center gap-2">
-            <Icon name="fileText" size={28} className="text-green-500" />
+            <Icon name="bookOpen" size={28} className="text-green-500" />
             {locale === 'id' ? 'Buku Kas & Distribusi' : 'Ledger & Distribution'}
           </h1>
           <p className="text-zinc-500 mt-1 text-sm">

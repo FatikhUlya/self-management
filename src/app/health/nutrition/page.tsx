@@ -76,7 +76,7 @@ export default function HealthNutritionPage() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-life-text flex items-center gap-2">
-            <Icon name="coffee" size={24} className="text-amber-500" />
+            <Icon name="apple" size={24} className="text-amber-500" />
             Nutrition & Meals
           </h1>
           <p className="text-zinc-500 text-xs">

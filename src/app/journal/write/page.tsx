@@ -103,7 +103,7 @@ export default function JournalWritePage() {
         </Link>
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-life-text flex items-center gap-2">
-            <Icon name="edit" size={24} className="text-purple-500" />
+            <Icon name="penTool" size={24} className="text-purple-500" />
             Tulis Jurnal
           </h1>
           <p className="text-zinc-500 text-xs mt-1">
