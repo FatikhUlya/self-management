@@ -15,6 +15,7 @@ const ICON_PATHS: Record<string, string> = {
   review: '<path d="M8 6h13" /><path d="M8 12h13" /><path d="M8 18h13" /><path d="M3 6h.01" /><path d="M3 12h.01" /><path d="M3 18h.01" />',
   trash: '<path d="M3 6h18" /><path d="M8 6V4h8v2" /><path d="M6 6l1 14h10l1-14" /><path d="M10 11v5" /><path d="M14 11v5" />',
   edit: '<path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />',
+  arrowLeft: '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
   arrowRight: '<path d="M5 12h14" /><path d="m12 5 7 7-7 7" />',
   chevronLeft: '<path d="m15 18-6-6 6-6" />',
   chevronRight: '<path d="m9 18 6-6-6-6" />',
