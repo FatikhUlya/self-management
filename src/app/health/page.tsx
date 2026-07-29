@@ -61,9 +61,9 @@ export default function HealthDashboardPage() {
       {/* Sub-page Navigation Grid */}
       <QuickNavGrid 
         items={[
-          { label: 'Metrics', icon: 'barChart2', iconColor: 'text-rose-500', href: '/health/metrics' },
-          { label: 'Nutrition', icon: 'coffee', iconColor: 'text-amber-500', href: '/health/nutrition' },
-          { label: 'Workout', icon: 'zap', iconColor: 'text-emerald-500', href: '/health/workout' }
+          { label: 'Metrics', icon: 'barChart', iconColor: 'text-rose-500', href: '/health/metrics' },
+          { label: 'Nutrition', icon: 'apple', iconColor: 'text-amber-500', href: '/health/nutrition' },
+          { label: 'Workout', icon: 'dumbbell', iconColor: 'text-emerald-500', href: '/health/workout' }
         ]} 
       />
 
@@ -78,7 +78,7 @@ export default function HealthDashboardPage() {
           detail={latestWeight ? `TDEE: ${tdee > 0 ? tdee : '—'} kcal` : t('health_no_weight')}
         />
         <DashboardCard
-          icon="coffee"
+          icon="apple"
           iconColor="text-amber-500"
           accentColor="amber-500"
           label={t('health_meal_log')}
@@ -93,7 +93,7 @@ export default function HealthDashboardPage() {
           </div>
         </DashboardCard>
         <DashboardCard
-          icon="zap"
+          icon="dumbbell"
           iconColor="text-emerald-500"
           accentColor="emerald-500"
           label={t('health_workout_log')}

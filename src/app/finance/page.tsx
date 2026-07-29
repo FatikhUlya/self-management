@@ -161,7 +161,7 @@ export default function FinanceDashboard() {
             </div>
           </div>
           <div className="hidden md:flex w-20 h-20 rounded-2xl bg-indigo-500/10 text-indigo-500 items-center justify-center border border-indigo-500/20 shadow-lg shadow-indigo-500/5">
-            <Icon name="barChart2" size={40} />
+            <Icon name="barChart" size={40} />
           </div>
         </div>
       </Surface>
