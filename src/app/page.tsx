@@ -151,7 +151,7 @@ export default function Dashboard() {
       {/* Grid 4 Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
-          icon="layout"
+          icon="checkSquare"
           label={t('dash_tasks_today')}
           value={todaysTasks.length}
           detail={`${doneTodayCount} ${t('dash_completed_today')}`}

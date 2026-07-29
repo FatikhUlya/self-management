@@ -82,7 +82,7 @@ export default function HabitsDashboardPage() {
       <QuickNavGrid 
         items={[
           { label: 'Kalender', icon: 'calendar', iconColor: 'text-cyan-500', href: '/habits/calendar' },
-          { label: 'Analisis', icon: 'barChart2', iconColor: 'text-blue-500', href: '/habits/analytics' },
+          { label: 'Analisis', icon: 'barChart', iconColor: 'text-blue-500', href: '/habits/analytics' },
           { label: 'Kelola', icon: 'list', iconColor: 'text-indigo-500', href: '/habits/manage' }
         ]} 
       />
