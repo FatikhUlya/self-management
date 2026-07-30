@@ -1315,8 +1315,8 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
       createdAt: new Date().toISOString()
     };
 
-    // Auto-push event/task to Google Calendar if connected
-    if ((item.kind === 'event' || item.kind === 'task') && typeof window !== 'undefined' && window.gapi?.client?.calendar) {
+    // Auto-push event/task to Google Calendar if connected (only if it didn't come from GCal already)
+    if (!newPlan.googleEventId && (item.kind === 'event' || item.kind === 'task') && typeof window !== 'undefined' && window.gapi?.client?.calendar) {
       try {
         const titlePrefix = item.kind === 'task' ? '[Tugas] ' : '';
         const gEventId = await createCalendarEvent({
