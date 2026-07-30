@@ -161,10 +161,18 @@ export async function fetchCalendarEvents(
   endDate: string
 ): Promise<GoogleCalendarEvent[]> {
   const fetchPromise = async () => {
-    const response = await window.gapi.client.calendar.events.list({
-      calendarId: 'primary',
-      timeMin: `${startDate}T00:00:00Z`,
-      timeMax: `${endDate}T23:59:59Z`,
+      // Format times with local timezone offset instead of Z (UTC) to avoid shifting all-day events
+      const offset = new Date().getTimezoneOffset();
+      const sign = offset > 0 ? '-' : '+';
+      const absOffset = Math.abs(offset);
+      const hours = String(Math.floor(absOffset / 60)).padStart(2, '0');
+      const minutes = String(absOffset % 60).padStart(2, '0');
+      const tzString = `${sign}${hours}:${minutes}`;
+
+      const response = await window.gapi.client.calendar.events.list({
+        calendarId: 'primary',
+        timeMin: `${startDate}T00:00:00${tzString}`,
+        timeMax: `${endDate}T23:59:59${tzString}`,
       showDeleted: false,
       singleEvents: true,
       orderBy: 'startTime',
