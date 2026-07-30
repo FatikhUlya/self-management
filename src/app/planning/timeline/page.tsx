@@ -86,6 +86,39 @@ export default function PlanningTimelinePage() {
             const currentPlans = plansRef.current;
             const dismissed = getDismissedGCalIds();
 
+            // 0) DEDUP: Clean up existing duplicate GCal plans in the database
+            //    Group plans on this date by googleEventId, keep first, delete rest
+            const gcalPlansForDate = currentPlans.filter(
+              p => p.googleEventId && p.date === planDate
+            );
+            const seenGCalIds: Record<string, boolean> = {};
+            for (const plan of gcalPlansForDate) {
+              if (seenGCalIds[plan.googleEventId]) {
+                // This is a duplicate — delete it
+                await deletePlan(plan.id);
+              } else {
+                seenGCalIds[plan.googleEventId] = true;
+              }
+            }
+            // Also dedup plans without googleEventId but same title+time
+            const seenContentKeys: Record<string, boolean> = {};
+            const nonGCalPlans = currentPlans.filter(
+              p => !p.googleEventId && p.date === planDate
+            );
+            for (const plan of nonGCalPlans) {
+              const key = `${plan.title}|${plan.startTime}`;
+              if (seenContentKeys[key]) {
+                await deletePlan(plan.id);
+              } else {
+                seenContentKeys[key] = true;
+              }
+            }
+
+            // Re-read plans after dedup (plansRef will be updated by deletePlan)
+            // Small delay to let state propagate
+            await new Promise(r => setTimeout(r, 100));
+            const cleanPlans = plansRef.current;
+
             // 1) Retry deleting previously dismissed events from GCal
             for (const dismissedId of dismissed) {
               try {
@@ -97,7 +130,7 @@ export default function PlanningTimelinePage() {
             // 2) Remove local plans whose GCal event no longer exists
             //    (only for plans on THIS date that came from GCal)
             const fetchedEventIds = new Set(events.map(e => e.id));
-            const localGCalPlansForDate = currentPlans.filter(
+            const localGCalPlansForDate = cleanPlans.filter(
               p => p.googleEventId && p.date === planDate
             );
             for (const localPlan of localGCalPlansForDate) {
@@ -109,7 +142,7 @@ export default function PlanningTimelinePage() {
             // 3) Import new GCal events that don't exist locally yet
             //    Use googleEventId as the primary unique key
             const existingGCalIds = new Set(
-              currentPlans
+              cleanPlans
                 .filter(p => p.googleEventId)
                 .map(p => p.googleEventId)
             );
@@ -130,7 +163,7 @@ export default function PlanningTimelinePage() {
               const endT = endIso.includes('T') ? endIso.slice(11, 16) : '09:00';
 
               // Also check by title+time as a fallback for plans without googleEventId
-              const duplicateByContent = currentPlans.some(
+              const duplicateByContent = cleanPlans.some(
                 p => p.date === planDate && p.title === gevent.summary && p.startTime === startT
               );
               if (duplicateByContent) continue;
@@ -195,6 +228,34 @@ export default function PlanningTimelinePage() {
         const currentPlans = plansRef.current;
         const dismissed = getDismissedGCalIds();
 
+        // 0) DEDUP: Clean up existing duplicate GCal plans
+        const gcalPlansForDate = currentPlans.filter(
+          p => p.googleEventId && p.date === planDate
+        );
+        const seenGCalIds: Record<string, boolean> = {};
+        for (const plan of gcalPlansForDate) {
+          if (seenGCalIds[plan.googleEventId]) {
+            await deletePlan(plan.id);
+          } else {
+            seenGCalIds[plan.googleEventId] = true;
+          }
+        }
+        const seenContentKeys: Record<string, boolean> = {};
+        const nonGCalPlans = currentPlans.filter(
+          p => !p.googleEventId && p.date === planDate
+        );
+        for (const plan of nonGCalPlans) {
+          const key = `${plan.title}|${plan.startTime}`;
+          if (seenContentKeys[key]) {
+            await deletePlan(plan.id);
+          } else {
+            seenContentKeys[key] = true;
+          }
+        }
+
+        await new Promise(r => setTimeout(r, 100));
+        const cleanPlans = plansRef.current;
+
         // 1) Retry deleting previously dismissed events from GCal
         for (const dismissedId of dismissed) {
           try {
@@ -205,7 +266,7 @@ export default function PlanningTimelinePage() {
 
         // 2) Remove local plans whose GCal event no longer exists (date-scoped)
         const fetchedEventIds = new Set(events.map(e => e.id));
-        const localGCalPlansForDate = currentPlans.filter(
+        const localGCalPlansForDate = cleanPlans.filter(
           p => p.googleEventId && p.date === planDate
         );
         for (const localPlan of localGCalPlansForDate) {
@@ -216,7 +277,7 @@ export default function PlanningTimelinePage() {
 
         // 3) Import new GCal events
         const existingGCalIds = new Set(
-          currentPlans
+          cleanPlans
             .filter(p => p.googleEventId)
             .map(p => p.googleEventId)
         );
@@ -232,7 +293,7 @@ export default function PlanningTimelinePage() {
           const startT = startIso.includes('T') ? startIso.slice(11, 16) : '08:00';
           const endT = endIso.includes('T') ? endIso.slice(11, 16) : '09:00';
 
-          const duplicateByContent = currentPlans.some(
+          const duplicateByContent = cleanPlans.some(
             p => p.date === planDate && p.title === gevent.summary && p.startTime === startT
           );
           if (duplicateByContent) continue;
