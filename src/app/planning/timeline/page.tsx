@@ -21,6 +21,7 @@ import {
   signInGoogle, 
   restoreGoogleToken,
   fetchCalendarEvents, 
+  deleteCalendarEvent,
   isGoogleCalendarConfigured,
   GoogleCalendarEvent
 } from '@/lib/google-calendar';
@@ -39,6 +40,27 @@ export default function PlanningTimelinePage() {
   const [gcalSyncing, setGcalSyncing] = useState(false);
 
   const syncedRef = useRef<string>('');
+  // Use a ref to read state.nextDayPlans inside useEffect without it being a dependency
+  const plansRef = useRef(state.nextDayPlans);
+  plansRef.current = state.nextDayPlans;
+
+  // Helper: get dismissed GCal IDs from localStorage
+  const getDismissedGCalIds = (): Set<string> => {
+    try {
+      const raw = localStorage.getItem('dismissed_gcal_ids') || '[]';
+      return new Set(JSON.parse(raw) as string[]);
+    } catch { return new Set(); }
+  };
+
+  // Helper: remove an ID from the dismissed list (when GCal delete succeeds)
+  const removeDismissedId = (id: string) => {
+    try {
+      const raw = localStorage.getItem('dismissed_gcal_ids') || '[]';
+      const dismissed: string[] = JSON.parse(raw);
+      const updated = dismissed.filter(d => d !== id);
+      localStorage.setItem('dismissed_gcal_ids', JSON.stringify(updated));
+    } catch { /* ignore */ }
+  };
 
   useEffect(() => {
     const configured = isGoogleCalendarConfigured();
@@ -60,58 +82,73 @@ export default function PlanningTimelinePage() {
             const events = await fetchCalendarEvents(planDate, planDate);
             setGcalEvents(events);
 
-            const existingPlans = [...state.nextDayPlans];
-            
+            // Read current plans via ref (avoids dependency on state)
+            const currentPlans = plansRef.current;
+            const dismissed = getDismissedGCalIds();
+
+            // 1) Retry deleting previously dismissed events from GCal
+            for (const dismissedId of dismissed) {
+              try {
+                await deleteCalendarEvent(dismissedId);
+                removeDismissedId(dismissedId);
+              } catch { /* still dismissed, will retry next time */ }
+            }
+
+            // 2) Remove local plans whose GCal event no longer exists
+            //    (only for plans on THIS date that came from GCal)
             const fetchedEventIds = new Set(events.map(e => e.id));
-            const localPlansWithGCal = existingPlans.filter(p => p.googleEventId);
-            for (const localPlan of localPlansWithGCal) {
+            const localGCalPlansForDate = currentPlans.filter(
+              p => p.googleEventId && p.date === planDate
+            );
+            for (const localPlan of localGCalPlansForDate) {
               if (localPlan.googleEventId && !fetchedEventIds.has(localPlan.googleEventId)) {
                 await deletePlan(localPlan.id);
               }
             }
 
+            // 3) Import new GCal events that don't exist locally yet
+            //    Use googleEventId as the primary unique key
+            const existingGCalIds = new Set(
+              currentPlans
+                .filter(p => p.googleEventId)
+                .map(p => p.googleEventId)
+            );
+
             for (const gevent of events) {
+              // Skip task-type events created by our app
               if (gevent.summary?.startsWith('[Tugas]')) continue;
+              // Skip events that the user previously dismissed/deleted
+              if (dismissed.has(gevent.id)) continue;
+              // Skip events that already exist in our database
+              if (existingGCalIds.has(gevent.id)) continue;
 
               const startIso = gevent.start.dateTime || gevent.start.date || '';
               const endIso = gevent.end.dateTime || gevent.end.date || '';
               
-              const startT = startIso ? startIso.slice(11, 16) : '08:00';
-              const endT = endIso ? endIso.slice(11, 16) : '09:00';
+              // Extract time; for all-day events (no 'T' in string), use defaults
+              const startT = startIso.includes('T') ? startIso.slice(11, 16) : '08:00';
+              const endT = endIso.includes('T') ? endIso.slice(11, 16) : '09:00';
 
-              const exists = existingPlans.some(
-                (p) => p.googleEventId === gevent.id || 
-                       (p.date === planDate && p.title === gevent.summary && p.startTime === startT)
+              // Also check by title+time as a fallback for plans without googleEventId
+              const duplicateByContent = currentPlans.some(
+                p => p.date === planDate && p.title === gevent.summary && p.startTime === startT
               );
+              if (duplicateByContent) continue;
 
-              if (!exists) {
-                existingPlans.push({
-                  id: 'temp-' + gevent.id,
-                  date: planDate,
-                  title: gevent.summary,
-                  kind: 'event',
-                  startTime: startT,
-                  endTime: endT,
-                  priority: 'Medium',
-                  area: 'Google Calendar',
-                  notes: gevent.description || 'Diimpor dari Google Calendar',
-                  status: 'scheduled',
-                  googleEventId: gevent.id,
-                  createdAt: new Date().toISOString()
-                });
+              await addPlan({
+                date: planDate,
+                title: gevent.summary,
+                kind: 'event',
+                startTime: startT,
+                endTime: endT,
+                priority: 'Medium',
+                area: 'Google Calendar',
+                notes: gevent.description || 'Diimpor dari Google Calendar',
+                googleEventId: gevent.id
+              });
 
-                await addPlan({
-                  date: planDate,
-                  title: gevent.summary,
-                  kind: 'event',
-                  startTime: startT,
-                  endTime: endT,
-                  priority: 'Medium',
-                  area: 'Google Calendar',
-                  notes: gevent.description || 'Diimpor dari Google Calendar',
-                  googleEventId: gevent.id
-                });
-              }
+              // Track in set so subsequent loop iterations won't duplicate
+              existingGCalIds.add(gevent.id);
             }
           }
         }
@@ -123,7 +160,8 @@ export default function PlanningTimelinePage() {
     }
 
     autoSync();
-  }, [planDate, isGCalConfigured, state.nextDayPlans, addPlan, deletePlan]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [planDate]);
 
   // Pre-load Google Calendar client
   useEffect(() => {
@@ -148,60 +186,70 @@ export default function PlanningTimelinePage() {
       const token = await signInGoogle();
       if (token) {
         setIsGCalConnected(true);
+        // Reset syncedRef so auto-sync won't skip this date
+        syncedRef.current = '';
+
         const events = await fetchCalendarEvents(planDate, planDate);
         setGcalEvents(events);
         
-        const existingPlans = [...state.nextDayPlans];
+        const currentPlans = plansRef.current;
+        const dismissed = getDismissedGCalIds();
+
+        // 1) Retry deleting previously dismissed events from GCal
+        for (const dismissedId of dismissed) {
+          try {
+            await deleteCalendarEvent(dismissedId);
+            removeDismissedId(dismissedId);
+          } catch { /* still dismissed, will retry next time */ }
+        }
+
+        // 2) Remove local plans whose GCal event no longer exists (date-scoped)
         const fetchedEventIds = new Set(events.map(e => e.id));
-        const localPlansWithGCal = existingPlans.filter(p => p.googleEventId);
-        for (const localPlan of localPlansWithGCal) {
+        const localGCalPlansForDate = currentPlans.filter(
+          p => p.googleEventId && p.date === planDate
+        );
+        for (const localPlan of localGCalPlansForDate) {
           if (localPlan.googleEventId && !fetchedEventIds.has(localPlan.googleEventId)) {
             await deletePlan(localPlan.id);
           }
         }
 
+        // 3) Import new GCal events
+        const existingGCalIds = new Set(
+          currentPlans
+            .filter(p => p.googleEventId)
+            .map(p => p.googleEventId)
+        );
+
         for (const gevent of events) {
           if (gevent.summary?.startsWith('[Tugas]')) continue;
+          if (dismissed.has(gevent.id)) continue;
+          if (existingGCalIds.has(gevent.id)) continue;
 
           const startIso = gevent.start.dateTime || gevent.start.date || '';
           const endIso = gevent.end.dateTime || gevent.end.date || '';
           
-          const startT = startIso ? startIso.slice(11, 16) : '08:00';
-          const endT = endIso ? endIso.slice(11, 16) : '09:00';
+          const startT = startIso.includes('T') ? startIso.slice(11, 16) : '08:00';
+          const endT = endIso.includes('T') ? endIso.slice(11, 16) : '09:00';
 
-          const exists = existingPlans.some(
-            (p) => p.googleEventId === gevent.id ||
-                   (p.date === planDate && p.title === gevent.summary && p.startTime === startT)
+          const duplicateByContent = currentPlans.some(
+            p => p.date === planDate && p.title === gevent.summary && p.startTime === startT
           );
+          if (duplicateByContent) continue;
 
-          if (!exists) {
-            existingPlans.push({
-              id: 'temp-' + gevent.id,
-              date: planDate,
-              title: gevent.summary,
-              kind: 'event',
-              startTime: startT,
-              endTime: endT,
-              priority: 'Medium',
-              area: 'Google Calendar',
-              notes: gevent.description || 'Diimpor dari Google Calendar',
-              status: 'scheduled',
-              googleEventId: gevent.id,
-              createdAt: new Date().toISOString()
-            });
+          await addPlan({
+            date: planDate,
+            title: gevent.summary,
+            kind: 'event',
+            startTime: startT,
+            endTime: endT,
+            priority: 'Medium',
+            area: 'Google Calendar',
+            notes: gevent.description || 'Diimpor dari Google Calendar',
+            googleEventId: gevent.id
+          });
 
-            await addPlan({
-              date: planDate,
-              title: gevent.summary,
-              kind: 'event',
-              startTime: startT,
-              endTime: endT,
-              priority: 'Medium',
-              area: 'Google Calendar',
-              notes: gevent.description || 'Diimpor dari Google Calendar',
-              googleEventId: gevent.id
-            });
-          }
+          existingGCalIds.add(gevent.id);
         }
       }
     } catch (e) {

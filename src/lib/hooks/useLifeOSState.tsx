@@ -1394,6 +1394,21 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
       };
     });
 
+    // Always add to dismissed list so sync won't re-import this event
+    if (googleEventIdToDelete && typeof window !== 'undefined') {
+      try {
+        const raw = localStorage.getItem('dismissed_gcal_ids') || '[]';
+        const dismissed: string[] = JSON.parse(raw);
+        if (!dismissed.includes(googleEventIdToDelete)) {
+          dismissed.push(googleEventIdToDelete);
+          // Keep list manageable — only store last 500 IDs
+          if (dismissed.length > 500) dismissed.splice(0, dismissed.length - 500);
+          localStorage.setItem('dismissed_gcal_ids', JSON.stringify(dismissed));
+        }
+      } catch { /* ignore parse errors */ }
+    }
+
+    // Try to delete from Google Calendar if available
     if (googleEventIdToDelete && typeof window !== 'undefined' && window.gapi?.client?.calendar) {
       try {
         await deleteCalendarEvent(googleEventIdToDelete);
