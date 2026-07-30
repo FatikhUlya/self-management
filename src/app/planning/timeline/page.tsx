@@ -93,11 +93,12 @@ export default function PlanningTimelinePage() {
             );
             const seenGCalIds: Record<string, boolean> = {};
             for (const plan of gcalPlansForDate) {
-              if (seenGCalIds[plan.googleEventId]) {
+              const gid = plan.googleEventId!;
+              if (seenGCalIds[gid]) {
                 // This is a duplicate — delete it
                 await deletePlan(plan.id);
               } else {
-                seenGCalIds[plan.googleEventId] = true;
+                seenGCalIds[gid] = true;
               }
             }
             // Also dedup plans without googleEventId but same title+time
@@ -234,10 +235,11 @@ export default function PlanningTimelinePage() {
         );
         const seenGCalIds: Record<string, boolean> = {};
         for (const plan of gcalPlansForDate) {
-          if (seenGCalIds[plan.googleEventId]) {
+          const gid = plan.googleEventId!;
+          if (seenGCalIds[gid]) {
             await deletePlan(plan.id);
           } else {
-            seenGCalIds[plan.googleEventId] = true;
+            seenGCalIds[gid] = true;
           }
         }
         const seenContentKeys: Record<string, boolean> = {};
