@@ -45,11 +45,11 @@ export default function PlanningTimelinePage() {
   plansRef.current = state.nextDayPlans;
 
   // Helper: get dismissed GCal IDs from localStorage
-  const getDismissedGCalIds = (): Set<string> => {
+  const getDismissedGCalIds = (): string[] => {
     try {
       const raw = localStorage.getItem('dismissed_gcal_ids') || '[]';
-      return new Set(JSON.parse(raw) as string[]);
-    } catch { return new Set(); }
+      return JSON.parse(raw) as string[];
+    } catch { return []; }
   };
 
   // Helper: remove an ID from the dismissed list (when GCal delete succeeds)
@@ -118,7 +118,7 @@ export default function PlanningTimelinePage() {
               // Skip task-type events created by our app
               if (gevent.summary?.startsWith('[Tugas]')) continue;
               // Skip events that the user previously dismissed/deleted
-              if (dismissed.has(gevent.id)) continue;
+              if (dismissed.includes(gevent.id)) continue;
               // Skip events that already exist in our database
               if (existingGCalIds.has(gevent.id)) continue;
 
@@ -223,7 +223,7 @@ export default function PlanningTimelinePage() {
 
         for (const gevent of events) {
           if (gevent.summary?.startsWith('[Tugas]')) continue;
-          if (dismissed.has(gevent.id)) continue;
+          if (dismissed.includes(gevent.id)) continue;
           if (existingGCalIds.has(gevent.id)) continue;
 
           const startIso = gevent.start.dateTime || gevent.start.date || '';
