@@ -63,6 +63,24 @@ export default function FinanceDashboard() {
   const totalCash = netBalance;
   const netWorth = totalCash + totalAssets - totalDebts;
 
+  const accountBalances = useMemo(() => {
+    const balances: Record<string, number> = {};
+    if (state.financialAccounts) {
+      state.financialAccounts.forEach(acc => {
+        balances[acc.name] = 0;
+      });
+    }
+    state.transactions.forEach(t => {
+      const acc = t.account || 'Tunai';
+      if (balances[acc] === undefined) balances[acc] = 0;
+      if (t.type === 'income') balances[acc] += t.amount;
+      else if (t.type === 'expense') balances[acc] -= t.amount;
+    });
+    return Object.entries(balances)
+      .filter(([name, bal]) => bal !== 0 || (state.financialAccounts && state.financialAccounts.some(a => a.name === name)))
+      .sort((a, b) => b[1] - a[1]);
+  }, [state.transactions, state.financialAccounts]);
+
   const recentTransactions = useMemo(() => {
     return [...state.transactions]
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -216,6 +234,28 @@ export default function FinanceDashboard() {
           </div>
         </Surface>
       </div>
+
+      {/* Account Balances */}
+      <Surface className="p-6">
+        <h3 className="text-sm font-bold text-life-text uppercase tracking-wider mb-4">
+          {locale === 'id' ? 'Saldo Rekening' : 'Account Balances'}
+        </h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {accountBalances.map(([name, bal]) => (
+            <div key={name} className="p-3 rounded-lg bg-white/[0.02] border border-life-line flex flex-col justify-center">
+              <p className="text-[10px] text-life-muted font-bold uppercase tracking-wider">{name}</p>
+              <p className={`text-sm font-black mt-1 ${bal >= 0 ? 'text-teal-400' : 'text-rose-400'}`}>
+                {formatCurrency(bal)}
+              </p>
+            </div>
+          ))}
+          {accountBalances.length === 0 && (
+            <p className="text-xs text-life-muted col-span-full">
+              {locale === 'id' ? 'Belum ada data rekening.' : 'No account data yet.'}
+            </p>
+          )}
+        </div>
+      </Surface>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Recent Transactions */}
