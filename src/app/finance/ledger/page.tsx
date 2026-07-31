@@ -53,6 +53,16 @@ export default function LedgerPage() {
   // Transaction Ledger Filter & Date state
   const [ledgerTimeframe, setLedgerTimeframe] = useState<'all' | 'day' | 'week' | 'month' | 'year'>('all');
   const [ledgerRefDate, setLedgerRefDate] = useState<string>(state.selectedDate || todayISO());
+  const [ledgerAccount, setLedgerAccount] = useState<string>('all');
+
+  const availableAccounts = useMemo(() => {
+    const accs = new Set<string>();
+    state.transactions.forEach(t => {
+      if (t.account) accs.add(t.account);
+    });
+    state.financialAccounts?.forEach(acc => accs.add(acc.name));
+    return Array.from(accs).sort();
+  }, [state.transactions, state.financialAccounts]);
 
   const handleLedgerPrev = () => {
     if (ledgerTimeframe === 'day') setLedgerRefDate((prev: string) => shiftDateStr(prev, -1));
@@ -74,6 +84,8 @@ export default function LedgerPage() {
     const currentMonth = baseDate.slice(0, 7);
 
     return state.transactions.filter((tx) => {
+      if (ledgerAccount !== 'all' && tx.account !== ledgerAccount) return false;
+      
       if (ledgerTimeframe === 'all') return true;
       if (ledgerTimeframe === 'day') return tx.date === baseDate;
       if (ledgerTimeframe === 'week') return inLastDays(tx.date, 7, baseDate);
@@ -81,7 +93,7 @@ export default function LedgerPage() {
       if (ledgerTimeframe === 'year') return tx.date.startsWith(currentYear);
       return true;
     });
-  }, [state.transactions, ledgerTimeframe, ledgerRefDate, state.selectedDate]);
+  }, [state.transactions, ledgerTimeframe, ledgerRefDate, state.selectedDate, ledgerAccount]);
 
   const ledgerExpense = useMemo(() => {
     return filteredTransactions
@@ -217,6 +229,18 @@ export default function LedgerPage() {
 
               {/* Navigation & Filter Controls */}
               <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto shrink-0 select-none">
+                {/* Account Filter */}
+                <select
+                  value={ledgerAccount}
+                  onChange={(e) => setLedgerAccount(e.target.value)}
+                  className="bg-white/[0.02] border border-life-line rounded-lg px-2 py-1 text-[10px] font-black uppercase text-life-muted outline-none hover:border-emerald-500/50 transition-colors"
+                >
+                  <option value="all">{locale === 'id' ? 'Semua Rekening' : 'All Accounts'}</option>
+                  {availableAccounts.map(acc => (
+                    <option key={acc} value={acc}>{acc}</option>
+                  ))}
+                </select>
+
                 <div className="flex bg-white/[0.02] border border-life-line rounded-lg p-0.5">
                   {[
                     { id: 'all', labelId: 'Semua', labelEn: 'All' },
