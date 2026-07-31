@@ -449,6 +449,16 @@ interface LifeOSContextProps {
   addDictionaryEntry: (entry: Omit<DictionaryEntry, 'id' | 'createdAt'>) => Promise<void>;
   deleteDictionaryEntry: (id: string) => Promise<void>;
 
+  // Learning Paths
+  addLearningSubject: (title: string, description?: string) => Promise<void>;
+  updateLearningSubject: (id: string, updates: Partial<LearningSubject>) => Promise<void>;
+  deleteLearningSubject: (id: string) => Promise<void>;
+  addLearningModule: (subjectId: string, module: Omit<LearningModule, 'id' | 'subjectId' | 'createdAt'>) => Promise<void>;
+  updateLearningModule: (id: string, updates: Partial<LearningModule>) => Promise<void>;
+  deleteLearningModule: (id: string) => Promise<void>;
+  toggleLearningModuleCompletion: (id: string) => Promise<void>;
+  reorderLearningModules: (reorderedModules: LearningModule[]) => Promise<void>;
+
   // Health
   updateHealthProfile: (profile: HealthProfile) => Promise<void>;
   saveWeightLog: (weight: number, notes: string, date?: string) => Promise<void>;
