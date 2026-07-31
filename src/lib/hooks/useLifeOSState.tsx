@@ -113,6 +113,25 @@ export interface LearningSession {
   createdAt: string;
 }
 
+export interface LearningSubject {
+  id: string;
+  title: string;
+  description?: string;
+  createdAt: string;
+}
+
+export interface LearningModule {
+  id: string;
+  subjectId: string;
+  title: string;
+  contentMaterial?: string;
+  contentVideoLink?: string;
+  contentImageUrl?: string;
+  isCompleted: boolean;
+  orderIndex: number;
+  createdAt: string;
+}
+
 export interface LearningSchedule {
   id: string;
   mon: string;

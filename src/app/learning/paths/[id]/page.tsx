@@ -13,7 +13,7 @@ export default function LearningPathDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
-  const { state, updateLearningSubject, addLearningModule, updateLearningModule, deleteLearningModule, toggleLearningModuleCompletion } = useLifeOS();
+  const { state, loading, updateLearningSubject, addLearningModule, updateLearningModule, deleteLearningModule, toggleLearningModuleCompletion } = useLifeOS();
   
   const subject = state.learningSubjects?.find(s => s.id === id);
   const modules = state.learningModules?.filter(m => m.subjectId === id).sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0)) || [];
@@ -35,7 +35,7 @@ export default function LearningPathDetailPage() {
     }
   }, [subject]);
 
-  if (!subject && !state.loading) {
+  if (!subject && !loading) {
     return (
       <div className="text-center py-20 space-y-4">
         <h1 className="text-2xl font-bold text-zinc-800 dark:text-zinc-200">Topik tidak ditemukan</h1>
@@ -110,7 +110,7 @@ export default function LearningPathDetailPage() {
             />
             <div className="flex gap-2">
               <Button onClick={handleSaveSubject} className="bg-amber-500 text-white hover:bg-amber-600">Simpan</Button>
-              <Button variant="ghost" onClick={() => setIsEditingSubject(false)}>Batal</Button>
+              <Button variant="secondary" onClick={() => setIsEditingSubject(false)}>Batal</Button>
             </div>
           </div>
         ) : (
@@ -190,7 +190,7 @@ export default function LearningPathDetailPage() {
             />
             <div className="flex gap-2 pt-2">
               <Button onClick={handleAddModule} className="bg-amber-500 text-white hover:bg-amber-600">Simpan Modul</Button>
-              <Button variant="ghost" onClick={() => setIsAddingModule(false)}>Batal</Button>
+              <Button variant="secondary" onClick={() => setIsAddingModule(false)}>Batal</Button>
             </div>
           </div>
         </Surface>
@@ -237,7 +237,7 @@ export default function LearningPathDetailPage() {
                   />
                   <div className="flex gap-2">
                     <Button onClick={handleSaveModule} className="bg-amber-500 text-white">Simpan</Button>
-                    <Button variant="ghost" onClick={() => setEditingModuleId(null)}>Batal</Button>
+                    <Button variant="secondary" onClick={() => setEditingModuleId(null)}>Batal</Button>
                   </div>
                 </div>
               ) : (
