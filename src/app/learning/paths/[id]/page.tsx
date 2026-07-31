@@ -169,34 +169,6 @@ export default function LearningPathDetailPage() {
         >
           Tambah Modul
         </Button>
-        {/* TEMPORARY IMPORT BUTTON */}
-        <Button 
-          onClick={async () => {
-            try {
-              const res = await fetch('/modules_data.json');
-              if (!res.ok) throw new Error('File tidak ditemukan');
-              const data = await res.json();
-              if (confirm(`Import ${data.length} modul secara otomatis?`)) {
-                for (const mod of data) {
-                  await addLearningModule(id, { 
-                    title: mod.title, 
-                    contentMaterial: mod.content,
-                    orderIndex: mod.order_index,
-                    isCompleted: false
-                  });
-                }
-                alert('Berhasil import semua modul!');
-                window.location.reload();
-              }
-            } catch (err: any) {
-              alert('Gagal import: ' + err.message + '. Pastikan Anda sudah menjalankan script.');
-            }
-          }}
-          className="bg-purple-600 hover:bg-purple-700 text-white"
-        >
-          <Icon name="download" size={16} className="mr-2" />
-          Import Data 60 Hari
-        </Button>
       </div>
 
       {isAddingModule && (
