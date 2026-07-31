@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
@@ -16,7 +16,8 @@ export default function RulesPage() {
   const [newSection, setNewSection] = useState('General');
 
   // Drag and Drop States
-  const [draggingRuleId, setDraggingRuleId] = useState<string | null>(null);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [draggingType, setDraggingType] = useState<'rule' | 'section' | null>(null);
   const [dragOverSection, setDragOverSection] = useState<string | null>(null);
 
   const handleAddRule = async (e: React.FormEvent) => {
@@ -40,47 +41,79 @@ export default function RulesPage() {
     setLocalRules([...rules].sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0)));
   }, [rules]);
   
-  // Group rules by section
-  const groupedRules = localRules.reduce((acc, rule) => {
-    const section = rule.section || 'General';
-    if (!acc[section]) acc[section] = [];
-    acc[section].push(rule);
-    return acc;
-  }, {} as Record<string, typeof rules>);
+  // Group rules by section while maintaining global array order
+  const orderedSections = useMemo(() => {
+    return Array.from(new Set(localRules.map(r => r.section || 'General')));
+  }, [localRules]);
+
+  const groupedRules = useMemo(() => {
+    return orderedSections.reduce((acc, section) => {
+      acc[section] = localRules.filter(r => (r.section || 'General') === section);
+      return acc;
+    }, {} as Record<string, typeof rules>);
+  }, [localRules, orderedSections]);
 
   // --- Drag and Drop Handlers ---
-  const handleDragStart = (e: React.DragEvent, id: string) => {
-    setDraggingRuleId(id);
-    // Needed for Firefox
+  const handleDragStart = (e: React.DragEvent, id: string, type: 'rule' | 'section') => {
+    e.stopPropagation();
+    setDraggingId(id);
+    setDraggingType(type);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', id);
   };
 
-  const handleDragOver = (e: React.DragEvent, section: string) => {
+  const handleRuleDragEnter = (e: React.DragEvent, targetRuleId: string) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    if (dragOverSection !== section) {
-      setDragOverSection(section);
+    if (draggingType !== 'rule' || !draggingId || draggingId === targetRuleId) return;
+
+    const draggingRuleIndex = localRules.findIndex(r => r.id === draggingId);
+    const targetRuleIndex = localRules.findIndex(r => r.id === targetRuleId);
+    
+    if (draggingRuleIndex === -1 || targetRuleIndex === -1) return;
+
+    const newRules = [...localRules];
+    const removed = { ...newRules[draggingRuleIndex] };
+    const targetRule = newRules[targetRuleIndex];
+    
+    // Auto change section if hovered over rule in different section
+    removed.section = targetRule.section;
+    
+    newRules.splice(draggingRuleIndex, 1);
+    // Find new target index because splice shifts array
+    const newTargetIndex = newRules.findIndex(r => r.id === targetRuleId);
+    newRules.splice(newTargetIndex !== -1 ? newTargetIndex : targetRuleIndex, 0, removed);
+    
+    setLocalRules(newRules);
+  };
+
+  const handleSectionDragEnter = (e: React.DragEvent, targetSection: string) => {
+    e.preventDefault();
+    if (!draggingId) return;
+
+    if (draggingType === 'rule') {
+      // Allow rule to be dropped into an empty section or at bottom of section
+      if (dragOverSection !== targetSection) setDragOverSection(targetSection);
+    } else if (draggingType === 'section') {
+      if (draggingId === targetSection) return;
+
+      const sectionRules = localRules.filter(r => (r.section || 'General') === draggingId);
+      const otherRules = localRules.filter(r => (r.section || 'General') !== draggingId);
+      
+      const targetIndex = otherRules.findIndex(r => (r.section || 'General') === targetSection);
+      if (targetIndex !== -1) {
+        const newRules = [
+          ...otherRules.slice(0, targetIndex),
+          ...sectionRules,
+          ...otherRules.slice(targetIndex)
+        ];
+        setLocalRules(newRules);
+      }
     }
   };
 
-  const handleRuleDragEnter = (e: React.DragEvent, targetRuleId: string, section: string) => {
+  const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
-    if (!draggingRuleId || draggingRuleId === targetRuleId) return;
-
-    const draggingRule = localRules.find(r => r.id === draggingRuleId);
-    if (!draggingRule || (draggingRule.section || 'General') !== section) return; // Only reorder within same section
-
-    const newRules = [...localRules];
-    const dragIndex = newRules.findIndex(r => r.id === draggingRuleId);
-    const targetIndex = newRules.findIndex(r => r.id === targetRuleId);
-    
-    if (dragIndex === -1 || targetIndex === -1) return;
-
-    const [removed] = newRules.splice(dragIndex, 1);
-    newRules.splice(targetIndex, 0, removed);
-    
-    setLocalRules(newRules);
+    e.dataTransfer.dropEffect = 'move';
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
@@ -88,28 +121,40 @@ export default function RulesPage() {
     setDragOverSection(null);
   };
 
-  const handleDrop = async (e: React.DragEvent, section: string) => {
+  const handleDrop = (e: React.DragEvent, targetSection: string) => {
     e.preventDefault();
     setDragOverSection(null);
-    if (draggingRuleId) {
-      const rule = rules.find((r) => r.id === draggingRuleId);
-      if (rule && (rule.section || 'General') !== section) {
-        await updateSelfRuleSection(draggingRuleId, section);
+
+    // If dropping a rule directly onto the section container
+    if (draggingType === 'rule' && draggingId) {
+      const draggingRuleIndex = localRules.findIndex(r => r.id === draggingId);
+      if (draggingRuleIndex === -1) return;
+      const draggingRule = localRules[draggingRuleIndex];
+      
+      if ((draggingRule.section || 'General') !== targetSection) {
+        const newRules = [...localRules];
+        const removed = { ...newRules[draggingRuleIndex], section: targetSection };
+        newRules.splice(draggingRuleIndex, 1);
+        
+        // Find last index of this section to append
+        // We find the first rule of the next section, or push to end
+        const insertIndex = newRules.findLastIndex(r => (r.section || 'General') === targetSection) + 1;
+        if (insertIndex > 0) {
+          newRules.splice(insertIndex, 0, removed);
+        } else {
+          newRules.push(removed);
+        }
+        setLocalRules(newRules);
       }
     }
   };
 
   const handleDragEnd = async () => {
-    if (draggingRuleId) {
-      const draggedRule = localRules.find(r => r.id === draggingRuleId);
-      if (draggedRule) {
-        const section = draggedRule.section || 'General';
-        const sectionRules = localRules.filter(r => (r.section || 'General') === section);
-        const updatedRules = sectionRules.map((r, i) => ({ ...r, orderIndex: i }));
-        await reorderSelfRules(updatedRules);
-      }
-    }
-    setDraggingRuleId(null);
+    const updatedRules = localRules.map((r, i) => ({ ...r, orderIndex: i }));
+    await reorderSelfRules(updatedRules);
+    
+    setDraggingId(null);
+    setDraggingType(null);
     setDragOverSection(null);
   };
   // ------------------------------
@@ -162,52 +207,65 @@ export default function RulesPage() {
           <EmptyState message={t('rules_no_data') as string} />
         ) : (
           <div className="space-y-8">
-            {Object.entries(groupedRules).map(([section, sectionRules]) => (
-              <div 
-                key={section} 
-                className={`space-y-3 p-4 rounded-xl transition-colors border-2 ${
-                  dragOverSection === section 
-                    ? 'border-amber-500/50 bg-amber-500/5 dark:bg-amber-500/10' 
-                    : 'border-transparent'
-                }`}
-                onDragOver={(e) => handleDragOver(e, section)}
-                onDragLeave={handleDragLeave}
-                onDrop={(e) => handleDrop(e, section)}
-              >
-                <h3 className="text-sm font-bold text-amber-500 uppercase tracking-wider px-2 border-l-2 border-amber-500">
-                  {section}
-                </h3>
-                <div className="grid gap-3">
-                  {sectionRules.map((rule) => (
-                    <Surface
-                      key={rule.id}
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, rule.id)}
-                      onDragEnter={(e) => handleRuleDragEnter(e, rule.id, section)}
-                      onDragOver={(e) => e.preventDefault()} // necessary to allow dropping
-                      onDragEnd={handleDragEnd}
-                      className={`p-4 flex items-center justify-between group hover:border-amber-500/30 transition-all cursor-move ${
-                        draggingRuleId === rule.id ? 'opacity-50 scale-[0.98]' : 'opacity-100'
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="mt-1 w-2 h-2 rounded-full bg-amber-500 flex-shrink-0 cursor-grab" />
-                        <p className="text-zinc-800 dark:text-zinc-200 leading-relaxed font-medium text-lg">
-                          {rule.rule_text}
-                        </p>
-                      </div>
-                      <button
-                        onClick={() => handleDeleteRule(rule.id)}
-                        className="opacity-0 group-hover:opacity-100 p-2 text-zinc-400 hover:text-red-500 transition-all rounded-md hover:bg-red-50 dark:hover:bg-red-500/10 flex-shrink-0"
-                        title={t('delete') as string}
+            {orderedSections.map((section) => {
+              const sectionRules = groupedRules[section] || [];
+              return (
+                <div 
+                  key={section} 
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, section, 'section')}
+                  onDragEnter={(e) => handleSectionDragEnter(e, section)}
+                  onDragEnd={handleDragEnd}
+                  className={`space-y-3 p-4 rounded-xl transition-colors border-2 ${
+                    draggingType === 'section' && draggingId === section ? 'opacity-50 scale-[0.99] border-dashed border-zinc-400' : 
+                    dragOverSection === section 
+                      ? 'border-amber-500/50 bg-amber-500/5 dark:bg-amber-500/10' 
+                      : 'border-transparent'
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={(e) => handleDrop(e, section)}
+                >
+                  <div className="flex items-center gap-2 mb-2 cursor-grab">
+                    <Icon name="gripVertical" size={16} className="text-zinc-400 dark:text-zinc-600" />
+                    <h3 className="text-sm font-bold text-amber-500 uppercase tracking-wider px-2 border-l-2 border-amber-500 select-none">
+                      {section}
+                    </h3>
+                  </div>
+                  <div className="grid gap-3">
+                    {sectionRules.map((rule) => (
+                      <Surface
+                        key={rule.id}
+                        draggable
+                        onDragStart={(e) => handleDragStart(e, rule.id, 'rule')}
+                        onDragEnter={(e) => handleRuleDragEnter(e, rule.id)}
+                        onDragOver={handleDragOver}
+                        onDragEnd={handleDragEnd}
+                        className={`p-4 flex items-center justify-between group hover:border-amber-500/30 transition-all cursor-grab active:cursor-grabbing ${
+                          draggingType === 'rule' && draggingId === rule.id ? 'opacity-50 scale-[0.98]' : 'opacity-100'
+                        }`}
                       >
-                        <Icon name="trash" size={18} />
-                      </button>
-                    </Surface>
-                  ))}
+                        <div className="flex items-start gap-3 w-full">
+                          <div className="mt-1 w-4 h-4 text-zinc-400 dark:text-zinc-600 flex items-center justify-center flex-shrink-0 cursor-grab active:cursor-grabbing">
+                             <Icon name="gripVertical" size={16} />
+                          </div>
+                          <p className="text-zinc-800 dark:text-zinc-200 leading-relaxed font-medium text-lg flex-1">
+                            {rule.rule_text}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteRule(rule.id)}
+                          className="opacity-0 group-hover:opacity-100 p-2 text-zinc-400 hover:text-red-500 transition-all rounded-md hover:bg-red-50 dark:hover:bg-red-500/10 flex-shrink-0"
+                          title={t('delete') as string}
+                        >
+                          <Icon name="trash" size={18} />
+                        </button>
+                      </Surface>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

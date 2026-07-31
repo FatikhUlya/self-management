@@ -2677,7 +2677,10 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
     if (isDbConnected) {
       for (const rule of reorderedRules) {
         if (rule.orderIndex !== undefined) {
-          const { error } = await supabase.from('self_rules').update({ order_index: rule.orderIndex }).eq('id', rule.id);
+          const { error } = await supabase.from('self_rules').update({ 
+            order_index: rule.orderIndex,
+            section: rule.section 
+          }).eq('id', rule.id);
           if (error) console.error('[LifeOS] Failed to reorder self rule:', error.message);
         }
       }
