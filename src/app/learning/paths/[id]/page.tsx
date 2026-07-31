@@ -8,6 +8,20 @@ import { Surface } from '@/components/ui/Surface';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
+import 'react-quill/dist/quill.snow.css';
+
+const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
+
+const quillModules = {
+  toolbar: [
+    [{ 'header': [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
+    ['link', 'image'],
+    ['clean']
+  ],
+};
 
 export default function LearningPathDetailPage() {
   const params = useParams();
@@ -168,12 +182,16 @@ export default function LearningPathDetailPage() {
               className="w-full font-bold bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700/50 rounded-lg px-4 py-2 text-zinc-900 dark:text-zinc-100"
               placeholder="Judul Modul"
             />
-            <textarea 
-              value={newModuleData.contentMaterial} 
-              onChange={e => setNewModuleData({...newModuleData, contentMaterial: e.target.value})}
-              className="w-full h-32 bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700/50 rounded-lg px-4 py-2 text-zinc-900 dark:text-zinc-100 resize-none"
-              placeholder="Catatan Materi (Mendukung paragraf)"
-            />
+            <div className="bg-white/50 dark:bg-black/20 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700/50">
+              <ReactQuill 
+                theme="snow" 
+                modules={quillModules}
+                value={newModuleData.contentMaterial} 
+                onChange={(value: string) => setNewModuleData({...newModuleData, contentMaterial: value})}
+                placeholder="✨ Ketik atau paste materi dari Google Docs di sini..."
+                className="text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-900"
+              />
+            </div>
             <input 
               type="url" 
               value={newModuleData.contentVideoLink} 
@@ -216,11 +234,15 @@ export default function LearningPathDetailPage() {
                     onChange={e => setEditModuleData({...editModuleData, title: e.target.value})}
                     className="w-full font-bold bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700/50 rounded-lg px-4 py-2"
                   />
-                  <textarea 
-                    value={editModuleData.contentMaterial} 
-                    onChange={e => setEditModuleData({...editModuleData, contentMaterial: e.target.value})}
-                    className="w-full h-32 bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700/50 rounded-lg px-4 py-2 resize-none"
-                  />
+                  <div className="bg-white/50 dark:bg-black/20 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700/50">
+                    <ReactQuill 
+                      theme="snow" 
+                      modules={quillModules}
+                      value={editModuleData.contentMaterial} 
+                      onChange={(value: string) => setEditModuleData({...editModuleData, contentMaterial: value})}
+                      className="text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-900"
+                    />
+                  </div>
                   <input 
                     type="url" 
                     value={editModuleData.contentVideoLink} 
@@ -259,9 +281,10 @@ export default function LearningPathDetailPage() {
                           {module.title}
                         </h3>
                         {module.contentMaterial && (
-                          <div className={`mt-2 text-sm whitespace-pre-wrap ${module.isCompleted ? 'text-zinc-400' : 'text-zinc-600 dark:text-zinc-300'}`}>
-                            {module.contentMaterial}
-                          </div>
+                          <div 
+                            className={`mt-3 prose prose-sm sm:prose-base dark:prose-invert max-w-none ${module.isCompleted ? 'opacity-60' : ''}`}
+                            dangerouslySetInnerHTML={{ __html: module.contentMaterial }}
+                          />
                         )}
                         
                         {(module.contentVideoLink || module.contentImageUrl) && (
