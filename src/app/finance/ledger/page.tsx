@@ -194,6 +194,45 @@ export default function LedgerPage() {
     setIsBudgetModalOpen(false);
   };
 
+  const handleExportCSV = () => {
+    if (filteredTransactions.length === 0) {
+      alert(locale === 'id' ? 'Tidak ada data untuk diekspor.' : 'No data to export.');
+      return;
+    }
+
+    const headers = [
+      'ID', 
+      locale === 'id' ? 'Tanggal' : 'Date', 
+      locale === 'id' ? 'Judul' : 'Title', 
+      locale === 'id' ? 'Jumlah' : 'Amount', 
+      locale === 'id' ? 'Tipe' : 'Type', 
+      locale === 'id' ? 'Kategori' : 'Category', 
+      locale === 'id' ? 'Rekening' : 'Account', 
+      locale === 'id' ? 'Catatan' : 'Notes'
+    ];
+    
+    const rows = filteredTransactions.map(t => [
+      t.id,
+      t.date,
+      `"${t.title.replace(/"/g, '""')}"`,
+      t.amount,
+      t.type,
+      `"${t.category}"`,
+      `"${t.account || ''}"`,
+      `"${(t.notes || '').replace(/"/g, '""')}"`
+    ]);
+
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `ledger_export_${ledgerTimeframe}_${ledgerRefDate.replace(/-/g, '')}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -221,10 +260,18 @@ export default function LedgerPage() {
         <div className="space-y-6">
           <Surface className="p-6">
             <div className="border-b border-life-line pb-3 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div>
+              <div className="flex items-center gap-2">
                 <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
                   {locale === 'id' ? 'Buku Kas Transaksi' : 'Transaction Ledger'}
                 </h3>
+                <button
+                  type="button"
+                  onClick={handleExportCSV}
+                  title={locale === 'id' ? 'Ekspor ke CSV' : 'Export to CSV'}
+                  className="w-6 h-6 flex items-center justify-center text-life-muted hover:text-emerald-500 hover:bg-emerald-500/10 rounded transition-colors"
+                >
+                  <Icon name="download" size={14} />
+                </button>
               </div>
 
               {/* Navigation & Filter Controls */}
