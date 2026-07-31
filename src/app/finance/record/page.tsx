@@ -8,6 +8,7 @@ import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
+import { Modal } from '@/components/ui/Modal';
 import { todayISO } from '@/lib/utils';
 
 const EXPENSE_CATEGORIES = [
@@ -33,7 +34,7 @@ const INCOME_CATEGORIES = [
 ];
 
 export default function RecordTransactionPage() {
-  const { state, addTransaction } = useLifeOS();
+  const { state, addTransaction, addFinancialAccount, deleteFinancialAccount } = useLifeOS();
   const { t, locale } = useI18n();
 
   const customAccounts = state.financialAccounts ? state.financialAccounts.map(fa => fa.name) : [];
@@ -51,6 +52,17 @@ export default function RecordTransactionPage() {
   const [txDate, setTxDate] = useLocalStorageState('draft_tx_date', state.selectedDate || todayISO());
   const [txIsRecurring, setTxIsRecurring] = React.useState(false);
   const [txRecurringInterval, setTxRecurringInterval] = React.useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('monthly');
+
+  // Account management state
+  const [isAccountModalOpen, setIsAccountModalOpen] = React.useState(false);
+  const [newAccountName, setNewAccountName] = React.useState('');
+
+  const handleAddAccount = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newAccountName.trim()) return;
+    await addFinancialAccount(newAccountName.trim());
+    setNewAccountName('');
+  };
 
   const handleTxSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -235,9 +247,14 @@ export default function RecordTransactionPage() {
           {txType === 'transfer' ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col space-y-1">
-                <label className="text-xs font-bold text-life-muted uppercase">
-                  {locale === 'id' ? 'Dari Akun' : 'From Account'}
-                </label>
+                <div className="flex justify-between items-center">
+                  <label className="text-xs font-bold text-life-muted uppercase">
+                    {locale === 'id' ? 'Dari Akun' : 'From Account'}
+                  </label>
+                  <button type="button" onClick={() => setIsAccountModalOpen(true)} className="text-[10px] text-emerald-500 font-bold hover:underline">
+                    {locale === 'id' ? 'Kelola Rekening' : 'Manage Accounts'}
+                  </button>
+                </div>
                 <select
                   value={txAccount}
                   onChange={(e) => setTxAccount(e.target.value)}
@@ -250,9 +267,14 @@ export default function RecordTransactionPage() {
                 </select>
               </div>
               <div className="flex flex-col space-y-1">
-                <label className="text-xs font-bold text-life-muted uppercase">
-                  {locale === 'id' ? 'Ke Akun' : 'To Account'}
-                </label>
+                <div className="flex justify-between items-center">
+                  <label className="text-xs font-bold text-life-muted uppercase">
+                    {locale === 'id' ? 'Ke Akun' : 'To Account'}
+                  </label>
+                  <button type="button" onClick={() => setIsAccountModalOpen(true)} className="text-[10px] text-emerald-500 font-bold hover:underline">
+                    {locale === 'id' ? 'Kelola Rekening' : 'Manage Accounts'}
+                  </button>
+                </div>
                 <select
                   value={txToAccount}
                   onChange={(e) => setTxToAccount(e.target.value)}
@@ -282,9 +304,14 @@ export default function RecordTransactionPage() {
                 </select>
               </div>
               <div className="flex flex-col space-y-1">
-                <label className="text-xs font-bold text-life-muted uppercase">
-                  {locale === 'id' ? 'Akun/Sumber Kas' : 'Account/Source'}
-                </label>
+                <div className="flex justify-between items-center">
+                  <label className="text-xs font-bold text-life-muted uppercase">
+                    {locale === 'id' ? 'Akun/Sumber Kas' : 'Account/Source'}
+                  </label>
+                  <button type="button" onClick={() => setIsAccountModalOpen(true)} className="text-[10px] text-emerald-500 font-bold hover:underline">
+                    {locale === 'id' ? 'Kelola Rekening' : 'Manage Accounts'}
+                  </button>
+                </div>
                 <select
                   value={txAccount}
                   onChange={(e) => setTxAccount(e.target.value)}
@@ -336,6 +363,52 @@ export default function RecordTransactionPage() {
           </div>
         </form>
       </Surface>
+
+      {/* Manage Accounts Modal */}
+      <Modal
+        isOpen={isAccountModalOpen}
+        onClose={() => setIsAccountModalOpen(false)}
+        title={locale === 'id' ? 'Kelola Rekening' : 'Manage Accounts'}
+      >
+        <div className="space-y-4">
+          <div className="space-y-2">
+            {state.financialAccounts?.map(acc => (
+              <div key={acc.id} className="flex justify-between items-center p-2 rounded bg-white/[0.02] border border-life-line">
+                <span className="text-sm font-bold text-life-text">{acc.name}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (confirm(locale === 'id' ? 'Hapus rekening ini?' : 'Delete this account?')) {
+                      deleteFinancialAccount(acc.id);
+                    }
+                  }}
+                  className="w-6 h-6 flex items-center justify-center text-life-muted hover:text-rose-500 hover:bg-rose-500/10 rounded transition-colors"
+                >
+                  <Icon name="trash" size={14} />
+                </button>
+              </div>
+            ))}
+            {(!state.financialAccounts || state.financialAccounts.length === 0) && (
+              <p className="text-xs text-life-muted text-center italic py-2">
+                {locale === 'id' ? 'Belum ada rekening yang ditambahkan.' : 'No accounts added yet.'}
+              </p>
+            )}
+          </div>
+          <form onSubmit={handleAddAccount} className="flex gap-2">
+            <input
+              type="text"
+              required
+              placeholder={locale === 'id' ? 'Nama rekening baru...' : 'New account name...'}
+              value={newAccountName}
+              onChange={(e) => setNewAccountName(e.target.value)}
+              className="glass-input text-sm flex-1"
+            />
+            <Button type="submit" variant="primary" icon="plus" className="shrink-0 text-xs py-1">
+              {locale === 'id' ? 'Tambah' : 'Add'}
+            </Button>
+          </form>
+        </div>
+      </Modal>
     </div>
   );
 }
