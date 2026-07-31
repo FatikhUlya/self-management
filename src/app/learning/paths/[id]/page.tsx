@@ -277,40 +277,12 @@ export default function LearningPathDetailPage() {
                         {module.isCompleted && <Icon name="check" size={14} />}
                       </button>
                       <div className="flex-1">
-                        <h3 className={`text-lg font-bold ${module.isCompleted ? 'text-zinc-500 line-through' : 'text-zinc-800 dark:text-zinc-100'}`}>
-                          {module.title}
-                        </h3>
-                        {module.contentMaterial && (
-                          <div 
-                            className={`mt-3 prose prose-sm sm:prose-base dark:prose-invert max-w-none ${module.isCompleted ? 'opacity-60' : ''}`}
-                            dangerouslySetInnerHTML={{ __html: module.contentMaterial }}
-                          />
-                        )}
-                        
-                        {(module.contentVideoLink || module.contentImageUrl) && (
-                          <div className="mt-4 flex flex-wrap gap-2">
-                            {module.contentVideoLink && (
-                              <a 
-                                href={module.contentVideoLink} 
-                                target="_blank" 
-                                rel="noreferrer"
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400 rounded-lg hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors"
-                              >
-                                <Icon name="play" size={12} /> Nonton Video
-                              </a>
-                            )}
-                            {module.contentImageUrl && (
-                              <a 
-                                href={module.contentImageUrl} 
-                                target="_blank" 
-                                rel="noreferrer"
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors"
-                              >
-                                <Icon name="image" size={12} /> Lihat Gambar
-                              </a>
-                            )}
-                          </div>
-                        )}
+                        <Link href={`/learning/paths/${id}/modules/${module.id}`}>
+                          <h3 className={`text-lg font-bold hover:text-amber-500 transition-colors ${module.isCompleted ? 'text-zinc-500 line-through' : 'text-zinc-800 dark:text-zinc-100'}`}>
+                            {module.title}
+                          </h3>
+                        </Link>
+
                       </div>
                     </div>
                     
