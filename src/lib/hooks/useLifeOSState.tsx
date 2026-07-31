@@ -270,6 +270,7 @@ export interface SelfRule {
   id: string;
   rule_text: string;
   section?: string;
+  orderIndex?: number;
   createdAt: string;
 }
 
@@ -489,6 +490,7 @@ interface LifeOSContextProps {
   addSelfRule: (ruleText: string, section?: string) => Promise<void>;
   updateSelfRuleSection: (id: string, newSection: string) => Promise<void>;
   deleteSelfRule: (id: string) => Promise<void>;
+  reorderSelfRules: (reorderedRules: SelfRule[]) => Promise<void>;
 
   // Self Awareness Mirror
   saveSelfAssessment: (snapshot: Omit<SelfAssessmentSnapshot, 'id' | 'createdAt'>, domains: Omit<SelfAssessmentDomain, 'id' | 'snapshotId'>[]) => Promise<void>;
@@ -825,7 +827,8 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
               id: r.id,
               rule_text: r.rule_text,
               section: r.section || 'General',
-              createdAt: r.created_at || r.createdAt
+              orderIndex: r.order_index || 0,
+              createdAt: r.created_at
             })),
             ideas: (ideas as any[] || []).map(i => ({
               id: i.id,
@@ -2617,6 +2620,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
       id: generateId(),
       rule_text,
       section,
+      orderIndex: 0,
       createdAt: new Date().toISOString()
     };
 
@@ -2663,6 +2667,22 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
       checkError(error, 'deleteSelfRule');
     }
   }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const reorderSelfRules = useCallback(async (reorderedRules: SelfRule[]) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      selfRules: prev.selfRules.map(r => reorderedRules.find(newR => newR.id === r.id) || r)
+    }));
+
+    if (isDbConnected) {
+      for (const rule of reorderedRules) {
+        if (rule.orderIndex !== undefined) {
+          const { error } = await supabase.from('self_rules').update({ order_index: rule.orderIndex }).eq('id', rule.id);
+          if (error) console.error('[LifeOS] Failed to reorder self rule:', error.message);
+        }
+      }
+    }
+  }, [isDbConnected, updateStateAndPersist]);
 
   // =========================================================================
   // SELF AWARENESS MIRROR
@@ -3017,6 +3037,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
         addSelfRule,
         updateSelfRuleSection,
         deleteSelfRule,
+        reorderSelfRules,
         saveSelfAssessment,
         createFeedbackRequest,
         closeFeedbackRequest,

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
@@ -9,7 +9,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Icon } from '@/components/ui/Icon';
 
 export default function RulesPage() {
-  const { state, addSelfRule, deleteSelfRule, updateSelfRuleSection } = useLifeOS();
+  const { state, addSelfRule, deleteSelfRule, updateSelfRuleSection, reorderSelfRules } = useLifeOS();
   const { t, locale } = useI18n();
 
   const [newRule, setNewRule] = useState('');
@@ -34,9 +34,14 @@ export default function RulesPage() {
   };
 
   const rules = state.selfRules || [];
+  const [localRules, setLocalRules] = useState(rules);
+
+  useEffect(() => {
+    setLocalRules([...rules].sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0)));
+  }, [rules]);
   
   // Group rules by section
-  const groupedRules = rules.reduce((acc, rule) => {
+  const groupedRules = localRules.reduce((acc, rule) => {
     const section = rule.section || 'General';
     if (!acc[section]) acc[section] = [];
     acc[section].push(rule);
@@ -46,7 +51,9 @@ export default function RulesPage() {
   // --- Drag and Drop Handlers ---
   const handleDragStart = (e: React.DragEvent, id: string) => {
     setDraggingRuleId(id);
+    // Needed for Firefox
     e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', id);
   };
 
   const handleDragOver = (e: React.DragEvent, section: string) => {
@@ -55,6 +62,25 @@ export default function RulesPage() {
     if (dragOverSection !== section) {
       setDragOverSection(section);
     }
+  };
+
+  const handleRuleDragEnter = (e: React.DragEvent, targetRuleId: string, section: string) => {
+    e.preventDefault();
+    if (!draggingRuleId || draggingRuleId === targetRuleId) return;
+
+    const draggingRule = localRules.find(r => r.id === draggingRuleId);
+    if (!draggingRule || (draggingRule.section || 'General') !== section) return; // Only reorder within same section
+
+    const newRules = [...localRules];
+    const dragIndex = newRules.findIndex(r => r.id === draggingRuleId);
+    const targetIndex = newRules.findIndex(r => r.id === targetRuleId);
+    
+    if (dragIndex === -1 || targetIndex === -1) return;
+
+    const [removed] = newRules.splice(dragIndex, 1);
+    newRules.splice(targetIndex, 0, removed);
+    
+    setLocalRules(newRules);
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
@@ -70,11 +96,19 @@ export default function RulesPage() {
       if (rule && (rule.section || 'General') !== section) {
         await updateSelfRuleSection(draggingRuleId, section);
       }
-      setDraggingRuleId(null);
     }
   };
 
-  const handleDragEnd = () => {
+  const handleDragEnd = async () => {
+    if (draggingRuleId) {
+      const draggedRule = localRules.find(r => r.id === draggingRuleId);
+      if (draggedRule) {
+        const section = draggedRule.section || 'General';
+        const sectionRules = localRules.filter(r => (r.section || 'General') === section);
+        const updatedRules = sectionRules.map((r, i) => ({ ...r, orderIndex: i }));
+        await reorderSelfRules(updatedRules);
+      }
+    }
     setDraggingRuleId(null);
     setDragOverSection(null);
   };
@@ -149,6 +183,8 @@ export default function RulesPage() {
                       key={rule.id}
                       draggable
                       onDragStart={(e) => handleDragStart(e, rule.id)}
+                      onDragEnter={(e) => handleRuleDragEnter(e, rule.id, section)}
+                      onDragOver={(e) => e.preventDefault()} // necessary to allow dropping
                       onDragEnd={handleDragEnd}
                       className={`p-4 flex items-center justify-between group hover:border-amber-500/30 transition-all cursor-move ${
                         draggingRuleId === rule.id ? 'opacity-50 scale-[0.98]' : 'opacity-100'
