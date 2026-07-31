@@ -748,6 +748,8 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
             { data: financialAccountsData },
             { data: selfRulesData },
             { data: learningSchedulesData },
+            { data: learningSubjectsData },
+            { data: learningModulesData },
           ] = await Promise.all([
             supabase.from('ideas').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
             supabase.from('journals').select('*').eq('user_id', userId).order('date', { ascending: false }),
@@ -773,6 +775,8 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
             supabase.from('financial_accounts').select('*').eq('user_id', userId).order('created_at', { ascending: true }),
             supabase.from('self_rules').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
             supabase.from('learning_schedules').select('*').eq('user_id', userId).limit(1),
+            supabase.from('learning_subjects').select('*').eq('user_id', userId).order('created_at', { ascending: false }),
+            supabase.from('learning_modules').select('*').eq('user_id', userId).order('order_index', { ascending: true }),
           ]);
 
           const [
@@ -823,6 +827,23 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
 
           setState(prev => ({
             ...prev,
+            learningSubjects: (learningSubjectsData as any[] || []).map(s => ({
+              id: s.id,
+              title: s.title,
+              description: s.description || '',
+              createdAt: s.created_at
+            })),
+            learningModules: (learningModulesData as any[] || []).map(m => ({
+              id: m.id,
+              subjectId: m.subject_id,
+              title: m.title,
+              contentMaterial: m.content_material || '',
+              contentVideoLink: m.content_video_link || '',
+              contentImageUrl: m.content_image_url || '',
+              isCompleted: m.is_completed || false,
+              orderIndex: m.order_index || 0,
+              createdAt: m.created_at
+            })),
             selfRules: (selfRulesData as any[] || []).map(r => ({
               id: r.id,
               rule_text: r.rule_text,
@@ -2688,6 +2709,147 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
   }, [isDbConnected, updateStateAndPersist]);
 
   // =========================================================================
+  // LEARNING PATHS
+  // =========================================================================
+
+  const addLearningSubject = useCallback(async (title: string, description?: string) => {
+    const item: LearningSubject = {
+      id: generateId(),
+      title,
+      description: description || '',
+      createdAt: new Date().toISOString()
+    };
+    updateStateAndPersist(prev => ({ ...prev, learningSubjects: [item, ...prev.learningSubjects] }));
+    if (isDbConnected) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase.from('learning_subjects').insert({
+          id: item.id,
+          user_id: user.id,
+          title: item.title,
+          description: item.description,
+          created_at: item.createdAt
+        });
+        checkError(error, 'addLearningSubject');
+      }
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const updateLearningSubject = useCallback(async (id: string, updates: Partial<LearningSubject>) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      learningSubjects: prev.learningSubjects.map(s => s.id === id ? { ...s, ...updates } : s)
+    }));
+    if (isDbConnected) {
+      const { error } = await supabase.from('learning_subjects').update({
+        title: updates.title,
+        description: updates.description
+      }).eq('id', id);
+      checkError(error, 'updateLearningSubject');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const deleteLearningSubject = useCallback(async (id: string) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      learningSubjects: prev.learningSubjects.filter(s => s.id !== id),
+      learningModules: prev.learningModules.filter(m => m.subjectId !== id)
+    }));
+    if (isDbConnected) {
+      const { error } = await supabase.from('learning_subjects').delete().eq('id', id);
+      checkError(error, 'deleteLearningSubject');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const addLearningModule = useCallback(async (subjectId: string, module: Omit<LearningModule, 'id' | 'subjectId' | 'createdAt'>) => {
+    const item: LearningModule = {
+      ...module,
+      id: generateId(),
+      subjectId,
+      createdAt: new Date().toISOString()
+    };
+    updateStateAndPersist(prev => ({ ...prev, learningModules: [...prev.learningModules, item] }));
+    if (isDbConnected) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase.from('learning_modules').insert({
+          id: item.id,
+          subject_id: item.subjectId,
+          user_id: user.id,
+          title: item.title,
+          content_material: item.contentMaterial,
+          content_video_link: item.contentVideoLink,
+          content_image_url: item.contentImageUrl,
+          is_completed: item.isCompleted,
+          order_index: item.orderIndex,
+          created_at: item.createdAt
+        });
+        checkError(error, 'addLearningModule');
+      }
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const updateLearningModule = useCallback(async (id: string, updates: Partial<LearningModule>) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      learningModules: prev.learningModules.map(m => m.id === id ? { ...m, ...updates } : m)
+    }));
+    if (isDbConnected) {
+      const { error } = await supabase.from('learning_modules').update({
+        title: updates.title,
+        content_material: updates.contentMaterial,
+        content_video_link: updates.contentVideoLink,
+        content_image_url: updates.contentImageUrl,
+        is_completed: updates.isCompleted,
+        order_index: updates.orderIndex
+      }).eq('id', id);
+      checkError(error, 'updateLearningModule');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const deleteLearningModule = useCallback(async (id: string) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      learningModules: prev.learningModules.filter(m => m.id !== id)
+    }));
+    if (isDbConnected) {
+      const { error } = await supabase.from('learning_modules').delete().eq('id', id);
+      checkError(error, 'deleteLearningModule');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const toggleLearningModuleCompletion = useCallback(async (id: string) => {
+    let newStatus = false;
+    updateStateAndPersist(prev => {
+      const module = prev.learningModules.find(m => m.id === id);
+      if (module) newStatus = !module.isCompleted;
+      return {
+        ...prev,
+        learningModules: prev.learningModules.map(m => m.id === id ? { ...m, isCompleted: newStatus } : m)
+      };
+    });
+    if (isDbConnected) {
+      const { error } = await supabase.from('learning_modules').update({ is_completed: newStatus }).eq('id', id);
+      checkError(error, 'toggleLearningModuleCompletion');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const reorderLearningModules = useCallback(async (reorderedModules: LearningModule[]) => {
+    updateStateAndPersist(prev => ({
+      ...prev,
+      learningModules: prev.learningModules.map(m => reorderedModules.find(newM => newM.id === m.id) || m)
+    }));
+    if (isDbConnected) {
+      for (const module of reorderedModules) {
+        if (module.orderIndex !== undefined) {
+          const { error } = await supabase.from('learning_modules').update({ order_index: module.orderIndex }).eq('id', module.id);
+          if (error) console.error('[LifeOS] Failed to reorder learning module:', error.message);
+        }
+      }
+    }
+  }, [isDbConnected, updateStateAndPersist]);
+
+  // =========================================================================
   // SELF AWARENESS MIRROR
   // =========================================================================
 
@@ -3041,6 +3203,14 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
         updateSelfRuleSection,
         deleteSelfRule,
         reorderSelfRules,
+        addLearningSubject,
+        updateLearningSubject,
+        deleteLearningSubject,
+        addLearningModule,
+        updateLearningModule,
+        deleteLearningModule,
+        toggleLearningModuleCompletion,
+        reorderLearningModules,
         saveSelfAssessment,
         createFeedbackRequest,
         closeFeedbackRequest,
