@@ -366,6 +366,8 @@ export interface LifeOSState {
   habitLogs: HabitLog[];
   learning: LearningSession[];
   learningSchedule: LearningSchedule | null;
+  learningSubjects: LearningSubject[];
+  learningModules: LearningModule[];
   meals: Meal[];
   workouts: Workout[];
   nextDayPlans: Plan[];
@@ -557,6 +559,8 @@ const initialDefaultState = (today: string): LifeOSState => ({
   habitLogs: [],
   learning: [],
   learningSchedule: null,
+  learningSubjects: [],
+  learningModules: [],
   meals: [],
   workouts: [],
   nextDayPlans: [],
