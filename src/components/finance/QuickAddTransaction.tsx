@@ -51,13 +51,17 @@ const getCategoryLabel = (cat: string, locale: string) => {
 
 export function QuickAddTransaction() {
   const [isOpen, setIsOpen] = useState(false);
-  const { addTransaction } = useLifeOS();
+  const { addTransaction, state } = useLifeOS();
   const { t, locale } = useI18n();
 
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [category, setCategory] = useState(EXPENSE_CATEGORIES[0]);
+  const [account, setAccount] = useState('Tunai');
+
+  const customAccounts = state.financialAccounts ? state.financialAccounts.map(fa => fa.name) : [];
+  const allAccounts = Array.from(new Set(['Tunai', ...customAccounts, 'Lainnya']));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -68,7 +72,7 @@ export function QuickAddTransaction() {
       amount: Number(amount),
       type,
       category,
-      account: 'Tunai', // default to Tunai for quick add
+      account: account,
       notes: '',
       date: new Date().toISOString().split('T')[0],
       isRecurring: false,
@@ -164,6 +168,21 @@ export function QuickAddTransaction() {
                 ? EXPENSE_CATEGORIES.map(c => <option key={c} value={c}>{getCategoryLabel(c, locale)}</option>)
                 : INCOME_CATEGORIES.map(c => <option key={c} value={c}>{getCategoryLabel(c, locale)}</option>)
               }
+            </select>
+          </div>
+
+          <div className="flex flex-col space-y-1">
+            <label className="text-xs font-bold text-life-muted uppercase">
+              {locale === 'id' ? 'Akun Rekening' : 'Account'}
+            </label>
+            <select
+              value={account}
+              onChange={(e) => setAccount(e.target.value)}
+              className="glass-input"
+            >
+              {allAccounts.map(acc => (
+                <option key={acc} value={acc}>{acc}</option>
+              ))}
             </select>
           </div>
 
