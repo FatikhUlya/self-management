@@ -173,6 +173,10 @@ export interface Meal {
   food: string;
   protein: number;
   calories: number;
+  carbs: number;
+  fat: number;
+  portion: string;
+  imageUrl: string;
   createdAt: string;
 }
 
@@ -1065,6 +1069,10 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
               food: m.food,
               protein: m.protein || 0,
               calories: m.calories || 0,
+              carbs: m.carbs || 0,
+              fat: m.fat || 0,
+              portion: m.portion || '',
+              imageUrl: m.image_url || '',
               createdAt: m.created_at || m.createdAt
             })),
             workouts: (workouts as any[] || []).map(w => ({
@@ -2135,7 +2143,11 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
           type: item.type,
           food: item.food,
           protein: item.protein,
-          calories: item.calories
+          calories: item.calories,
+          carbs: item.carbs || 0,
+          fat: item.fat || 0,
+          portion: item.portion || '',
+          image_url: item.imageUrl || ''
         });
         checkError(error, 'addMeal');
       }
