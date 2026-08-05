@@ -11,13 +11,15 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Icon } from '@/components/ui/Icon';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { AiFoodScanner } from '@/components/ui/AiFoodScanner';
-import { todayISO } from '@/lib/utils';
+import { todayISO, formatDate } from '@/lib/utils';
 import { MEAL_TYPES, ACTIVITY_LEVELS } from '@/lib/constants';
 
 export default function HealthNutritionPage() {
   const { state, addMeal, deleteMeal } = useLifeOS();
   const { t, locale } = useI18n();
   const today = state.selectedDate || todayISO();
+
+  const [activeTab, setActiveTab] = useState<'today' | 'history'>('today');
 
   // Meal form
   const [mealType, setMealType] = useLocalStorageState<'Breakfast' | 'Lunch' | 'Dinner' | 'Snack'>('draft_health_mealType', 'Breakfast');
@@ -28,6 +30,8 @@ export default function HealthNutritionPage() {
   const [mealFat, setMealFat] = useLocalStorageState<number>('draft_health_mealFat', 0);
 
   const dailyMeals = state.meals.filter((m) => m.date === today);
+  const allMealsSorted = [...state.meals].sort((a, b) => b.date.localeCompare(a.date));
+  const displayMeals = activeTab === 'today' ? dailyMeals : allMealsSorted;
 
   const getLatestWeight = () => {
     const logs = [...state.weightLogs].sort((a, b) => b.date.localeCompare(a.date));
@@ -264,18 +268,34 @@ export default function HealthNutritionPage() {
 
         {/* Daily Logs List (Meals today) */}
         <Surface className="p-6">
-          <div className="border-b border-life-line pb-3 mb-4">
-            <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
-              {t('health_meals_today')}
-            </h3>
-            <p className="text-xs text-life-muted mt-0.5">
-              {dailyMeals.length} logs saved
-            </p>
+          <div className="border-b border-life-line pb-3 mb-4 flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
+                {activeTab === 'today' ? t('health_meals_today') : locale === 'id' ? 'Riwayat Logs' : 'Logs History'}
+              </h3>
+              <p className="text-xs text-life-muted mt-0.5">
+                {displayMeals.length} logs saved
+              </p>
+            </div>
+            <div className="flex bg-life-bg p-1 rounded-lg border border-life-line">
+              <button 
+                onClick={() => setActiveTab('today')}
+                className={`px-3 py-1 rounded text-xs font-bold transition-all ${activeTab === 'today' ? 'bg-life-surface text-life-text shadow' : 'text-life-muted hover:text-life-text'}`}
+              >
+                {locale === 'id' ? 'Hari Ini' : 'Today'}
+              </button>
+              <button 
+                onClick={() => setActiveTab('history')}
+                className={`px-3 py-1 rounded text-xs font-bold transition-all ${activeTab === 'history' ? 'bg-life-surface text-life-text shadow' : 'text-life-muted hover:text-life-text'}`}
+              >
+                {locale === 'id' ? 'Riwayat' : 'History'}
+              </button>
+            </div>
           </div>
 
           <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
-            {dailyMeals.length > 0 ? (
-              dailyMeals.map((meal) => (
+            {displayMeals.length > 0 ? (
+              displayMeals.map((meal) => (
                 <div 
                   key={meal.id} 
                   className="p-3 rounded-lg bg-white/[0.005] border border-life-line flex justify-between items-start gap-3"
@@ -293,6 +313,7 @@ export default function HealthNutritionPage() {
                     )}
                     <div className="min-w-0">
                       <strong className="text-xs text-life-text block truncate">
+                        {activeTab === 'history' && <span className="text-amber-500 mr-1">{formatDate(meal.date, { short: true, locale })} &bull;</span>}
                         {meal.type}: {meal.food}
                       </strong>
                       {meal.portion && (
