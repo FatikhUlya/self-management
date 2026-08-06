@@ -41,8 +41,6 @@ export default function LearningPathDetailPage() {
   
   const [isAddingModule, setIsAddingModule] = useState(false);
   const [newModuleData, setNewModuleData] = useState<any>({ title: '', contentMaterial: '', contentImageUrl: '', contentVideoLink: '' });
-  
-  const [isFullView, setIsFullView] = useState(false);
 
   useEffect(() => {
     if (subject) {
@@ -222,59 +220,46 @@ export default function LearningPathDetailPage() {
           <p className="text-zinc-500 dark:text-zinc-400">Belum ada modul untuk topik ini.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div className="space-y-4">
           {modules.map((module) => (
             <Surface 
               key={module.id} 
-              className={`p-5 transition-all ${module.isCompleted ? 'border-emerald-500/30 bg-emerald-50/30 dark:bg-emerald-900/10' : ''} ${editingModuleId === module.id ? 'col-span-full' : ''}`}
+              className={`p-5 transition-all ${module.isCompleted ? 'border-emerald-500/30 bg-emerald-50/30 dark:bg-emerald-900/10' : ''}`}
             >
               {editingModuleId === module.id ? (
-                <div className={`space-y-4 ${isFullView ? 'fixed inset-0 z-50 p-6 md:p-12 bg-zinc-900/95 overflow-y-auto' : ''}`}>
-                  {/* Top Bar: Title and Actions */}
-                  <div className="flex flex-col lg:flex-row gap-3 justify-between items-start lg:items-center">
-                    <input 
-                      type="text" 
-                      value={editModuleData.title} 
-                      onChange={e => setEditModuleData({...editModuleData, title: e.target.value})}
-                      className="flex-1 w-full font-bold bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700/50 rounded-lg px-4 py-2"
-                      placeholder="Judul Modul"
-                    />
-                    <div className="flex gap-2 w-full lg:w-auto shrink-0">
-                      <Button variant="secondary" onClick={() => setIsFullView(!isFullView)} icon={isFullView ? "minimize" : "maximize"} className="text-xs">
-                        {isFullView ? 'Kemas' : 'Full View'}
-                      </Button>
-                      <Button onClick={() => { handleSaveModule(); setIsFullView(false); }} className="bg-amber-500 text-white text-xs">Simpan</Button>
-                      <Button variant="secondary" onClick={() => { setEditingModuleId(null); setIsFullView(false); }} className="text-xs">Batal</Button>
-                    </div>
-                  </div>
-                  
-                  {/* Links Row */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input 
-                      type="url" 
-                      value={editModuleData.contentVideoLink} 
-                      onChange={e => setEditModuleData({...editModuleData, contentVideoLink: e.target.value})}
-                      className="w-full bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700/50 rounded-lg px-4 py-2 text-sm"
-                      placeholder="Link Video (Opsional)"
-                    />
-                    <input 
-                      type="url" 
-                      value={editModuleData.contentImageUrl} 
-                      onChange={e => setEditModuleData({...editModuleData, contentImageUrl: e.target.value})}
-                      className="w-full bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700/50 rounded-lg px-4 py-2 text-sm"
-                      placeholder="Link Gambar (Opsional)"
-                    />
-                  </div>
-
-                  {/* Rich Text Editor */}
-                  <div className={`bg-white/50 dark:bg-black/20 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700/50 flex flex-col ${isFullView ? 'h-[60vh]' : 'h-[350px]'}`}>
+                <div className="space-y-4">
+                  <input 
+                    type="text" 
+                    value={editModuleData.title} 
+                    onChange={e => setEditModuleData({...editModuleData, title: e.target.value})}
+                    className="w-full font-bold bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700/50 rounded-lg px-4 py-2"
+                  />
+                  <div className="bg-white/50 dark:bg-black/20 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700/50">
                     <ReactQuill 
                       theme="snow" 
                       modules={quillModules}
                       value={editModuleData.contentMaterial} 
                       onChange={(value: string) => setEditModuleData({...editModuleData, contentMaterial: value})}
-                      className="text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-900 flex-1 overflow-y-auto"
+                      className="text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-900"
                     />
+                  </div>
+                  <input 
+                    type="url" 
+                    value={editModuleData.contentVideoLink} 
+                    onChange={e => setEditModuleData({...editModuleData, contentVideoLink: e.target.value})}
+                    className="w-full bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700/50 rounded-lg px-4 py-2"
+                    placeholder="Link Video"
+                  />
+                  <input 
+                    type="url" 
+                    value={editModuleData.contentImageUrl} 
+                    onChange={e => setEditModuleData({...editModuleData, contentImageUrl: e.target.value})}
+                    className="w-full bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700/50 rounded-lg px-4 py-2"
+                    placeholder="Link Gambar"
+                  />
+                  <div className="flex gap-2">
+                    <Button onClick={handleSaveModule} className="bg-amber-500 text-white">Simpan</Button>
+                    <Button variant="secondary" onClick={() => setEditingModuleId(null)}>Batal</Button>
                   </div>
                 </div>
               ) : (
