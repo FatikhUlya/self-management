@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { Badge } from '@/components/ui/Badge';
 import { formatDate } from '@/lib/utils';
+import { PersonalTraitEvaluation } from '@/components/mirror/PersonalTraitEvaluation';
 
 export default function MirrorDashboard() {
   const { state } = useLifeOS();
@@ -25,54 +26,7 @@ export default function MirrorDashboard() {
       : null;
   }, [state.feedbackRequests]);
 
-  // Aggregate Johari Window data
-  const johariData = useMemo(() => {
-    if (!latestSnapshot || !latestRequest) return null;
-
-    const responses = state.feedbackResponses.filter(r => r.requestId === latestRequest.id);
-    // Enforce anonymity threshold
-    if (responses.length < FEEDBACK_MIN_RESPONSES && latestRequest.privacyMode === 'anonymous') {
-      return { status: 'waiting_for_responses', count: responses.length, min: FEEDBACK_MIN_RESPONSES };
-    }
-
-    const selfDomains = state.selfAssessmentDomains.filter(d => d.snapshotId === latestSnapshot.id);
-    const feedbackDomains = state.feedbackResponseDomains.filter(d => 
-      responses.some(r => r.id === d.responseId)
-    );
-
-    const quadrants = {
-      open: [] as Array<typeof SELF_AWARENESS_DOMAINS[number]>,
-      hidden: [] as Array<typeof SELF_AWARENESS_DOMAINS[number]>,
-      blind: [] as Array<typeof SELF_AWARENESS_DOMAINS[number]>,
-      growth: [] as Array<typeof SELF_AWARENESS_DOMAINS[number]>
-    };
-
-    SELF_AWARENESS_DOMAINS.forEach(domainDef => {
-      const selfD = selfDomains.find(d => d.domainKey === domainDef.key);
-      const fd = feedbackDomains.filter(d => d.domainKey === domainDef.key);
-      
-      if (!selfD && fd.length === 0) return;
-
-      const selfScore = selfD ? selfD.rating : 0;
-      const feedbackScore = fd.length > 0 ? fd.reduce((acc, curr) => acc + curr.rating, 0) / fd.length : 0;
-
-      // Threshold is 4.0 out of 5 for a "Strength"
-      const isSelfStrength = selfScore >= 4;
-      const isOthersStrength = feedbackScore >= 4;
-
-      if (selfScore > 0 && feedbackScore > 0) {
-        if (isSelfStrength && isOthersStrength) quadrants.open.push(domainDef);
-        else if (isSelfStrength && !isOthersStrength) quadrants.hidden.push(domainDef);
-        else if (!isSelfStrength && isOthersStrength) quadrants.blind.push(domainDef);
-        else quadrants.growth.push(domainDef);
-      }
-    });
-
-    return { status: 'ready', quadrants, responseCount: responses.length };
-  }, [latestSnapshot, latestRequest, state.feedbackResponses, state.selfAssessmentDomains, state.feedbackResponseDomains]);
-
   const activeGoals = state.growthGoals.filter(g => g.progress < 100 && g.status !== 'stopped');
-  const quadrants = johariData?.status === 'ready' ? johariData.quadrants : null;
 
   return (
     <div className="space-y-6">
@@ -177,108 +131,10 @@ export default function MirrorDashboard() {
           </Surface>
         </div>
 
-        {/* Right Col: Johari Window */}
+        {/* Right Col: Personal Trait Evaluation */}
         <div className="lg:col-span-2">
-          <Surface className="p-6 h-full flex flex-col">
-            <div className="flex justify-between items-start border-b border-white/10 pb-4 mb-6">
-              <div>
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-                  <Icon name="grid" size={16} className="text-indigo-400" />
-                  Johari Window Analysis
-                </h3>
-                <p className="text-xs text-zinc-400 mt-1">
-                  Perbandingan penilaian diri Anda vs. persepsi orang lain (berdasarkan data terbaru).
-                </p>
-              </div>
-            </div>
-
-            <div className="flex-1 flex flex-col justify-center">
-              {!johariData ? (
-                <div className="text-center py-10">
-                  <Icon name="grid" size={48} className="mx-auto text-zinc-800 mb-4" />
-                  <h4 className="text-sm font-bold text-zinc-300 mb-2">Data Belum Lengkap</h4>
-                  <p className="text-xs text-zinc-500 max-w-sm mx-auto">
-                    Untuk melihat Johari Window, Anda harus menyelesaikan setidaknya 1 Refleksi Diri dan mendapatkan feedback dari rekan.
-                  </p>
-                  <div className="mt-6 flex justify-center gap-3">
-                    <Link href="/mirror/new">
-                      <Button variant="secondary" size="sm" className="text-[10px]">Isi Refleksi</Button>
-                    </Link>
-                    <Link href="/mirror/feedback">
-                      <Button variant="secondary" size="sm" className="text-[10px]">Minta Feedback</Button>
-                    </Link>
-                  </div>
-                </div>
-              ) : johariData.status === 'waiting_for_responses' ? (
-                <div className="text-center py-10">
-                  <div className="inline-flex w-16 h-16 rounded-full bg-indigo-500/20 text-indigo-400 items-center justify-center mb-4 border border-indigo-500/30">
-                    <span className="text-xl font-bold">{johariData.count}/{johariData.min}</span>
-                  </div>
-                  <h4 className="text-sm font-bold text-indigo-300 mb-2">Menunggu Feedback</h4>
-                  <p className="text-xs text-zinc-400 max-w-sm mx-auto">
-                    Demi menjaga anonimitas, hasil akan ditampilkan setelah minimal {johariData.min} rekan mengisi form feedback Anda.
-                  </p>
-                </div>
-              ) : johariData.status === 'ready' ? (
-                <div className="grid grid-cols-2 gap-4 h-full min-h-[300px]">
-                  {/* Open Arena */}
-                  <div className="bg-teal-500/10 border border-teal-500/20 rounded-xl p-4 flex flex-col">
-                    <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider mb-3">
-                      Open Arena (Area Terbuka)
-                    </h4>
-                    <p className="text-[10px] text-teal-400/70 mb-3 line-clamp-2">Kekuatan yang disadari oleh Anda dan diakui oleh rekan-rekan.</p>
-                    <div className="flex-1 flex flex-wrap gap-2 content-start">
-                      {quadrants?.open.map(d => (
-                        <Badge key={d.key} tone="teal" className="text-[10px] py-1 px-2">{d.label}</Badge>
-                      ))}
-                      {quadrants?.open.length === 0 && <span className="text-xs text-zinc-500 italic">Kosong</span>}
-                    </div>
-                  </div>
-
-                  {/* Blind Spot */}
-                  <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex flex-col">
-                    <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-3">
-                      Blind Spot (Titik Buta)
-                    </h4>
-                    <p className="text-[10px] text-amber-400/70 mb-3 line-clamp-2">Potensi/Kekuatan yang dilihat orang lain, namun mungkin tidak Anda sadari.</p>
-                    <div className="flex-1 flex flex-wrap gap-2 content-start">
-                      {quadrants?.blind.map(d => (
-                        <Badge key={d.key} tone="amber" className="text-[10px] py-1 px-2">{d.label}</Badge>
-                      ))}
-                      {quadrants?.blind.length === 0 && <span className="text-xs text-zinc-500 italic">Kosong</span>}
-                    </div>
-                  </div>
-
-                  {/* Hidden Area */}
-                  <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-4 flex flex-col">
-                    <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-3">
-                      Hidden Area (Area Tersembunyi)
-                    </h4>
-                    <p className="text-[10px] text-indigo-400/70 mb-3 line-clamp-2">Kekuatan/potensi Anda yang mungkin belum sepenuhnya terlihat oleh orang lain.</p>
-                    <div className="flex-1 flex flex-wrap gap-2 content-start">
-                      {quadrants?.hidden.map(d => (
-                        <Badge key={d.key} tone="indigo" className="text-[10px] py-1 px-2">{d.label}</Badge>
-                      ))}
-                      {quadrants?.hidden.length === 0 && <span className="text-xs text-zinc-500 italic">Kosong</span>}
-                    </div>
-                  </div>
-
-                  {/* Unknown / Growth */}
-                  <div className="bg-rose-500/10 border border-rose-500/20 rounded-xl p-4 flex flex-col">
-                    <h4 className="text-xs font-bold text-rose-400 uppercase tracking-wider mb-3">
-                      Shared Growth Area
-                    </h4>
-                    <p className="text-[10px] text-rose-400/70 mb-3 line-clamp-2">Area prioritas untuk ditingkatkan, baik menurut evaluasi diri maupun feedback.</p>
-                    <div className="flex-1 flex flex-wrap gap-2 content-start">
-                      {quadrants?.growth.map(d => (
-                        <Badge key={d.key} tone="rose" className="text-[10px] py-1 px-2">{d.label}</Badge>
-                      ))}
-                      {quadrants?.growth.length === 0 && <span className="text-xs text-zinc-500 italic">Kosong</span>}
-                    </div>
-                  </div>
-                </div>
-              ) : null}
-            </div>
+          <Surface className="p-6 h-[600px] flex flex-col">
+            <PersonalTraitEvaluation />
           </Surface>
         </div>
       </div>
