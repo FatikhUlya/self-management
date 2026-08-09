@@ -290,6 +290,10 @@ export interface MealRow {
   food: string;
   protein: number;
   calories: number;
+  carbs: number;
+  fat: number;
+  portion: string;
+  image_url: string;
   created_at: string;
   updated_at: string;
 }

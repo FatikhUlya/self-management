@@ -283,7 +283,7 @@ export const id = {
   health_meal_type: 'Meal',
   health_food: 'Makanan',
   health_food_placeholder: 'Menu utama',
-  health_protein: 'Protein (gram)',
+  health_protein: 'Protein',
   health_calories: 'Kalori',
   health_add_meal: 'Tambah Meal',
   health_workout_log: 'Workout Log',

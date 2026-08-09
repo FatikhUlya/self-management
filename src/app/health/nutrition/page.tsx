@@ -99,7 +99,7 @@ export default function HealthNutritionPage() {
       carbs: data.carbs,
       fat: data.fat,
       portion: data.portion,
-      imageUrl: data.imageUrl,
+      imageUrl: '', // Do not save the heavy base64 image to DB
     });
   };
 
@@ -218,7 +218,7 @@ export default function HealthNutritionPage() {
 
               <div className="flex flex-col space-y-1">
                 <label className="text-xs font-bold text-life-muted uppercase">
-                  Karbo (g)
+                  Karbo
                 </label>
                 <input
                   type="number"
@@ -247,7 +247,7 @@ export default function HealthNutritionPage() {
 
               <div className="flex flex-col space-y-1">
                 <label className="text-xs font-bold text-life-muted uppercase">
-                  Lemak (g)
+                  Lemak
                 </label>
                 <input
                   type="number"

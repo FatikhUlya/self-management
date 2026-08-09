@@ -285,7 +285,7 @@ export const en: Record<TranslationKey, string> = {
   health_meal_type: 'Meal',
   health_food: 'Food',
   health_food_placeholder: 'Main dish',
-  health_protein: 'Protein (grams)',
+  health_protein: 'Protein',
   health_calories: 'Calories',
   health_add_meal: 'Add Meal',
   health_workout_log: 'Workout Log',
