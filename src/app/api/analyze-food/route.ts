@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
 PENTING: 
 - Berikan estimasi terbaik berdasarkan visual makanan
-- Jika ada beberapa item, daftarkan masing-masing di dalam array "foods"
+- Kelompokkan komponen makanan menjadi MAKSIMAL 3-4 item utama saja agar respon singkat dan tidak terpotong.
 - Jika tidak dapat menentukan berat makanan secara pasti, berikan estimasi yang masuk akal dan gunakan confidence score. Jangan mengklaim angka sebagai nilai pasti mutlak.
 - Jawab HANYA dalam format JSON berikut (sesuai struktur persis ini), tanpa teks tambahan:
 
@@ -72,7 +72,7 @@ PENTING:
 
 Berikan angka sebagai integer (tanpa desimal). Jangan tambahkan teks apapun selain JSON.`;
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
 
     const response = await fetch(geminiUrl, {
       method: 'POST',
@@ -94,8 +94,7 @@ Berikan angka sebagai integer (tanpa desimal). Jangan tambahkan teks apapun sela
           },
         ],
         generationConfig: {
-          temperature: 0.1,
-          maxOutputTokens: 500,
+          temperature: 0.4,
         },
       }),
     });
@@ -146,25 +145,32 @@ Berikan angka sebagai integer (tanpa desimal). Jangan tambahkan teks apapun sela
 
     console.log('[analyze-food] Gemini response:', textContent);
 
-    // Parse the JSON from the response (handle markdown code blocks)
-    let cleanedText = textContent.trim();
-    if (cleanedText.startsWith('```json')) {
-      cleanedText = cleanedText.slice(7);
-    } else if (cleanedText.startsWith('```')) {
-      cleanedText = cleanedText.slice(3);
+    // Parse the JSON from the response (handle markdown and conversational text)
+    const firstBrace = textContent.indexOf('{');
+    const lastBrace = textContent.lastIndexOf('}');
+    
+    let cleanedText = textContent;
+    if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+      cleanedText = textContent.slice(firstBrace, lastBrace + 1);
+    } else {
+      // Fallback cleanup if braces aren't found (unlikely for valid JSON)
+      cleanedText = textContent.trim();
+      if (cleanedText.startsWith('```json')) cleanedText = cleanedText.slice(7);
+      else if (cleanedText.startsWith('```')) cleanedText = cleanedText.slice(3);
+      if (cleanedText.endsWith('```')) cleanedText = cleanedText.slice(0, -3);
+      cleanedText = cleanedText.trim();
     }
-    if (cleanedText.endsWith('```')) {
-      cleanedText = cleanedText.slice(0, -3);
-    }
-    cleanedText = cleanedText.trim();
 
     let nutritionData;
     try {
       nutritionData = JSON.parse(cleanedText);
-    } catch (parseErr) {
-      console.error('[analyze-food] Failed to parse Gemini JSON:', cleanedText);
+    } catch (parseErr: any) {
+      console.error('[analyze-food] Failed to parse Gemini JSON:', parseErr.message, cleanedText);
+      try {
+        require('fs').writeFileSync('failed_json.txt', cleanedText);
+      } catch (e) {}
       return NextResponse.json(
-        { error: 'AI response bukan format JSON valid. Coba foto ulang.' },
+        { error: `Parse failed: ${parseErr.message}. Raw: ${cleanedText.substring(0, 40)}...` },
         { status: 500 }
       );
     }
