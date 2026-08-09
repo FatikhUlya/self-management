@@ -165,7 +165,31 @@ export function AiFoodScanner({ onSave }: AiFoodScannerProps) {
         throw new Error(data?.error || 'Gagal menganalisis makanan');
       }
 
-      setResult(data as NutritionResult);
+      // Map the new structured JSON to the existing NutritionResult format
+      const foodsArray = data.foods || [];
+      const totalObj = data.total || {};
+      
+      const combinedFoodName = foodsArray.map((f: any) => f.name).join(', ') || 'Makanan tidak dikenali';
+      const totalGrams = foodsArray.reduce((sum: number, f: any) => sum + (f.estimated_grams || 0), 0);
+      const avgConfidence = foodsArray.length > 0 
+        ? foodsArray.reduce((sum: number, f: any) => sum + (f.confidence || 0), 0) / foodsArray.length 
+        : 50;
+
+      let mappedConfidence: 'high' | 'medium' | 'low' = 'medium';
+      if (avgConfidence >= 80) mappedConfidence = 'high';
+      else if (avgConfidence >= 50) mappedConfidence = 'medium';
+      else mappedConfidence = 'low';
+
+      setResult({
+        food: combinedFoodName,
+        portion: totalGrams > 0 ? `${totalGrams}g total` : '1 porsi (estimasi)',
+        calories: totalObj.calories || 0,
+        carbs: totalObj.carbs_g || 0,
+        protein: totalObj.protein_g || 0,
+        fat: totalObj.fat_g || 0,
+        confidence: mappedConfidence
+      });
+
       setStep('result');
     } catch (err: any) {
       console.error('Analysis error:', err);

@@ -46,22 +46,33 @@ export async function POST(request: NextRequest) {
 
 PENTING: 
 - Berikan estimasi terbaik berdasarkan visual makanan
-- Jika ada beberapa item, jumlahkan totalnya
-- Jawab HANYA dalam format JSON berikut, tanpa teks tambahan:
+- Jika ada beberapa item, daftarkan masing-masing di dalam array "foods"
+- Jika tidak dapat menentukan berat makanan secara pasti, berikan estimasi yang masuk akal dan gunakan confidence score. Jangan mengklaim angka sebagai nilai pasti mutlak.
+- Jawab HANYA dalam format JSON berikut (sesuai struktur persis ini), tanpa teks tambahan:
 
 {
-  "food": "Nama makanan (dalam Bahasa Indonesia jika memungkinkan)",
-  "portion": "Estimasi porsi (contoh: 1 porsi, 200g, 1 mangkok, dll)",
-  "calories": angka_kalori,
-  "carbs": angka_karbohidrat_gram,
-  "protein": angka_protein_gram,
-  "fat": angka_lemak_gram,
-  "confidence": "high/medium/low"
+  "foods": [
+    {
+      "name": "string (Nama makanan)",
+      "estimated_grams": angka_integer,
+      "calories": angka_integer,
+      "protein_g": angka_integer,
+      "carbs_g": angka_integer,
+      "fat_g": angka_integer,
+      "confidence": angka_integer_0_100
+    }
+  ],
+  "total": {
+    "calories": angka_integer_total,
+    "protein_g": angka_integer_total,
+    "carbs_g": angka_integer_total,
+    "fat_g": angka_integer_total
+  }
 }
 
 Berikan angka sebagai integer (tanpa desimal). Jangan tambahkan teks apapun selain JSON.`;
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
     const response = await fetch(geminiUrl, {
       method: 'POST',
@@ -158,14 +169,31 @@ Berikan angka sebagai integer (tanpa desimal). Jangan tambahkan teks apapun sela
       );
     }
 
+    // Validate and provide defaults for the new JSON structure
+    const foods = Array.isArray(nutritionData.foods) ? nutritionData.foods.map((f: any) => ({
+      name: f.name || 'Makanan tidak dikenali',
+      estimated_grams: Math.round(Number(f.estimated_grams) || 0),
+      calories: Math.round(Number(f.calories) || 0),
+      protein_g: Math.round(Number(f.protein_g) || 0),
+      carbs_g: Math.round(Number(f.carbs_g) || 0),
+      fat_g: Math.round(Number(f.fat_g) || 0),
+      confidence: Math.round(Number(f.confidence) || 0)
+    })) : [];
+
+    const total = nutritionData.total || {};
+    const fallbackTotalCalories = foods.reduce((sum: number, f: any) => sum + f.calories, 0);
+    const fallbackTotalProtein = foods.reduce((sum: number, f: any) => sum + f.protein_g, 0);
+    const fallbackTotalCarbs = foods.reduce((sum: number, f: any) => sum + f.carbs_g, 0);
+    const fallbackTotalFat = foods.reduce((sum: number, f: any) => sum + f.fat_g, 0);
+
     return NextResponse.json({
-      food: nutritionData.food || 'Makanan tidak dikenali',
-      portion: nutritionData.portion || '1 porsi',
-      calories: Math.round(Number(nutritionData.calories) || 0),
-      carbs: Math.round(Number(nutritionData.carbs) || 0),
-      protein: Math.round(Number(nutritionData.protein) || 0),
-      fat: Math.round(Number(nutritionData.fat) || 0),
-      confidence: nutritionData.confidence || 'medium',
+      foods,
+      total: {
+        calories: Math.round(Number(total.calories)) || fallbackTotalCalories,
+        protein_g: Math.round(Number(total.protein_g)) || fallbackTotalProtein,
+        carbs_g: Math.round(Number(total.carbs_g)) || fallbackTotalCarbs,
+        fat_g: Math.round(Number(total.fat_g)) || fallbackTotalFat,
+      }
     });
   } catch (error) {
     console.error('[analyze-food] Unexpected error:', error);
