@@ -1104,6 +1104,8 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
               height: healthProfile.height || '',
               age: healthProfile.age || '',
               activityLevel: healthProfile.activity_level || 'moderate',
+              gender: healthProfile.gender || 'male',
+              goal: healthProfile.goal || 'maintain',
               mealGoalCalories: healthProfile.meal_goal_calories || ''
             } : prev.healthProfile,
             workApplications: (workApplications as any[] || []).map(wa => ({
