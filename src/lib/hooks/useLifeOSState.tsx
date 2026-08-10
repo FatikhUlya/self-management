@@ -155,6 +155,8 @@ export interface HealthProfile {
   height: number | '';
   age: number | '';
   activityLevel: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
+  gender: 'male' | 'female' | '';
+  goal: 'muscle_gain' | 'lose_weight' | 'maintain' | '';
   mealGoalCalories: number | '';
 }
 
@@ -593,6 +595,8 @@ const initialDefaultState = (today: string): LifeOSState => ({
     height: 170,
     age: 25,
     activityLevel: 'moderate',
+    gender: 'male',
+    goal: 'maintain',
     mealGoalCalories: 2000
   },
   reviews: [],
@@ -2060,6 +2064,8 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
           height: profile.height || null,
           age: profile.age || null,
           activity_level: profile.activityLevel,
+          gender: profile.gender || 'male',
+          goal: profile.goal || 'maintain',
           meal_goal_calories: profile.mealGoalCalories || null
         }, { onConflict: 'user_id' });
         checkError(error, 'updateHealthProfile');

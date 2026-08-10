@@ -13,6 +13,7 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { AiFoodScanner } from '@/components/ui/AiFoodScanner';
 import { todayISO, formatDate } from '@/lib/utils';
 import { MEAL_TYPES, ACTIVITY_LEVELS } from '@/lib/constants';
+import { calculateDailyNutrition, Gender, Goal } from '@/lib/nutritionEngine';
 
 export default function HealthNutritionPage() {
   const { state, addMeal, deleteMeal } = useLifeOS();
@@ -38,19 +39,30 @@ export default function HealthNutritionPage() {
     return logs[0] || null;
   };
 
-  const calculateTdee = () => {
+  const getNutritionTargets = () => {
     const latest = getLatestWeight();
     const w = latest ? Number(latest.weight) : 0;
     const h = Number(state.healthProfile.height || 0);
     const a = Number(state.healthProfile.age || 0);
+    const gender = state.healthProfile.gender as Gender || 'male';
+    const goal = state.healthProfile.goal as Goal || 'maintain';
     const activity = ACTIVITY_LEVELS.find((l) => l.id === state.healthProfile.activityLevel) || ACTIVITY_LEVELS[2];
-    if (!w || !h || !a) return 0;
-    const bmr = 10 * w + 6.25 * h - 5 * a + 5;
-    return Math.round(bmr * activity.factor);
+    
+    if (!w || !h || !a || !gender || !goal) return null;
+
+    return calculateDailyNutrition({
+      weight_kg: w,
+      height_cm: h,
+      age_years: a,
+      gender,
+      activity_level: activity.factor,
+      goal
+    });
   };
 
-  const tdee = calculateTdee();
-  const mealGoalCalories = Number(state.healthProfile.mealGoalCalories || tdee || 2000);
+  const nutrition = getNutritionTargets();
+  const mealGoalCalories = Number(state.healthProfile.mealGoalCalories || nutrition?.calories || 2000);
+  
   const totalCalories = dailyMeals.reduce((s, m) => s + Number(m.calories || 0), 0);
   const totalProtein = dailyMeals.reduce((s, m) => s + Number(m.protein || 0), 0);
   const totalCarbs = dailyMeals.reduce((s, m) => s + Number(m.carbs || 0), 0);
@@ -129,21 +141,47 @@ export default function HealthNutritionPage() {
 
       {/* Macro Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <div className="p-3 rounded-xl bg-gradient-to-b from-amber-500/[0.08] to-transparent border border-amber-500/10">
+        <div className="p-3 rounded-xl bg-gradient-to-b from-amber-500/[0.08] to-transparent border border-amber-500/10 relative overflow-hidden">
           <p className="text-[10px] font-black uppercase tracking-wider text-amber-500/70">Kalori</p>
-          <p className="text-lg font-black text-amber-400">{totalCalories} <span className="text-xs font-bold text-amber-400/50">kcal</span></p>
+          <p className="text-lg font-black text-amber-400">
+            {totalCalories} <span className="text-xs font-bold text-amber-400/50">/ {mealGoalCalories}</span>
+          </p>
+          <div className="absolute bottom-0 left-0 h-1 bg-amber-500/20 w-full">
+            <div className="h-full bg-amber-500" style={{ width: `${Math.min(100, (totalCalories / mealGoalCalories) * 100)}%` }} />
+          </div>
         </div>
-        <div className="p-3 rounded-xl bg-gradient-to-b from-blue-500/[0.08] to-transparent border border-blue-500/10">
+        <div className="p-3 rounded-xl bg-gradient-to-b from-blue-500/[0.08] to-transparent border border-blue-500/10 relative overflow-hidden">
           <p className="text-[10px] font-black uppercase tracking-wider text-blue-500/70">Karbohidrat</p>
-          <p className="text-lg font-black text-blue-400">{totalCarbs} <span className="text-xs font-bold text-blue-400/50">g</span></p>
+          <p className="text-lg font-black text-blue-400">
+            {totalCarbs} <span className="text-xs font-bold text-blue-400/50">{nutrition ? `/ ${nutrition.carbs_g}g` : 'g'}</span>
+          </p>
+          {nutrition && (
+            <div className="absolute bottom-0 left-0 h-1 bg-blue-500/20 w-full">
+              <div className="h-full bg-blue-500" style={{ width: `${Math.min(100, (totalCarbs / nutrition.carbs_g) * 100)}%` }} />
+            </div>
+          )}
         </div>
-        <div className="p-3 rounded-xl bg-gradient-to-b from-rose-500/[0.08] to-transparent border border-rose-500/10">
+        <div className="p-3 rounded-xl bg-gradient-to-b from-rose-500/[0.08] to-transparent border border-rose-500/10 relative overflow-hidden">
           <p className="text-[10px] font-black uppercase tracking-wider text-rose-500/70">Protein</p>
-          <p className="text-lg font-black text-rose-400">{totalProtein} <span className="text-xs font-bold text-rose-400/50">g</span></p>
+          <p className="text-lg font-black text-rose-400">
+            {totalProtein} <span className="text-xs font-bold text-rose-400/50">{nutrition ? `/ ${nutrition.protein_g}g` : 'g'}</span>
+          </p>
+          {nutrition && (
+            <div className="absolute bottom-0 left-0 h-1 bg-rose-500/20 w-full">
+              <div className="h-full bg-rose-500" style={{ width: `${Math.min(100, (totalProtein / nutrition.protein_g) * 100)}%` }} />
+            </div>
+          )}
         </div>
-        <div className="p-3 rounded-xl bg-gradient-to-b from-yellow-500/[0.08] to-transparent border border-yellow-500/10">
+        <div className="p-3 rounded-xl bg-gradient-to-b from-yellow-500/[0.08] to-transparent border border-yellow-500/10 relative overflow-hidden">
           <p className="text-[10px] font-black uppercase tracking-wider text-yellow-500/70">Lemak</p>
-          <p className="text-lg font-black text-yellow-400">{totalFat} <span className="text-xs font-bold text-yellow-400/50">g</span></p>
+          <p className="text-lg font-black text-yellow-400">
+            {totalFat} <span className="text-xs font-bold text-yellow-400/50">{nutrition ? `/ ${nutrition.fat_g}g` : 'g'}</span>
+          </p>
+          {nutrition && (
+            <div className="absolute bottom-0 left-0 h-1 bg-yellow-500/20 w-full">
+              <div className="h-full bg-yellow-500" style={{ width: `${Math.min(100, (totalFat / nutrition.fat_g) * 100)}%` }} />
+            </div>
+          )}
         </div>
       </div>
 

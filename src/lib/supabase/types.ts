@@ -267,6 +267,8 @@ export interface HealthProfileRow {
   height: number;
   age: number;
   activity_level: string;
+  gender: 'male' | 'female';
+  goal: 'muscle_gain' | 'lose_weight' | 'maintain';
   meal_goal_calories: number;
   created_at: string;
   updated_at: string;

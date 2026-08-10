@@ -12,6 +12,7 @@ import { Icon } from '@/components/ui/Icon';
 import { LineChart } from '@/components/ui/LineChart';
 import { formatDate, monthDays, parseDecimalInput, todayISO } from '@/lib/utils';
 import { ACTIVITY_LEVELS, ActivityLevelId } from '@/lib/constants';
+import { calculateDailyNutrition, Gender, Goal } from '@/lib/nutritionEngine';
 
 export default function HealthMetricsPage() {
   const { state, updateHealthProfile, saveWeightLog, deleteWeightLog } = useLifeOS();
@@ -24,6 +25,8 @@ export default function HealthMetricsPage() {
   const [activityLevel, setActivityLevel] = useState<ActivityLevelId>(
     state.healthProfile.activityLevel as ActivityLevelId || 'moderate'
   );
+  const [gender, setGender] = useState<Gender | ''>(state.healthProfile.gender as Gender || 'male');
+  const [goal, setGoal] = useState<Goal | ''>(state.healthProfile.goal as Goal || 'maintain');
   const [mealGoal, setMealGoal] = useState<number | ''>(state.healthProfile.mealGoalCalories);
 
   // Weight form
@@ -35,18 +38,28 @@ export default function HealthMetricsPage() {
     return logs[0] || null;
   };
 
-  const calculateTdee = () => {
+  const getNutritionTargets = () => {
     const latest = getLatestWeight();
     const w = latest ? Number(latest.weight) : 0;
     const h = Number(height || state.healthProfile.height || 0);
     const a = Number(age || state.healthProfile.age || 0);
     const activity = ACTIVITY_LEVELS.find((l) => l.id === activityLevel) || ACTIVITY_LEVELS[2];
-    if (!w || !h || !a) return 0;
-    const bmr = 10 * w + 6.25 * h - 5 * a + 5;
-    return Math.round(bmr * activity.factor);
+    
+    if (!w || !h || !a || !gender || !goal) return null;
+
+    return calculateDailyNutrition({
+      weight_kg: w,
+      height_cm: h,
+      age_years: a,
+      gender: gender as Gender,
+      activity_level: activity.factor,
+      goal: goal as Goal
+    });
   };
 
-  const tdee = calculateTdee();
+  const nutrition = getNutritionTargets();
+  const tdee = nutrition?.tdee || 0;
+  const recommendedCals = nutrition?.calories || 0;
   const latestWeight = getLatestWeight();
 
   // Profile Form Handler
@@ -56,6 +69,8 @@ export default function HealthMetricsPage() {
       height: height === '' ? '' : Number(height),
       age: age === '' ? '' : Number(age),
       activityLevel,
+      gender: gender as 'male' | 'female',
+      goal: goal as 'muscle_gain' | 'lose_weight' | 'maintain',
       mealGoalCalories: mealGoal === '' ? '' : Number(mealGoal),
     });
   };
@@ -114,7 +129,7 @@ export default function HealthMetricsPage() {
               {t('health_tdee_profile')}
             </h3>
             <p className="text-xs text-life-muted mt-0.5">
-              {tdee > 0 ? `${tdee} ${t('health_tdee_estimate')}` : t('health_tdee_incomplete')}
+              {tdee > 0 ? `BMR: ${nutrition?.bmr} | TDEE: ${tdee} kcal` : t('health_tdee_incomplete')}
             </p>
           </div>
 
@@ -167,11 +182,42 @@ export default function HealthMetricsPage() {
 
               <div className="flex flex-col space-y-1">
                 <label className="text-xs font-bold text-life-muted uppercase">
-                  {t('health_meal_goal')}
+                  Gender
+                </label>
+                <select
+                  value={gender}
+                  onChange={(e) => setGender(e.target.value as Gender)}
+                  className="glass-select text-xs"
+                >
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col space-y-1">
+                <label className="text-xs font-bold text-life-muted uppercase">
+                  Goal
+                </label>
+                <select
+                  value={goal}
+                  onChange={(e) => setGoal(e.target.value as Goal)}
+                  className="glass-select text-xs"
+                >
+                  <option value="lose_weight">Lose Weight (-500 kcal)</option>
+                  <option value="maintain">Maintain (+0 kcal)</option>
+                  <option value="muscle_gain">Muscle Gain (+350 kcal)</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col space-y-1">
+                <label className="text-xs font-bold text-life-muted uppercase">
+                  {t('health_meal_goal')} (Override)
                 </label>
                 <input
                   type="number"
-                  placeholder={t('health_auto_tdee')}
+                  placeholder={recommendedCals ? `Rec: ${recommendedCals}` : t('health_auto_tdee')}
                   value={mealGoal}
                   onChange={(e) => setMealGoal(e.target.value === '' ? '' : Number(e.target.value))}
                   className="glass-input text-xs"
