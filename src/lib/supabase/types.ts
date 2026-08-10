@@ -359,6 +359,7 @@ export interface ReviewRow {
   challenges: string;
   focus: string;
   evaluation_notes: string;
+  ai_summary: string;
   auto_metrics: Record<string, unknown>;
   created_at: string;
   updated_at: string;

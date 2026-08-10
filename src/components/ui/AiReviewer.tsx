@@ -36,11 +36,38 @@ const renderMarkdown = (text: string) => {
 };
 
 export function AiReviewer() {
-  const { state } = useLifeOS();
+  const { state, saveReview } = useLifeOS();
   const [period, setPeriod] = useState<7 | 30>(7);
   const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [review, setReview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  const saveAiReviewToHistory = async () => {
+    if (!review) return;
+    setSaving(true);
+    setError(null);
+    try {
+      await saveReview({
+        date: state.selectedDate,
+        period: period === 7 ? 'weekly' : 'monthly',
+        score: 7, // Default AI score
+        wins: 'Evaluasi mingguan yang dibantu oleh AI.',
+        lessons: '',
+        challenges: '',
+        focus: '',
+        evaluationNotes: '',
+        aiSummary: review,
+      });
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err: any) {
+      setError('Gagal menyimpan riwayat: ' + err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const generateReview = async () => {
     setLoading(true);
@@ -112,6 +139,7 @@ export function AiReviewer() {
       if (!res.ok) throw new Error(data.error || 'Gagal menghasilkan ulasan.');
       
       setReview(data.review);
+      setSuccess(false);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -169,6 +197,20 @@ export function AiReviewer() {
         <div className="mt-6 pt-6 border-t border-life-line relative z-10">
           <div className="prose prose-invert prose-sm max-w-none prose-p:text-life-muted prose-headings:text-life-text">
             {renderMarkdown(review)}
+          </div>
+          
+          <div className="mt-6 pt-4 border-t border-life-line flex items-center justify-between">
+            <span className="text-xs text-life-muted italic">
+              *Evaluasi ini bisa disimpan ke Riwayat Evaluasi (History) Anda.
+            </span>
+            <Button
+              variant={success ? "success" : "primary"}
+              onClick={saveAiReviewToHistory}
+              disabled={saving || success}
+              icon={success ? "check" : "save"}
+            >
+              {saving ? "Menyimpan..." : success ? "Tersimpan!" : "Simpan ke History"}
+            </Button>
           </div>
         </div>
       )}

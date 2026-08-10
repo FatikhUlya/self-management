@@ -231,6 +231,7 @@ export interface Review {
   challenges: string;
   focus: string;
   evaluationNotes?: string;
+  aiSummary?: string;
   createdAt: string;
 }
 
@@ -1131,6 +1132,8 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
               lessons: r.lessons || '',
               challenges: r.challenges || '',
               focus: r.focus || '',
+              evaluationNotes: r.evaluation_notes || '',
+              aiSummary: r.ai_summary || '',
               createdAt: r.created_at || r.createdAt
             })),
             transactions: (transactions as any[] || []).map(t => ({
@@ -2348,7 +2351,8 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
           lessons: item.lessons,
           challenges: item.challenges,
           focus: item.focus,
-          evaluation_notes: item.evaluationNotes || ''
+          evaluation_notes: item.evaluationNotes || '',
+          ai_summary: item.aiSummary || ''
         });
         checkError(error, 'saveReview');
       }

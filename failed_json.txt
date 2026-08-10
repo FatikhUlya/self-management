@@ -1,0 +1,20 @@
+{
+  "foods": [
+    {
+      "name": "Lontong",
+      "estimated_grams": 100,
+      "calories": 130,
+      "protein_g": 2,
+      "carbs_g": 28,
+      "fat_g": 0,
+      "confidence": 85
+    },
+    {
+      "name": "Ayam Suwir/Potong",
+      "estimated_grams": 70,
+      "calories": 160,
+      "protein_g": 18,
+      "carbs_g": 0,
+      "fat_g": 9,
+      "confidence": 80
+    }
