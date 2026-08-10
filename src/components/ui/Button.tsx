@@ -3,7 +3,7 @@ import { Icon } from './Icon';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
-  variant?: 'primary' | 'secondary' | 'danger';
+  variant?: 'primary' | 'secondary' | 'danger' | 'success';
   size?: 'sm' | 'md' | 'lg';
   icon?: string;
   className?: string;
@@ -23,6 +23,7 @@ export function Button({
     primary: 'bg-gradient-to-r from-life-teal to-teal-500 hover:from-teal-500 hover:to-life-teal text-white shadow-lg hover:shadow-life-teal/20',
     secondary: 'bg-white/[0.03] hover:bg-white/[0.07] border border-life-line hover:border-life-line-strong text-life-text',
     danger: 'bg-gradient-to-r from-life-rose to-rose-500 hover:from-rose-500 hover:to-life-rose text-white shadow-lg hover:shadow-life-rose/20',
+    success: 'bg-gradient-to-r from-life-green to-green-500 hover:from-green-500 hover:to-life-green text-white shadow-lg hover:shadow-life-green/20',
   };
 
   const sizeStyles = {
