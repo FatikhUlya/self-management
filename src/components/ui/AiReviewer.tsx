@@ -49,7 +49,7 @@ export function AiReviewer() {
 
     try {
       // 1. Aggregate Data
-      const journals = state.journal.filter(j => inLastDays(j.date, period, state.selectedDate));
+      const journals = state.journals.filter(j => inLastDays(j.date, period, state.selectedDate));
       
       const metrics = {
         avgMood: avg(journals.map(j => j.mood)).toFixed(1),
