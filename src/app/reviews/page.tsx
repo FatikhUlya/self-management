@@ -8,6 +8,7 @@ import { DashboardCard } from '@/components/ui/DashboardCard';
 import { QuickNavGrid } from '@/components/ui/QuickNavGrid';
 import { Icon } from '@/components/ui/Icon';
 import { MiniChart } from '@/components/ui/MiniChart';
+import { AiReviewer } from '@/components/ui/AiReviewer';
 import { lastSevenDays, dayName, inLastDays, avg } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 
@@ -91,6 +92,9 @@ export default function ReviewsDashboardPage() {
           detail="Evaluasi dalam sebulan terakhir"
         />
       </div>
+
+      {/* AI Reviewer Section */}
+      <AiReviewer />
       
       {/* Quick Recent Overview */}
       <Surface className="p-6">
