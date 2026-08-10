@@ -105,7 +105,7 @@ Format dalam Markdown murni (tanpa tag \`\`\`markdown di awal/akhir, langsung te
   } catch (error) {
     console.error('[ai-review] Unexpected error:', error);
     return NextResponse.json(
-      { error: \`Server error: \${error instanceof Error ? error.message : 'Unknown error'}\` },
+      { error: `Server error: ${error instanceof Error ? error.message : 'Unknown error'}` },
       { status: 500 }
     );
   }
