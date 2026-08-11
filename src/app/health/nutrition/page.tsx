@@ -11,6 +11,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Icon } from '@/components/ui/Icon';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { AiFoodScanner } from '@/components/ui/AiFoodScanner';
+import { WeeklyNutritionAnalytics } from '@/components/health/WeeklyNutritionAnalytics';
 import { todayISO, formatDate } from '@/lib/utils';
 import { MEAL_TYPES, ACTIVITY_LEVELS } from '@/lib/constants';
 import { calculateDailyNutrition, Gender, Goal } from '@/lib/nutritionEngine';
@@ -185,7 +186,15 @@ export default function HealthNutritionPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <WeeklyNutritionAnalytics 
+        meals={state.meals} 
+        targetNutrition={nutrition} 
+        baseGoalCalories={mealGoalCalories}
+        today={today}
+        locale={locale}
+      />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         {/* Meal Tracker */}
         <Surface className="p-6">
           <div className="border-b border-life-line pb-3 mb-4">
