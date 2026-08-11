@@ -186,14 +186,6 @@ export default function HealthNutritionPage() {
         </div>
       </div>
 
-      <WeeklyNutritionAnalytics 
-        meals={state.meals} 
-        targetNutrition={nutrition} 
-        baseGoalCalories={mealGoalCalories}
-        today={today}
-        locale={locale}
-      />
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
         {/* Meal Tracker */}
         <Surface className="p-6">
@@ -401,6 +393,14 @@ export default function HealthNutritionPage() {
           </div>
         </Surface>
       </div>
+
+      <WeeklyNutritionAnalytics 
+        meals={state.meals} 
+        targetNutrition={nutrition} 
+        baseGoalCalories={mealGoalCalories}
+        today={today}
+        locale={locale}
+      />
     </div>
   );
 }
