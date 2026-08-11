@@ -37,6 +37,7 @@ export function AiFoodScanner({ onSave }: AiFoodScannerProps) {
   const [errorMsg, setErrorMsg] = useState('');
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
+  const [description, setDescription] = useState('');
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -92,6 +93,7 @@ export function AiFoodScanner({ onSave }: AiFoodScannerProps) {
     setCapturedImage('');
     setResult(null);
     setErrorMsg('');
+    setDescription('');
   }, []);
 
   // Close modal and clean up
@@ -102,6 +104,7 @@ export function AiFoodScanner({ onSave }: AiFoodScannerProps) {
     setCapturedImage('');
     setResult(null);
     setErrorMsg('');
+    setDescription('');
   }, [stopCamera]);
 
   // Start camera when step becomes 'camera' and modal is open
@@ -144,6 +147,7 @@ export function AiFoodScanner({ onSave }: AiFoodScannerProps) {
     setCapturedImage('');
     setResult(null);
     setStep('camera');
+    setDescription('');
   }, []);
 
   // Analyze with Gemini AI
@@ -156,7 +160,7 @@ export function AiFoodScanner({ onSave }: AiFoodScannerProps) {
       const response = await fetch('/api/analyze-food', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ image: capturedImage }),
+        body: JSON.stringify({ image: capturedImage, description }),
       });
 
       const data = await response.json();
@@ -364,6 +368,16 @@ export function AiFoodScanner({ onSave }: AiFoodScannerProps) {
                 <div className="absolute bottom-3 right-3 px-3 py-1.5 rounded-lg bg-black/60 backdrop-blur-sm text-white text-[10px] font-bold uppercase tracking-wider">
                   Preview
                 </div>
+              </div>
+              <div className="flex flex-col space-y-2">
+                <label className="text-xs font-bold text-life-muted uppercase">Keterangan Makanan (Opsional)</label>
+                <input
+                  type="text"
+                  placeholder="Misal: Nasi goreng dengan telur ceplok dan ayam suwir..."
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="glass-input text-xs"
+                />
               </div>
               <div className="flex gap-3">
                 <Button variant="secondary" icon="camera" onClick={handleRetake} className="flex-1">

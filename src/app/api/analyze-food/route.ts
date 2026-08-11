@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { image } = body;
+    const { image, description } = body;
 
     if (!image) {
       return NextResponse.json(
@@ -42,7 +42,9 @@ export async function POST(request: NextRequest) {
 
     console.log(`[analyze-food] Processing image: mimeType=${mimeType}, base64Length=${base64Data.length}`);
 
-    const prompt = `Kamu adalah ahli nutrisi. Analisis gambar makanan ini dan berikan estimasi informasi nutrisi.
+    const descriptionText = description ? `\nKeterangan tambahan dari user: "${description}"\n(Gunakan keterangan ini sebagai referensi utama untuk membantu identifikasi makanan/bahan jika gambar kurang jelas).` : '';
+
+    const prompt = `Kamu adalah ahli nutrisi. Analisis gambar makanan ini dan berikan estimasi informasi nutrisi.${descriptionText}
 
 PENTING: 
 - Berikan estimasi terbaik berdasarkan visual makanan
