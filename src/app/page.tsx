@@ -637,7 +637,7 @@ export default function Dashboard() {
 
             {/* Upcoming Aggregated Deadlines */}
             {(() => {
-              const upcoming = [];
+              const upcoming: { id: string; title: string; date: string; type: string; tone: string }[] = [];
               const target = new Date(today).getTime() + (7 * 86400000); // next 7 days
 
               state.goals.forEach(g => {
