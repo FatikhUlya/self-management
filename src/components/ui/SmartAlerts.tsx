@@ -29,7 +29,7 @@ export function SmartAlerts() {
       .filter(t => t.type === 'expense' && t.date.startsWith(thisMonth))
       .reduce((sum, t) => sum + t.amount, 0);
     const activeBudgets = state.budgets || [];
-    const totalBudgetLimit = activeBudgets.reduce((sum, b) => sum + (b.limit || b.amount || 0), 0);
+    const totalBudgetLimit = activeBudgets.reduce((sum, b) => sum + (b.limitAmount || 0), 0);
     if (totalBudgetLimit > 0 && monthExpense > totalBudgetLimit * 0.9) {
       const pct = Math.round((monthExpense / totalBudgetLimit) * 100);
       result.push({
