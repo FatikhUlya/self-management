@@ -405,49 +405,77 @@ export default function LedgerPage() {
               </div>
             </div>
 
-            <div className="space-y-3 h-[600px] overflow-y-auto pr-1">
+            <div className="h-[600px] overflow-y-auto pr-1 rounded-lg border border-life-line bg-white/[0.002]">
               {filteredTransactions.length > 0 ? (
-                filteredTransactions
-                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                  .map((tx) => (
-                    <div
-                      key={tx.id}
-                      className="p-3 rounded-lg bg-white/[0.005] border border-life-line flex items-center justify-between gap-3 hover:bg-white/[0.01] transition-colors"
-                    >
-                      <div className="flex items-center gap-3 overflow-hidden">
-                        <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
-                          tx.type === 'income' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'
-                        }`}>
-                          <Icon name={tx.type === 'income' ? 'arrowDown' : 'arrowUp'} size={16} />
-                        </div>
-                        <div className="overflow-hidden">
-                          <p className="font-bold text-sm text-life-text truncate">{tx.title}</p>
-                          <p className="text-[10px] text-life-muted font-bold truncate">
-                            {formatDate(tx.date)} • {getCategoryLabel(tx.category, locale)} • {tx.account}
-                            {tx.isRecurring && tx.recurringInterval !== 'none' && (
-                              <span className="ml-1 text-indigo-400">({tx.recurringInterval})</span>
-                            )}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 shrink-0">
-                        <span className={`font-black tracking-tight ${tx.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                          {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
-                        </span>
-                        <button
-                          onClick={() => deleteTransaction(tx.id)}
-                          className="w-7 h-7 rounded hover:bg-rose-500/10 text-life-muted hover:text-rose-500 flex items-center justify-center transition-colors"
-                          title={t('delete')}
+                <table className="w-full text-left border-collapse">
+                  <thead className="sticky top-0 bg-[#0f1115] z-10 shadow-sm border-b border-life-line">
+                    <tr className="text-[10px] uppercase tracking-wider text-life-muted">
+                      <th className="py-3 px-4 font-black">{locale === 'id' ? 'Tanggal' : 'Date'}</th>
+                      <th className="py-3 px-4 font-black">{locale === 'id' ? 'Deskripsi' : 'Description'}</th>
+                      <th className="py-3 px-4 font-black">{locale === 'id' ? 'Kategori' : 'Category'}</th>
+                      <th className="py-3 px-4 font-black">{locale === 'id' ? 'Rekening' : 'Account'}</th>
+                      <th className="py-3 px-4 font-black text-right">{locale === 'id' ? 'Jumlah' : 'Amount'}</th>
+                      <th className="py-3 px-4"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-life-line">
+                    {filteredTransactions
+                      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                      .map((tx) => (
+                        <tr
+                          key={tx.id}
+                          className="hover:bg-white/[0.02] transition-colors group"
                         >
-                          <Icon name="trash" size={14} />
-                        </button>
-                      </div>
-                    </div>
-                  ))
+                          <td className="py-3 px-4 text-xs text-life-muted font-medium whitespace-nowrap">
+                            {formatDate(tx.date)}
+                          </td>
+                          <td className="py-3 px-4">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
+                                tx.type === 'income' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-rose-500/10 text-rose-400'
+                              }`}>
+                                <Icon name={tx.type === 'income' ? 'arrowDown' : 'arrowUp'} size={10} />
+                              </div>
+                              <div>
+                                <p className="font-bold text-sm text-life-text">{tx.title}</p>
+                                {tx.isRecurring && tx.recurringInterval !== 'none' && (
+                                  <p className="text-[9px] text-indigo-400 uppercase tracking-widest font-black mt-0.5">
+                                    Recurring: {tx.recurringInterval}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 text-xs text-life-muted font-medium">
+                            {getCategoryLabel(tx.category, locale)}
+                          </td>
+                          <td className="py-3 px-4 text-xs text-life-muted font-medium">
+                            {tx.account}
+                          </td>
+                          <td className="py-3 px-4 text-right whitespace-nowrap">
+                            <span className={`font-black tracking-tight ${tx.type === 'income' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                              {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-right">
+                            <button
+                              onClick={() => deleteTransaction(tx.id)}
+                              className="w-7 h-7 rounded hover:bg-rose-500/10 text-life-muted hover:text-rose-500 flex items-center justify-center transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100 ml-auto"
+                              title={t('delete')}
+                            >
+                              <Icon name="trash" size={14} />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
               ) : (
-                <EmptyState
-                  message={locale === 'id' ? 'Belum ada transaksi di periode ini.' : 'No transactions found in this period.'}
-                />
+                <div className="py-12">
+                  <EmptyState
+                    message={locale === 'id' ? 'Belum ada transaksi di periode ini.' : 'No transactions found in this period.'}
+                  />
+                </div>
               )}
             </div>
           </Surface>
