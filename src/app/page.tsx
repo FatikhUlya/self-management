@@ -580,7 +580,7 @@ export default function Dashboard() {
                 <div key={`${rule.id}-${idx}`} className="p-3.5 rounded-xl border border-indigo-500/20 bg-indigo-500/5">
                   <div className="flex items-start gap-3">
                     <Icon name="compass" size={16} className="text-indigo-400 shrink-0 mt-0.5" />
-                    <p className="text-sm text-life-text font-bold leading-snug">{rule.content}</p>
+                    <p className="text-sm text-life-text font-bold leading-snug">{rule.rule_text}</p>
                   </div>
                 </div>
               ));
