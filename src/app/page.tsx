@@ -646,9 +646,9 @@ export default function Dashboard() {
                 }
               });
               (state.workApplications || []).forEach(w => {
-                const date = w.interviewDate || w.deadline;
+                const date = w.deadline;
                 if (date && (w.status !== 'rejected' && w.status !== 'offer') && new Date(date).getTime() <= target && new Date(date).getTime() >= new Date(today).getTime()) {
-                  upcoming.push({ id: w.id, title: `${w.company} - ${w.position}`, date, type: 'Kerja', tone: 'indigo' });
+                  upcoming.push({ id: w.id, title: `${w.company} - ${w.role}`, date, type: 'Kerja', tone: 'indigo' });
                 }
               });
 

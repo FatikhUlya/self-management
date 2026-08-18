@@ -124,11 +124,11 @@ export function SmartAlerts() {
       }
     });
 
-    // 6. Work Application Deadline (applications with upcoming interviews/deadlines)
+    // 6. Work Application Deadline (applications with upcoming deadlines)
     (state.workApplications || []).forEach(app => {
       if (app.status === 'rejected' || app.status === 'offer') return;
-      if (!app.deadline && !app.interviewDate) return;
-      const checkDate = app.interviewDate || app.deadline || '';
+      if (!app.deadline) return;
+      const checkDate = app.deadline;
       if (!checkDate) return;
       const daysLeft = Math.ceil((new Date(checkDate).getTime() - new Date(today).getTime()) / (1000 * 60 * 60 * 24));
       if (daysLeft >= 0 && daysLeft <= 3) {
@@ -138,8 +138,8 @@ export function SmartAlerts() {
           iconColor: 'text-indigo-400',
           borderColor: 'border-indigo-500/20',
           bgColor: 'bg-indigo-500/5',
-          title: `${app.interviewDate ? 'Interview' : 'Deadline Lamaran'} ${daysLeft === 0 ? 'HARI INI' : `${daysLeft} Hari Lagi`}`,
-          detail: `${app.company || ''} — ${app.position || ''}`,
+          title: `Deadline Lamaran ${daysLeft === 0 ? 'HARI INI' : `${daysLeft} Hari Lagi`}`,
+          detail: `${app.company || ''} — ${app.role || ''}`,
           tone: 'indigo',
         });
       }
