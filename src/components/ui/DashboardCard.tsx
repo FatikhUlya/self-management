@@ -6,7 +6,7 @@ interface DashboardCardProps {
   icon: string;
   iconColor?: string;
   label: string;
-  value: string | number;
+  value: string | number | React.ReactNode;
   detail?: string;
   accentColor?: string;
   children?: React.ReactNode;
