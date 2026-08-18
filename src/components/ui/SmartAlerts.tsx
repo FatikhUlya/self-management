@@ -47,7 +47,7 @@ export function SmartAlerts() {
     // 2. Calorie Alert: check if today's meals exceed health profile target
     const todayMeals = state.meals.filter(m => m.date === today);
     const todayCalories = todayMeals.reduce((sum, m) => sum + (m.calories || 0), 0);
-    const calorieTarget = state.healthProfile?.tdee || 0;
+    const calorieTarget = Number(state.healthProfile?.mealGoalCalories || 0);
     if (calorieTarget > 0 && todayCalories > calorieTarget * 1.15) {
       result.push({
         id: 'calorie-warn',
