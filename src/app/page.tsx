@@ -15,6 +15,7 @@ import { Icon } from '@/components/ui/Icon';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { SmartAlerts } from '@/components/ui/SmartAlerts';
+import { LifeAura } from '@/components/ui/LifeAura';
 import {
   getGreetingKey,
   formatDate,
@@ -152,6 +153,9 @@ export default function Dashboard() {
       {/* Smart Alerts */}
       <SmartAlerts />
 
+      {/* Life Aura Gamification */}
+      <LifeAura />
+
       {/* Grid 4 Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
@@ -228,7 +232,7 @@ export default function Dashboard() {
                         </Badge>
                         <button
                           onClick={() => updateTaskStatus(task.id, 'done')}
-                          className="w-6 h-6 rounded-md bg-white/[0.03] border border-life-line hover:bg-life-teal/20 hover:border-life-teal text-transparent hover:text-life-teal flex items-center justify-center transition-all duration-150"
+                          className="w-6 h-6 rounded-md bg-white/[0.03] border border-life-line hover:bg-life-teal/20 hover:border-life-teal text-transparent hover:text-life-teal flex items-center justify-center transition-all duration-150 hover:scale-110 active:scale-90 active:bg-life-teal active:text-white"
                           title={t('tasks_done')}
                         >
                           <Icon name="check" size={12} />
@@ -257,15 +261,16 @@ export default function Dashboard() {
                       <div
                         key={habit.id}
                         onClick={() => toggleHabit(habit.id, today)}
-                        className={`flex items-center justify-between p-2.5 rounded-lg border cursor-pointer select-none transition-all duration-150 ${isDone
+                        className={`group flex items-center justify-between p-2.5 rounded-lg border cursor-pointer select-none transition-all duration-150 ${isDone
                             ? 'bg-life-teal-soft/10 border-life-teal/30 text-teal-300'
                             : 'bg-white/[0.01] border-life-line hover:border-life-line-strong text-life-muted'
                           }`}
                       >
                         <span className="text-xs font-bold truncate">{habit.name}</span>
-                        <span className={`w-5 h-5 rounded-full flex items-center justify-center border transition-all ${isDone ? 'bg-life-teal border-teal-400 text-white' : 'border-life-line text-transparent'
-                          }`}>
-                          <Icon name="check" size={10} />
+                        <span
+                          className={`w-7 h-7 rounded-full flex items-center justify-center border transition-all duration-300 group-active:scale-90 ${isDone ? 'bg-life-teal border-teal-400 text-white shadow-[0_0_10px_rgba(20,184,166,0.5)]' : 'border-life-line text-transparent group-hover:border-teal-500/50 group-hover:text-teal-500/50'}`}
+                        >
+                          <Icon name="check" size={12} />
                         </span>
                       </div>
                     );

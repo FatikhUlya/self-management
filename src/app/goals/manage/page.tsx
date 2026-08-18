@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { useLocalStorageState } from '@/lib/hooks/useLocalStorageState';
+import { useConfetti } from '@/providers/ConfettiProvider';
 import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
 import { Button } from '@/components/ui/Button';
@@ -15,6 +16,7 @@ import { percent } from '@/lib/utils';
 
 export default function GoalsManagePage() {
   const { state, addGoal, updateGoal, updateGoalProgress, deleteGoal, updateTaskStatus } = useLifeOS();
+  const { triggerConfetti } = useConfetti();
   const { t, locale } = useI18n();
 
   const [timeframeFilter, setTimeframeFilter] = useState<'all' | 'short' | 'medium' | 'long'>('all');
@@ -83,6 +85,14 @@ export default function GoalsManagePage() {
       targetDate: editGoalTargetDate
     });
     setEditingGoal(null);
+  };
+
+  const handleProgressChange = async (id: string, amount: number, currentProgress: number) => {
+    const nextProgress = Math.min(100, Math.max(0, currentProgress + amount));
+    if (nextProgress === 100 && currentProgress < 100) {
+      triggerConfetti();
+    }
+    await updateGoalProgress(id, amount);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -239,13 +249,13 @@ export default function GoalsManagePage() {
                       {!isAutoTracked && (
                         <div className="flex items-center space-x-1 mr-2">
                           <button
-                            onClick={() => updateGoalProgress(goal.id, -5)}
+                            onClick={() => handleProgressChange(goal.id, -5, goal.progress)}
                             className="w-6 h-6 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
                           >
                             <Icon name="minus" size={10} />
                           </button>
                           <button
-                            onClick={() => updateGoalProgress(goal.id, 5)}
+                            onClick={() => handleProgressChange(goal.id, 5, goal.progress)}
                             className="w-6 h-6 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
                           >
                             <Icon name="plus" size={10} />

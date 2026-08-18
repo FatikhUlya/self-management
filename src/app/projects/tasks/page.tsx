@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { useLocalStorageState } from '@/lib/hooks/useLocalStorageState';
+import { useConfetti } from '@/providers/ConfettiProvider';
 import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
 import { Button } from '@/components/ui/Button';
@@ -24,6 +25,8 @@ export default function ProjectTasksPage() {
     deleteTask,
     updateTaskGoal
   } = useLifeOS();
+  
+  const { triggerConfetti } = useConfetti();
   
   const { t, locale } = useI18n();
 
@@ -222,6 +225,13 @@ export default function ProjectTasksPage() {
     setIsNewTaskModalOpen(false);
   };
 
+  const handleStatusChange = async (id: string, status: 'todo' | 'doing' | 'done') => {
+    if (status === 'done') {
+      triggerConfetti();
+    }
+    await updateTaskStatus(id, status);
+  };
+
   const renderBoardColumn = (columnStatus: 'todo' | 'doing' | 'done', title: string) => {
     const columnTasks = state.tasks
       .filter((task) => task.status === columnStatus)
@@ -279,7 +289,7 @@ export default function ProjectTasksPage() {
                     <div className="flex space-x-1 shrink-0">
                       {columnStatus !== 'todo' && (
                         <button
-                          onClick={() => updateTaskStatus(task.id, 'todo')}
+                          onClick={() => handleStatusChange(task.id, 'todo')}
                           className="w-5 h-5 rounded bg-white/[0.02] border border-life-line hover:bg-life-teal/20 text-life-muted hover:text-life-text flex items-center justify-center"
                           title="Move to Todo"
                         >
@@ -288,7 +298,7 @@ export default function ProjectTasksPage() {
                       )}
                       {columnStatus === 'todo' && (
                         <button
-                          onClick={() => updateTaskStatus(task.id, 'doing')}
+                          onClick={() => handleStatusChange(task.id, 'doing')}
                           className="w-5 h-5 rounded bg-white/[0.02] border border-life-line hover:bg-life-teal/20 text-life-muted hover:text-life-text flex items-center justify-center"
                           title="Move to Doing"
                         >
@@ -297,7 +307,7 @@ export default function ProjectTasksPage() {
                       )}
                       {columnStatus === 'doing' && (
                         <button
-                          onClick={() => updateTaskStatus(task.id, 'done')}
+                          onClick={() => handleStatusChange(task.id, 'done')}
                           className="w-5 h-5 rounded bg-white/[0.02] border border-life-line hover:bg-life-teal/20 text-life-muted hover:text-life-text flex items-center justify-center text-teal-400"
                           title="Complete Task"
                         >
@@ -306,7 +316,7 @@ export default function ProjectTasksPage() {
                       )}
                       {columnStatus === 'done' && (
                         <button
-                          onClick={() => updateTaskStatus(task.id, 'doing')}
+                          onClick={() => handleStatusChange(task.id, 'doing')}
                           className="w-5 h-5 rounded bg-white/[0.02] border border-life-line hover:bg-life-teal/20 text-life-muted hover:text-life-text flex items-center justify-center"
                           title="Move back to Doing"
                         >
@@ -394,7 +404,7 @@ export default function ProjectTasksPage() {
                   <td className="py-3 px-4">
                     <select
                       value={task.status}
-                      onChange={(e) => updateTaskStatus(task.id, e.target.value as any)}
+                      onChange={(e) => handleStatusChange(task.id, e.target.value as any)}
                       className="glass-select py-1 px-2 text-[10px] uppercase font-black"
                     >
                       <option value="todo">{t('tasks_todo')}</option>

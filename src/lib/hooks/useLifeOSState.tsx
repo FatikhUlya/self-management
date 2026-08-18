@@ -419,6 +419,7 @@ export interface LifeOSState {
   displayMode: 'auto' | 'desktop' | 'mobile';
   reviewPeriod: 'weekly' | 'monthly';
   selectedDate: string;
+  serendipityEvent: { id: string; message: string; title: string; tone: string; type: string } | null;
 }
 
 interface LifeOSContextProps {
@@ -432,6 +433,7 @@ interface LifeOSContextProps {
   setSelectedDate: (date: string) => void;
   setDisplayMode: (mode: 'auto' | 'desktop' | 'mobile') => void;
   setReviewPeriod: (period: 'weekly' | 'monthly') => void;
+  clearSerendipity: () => void;
   
   // Capture
   addIdea: (idea: Omit<Idea, 'id' | 'createdAt' | 'status'>) => Promise<void>;
@@ -627,7 +629,8 @@ const initialDefaultState = (today: string): LifeOSState => ({
   growthGoalMilestones: [],
   displayMode: 'auto',
   reviewPeriod: 'weekly',
-  selectedDate: today
+  selectedDate: today,
+  serendipityEvent: null
 });
 
 export function LifeOSProvider({ children }: { children: ReactNode }) {
@@ -657,6 +660,10 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     await supabaseClient.auth.signOut();
     setUser(null);
+  }, []);
+
+  const clearSerendipity = useCallback(() => {
+    setState(prev => ({ ...prev, serendipityEvent: null }));
   }, []);
 
   // ── Step 1: Resolve auth state FIRST, before loading any data ──
@@ -1600,10 +1607,26 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
   const updateTaskStatus = useCallback(async (id: string, status: 'todo' | 'doing' | 'done') => {
     const completedAt = status === 'done' ? new Date().toISOString() : '';
     
-    updateStateAndPersist(prev => ({
-      ...prev,
-      tasks: prev.tasks.map(t => t.id === id ? { ...t, status, completedAt } : t)
-    }));
+    updateStateAndPersist(prev => {
+      let nextSerendipity = prev.serendipityEvent;
+      // 15% chance to trigger Serendipity on task completion
+      if (status === 'done' && Math.random() < 0.15) {
+        const SERENDIPITY_QUOTES = [
+          "You do not rise to the level of your goals. You fall to the level of your systems.",
+          "Every action you take is a vote for the type of person you wish to become.",
+          "The only way to make sense out of change is to plunge into it, move with it, and join the dance.",
+          "He who has a why to live for can bear almost any how.",
+          "We are what we repeatedly do. Excellence, then, is not an act, but a habit."
+        ];
+        const quote = SERENDIPITY_QUOTES[Math.floor(Math.random() * SERENDIPITY_QUOTES.length)];
+        nextSerendipity = { id: generateId(), message: quote, title: 'Moment of Clarity', tone: 'indigo', type: 'task' };
+      }
+      return {
+        ...prev,
+        tasks: prev.tasks.map(t => t.id === id ? { ...t, status, completedAt } : t),
+        serendipityEvent: nextSerendipity
+      };
+    });
 
     if (isDbConnected) {
       const { error } = await supabase.from('tasks').update({
@@ -1869,9 +1892,22 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
           date,
           createdAt: new Date().toISOString()
         };
+        let nextSerendipity = prev.serendipityEvent;
+        // 10% chance to trigger Serendipity on habit completion
+        if (Math.random() < 0.10) {
+          const HABIT_QUOTES = [
+            "Success is the product of daily habits—not once-in-a-lifetime transformations.",
+            "Changes that seem small and unimportant at first will compound into remarkable results.",
+            "Focus on the trajectory, not the current results.",
+            "You get what you repeat."
+          ];
+          const quote = HABIT_QUOTES[Math.floor(Math.random() * HABIT_QUOTES.length)];
+          nextSerendipity = { id: generateId(), message: quote, title: 'Habit Milestone', tone: 'emerald', type: 'habit' };
+        }
         return {
           ...prev,
-          habitLogs: [...prev.habitLogs, logItem]
+          habitLogs: [...prev.habitLogs, logItem],
+          serendipityEvent: nextSerendipity
         };
       }
     });
@@ -3353,6 +3389,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
         updateGrowthGoal,
         addGrowthGoalMilestone,
         toggleGrowthGoalMilestone,
+        clearSerendipity,
       }}
     >
       {children}

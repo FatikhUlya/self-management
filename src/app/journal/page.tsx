@@ -10,6 +10,8 @@ import { Icon } from '@/components/ui/Icon';
 import { formatDate } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 
+import { StreakFlame } from '@/components/ui/StreakFlame';
+
 export default function JournalDashboardPage() {
   const { state } = useLifeOS();
   const { t, locale } = useI18n();
@@ -17,6 +19,12 @@ export default function JournalDashboardPage() {
 
   const today = state.selectedDate;
   const currentJournal = state.journals.find((j) => j.date === today);
+
+  const addDays = (dateStr: string, days: number): string => {
+    const d = new Date(`${dateStr}T00:00:00`);
+    d.setDate(d.getDate() + days);
+    return d.toISOString().slice(0, 10);
+  };
 
   const getStreak = () => {
     let streak = 0;
@@ -26,12 +34,6 @@ export default function JournalDashboardPage() {
       cursor = addDays(cursor, -1);
     }
     return streak;
-  };
-
-  const addDays = (dateStr: string, days: number): string => {
-    const d = new Date(`${dateStr}T00:00:00`);
-    d.setDate(d.getDate() + days);
-    return d.toISOString().slice(0, 10);
   };
 
   const currentStreak = getStreak();
@@ -65,7 +67,7 @@ export default function JournalDashboardPage() {
           iconColor="text-amber-500"
           accentColor="amber-500"
           label="Streak Menulis Jurnal"
-          value={`${currentStreak} Hari`}
+          value={<StreakFlame streakCount={currentStreak} />}
           detail="Terus pertahankan konsistensi!"
         >
           <div className="w-full bg-black/10 dark:bg-white/5 rounded-full h-1.5 mt-2 overflow-hidden">
