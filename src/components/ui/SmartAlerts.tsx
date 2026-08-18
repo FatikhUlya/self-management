@@ -118,7 +118,7 @@ export function SmartAlerts() {
           borderColor: 'border-rose-500/20',
           bgColor: 'bg-rose-500/5',
           title: `Cicilan Jatuh Tempo ${daysLeft === 0 ? 'HARI INI' : `${daysLeft} Hari Lagi`}`,
-          detail: `${debt.name || 'Hutang'} — Rp ${(debt.monthlyPayment || 0).toLocaleString('id-ID')}`,
+          detail: `${debt.name || 'Hutang'} — Rp ${(debt.monthlyInstallment || 0).toLocaleString('id-ID')}`,
           tone: 'rose',
         });
       }
