@@ -23,6 +23,7 @@ export default function HabitsDashboardPage() {
   const [habitArea, setHabitArea] = useState<string>(HABIT_AREAS[0]);
   const [habitFrequency, setHabitFrequency] = useState<'daily' | 'weekly'>('daily');
   const [habitTarget, setHabitTarget] = useState<number>(5);
+  const [habitGoalId, setHabitGoalId] = useState<string>('');
 
   const getCompletionPercent = (date: string) => {
     if (!state.habits.length) return 0;
@@ -57,9 +58,11 @@ export default function HabitsDashboardPage() {
       area: habitArea,
       frequency: habitFrequency,
       targetPerWeek: habitTarget,
+      goalId: habitGoalId || undefined,
     });
 
     setHabitName('');
+    setHabitGoalId('');
     setIsFormOpen(false);
   };
 
@@ -155,9 +158,19 @@ export default function HabitsDashboardPage() {
                 >
                   <div>
                     <strong className="text-sm font-bold block">{habit.name}</strong>
-                    <p className="text-[10px] text-life-muted font-bold uppercase mt-0.5">
-                      Streak: {getHabitStreak(habit.id, today)} {t('days')}
-                    </p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <p className="text-[10px] text-life-muted font-bold uppercase">
+                        Streak: {getHabitStreak(habit.id, today)} {t('days')}
+                      </p>
+                      {habit.goalId && (() => {
+                        const goal = state.goals.find(g => g.id === habit.goalId);
+                        return goal ? (
+                          <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+                            🎯 {goal.title.slice(0, 20)}{goal.title.length > 20 ? '…' : ''}
+                          </span>
+                        ) : null;
+                      })()}
+                    </div>
                   </div>
 
                   <span className={`w-6 h-6 rounded-full flex items-center justify-center border transition-all shrink-0 ${
@@ -246,6 +259,25 @@ export default function HabitsDashboardPage() {
                 className="glass-input text-xs"
               />
             </div>
+          </div>
+
+          {/* Goal Linking */}
+          <div className="flex flex-col space-y-1">
+            <label htmlFor="hGoal" className="text-xs font-bold text-life-muted uppercase">
+              🎯 Link ke Goal (opsional)
+            </label>
+            <select
+              id="hGoal"
+              value={habitGoalId}
+              onChange={(e) => setHabitGoalId(e.target.value)}
+              className="glass-select text-xs"
+            >
+              <option value="">— Tanpa Goal —</option>
+              {state.goals.filter(g => Number(g.progress) < 100).map(g => (
+                <option key={g.id} value={g.id}>{g.title}</option>
+              ))}
+            </select>
+            <p className="text-[10px] text-life-muted">Habit ini akan berkontribusi pada progress goal yang dipilih</p>
           </div>
 
           <Button type="submit" variant="primary" icon="plus" className="w-full">

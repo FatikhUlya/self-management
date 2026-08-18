@@ -2,16 +2,20 @@
 
 export const STORAGE_KEY = 'self-management-webapp-v1';
 
-export const HABIT_AREAS = [
+// ─── Unified Life Area Taxonomy (used across ALL modules) ───
+export const LIFE_AREAS = [
   'Agama',
-  'Health & Fitness',
-  'Career / Arsitektur',
-  'Finance',
-  'Personal Development',
-  'Social / Family',
-  'Hobbies / Creativity',
-  'Lifestyle',
+  'Karir',
+  'Keuangan',
+  'Kesehatan',
+  'Pembelajaran',
+  'Personal',
+  'Sosial & Keluarga',
+  'Hobbies & Kreativitas',
 ] as const;
+export type LifeArea = (typeof LIFE_AREAS)[number];
+
+export const HABIT_AREAS = LIFE_AREAS;
 
 export const ACTIVITY_LEVELS = [
   { id: 'sedentary', label: 'Sedentary', factor: 1.2 },

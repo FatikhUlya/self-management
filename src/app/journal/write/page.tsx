@@ -8,16 +8,20 @@ import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
-import { formatDate } from '@/lib/utils';
+import { formatDate, addDays } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 
 export default function JournalWritePage() {
-  const { state, saveJournal } = useLifeOS();
+  const { state, saveJournal, addTask } = useLifeOS();
   const { t, locale } = useI18n();
   const router = useRouter();
 
   const today = state.selectedDate;
   const currentJournal = state.journals.find((j) => j.date === today);
+  
+  // After-save: show "create task from next action?" prompt
+  const [showTaskPrompt, setShowTaskPrompt] = useState(false);
+  const [savedNextAction, setSavedNextAction] = useState('');
 
   // Helper to load draft safely
   const getDraftOrValue = (key: string, fallback: any) => {
@@ -90,8 +94,72 @@ export default function JournalWritePage() {
     localStorage.removeItem(`draft_journal_reflection_${today}`);
     localStorage.removeItem(`draft_journal_nextAction_${today}`);
 
+    // If next action was filled, show prompt to create task
+    if (nextAction.trim()) {
+      setSavedNextAction(nextAction.trim());
+      setShowTaskPrompt(true);
+    } else {
+      router.push('/journal/entries');
+    }
+  };
+
+  const handleCreateTaskFromJournal = async () => {
+    await addTask({
+      title: savedNextAction,
+      projectId: '',
+      due: addDays(today, 1),
+      priority: 'Medium',
+      goalId: undefined,
+    });
+    setShowTaskPrompt(false);
     router.push('/journal/entries');
   };
+
+  const handleSkipTaskCreation = () => {
+    setShowTaskPrompt(false);
+    router.push('/journal/entries');
+  };
+
+  // ─── Task Creation Prompt (after journal save) ───
+  if (showTaskPrompt) {
+    return (
+      <div className="space-y-6 max-w-4xl mx-auto pb-24">
+        <Surface className="p-8 text-center space-y-6">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 mb-2">
+            <Icon name="check" size={32} className="text-emerald-400" />
+          </div>
+          <h2 className="text-xl font-bold text-life-text">Jurnal Tersimpan! ✨</h2>
+          
+          <div className="p-4 rounded-xl border border-amber-500/20 bg-amber-500/5 text-left">
+            <p className="text-xs font-black text-amber-400 uppercase tracking-wider mb-2">
+              📋 Next Action Terdeteksi
+            </p>
+            <p className="text-sm text-life-text font-bold">"{savedNextAction}"</p>
+            <p className="text-xs text-life-muted mt-2">
+              Jadikan ini sebagai Task untuk besok ({formatDate(addDays(today, 1))})?
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 justify-center">
+            <Button 
+              variant="primary" 
+              icon="plus" 
+              onClick={handleCreateTaskFromJournal}
+              className="px-6"
+            >
+              Ya, Buat Task
+            </Button>
+            <Button 
+              variant="secondary" 
+              onClick={handleSkipTaskCreation}
+            >
+              Lewati
+            </Button>
+          </div>
+        </Surface>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto pb-24">

@@ -1,7 +1,4 @@
 {
-  "/health/page": "app/health/page.js",
-  "/health/nutrition/page": "app/health/nutrition/page.js",
   "/page": "app/page.js",
-  "/api/analyze-food/route": "app/api/analyze-food/route.js",
   "/icon.png/route": "app/icon.png/route.js"
 }

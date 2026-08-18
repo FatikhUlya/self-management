@@ -14,6 +14,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Icon } from '@/components/ui/Icon';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import { SmartAlerts } from '@/components/ui/SmartAlerts';
 import {
   getGreetingKey,
   formatDate,
@@ -147,6 +148,9 @@ export default function Dashboard() {
           </p>
         </div>
       </div>
+
+      {/* Smart Alerts */}
+      <SmartAlerts />
 
       {/* Grid 4 Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -537,6 +541,145 @@ export default function Dashboard() {
                 <strong className="text-sm text-life-text mt-0.5">{dailyWorkoutMins}m</strong>
               </div>
             </div>
+          </div>
+        </Surface>
+      </div>
+
+      {/* Cross-Module Intelligence & Daily Compass */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Rules as Daily Compass */}
+        <Surface className="p-6">
+          <div className="flex justify-between items-start border-b border-life-line pb-3 mb-4">
+            <div>
+              <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
+                Kompas Hari Ini
+              </h3>
+              <p className="text-xs text-life-muted mt-0.5">
+                Prinsip dan aturan hidup (Rotasi harian)
+              </p>
+            </div>
+            <Link href="/rules">
+              <Button size="sm" icon="arrowRight">
+                Rules
+              </Button>
+            </Link>
+          </div>
+          
+          <div className="space-y-3">
+            {(() => {
+              if (state.selfRules.length === 0) return <EmptyState message="Belum ada rule." />;
+              // Deterministic random based on day of year
+              const dayOfYear = Math.floor((new Date(today).getTime() - new Date(today.substring(0, 4) + '-01-01').getTime()) / 86400000);
+              const seed = dayOfYear;
+              const ruleCount = state.selfRules.length;
+              const r1 = state.selfRules[seed % ruleCount];
+              const r2 = state.selfRules[(seed + 1) % ruleCount];
+              const displayRules = ruleCount > 1 ? [r1, r2] : [r1];
+              
+              return displayRules.map((rule, idx) => (
+                <div key={`${rule.id}-${idx}`} className="p-3.5 rounded-xl border border-indigo-500/20 bg-indigo-500/5">
+                  <div className="flex items-start gap-3">
+                    <Icon name="compass" size={16} className="text-indigo-400 shrink-0 mt-0.5" />
+                    <p className="text-sm text-life-text font-bold leading-snug">{rule.content}</p>
+                  </div>
+                </div>
+              ));
+            })()}
+          </div>
+        </Surface>
+
+        {/* Cross-Module Insights */}
+        <Surface className="p-6">
+          <div className="border-b border-life-line pb-3 mb-4">
+            <h3 className="text-sm font-bold text-life-text uppercase tracking-wider">
+              Life Insights
+            </h3>
+            <p className="text-xs text-life-muted mt-0.5">
+              Korelasi & Upcoming Deadlines
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {/* Mood-Activity Correlation */}
+            {(() => {
+              const workoutDays = state.workouts.map(w => w.date);
+              let workoutMoodSum = 0; let workoutMoodCount = 0;
+              let nonWorkoutMoodSum = 0; let nonWorkoutMoodCount = 0;
+              
+              state.journals.forEach(j => {
+                if (workoutDays.includes(j.date)) {
+                  workoutMoodSum += j.mood;
+                  workoutMoodCount++;
+                } else {
+                  nonWorkoutMoodSum += j.mood;
+                  nonWorkoutMoodCount++;
+                }
+              });
+              
+              const avgW = workoutMoodCount > 0 ? (workoutMoodSum / workoutMoodCount).toFixed(1) : '-';
+              const avgNW = nonWorkoutMoodCount > 0 ? (nonWorkoutMoodSum / nonWorkoutMoodCount).toFixed(1) : '-';
+
+              if (workoutMoodCount === 0 || nonWorkoutMoodCount === 0) return null;
+
+              return (
+                <div className="p-4 rounded-xl border border-life-line bg-white/[0.01]">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Icon name="activity" size={14} className="text-teal-400" />
+                    <span className="text-xs font-black text-life-text uppercase tracking-wider">Korelasi Mood & Workout</span>
+                  </div>
+                  <p className="text-sm text-life-muted leading-relaxed">
+                    Di hari Anda <strong className="text-teal-400">workout</strong>, mood rata-rata adalah <strong className="text-life-text">{avgW}/5</strong>. 
+                    Di hari <strong className="text-life-muted">tanpa workout</strong>, mood rata-rata adalah <strong className="text-life-text">{avgNW}/5</strong>.
+                  </p>
+                </div>
+              );
+            })()}
+
+            {/* Upcoming Aggregated Deadlines */}
+            {(() => {
+              const upcoming = [];
+              const target = new Date(today).getTime() + (7 * 86400000); // next 7 days
+
+              state.goals.forEach(g => {
+                if (g.targetDate && Number(g.progress) < 100 && new Date(g.targetDate).getTime() <= target && new Date(g.targetDate).getTime() >= new Date(today).getTime()) {
+                  upcoming.push({ id: g.id, title: g.title, date: g.targetDate, type: 'Goal', tone: 'teal' });
+                }
+              });
+              (state.workApplications || []).forEach(w => {
+                const date = w.interviewDate || w.deadline;
+                if (date && (w.status !== 'rejected' && w.status !== 'offer') && new Date(date).getTime() <= target && new Date(date).getTime() >= new Date(today).getTime()) {
+                  upcoming.push({ id: w.id, title: `${w.company} - ${w.position}`, date, type: 'Kerja', tone: 'indigo' });
+                }
+              });
+
+              upcoming.sort((a, b) => a.date.localeCompare(b.date));
+
+              if (upcoming.length === 0) return (
+                <div className="p-4 rounded-xl border border-life-line bg-white/[0.01]">
+                  <p className="text-xs text-life-muted">Tidak ada deadline penting dalam 7 hari ke depan.</p>
+                </div>
+              );
+
+              return (
+                <div className="p-4 rounded-xl border border-life-line bg-white/[0.01]">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Icon name="clock" size={14} className="text-rose-400" />
+                    <span className="text-xs font-black text-life-text uppercase tracking-wider">Upcoming Deadlines (7 Hari)</span>
+                  </div>
+                  <div className="space-y-2">
+                    {upcoming.map(item => (
+                      <div key={`${item.type}-${item.id}`} className="flex justify-between items-center">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Badge tone={item.tone as any} className="text-[9px] shrink-0">{item.type}</Badge>
+                          <span className="text-xs text-life-text truncate font-bold">{item.title}</span>
+                        </div>
+                        <span className="text-[10px] font-bold text-life-muted shrink-0">{formatDate(item.date)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </Surface>
       </div>

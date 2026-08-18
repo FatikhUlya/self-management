@@ -88,6 +88,7 @@ export interface Habit {
   area: string;
   frequency: 'daily' | 'weekly';
   targetPerWeek: number;
+  goalId?: string;
   createdAt: string;
 }
 
@@ -436,6 +437,8 @@ interface LifeOSContextProps {
   addIdea: (idea: Omit<Idea, 'id' | 'createdAt' | 'status'>) => Promise<void>;
   archiveIdea: (id: string) => Promise<void>;
   deleteIdea: (id: string) => Promise<void>;
+  convertIdeaToTask: (ideaId: string) => Promise<void>;
+  convertIdeaToProject: (ideaId: string) => Promise<void>;
 
   // Journal
   saveJournal: (journal: Omit<Journal, 'id' | 'createdAt' | 'date'>) => Promise<void>;
@@ -1311,6 +1314,8 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
     }
   }, [isDbConnected, updateStateAndPersist, checkError]);
 
+
+
   // =========================================================================
   // JOURNAL MODULE
   // =========================================================================
@@ -1635,6 +1640,35 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
       checkError(error, 'deleteTask');
     }
   }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  // Convert idea to task (Capture → Action Pipeline)
+  const convertIdeaToTask = useCallback(async (ideaId: string) => {
+    const idea = state.ideas.find(i => i.id === ideaId);
+    if (!idea) return;
+
+    await addTask({
+      title: idea.title,
+      projectId: '',
+      due: state.selectedDate,
+      priority: idea.priority,
+      goalId: undefined
+    });
+    await archiveIdea(ideaId);
+  }, [state.ideas, state.selectedDate, addTask, archiveIdea]);
+
+  // Convert idea to project (Capture → Action Pipeline)
+  const convertIdeaToProject = useCallback(async (ideaId: string) => {
+    const idea = state.ideas.find(i => i.id === ideaId);
+    if (!idea) return;
+
+    await addProject({
+      name: idea.title,
+      area: idea.area,
+      status: 'active',
+      goalId: undefined
+    });
+    await archiveIdea(ideaId);
+  }, [state.ideas, addProject, archiveIdea]);
 
   const updateProjectGoal = useCallback(async (id: string, goalId: string | null) => {
     updateStateAndPersist(prev => ({
@@ -3156,7 +3190,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
   }, [isDbConnected, updateStateAndPersist, checkError]);
 
 
-  // Dynamically compute goal progress based on linked projects and tasks
+  // Dynamically compute goal progress based on linked projects, tasks, AND habits
   const processedGoals = useMemo(() => {
     return state.goals.map(goal => {
       // Find projects linked to this goal
@@ -3169,14 +3203,55 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
         (t.projectId && linkedProjectIds.includes(t.projectId))
       );
 
-      if (linkedTasks.length > 0) {
+      // Find habits linked to this goal
+      const linkedHabits = state.habits.filter(h => h.goalId === goal.id);
+
+      const hasLinkedTasks = linkedTasks.length > 0;
+      const hasLinkedHabits = linkedHabits.length > 0;
+
+      if (!hasLinkedTasks && !hasLinkedHabits) return goal;
+
+      // Task completion percentage
+      let taskProgress = 0;
+      if (hasLinkedTasks) {
         const completedCount = linkedTasks.filter(t => t.status === 'done').length;
-        const progress = Math.round((completedCount / linkedTasks.length) * 100);
-        return { ...goal, progress };
+        taskProgress = Math.round((completedCount / linkedTasks.length) * 100);
       }
-      return goal;
+
+      // Habit completion percentage (last 7 days)
+      let habitProgress = 0;
+      if (hasLinkedHabits) {
+        const totalTarget = linkedHabits.reduce((sum, h) => sum + h.targetPerWeek, 0);
+        const totalDone = linkedHabits.reduce((sum, h) => {
+          // Count logs in last 7 days
+          const today = new Date(state.selectedDate);
+          let count = 0;
+          for (let i = 0; i < 7; i++) {
+            const d = new Date(today);
+            d.setDate(d.getDate() - i);
+            const dateStr = d.toISOString().slice(0, 10);
+            if (state.habitLogs.some(l => l.habitId === h.id && l.date === dateStr)) {
+              count++;
+            }
+          }
+          return sum + count;
+        }, 0);
+        habitProgress = totalTarget > 0 ? Math.round((totalDone / totalTarget) * 100) : 0;
+      }
+
+      // Weighted average
+      let progress: number;
+      if (hasLinkedTasks && hasLinkedHabits) {
+        progress = Math.round(taskProgress * 0.6 + habitProgress * 0.4);
+      } else if (hasLinkedTasks) {
+        progress = taskProgress;
+      } else {
+        progress = habitProgress;
+      }
+
+      return { ...goal, progress: Math.min(progress, 100) };
     });
-  }, [state.goals, state.projects, state.tasks]);
+  }, [state.goals, state.projects, state.tasks, state.habits, state.habitLogs, state.selectedDate]);
 
   const memoizedState = useMemo(() => ({
     ...state,
@@ -3199,6 +3274,8 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
         addIdea,
         archiveIdea,
         deleteIdea,
+        convertIdeaToTask,
+        convertIdeaToProject,
         saveJournal,
         deleteJournal,
         addPlan,

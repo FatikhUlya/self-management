@@ -28,7 +28,7 @@ import {
 import { useRouter } from 'next/navigation';
 
 export default function PlanningTimelinePage() {
-  const { state, togglePlan, deletePlan, addPlan } = useLifeOS();
+  const { state, togglePlan, deletePlan, addPlan, updateTaskStatus } = useLifeOS();
   const { t, locale } = useI18n();
   const router = useRouter();
 
@@ -441,6 +441,47 @@ export default function PlanningTimelinePage() {
             </Button>
           </div>
         </div>
+
+        {/* ─── Tasks Due Today (Auto-Sync from Tasks Module) ─── */}
+        {(() => {
+          const dueTasks = state.tasks.filter(t => t.due === planDate && t.status !== 'done');
+          if (dueTasks.length === 0) return null;
+          return (
+            <div className="mb-6 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
+              <div className="flex items-center gap-2 mb-3">
+                <Icon name="zap" size={14} className="text-amber-400" />
+                <span className="text-xs font-black text-amber-400 uppercase tracking-wider">
+                  Tasks Due Tanggal Ini ({dueTasks.length})
+                </span>
+              </div>
+              <div className="space-y-2">
+                {dueTasks.map(task => (
+                  <div
+                    key={`task-${task.id}`}
+                    className="flex items-center justify-between p-3 rounded-lg bg-amber-500/5 border border-amber-500/10 hover:border-amber-500/30 transition-all"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Badge tone="amber" className="text-[9px] py-0 px-1.5 uppercase font-black tracking-widest shrink-0">
+                        Auto-Task
+                      </Badge>
+                      <span className="text-sm font-bold text-life-text truncate">{task.title}</span>
+                      <Badge tone={task.priority === 'High' ? 'rose' : task.priority === 'Medium' ? 'amber' : 'gray'} className="text-[10px] shrink-0">
+                        {task.priority}
+                      </Badge>
+                    </div>
+                    <button
+                      onClick={() => updateTaskStatus(task.id, 'done')}
+                      className="w-7 h-7 rounded-md border border-amber-500/20 bg-black/40 hover:border-life-green hover:bg-life-green/20 hover:text-life-green text-life-muted transition-all flex items-center justify-center shrink-0"
+                      title="Selesaikan Task"
+                    >
+                      <Icon name="check" size={12} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
         <div className="relative border-l-2 border-white/10 ml-12 sm:ml-16 pb-8">
           {Array.from({ length: 24 }).map((_, hour) => {

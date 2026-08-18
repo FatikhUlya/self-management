@@ -9,15 +9,15 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
 import { formatDate } from '@/lib/utils';
-import { PRIORITY_OPTIONS, Priority } from '@/lib/constants';
+import { PRIORITY_OPTIONS, Priority, LIFE_AREAS } from '@/lib/constants';
 
 export default function CapturePage() {
-  const { state, addIdea, archiveIdea, deleteIdea } = useLifeOS();
+  const { state, addIdea, archiveIdea, deleteIdea, convertIdeaToTask, convertIdeaToProject } = useLifeOS();
   const { t } = useI18n();
 
   // Form states
   const [title, setTitle] = useState('');
-  const [area, setArea] = useState('Career');
+  const [area, setArea] = useState<string>(LIFE_AREAS[1]);
   const [priority, setPriority] = useState<Priority>('Medium');
   const [notes, setNotes] = useState('');
 
@@ -30,7 +30,7 @@ export default function CapturePage() {
 
     await addIdea({ title, area, priority, notes });
     setTitle('');
-    setArea('Career');
+    setArea(LIFE_AREAS[1]);
     setPriority('Medium');
     setNotes('');
   };
@@ -85,16 +85,13 @@ export default function CapturePage() {
                 </label>
                 <select
                   id="area"
-                  value={area || 'Career'}
+                  value={area}
                   onChange={(e) => setArea(e.target.value)}
                   className="glass-select text-xs"
                 >
-                  <option value="Career">Career</option>
-                  <option value="Finance">Finance</option>
-                  <option value="Health">Health</option>
-                  <option value="Learning">Learning</option>
-                  <option value="Personal">Personal</option>
-                  <option value="Relationship">Relationship</option>
+                  {LIFE_AREAS.map((a) => (
+                    <option key={a} value={a}>{a}</option>
+                  ))}
                 </select>
               </div>
 
@@ -152,38 +149,59 @@ export default function CapturePage() {
               activeIdeas.map((idea) => (
                 <article 
                   key={idea.id} 
-                  className="p-3.5 rounded-lg bg-white/[0.01] border border-life-line hover:border-life-line-strong hover:bg-white/[0.02] transition-all duration-150 flex items-start justify-between gap-4"
+                  className="p-3.5 rounded-lg bg-white/[0.01] border border-life-line hover:border-life-line-strong hover:bg-white/[0.02] transition-all duration-150"
                 >
-                  <div className="min-w-0 space-y-1">
-                    <strong className="text-sm text-life-text block tracking-tight leading-tight">{idea.title}</strong>
-                    <p className="text-xs text-life-muted">
-                      {idea.notes || t('capture_no_notes')}
-                    </p>
-                    <div className="flex flex-wrap gap-2 pt-1">
-                      <Badge tone="teal">{idea.area || 'Inbox'}</Badge>
-                      <Badge tone={idea.priority === 'High' ? 'rose' : idea.priority === 'Medium' ? 'amber' : 'gray'}>
-                        {idea.priority}
-                      </Badge>
-                      <span className="text-[10px] text-life-muted font-bold self-center">
-                        {formatDate(idea.createdAt?.slice(0, 10))}
-                      </span>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0 space-y-1 flex-1">
+                      <strong className="text-sm text-life-text block tracking-tight leading-tight">{idea.title}</strong>
+                      <p className="text-xs text-life-muted">
+                        {idea.notes || t('capture_no_notes')}
+                      </p>
+                      <div className="flex flex-wrap gap-2 pt-1">
+                        <Badge tone="teal">{idea.area || 'Inbox'}</Badge>
+                        <Badge tone={idea.priority === 'High' ? 'rose' : idea.priority === 'Medium' ? 'amber' : 'gray'}>
+                          {idea.priority}
+                        </Badge>
+                        <span className="text-[10px] text-life-muted font-bold self-center">
+                          {formatDate(idea.createdAt?.slice(0, 10))}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-1.5 shrink-0">
+                      <button
+                        onClick={() => archiveIdea(idea.id)}
+                        className="w-8 h-8 rounded-lg bg-white/[0.03] border border-life-line hover:bg-life-teal/20 hover:border-life-teal hover:text-life-teal text-life-muted flex items-center justify-center transition-all"
+                        title={t('capture_archive')}
+                      >
+                        <Icon name="check" size={14} />
+                      </button>
+                      <button
+                        onClick={() => deleteIdea(idea.id)}
+                        className="w-8 h-8 rounded-lg bg-white/[0.03] border border-life-line hover:bg-life-rose/20 hover:border-life-rose hover:text-life-rose text-life-muted flex items-center justify-center transition-all"
+                        title={t('delete')}
+                      >
+                        <Icon name="trash" size={14} />
+                      </button>
                     </div>
                   </div>
 
-                  <div className="flex items-center space-x-1.5 shrink-0">
+                  {/* ─── Convert-to-Action Pipeline ─── */}
+                  <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/5">
+                    <span className="text-[10px] font-black text-life-muted uppercase tracking-wider mr-auto">Konversi →</span>
                     <button
-                      onClick={() => archiveIdea(idea.id)}
-                      className="w-8 h-8 rounded-lg bg-white/[0.03] border border-life-line hover:bg-life-teal/20 hover:border-life-teal hover:text-life-teal text-life-muted flex items-center justify-center transition-all"
-                      title={t('capture_archive')}
+                      onClick={() => convertIdeaToTask(idea.id)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/40 transition-all"
                     >
-                      <Icon name="check" size={14} />
+                      <Icon name="checkSquare" size={12} />
+                      Task
                     </button>
                     <button
-                      onClick={() => deleteIdea(idea.id)}
-                      className="w-8 h-8 rounded-lg bg-white/[0.03] border border-life-line hover:bg-life-rose/20 hover:border-life-rose hover:text-life-rose text-life-muted flex items-center justify-center transition-all"
-                      title={t('delete')}
+                      onClick={() => convertIdeaToProject(idea.id)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500/40 transition-all"
                     >
-                      <Icon name="trash" size={14} />
+                      <Icon name="folder" size={12} />
+                      Project
                     </button>
                   </div>
                 </article>
