@@ -17,7 +17,7 @@ export function EveningReview({
   const [distractionNotes, setDistractionNotes] = useState(todayPlan.distractionNotes || '');
   const [wins, setWins] = useState('');
   const [lessons, setLessons] = useState('');
-  const [ruleCompliance, setRuleCompliance] = useState<Record<string, 'followed' | 'broken' | 'not_applicable'>>({});
+  const [ruleCompliance, setRuleCompliance] = useState<Record<string, 'followed' | 'missed' | 'not_applicable'>>({});
 
   const mit = state.tasks.find(t => t.id === todayPlan.mitTaskId);
   
@@ -29,8 +29,7 @@ export function EveningReview({
         await addRuleComplianceLog({
           ruleId,
           date: todayPlan.date,
-          status: status,
-          notes: ''
+          status: status
         });
       }
     }
@@ -148,9 +147,9 @@ export function EveningReview({
                       Dipatuhi
                     </button>
                     <button
-                      onClick={() => setRuleCompliance(prev => ({ ...prev, [rule.id]: 'broken' }))}
+                      onClick={() => setRuleCompliance(prev => ({ ...prev, [rule.id]: 'missed' }))}
                       className={`px-3 py-1 rounded text-[10px] font-bold uppercase transition-all ${
-                        ruleCompliance[rule.id] === 'broken' 
+                        ruleCompliance[rule.id] === 'missed' 
                           ? 'bg-rose-500/20 text-rose-400' : 'text-life-muted hover:text-life-text'
                       }`}
                     >

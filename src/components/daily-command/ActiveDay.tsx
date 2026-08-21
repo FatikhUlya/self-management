@@ -75,13 +75,13 @@ export function ActiveDay({
                       Selesaikan
                     </Button>
                     <Link href={`/focus?taskId=${mit.id}`} className="flex-1">
-                      <Button variant="outline" icon="clock" className="w-full">
+                      <Button variant="secondary" icon="clock" className="w-full">
                         Fokus
                       </Button>
                     </Link>
                   </>
                 ) : (
-                  <Button variant="outline" icon="rotateCcw" onClick={() => updateTaskStatus(mit.id, 'todo')}>
+                  <Button variant="secondary" icon="rotateCcw" onClick={() => updateTaskStatus(mit.id, 'todo')}>
                     Batal Selesai
                   </Button>
                 )}

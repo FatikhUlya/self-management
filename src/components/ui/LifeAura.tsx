@@ -51,10 +51,10 @@ export function LifeAura() {
     recentHabitLogs.forEach(log => {
       const habit = state.habits.find(h => h.id === log.habitId);
       if (habit) {
-        if (habit.category === 'Kesehatan') vitality += 10;
-        else if (habit.category === 'Keuangan') wealth += 10;
-        else if (habit.category === 'Karir') intelligence += 10;
-        else if (habit.category === 'Sosial & Keluarga') charisma += 10;
+        if (habit.area === 'Kesehatan') vitality += 10;
+        else if (habit.area === 'Keuangan') wealth += 10;
+        else if (habit.area === 'Karir') intelligence += 10;
+        else if (habit.area === 'Sosial & Keluarga') charisma += 10;
         else wisdom += 10;
       }
     });

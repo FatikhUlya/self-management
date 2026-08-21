@@ -3654,7 +3654,6 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
         updateGrowthGoal,
         addGrowthGoalMilestone,
         toggleGrowthGoalMilestone,
-        toggleGrowthGoalMilestone,
         clearSerendipity,
         addObjective,
         updateObjective,
