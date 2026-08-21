@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { useI18n } from '@/lib/i18n/context';
-import { useFloatingText } from '@/providers/FloatingTextProvider';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
 import { Modal } from '@/components/ui/Modal';
@@ -54,8 +53,6 @@ export function QuickAddTransaction() {
   const [isOpen, setIsOpen] = useState(false);
   const { addTransaction, state } = useLifeOS();
   const { t, locale } = useI18n();
-  const { showFloatingText } = useFloatingText();
-
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [type, setType] = useState<'income' | 'expense'>('expense');
@@ -81,17 +78,7 @@ export function QuickAddTransaction() {
       recurringInterval: 'none'
     });
 
-    // Trigger floating text near the center
-    const formattedAmount = `Rp ${Number(amount).toLocaleString('id-ID')}`;
-    const textToShow = type === 'income' ? `+ ${formattedAmount}` : `- ${formattedAmount}`;
-    
-    // Position it roughly near the button (you can pass the event to get exact click position, but since it's a form submit, center is safer)
-    let x, y;
-    if (e.nativeEvent && e.nativeEvent instanceof MouseEvent) {
-      x = e.nativeEvent.clientX;
-      y = e.nativeEvent.clientY;
-    }
-    showFloatingText(textToShow, x, y, type);
+
 
     setTitle('');
     setAmount('');

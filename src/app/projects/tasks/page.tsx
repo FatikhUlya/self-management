@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { useLocalStorageState } from '@/lib/hooks/useLocalStorageState';
-import { useConfetti } from '@/providers/ConfettiProvider';
 import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
 import { Button } from '@/components/ui/Button';
@@ -26,8 +25,7 @@ export default function ProjectTasksPage() {
     updateTaskGoal
   } = useLifeOS();
   
-  const { triggerConfetti } = useConfetti();
-  
+
   const { t, locale } = useI18n();
 
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
@@ -266,7 +264,7 @@ export default function ProjectTasksPage() {
 
   const handleStatusChange = async (id: string, status: 'todo' | 'doing' | 'done') => {
     if (status === 'done') {
-      triggerConfetti();
+
     }
     await updateTaskStatus(id, status);
   };

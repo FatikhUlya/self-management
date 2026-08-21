@@ -4,7 +4,6 @@ import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { useLocalStorageState } from '@/lib/hooks/useLocalStorageState';
-import { useConfetti } from '@/providers/ConfettiProvider';
 import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
 import { Button } from '@/components/ui/Button';
@@ -17,7 +16,7 @@ import { KeyResult } from '@/lib/hooks/useLifeOSState';
 
 export default function GoalsManagePage() {
   const { state, addGoal, updateGoal, deleteGoal, updateTaskStatus } = useLifeOS();
-  const { triggerConfetti } = useConfetti();
+
   const { t, locale } = useI18n();
 
   const [timeframeFilter, setTimeframeFilter] = useState<'all' | 'short' | 'medium' | 'long'>('all');
@@ -82,7 +81,7 @@ export default function GoalsManagePage() {
       progress
     });
     
-    if (progress >= 100 && editingGoal.progress < 100) triggerConfetti();
+
     setEditingGoal(null);
   };
 
