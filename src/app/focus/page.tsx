@@ -80,11 +80,11 @@ export default function FocusModePage() {
       if (mode === 'focus' && startTime) {
         saveFocusSession({
           taskId: task.id,
-          startTime,
-          endTime: new Date().toISOString(),
-          durationMinutes: Math.floor((FOCUS_MINUTES * 60 - timeLeft) / 60),
-          type: 'deep_work',
-          distractionsCount: 0
+          startedAt: startTime,
+          endedAt: new Date().toISOString(),
+          plannedMinutes: FOCUS_MINUTES,
+          actualMinutes: Math.floor((FOCUS_MINUTES * 60 - timeLeft) / 60),
+          completed: true,
         });
       }
       router.push('/');
