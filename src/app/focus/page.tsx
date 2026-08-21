@@ -101,7 +101,7 @@ export default function FocusModePage() {
     <div className="min-h-screen bg-life-bg text-life-text flex flex-col items-center pt-20 px-4">
       {/* Top Navigation */}
       <div className="w-full max-w-3xl flex justify-between items-center mb-12">
-        <Button variant="ghost" icon="arrowLeft" onClick={() => router.back()}>
+        <Button variant="secondary" icon="arrowLeft" onClick={() => router.back()}>
           Kembali
         </Button>
         <div className="flex gap-2">
@@ -135,7 +135,7 @@ export default function FocusModePage() {
             >
               {isActive ? 'Pause' : 'Start'}
             </Button>
-            <Button variant="ghost" size="lg" icon="rotateCcw" onClick={resetTimer} title="Reset" />
+            <Button variant="secondary" size="lg" icon="rotateCcw" onClick={resetTimer} title="Reset" />
           </div>
         </Surface>
 
