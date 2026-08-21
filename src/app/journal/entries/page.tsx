@@ -59,7 +59,7 @@ export default function ReviewEntriesPage() {
                     <Badge tone="indigo" className="flex items-center gap-1.5 px-2 py-0.5">
                       <span className="font-bold uppercase tracking-wider">{review.period}</span>
                     </Badge>
-                    <Badge tone="emerald" className="flex items-center gap-1.5 px-2 py-0.5">
+                    <Badge tone="green" className="flex items-center gap-1.5 px-2 py-0.5">
                       <Icon name="star" size={12} className="text-emerald-400" />
                       <span className="font-bold">Score: {review.score}/5</span>
                     </Badge>
