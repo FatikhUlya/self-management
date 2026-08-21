@@ -128,7 +128,7 @@ export default function FocusModePage() {
           
           <div className="flex items-center gap-4 relative z-10">
             <Button 
-              variant={isActive ? 'outline' : 'primary'} 
+              variant={isActive ? 'secondary' : 'primary'} 
               size="lg" 
               onClick={toggleTimer}
               className="w-32"
