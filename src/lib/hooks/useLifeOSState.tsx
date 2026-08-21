@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import { supabase as supabaseClient, isSupabaseConfigured } from '@/lib/supabase/client';
 import { createCalendarEvent, deleteCalendarEvent } from '../google-calendar';
 import { todayISO, generateId, clamp } from '@/lib/utils';
+import type { Priority } from '@/lib/constants';
 
 const supabase = supabaseClient as any;
 
@@ -13,7 +14,7 @@ export interface Idea {
   id: string;
   title: string;
   area: string;
-  priority: 'Low' | 'Medium' | 'High';
+  priority: Priority;
   notes: string;
   status: 'active' | 'archived';
   captureType?: string;
@@ -41,7 +42,7 @@ export interface Plan {
   kind: 'task' | 'event';
   startTime: string;
   endTime: string;
-  priority: 'Low' | 'Medium' | 'High';
+  priority: Priority;
   area: string;
   notes: string;
   status: 'scheduled' | 'done';
@@ -67,7 +68,7 @@ export interface Task {
   title: string;
   description?: string;
   due: string;
-  priority: 'Low' | 'Medium' | 'High' | 'P1' | 'P2' | 'P3';
+  priority: Priority;
   status: 'todo' | 'doing' | 'done' | 'inbox' | 'planned' | 'today' | 'in_progress' | 'blocked' | 'completed' | 'cancelled';
   estimatedMinutes?: number;
   definitionOfDone?: string;
@@ -233,7 +234,7 @@ export interface WorkApplication {
   company: string;
   role: string;
   status: 'wishlist' | 'applied' | 'screening' | 'interview' | 'offer' | 'rejected';
-  priority: 'Low' | 'Medium' | 'High';
+  priority: Priority;
   deadline: string;
   appliedDate: string;
   source: string;
