@@ -137,19 +137,13 @@ function AuthGate({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
-import { FloatingTextProvider } from '@/providers/FloatingTextProvider';
-import { ConfettiProvider } from '@/providers/ConfettiProvider';
 
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <I18nProvider>
       <LifeOSProvider>
         <AuthGate>
-          <ConfettiProvider>
-            <FloatingTextProvider>
-              {children}
-            </FloatingTextProvider>
-          </ConfettiProvider>
+          {children}
         </AuthGate>
       </LifeOSProvider>
     </I18nProvider>

@@ -5,7 +5,7 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { Topbar } from '@/components/layout/Topbar';
 import { MobileNav } from '@/components/layout/MobileNav';
 import { QuickAddTransaction } from '@/components/finance/QuickAddTransaction';
-import { SerendipityOverlay } from '@/components/ui/SerendipityOverlay';
+import { NotificationBanner } from '@/components/ui/NotificationBanner';
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -42,8 +42,11 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
         <Topbar />
         
         {/* Content viewport */}
-        <main className="flex-1 p-6 md:p-8 overflow-y-auto">
-          {children}
+        <main className="flex-1 overflow-y-auto">
+          <NotificationBanner />
+          <div className="p-6 md:p-8">
+            {children}
+          </div>
         </main>
       </div>
 
@@ -53,8 +56,6 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
       {/* Global Quick Add Transaction */}
       <QuickAddTransaction />
 
-      {/* Gamification Popups */}
-      <SerendipityOverlay />
     </div>
   );
 }

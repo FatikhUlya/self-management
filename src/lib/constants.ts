@@ -111,10 +111,10 @@ export const WORK_STATUS_IDS = WORK_STATUSES.map((s) => s.id);
 
 export const MEAL_TYPES = ['Breakfast', 'Lunch', 'Dinner', 'Snack'] as const;
 
-export const PRIORITY_OPTIONS = ['Low', 'Medium', 'High'] as const;
+export const PRIORITY_OPTIONS = ['Low', 'Medium', 'High', 'P1', 'P2', 'P3'] as const;
 export type Priority = (typeof PRIORITY_OPTIONS)[number];
 
-export const TASK_STATUSES = ['todo', 'doing', 'done'] as const;
+export const TASK_STATUSES = ['todo', 'doing', 'done', 'inbox', 'planned', 'today', 'in_progress', 'blocked', 'completed', 'cancelled'] as const;
 export type TaskStatus = (typeof TASK_STATUSES)[number];
 
 export const PROJECT_STATUSES = ['active', 'paused', 'done'] as const;
@@ -131,16 +131,15 @@ export const NAV_ITEMS = [
   { id: 'dashboard', path: '/', icon: 'layout', labelKey: 'nav_dashboard' as const },
   { id: 'capture', path: '/capture', icon: 'plus', labelKey: 'nav_capture' as const },
   { id: 'planning', path: '/planning', icon: 'calendar', labelKey: 'nav_planning' as const },
-  { id: 'habits', path: '/habits', icon: 'check', labelKey: 'nav_habits' as const },
-  { id: 'journal', path: '/journal', icon: 'journal', labelKey: 'nav_journal' as const },
-  { id: 'goals', path: '/goals', icon: 'target', labelKey: 'nav_goals' as const },
   { id: 'projects', path: '/projects', icon: 'folder', labelKey: 'nav_projects' as const },
-  { id: 'work', path: '/work', icon: 'briefcase', labelKey: 'nav_work' as const },
+  { id: 'habits', path: '/habits', icon: 'check', labelKey: 'nav_habits' as const },
+  { id: 'goals', path: '/goals', icon: 'target', labelKey: 'nav_goals' as const },
+  { id: 'journal', path: '/journal', icon: 'journal', labelKey: 'nav_journal' as const },
   { id: 'finance', path: '/finance', icon: 'wallet', labelKey: 'nav_finance' as const },
   { id: 'health', path: '/health', icon: 'activity', labelKey: 'nav_health' as const },
   { id: 'learning', path: '/learning', icon: 'book', labelKey: 'nav_learning' as const },
+  { id: 'work', path: '/work', icon: 'briefcase', labelKey: 'nav_work' as const },
   { id: 'mirror', path: '/mirror', icon: 'lightbulb', labelKey: 'nav_mirror' as const },
-  { id: 'reviews', path: '/reviews', icon: 'review', labelKey: 'nav_reviews' as const },
   { id: 'rules', path: '/rules', icon: 'shield', labelKey: 'nav_rules' as const },
   { id: 'settings', path: '/settings', icon: 'settings', labelKey: 'nav_settings' as const },
 ] as const;

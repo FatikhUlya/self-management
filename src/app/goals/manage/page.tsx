@@ -13,9 +13,10 @@ import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
 import { Modal } from '@/components/ui/Modal';
 import { percent } from '@/lib/utils';
+import { KeyResult } from '@/lib/hooks/useLifeOSState';
 
 export default function GoalsManagePage() {
-  const { state, addGoal, updateGoal, updateGoalProgress, deleteGoal, updateTaskStatus } = useLifeOS();
+  const { state, addGoal, updateGoal, deleteGoal, updateTaskStatus } = useLifeOS();
   const { triggerConfetti } = useConfetti();
   const { t, locale } = useI18n();
 
@@ -25,18 +26,14 @@ export default function GoalsManagePage() {
   const [isNewGoalModalOpen, setIsNewGoalModalOpen] = useState(false);
   const [title, setTitle] = useLocalStorageState('draft_goal_title', '');
   const [category, setCategory] = useLocalStorageState('draft_goal_category', 'Career');
-  const [currentValue, setCurrentValue] = useLocalStorageState<number>('draft_goal_currentValue', 0);
-  const [targetValue, setTargetValue] = useLocalStorageState<number>('draft_goal_targetValue', 100);
-  const [unit, setUnit] = useLocalStorageState('draft_goal_unit', '%');
   const [targetDate, setTargetDate] = useLocalStorageState('draft_goal_targetDate', state.selectedDate);
+  const [keyResults, setKeyResults] = useLocalStorageState<KeyResult[]>('draft_goal_krs', []);
 
   const [editingGoal, setEditingGoal] = useState<any | null>(null);
   const [editGoalTitle, setEditGoalTitle] = useState('');
   const [editGoalCategory, setEditGoalCategory] = useState('');
-  const [editGoalCurrentValue, setEditGoalCurrentValue] = useState<number>(0);
-  const [editGoalTargetValue, setEditGoalTargetValue] = useState<number>(100);
-  const [editGoalUnit, setEditGoalUnit] = useState('%');
   const [editGoalTargetDate, setEditGoalTargetDate] = useState('');
+  const [editGoalKeyResults, setEditGoalKeyResults] = useState<KeyResult[]>([]);
 
   const getGoalTimeframe = (targetDateStr: string) => {
     if (!targetDateStr) return 'medium';
@@ -45,15 +42,6 @@ export default function GoalsManagePage() {
     if (diffDays <= 90) return 'short';
     if (diffDays <= 365) return 'medium';
     return 'long';
-  };
-
-  const timeframeLabel = (tf: string) => {
-    switch (tf) {
-      case 'short': return locale === 'id' ? 'Jangka Pendek (1-3 Bln)' : 'Short-Term (1-3 Mo)';
-      case 'medium': return locale === 'id' ? 'Jangka Menengah (1 Thn)' : 'Medium-Term (1 Yr)';
-      case 'long': return locale === 'id' ? 'Jangka Panjang (3-5 Thn)' : 'Long-Term (3-5 Yr)';
-      default: return '';
-    }
   };
 
   const filteredGoals = useMemo(() => {
@@ -67,32 +55,35 @@ export default function GoalsManagePage() {
     setEditingGoal(goal);
     setEditGoalTitle(goal.title);
     setEditGoalCategory(goal.category || 'Career');
-    setEditGoalCurrentValue(goal.currentValue || 0);
-    setEditGoalTargetValue(goal.targetValue || 100);
-    setEditGoalUnit(goal.unit || '%');
     setEditGoalTargetDate(goal.targetDate || '');
+    setEditGoalKeyResults(goal.keyResults || []);
+  };
+
+  const calculateProgress = (krs: KeyResult[]) => {
+    if (krs.length === 0) return 0;
+    const total = krs.reduce((acc, kr) => {
+      if (kr.targetValue === 0) return acc;
+      return acc + (kr.currentValue / kr.targetValue);
+    }, 0);
+    return Math.round((total / krs.length) * 100);
   };
 
   const handleSaveEditGoal = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingGoal || !editGoalTitle.trim()) return;
+    
+    const progress = calculateProgress(editGoalKeyResults);
+    
     await updateGoal(editingGoal.id, {
       title: editGoalTitle.trim(),
       category: editGoalCategory.trim() || 'Career',
-      currentValue: editGoalCurrentValue,
-      targetValue: editGoalTargetValue,
-      unit: editGoalUnit,
-      targetDate: editGoalTargetDate
+      targetDate: editGoalTargetDate,
+      keyResults: editGoalKeyResults,
+      progress
     });
+    
+    if (progress >= 100 && editingGoal.progress < 100) triggerConfetti();
     setEditingGoal(null);
-  };
-
-  const handleProgressChange = async (id: string, amount: number, currentProgress: number) => {
-    const nextProgress = Math.min(100, Math.max(0, currentProgress + amount));
-    if (nextProgress === 100 && currentProgress < 100) {
-      triggerConfetti();
-    }
-    await updateGoalProgress(id, amount);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -102,18 +93,17 @@ export default function GoalsManagePage() {
     await addGoal({
       title,
       category: category.trim() || 'General',
-      currentValue,
-      targetValue,
-      unit,
       targetDate,
-      progress: 0,
+      keyResults,
+      progress: calculateProgress(keyResults),
+      currentValue: 0,
+      targetValue: 100,
+      unit: '%'
     });
 
     setTitle('');
     setCategory('Career');
-    setCurrentValue(0);
-    setTargetValue(100);
-    setUnit('%');
+    setKeyResults([]);
     setIsNewGoalModalOpen(false);
   };
 
@@ -147,10 +137,10 @@ export default function GoalsManagePage() {
         <div className="flex-1">
           <h1 className="text-2xl font-bold text-life-text flex items-center gap-2">
             <Icon name="target" size={24} className="text-cyan-500" />
-            Kelola Goals (OKRs)
+            Kelola OKRs
           </h1>
           <p className="text-zinc-500 text-xs mt-1">
-            Visualisasi target utama dan kerangka kerja OKR.
+            Objectives and Key Results framework
           </p>
         </div>
         <Button 
@@ -159,7 +149,7 @@ export default function GoalsManagePage() {
           onClick={() => setIsNewGoalModalOpen(true)}
           className="shrink-0"
         >
-          {locale === 'id' ? 'Goal Baru' : 'New Goal'}
+          {locale === 'id' ? 'Objective Baru' : 'New Objective'}
         </Button>
       </div>
 
@@ -167,30 +157,11 @@ export default function GoalsManagePage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-life-line pb-3 mb-5">
           <div>
             <h3 className="flex items-center gap-1.5 text-sm font-bold text-life-text uppercase tracking-wider">
-              <Icon name="target" size={16} className="text-life-teal" /> Objectives & Key Results (OKRs)
+              <Icon name="target" size={16} className="text-life-teal" /> Objectives
             </h3>
             <p className="text-xs text-life-muted mt-0.5">
-              {locale === 'id' 
-                ? 'Objective diambil dari Goals utama. Proyek & Tugas terkait bertindak sebagai Key Results pendukung.'
-                : 'Objectives are derived from main Goals. Related Projects & Tasks act as supporting Key Results.'}
+              Setiap Objective diukur melalui beberapa Key Results.
             </p>
-          </div>
-
-          <div className="grid grid-cols-4 gap-1 p-1 bg-white/[0.02] border border-life-line rounded-lg select-none shrink-0 self-start sm:self-auto">
-            {(['all', 'short', 'medium', 'long'] as const).map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => setTimeframeFilter(tab)}
-                className={`text-[9px] font-black uppercase py-1.5 px-3 rounded transition-all ${
-                  timeframeFilter === tab
-                    ? 'bg-white/[0.07] text-white shadow-sm'
-                    : 'text-life-muted hover:text-life-text'
-                }`}
-              >
-                {tab === 'all' ? 'Semua' : tab === 'short' ? 'Short' : tab === 'medium' ? 'Medium' : 'Long'}
-              </button>
-            ))}
           </div>
         </div>
 
@@ -198,14 +169,6 @@ export default function GoalsManagePage() {
           {filteredGoals.length > 0 ? (
             filteredGoals.map((goal) => {
               const isExpanded = !!expandedGoalIds[goal.id];
-              const linkedProjects = state.projects.filter((p) => p.goalId === goal.id);
-              const linkedProjectIds = linkedProjects.map((p) => p.id);
-              const linkedDirectTasks = state.tasks.filter((t) => t.goalId === goal.id);
-              const linkedProjectTasks = state.tasks.filter((t) => t.projectId && linkedProjectIds.includes(t.projectId));
-              
-              const isAutoTracked = linkedDirectTasks.length > 0 || linkedProjectTasks.length > 0;
-              const totalKeyResults = linkedProjects.length + linkedDirectTasks.length;
-
               return (
                 <div
                   key={goal.id}
@@ -235,37 +198,14 @@ export default function GoalsManagePage() {
                           />
                         </div>
                         <span className="text-[11px] font-bold text-life-muted">{goal.progress}%</span>
-                        <span className="text-[10px] text-life-muted hidden sm:inline">•</span>
-                        <span className="text-[10px] text-life-muted font-bold">
-                          {isAutoTracked 
-                            ? `${totalKeyResults} ${locale === 'id' ? 'Key Results (Otomatis)' : 'Key Results (Auto)'}`
-                            : (locale === 'id' ? 'Lacak Manual' : 'Manual Tracked')
-                          }
-                        </span>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
-                      {!isAutoTracked && (
-                        <div className="flex items-center space-x-1 mr-2">
-                          <button
-                            onClick={() => handleProgressChange(goal.id, -5, goal.progress)}
-                            className="w-6 h-6 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
-                          >
-                            <Icon name="minus" size={10} />
-                          </button>
-                          <button
-                            onClick={() => handleProgressChange(goal.id, 5, goal.progress)}
-                            className="w-6 h-6 rounded bg-white/[0.03] border border-life-line hover:bg-white/[0.07] text-life-muted hover:text-life-text flex items-center justify-center transition-all"
-                          >
-                            <Icon name="plus" size={10} />
-                          </button>
-                        </div>
-                      )}
                       <button
                         onClick={() => handleOpenEditGoal(goal)}
                         className="w-6 h-6 rounded bg-white/[0.03] border border-life-line hover:bg-life-teal/20 text-life-muted hover:text-life-text flex items-center justify-center transition-all mr-1"
-                        title="Edit Goal"
+                        title="Edit OKR"
                       >
                         <Icon name="edit" size={10} />
                       </button>
@@ -288,88 +228,39 @@ export default function GoalsManagePage() {
 
                   {isExpanded && (
                     <div className="p-4 border-t border-life-line bg-black/20 space-y-4 text-xs">
-                      {isAutoTracked ? (
+                      {goal.keyResults && goal.keyResults.length > 0 ? (
                         <div className="space-y-3">
                           <div className="flex justify-between items-center text-[10px] font-black uppercase text-life-muted tracking-wider border-b border-white/5 pb-1">
-                            <span>Key Result / Hasil Kunci</span>
-                            <span>Status / Progres</span>
+                            <span>Key Result</span>
+                            <span>Progress</span>
                           </div>
 
-                          {linkedProjects.map((proj) => {
-                            const projTasks = state.tasks.filter((t) => t.projectId === proj.id);
-                            const doneTasks = projTasks.filter((t) => t.status === 'done');
-                            const completionRate = percent(doneTasks.length, projTasks.length);
+                          {goal.keyResults.map((kr: KeyResult) => {
+                            const krProgress = Math.min(100, Math.round((kr.currentValue / (kr.targetValue || 1)) * 100));
                             return (
-                              <div key={proj.id} className="flex justify-between items-center bg-white/[0.01] border border-life-line p-2.5 rounded-lg">
-                                <div className="flex flex-col">
-                                  <span className="font-semibold text-life-text flex items-center gap-1">
-                                    <Icon name="folder" size={12} className="text-blue-400 mt-0.5 shrink-0" />
-                                    <span>Proyek: {proj.name}</span>
+                              <div key={kr.id} className="flex flex-col space-y-2 bg-white/[0.01] border border-life-line p-3 rounded-lg">
+                                <div className="flex justify-between items-center">
+                                  <span className="font-semibold text-life-text text-sm flex items-center gap-2">
+                                    <Icon name="checkCircle" size={14} className="text-emerald-400" />
+                                    {kr.title}
                                   </span>
-                                  <span className="text-[10px] text-life-muted mt-0.5">
-                                    {locale === 'id' ? 'Tugas' : 'Tasks'}: {doneTasks.length}/{projTasks.length} {locale === 'id' ? 'selesai' : 'completed'}
+                                  <span className="text-xs font-bold text-life-muted bg-white/[0.02] px-2 py-1 rounded">
+                                    {kr.currentValue} / {kr.targetValue} {kr.unit}
                                   </span>
                                 </div>
-                                <Badge tone={proj.status === 'done' ? 'green' : 'teal'}>
-                                  {`${completionRate}%`}
-                                </Badge>
+                                <div className="w-full bg-white/[0.02] h-1.5 rounded-full overflow-hidden mt-2">
+                                  <div
+                                    className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all"
+                                    style={{ width: `${krProgress}%` }}
+                                  />
+                                </div>
                               </div>
                             );
                           })}
-
-                          {linkedDirectTasks.map((t) => (
-                            <div key={t.id} className="flex justify-between items-center bg-white/[0.01] border border-life-line p-2.5 rounded-lg">
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="checkbox"
-                                  checked={t.status === 'done'}
-                                  onChange={() => updateTaskStatus(t.id, t.status === 'done' ? 'todo' : 'done')}
-                                  className="rounded bg-black/40 border-white/10 text-life-teal focus:ring-0 focus:ring-offset-0 cursor-pointer w-3.5 h-3.5"
-                                />
-                                <span className={`font-semibold text-life-text ${t.status === 'done' ? 'line-through text-life-muted' : ''}`}>
-                                  <Icon name="target" size={12} className="inline mr-1 text-life-teal" /> {locale === 'id' ? 'Tugas' : 'Task'}: {t.title}
-                                </span>
-                              </div>
-                              <Badge tone={t.status === 'done' ? 'green' : t.status === 'doing' ? 'amber' : 'gray'}>
-                                {t.status}
-                              </Badge>
-                            </div>
-                          ))}
-
-                          {linkedProjectTasks.length > 0 && (
-                            <div className="pt-2">
-                              <span className="text-[10px] font-black uppercase text-life-muted tracking-wider block mb-1.5">
-                                Tindakan Harian Proyek (Daily Actions):
-                              </span>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-[140px] overflow-y-auto pr-1">
-                                {linkedProjectTasks.map((t) => (
-                                  <div key={t.id} className="flex items-center justify-between p-2 rounded bg-black/30 border border-white/5 text-[11px]">
-                                    <div className="flex items-center gap-2 min-w-0">
-                                      <input
-                                        type="checkbox"
-                                        checked={t.status === 'done'}
-                                        onChange={() => updateTaskStatus(t.id, t.status === 'done' ? 'todo' : 'done')}
-                                        className="rounded bg-black/40 border-white/10 text-life-teal focus:ring-0 focus:ring-offset-0 cursor-pointer w-3 h-3 shrink-0"
-                                      />
-                                      <span className={`truncate text-life-text ${t.status === 'done' ? 'line-through text-life-muted' : ''}`}>
-                                        {t.title}
-                                      </span>
-                                    </div>
-                                    <Badge tone={t.status === 'done' ? 'green' : t.status === 'doing' ? 'amber' : 'gray'} className="text-[8px] py-0 px-1 shrink-0">
-                                      {t.status}
-                                    </Badge>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
                         </div>
                       ) : (
-                        <div className="py-2 text-center bg-white/[0.01] border border-dashed border-life-line rounded-lg text-life-muted">
-                          <p className="font-medium">Belajar & Hubungkan Key Result!</p>
-                          <p className="text-[10px] text-life-muted/80 mt-1 max-w-xs mx-auto">
-                            Hubungkan proyek atau tugas harian ke target ini di halaman Proyek untuk melacak progres secara otomatis.
-                          </p>
+                        <div className="py-2 text-center text-life-muted text-xs">
+                          Belum ada Key Results yang diatur.
                         </div>
                       )}
                     </div>
@@ -383,84 +274,190 @@ export default function GoalsManagePage() {
         </div>
       </Surface>
 
-      {/* Modals */}
+      {/* Modal Edit Goal */}
+      <Modal
+        isOpen={Boolean(editingGoal)}
+        onClose={() => setEditingGoal(null)}
+        title="Edit Objective & Key Results"
+        subtitle="Perbarui rincian Objective dan atur progres Key Results"
+      >
+        {editingGoal && (
+          <form onSubmit={handleSaveEditGoal} className="space-y-6">
+            <div className="space-y-4">
+              <div className="flex flex-col space-y-1">
+                <label className="text-xs font-bold text-life-muted uppercase">
+                  Objective Title
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={editGoalTitle}
+                  onChange={(e) => setEditGoalTitle(e.target.value)}
+                  className="glass-input text-sm mt-1"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col space-y-1">
+                  <label className="text-xs font-bold text-life-muted uppercase">
+                    Kategori
+                  </label>
+                  <select
+                    value={editGoalCategory}
+                    onChange={(e) => setEditGoalCategory(e.target.value)}
+                    className="glass-select text-xs mt-1"
+                  >
+                    <option value="Career">Career</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Health">Health</option>
+                    <option value="Learning">Learning</option>
+                    <option value="Personal">Personal</option>
+                    <option value="Relationship">Relationship</option>
+                  </select>
+                </div>
+                <div className="flex flex-col space-y-1">
+                  <label className="text-xs font-bold text-life-muted uppercase">
+                    Tenggat Waktu
+                  </label>
+                  <input
+                    type="date"
+                    value={editGoalTargetDate}
+                    onChange={(e) => setEditGoalTargetDate(e.target.value)}
+                    className="glass-input text-xs mt-1"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3 pt-4 border-t border-life-line">
+              <div className="flex justify-between items-center">
+                <h4 className="text-xs font-bold text-life-text uppercase tracking-wider">Key Results</h4>
+                <Button 
+                  type="button" 
+                  variant="secondary" 
+                  size="sm" 
+                  icon="plus" 
+                  onClick={() => setEditGoalKeyResults([...editGoalKeyResults, { id: Date.now().toString(), title: '', currentValue: 0, targetValue: 100, unit: '%' }])}
+                >
+                  Tambah KR
+                </Button>
+              </div>
+
+              <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
+                {editGoalKeyResults.map((kr, idx) => (
+                  <div key={kr.id} className="p-3 bg-white/[0.01] border border-life-line rounded-lg space-y-3">
+                    <div className="flex justify-between items-center gap-2">
+                      <input 
+                        type="text" 
+                        value={kr.title} 
+                        onChange={(e) => {
+                          const newKrs = [...editGoalKeyResults];
+                          newKrs[idx].title = e.target.value;
+                          setEditGoalKeyResults(newKrs);
+                        }} 
+                        placeholder="Key Result Title..." 
+                        className="glass-input text-xs flex-1" 
+                      />
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          const newKrs = [...editGoalKeyResults];
+                          newKrs.splice(idx, 1);
+                          setEditGoalKeyResults(newKrs);
+                        }}
+                        className="text-life-muted hover:text-red-400 p-1"
+                      >
+                        <Icon name="trash" size={14} />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="flex flex-col space-y-1">
+                        <label className="text-[9px] font-bold text-life-muted uppercase">Current</label>
+                        <input 
+                          type="number" 
+                          value={kr.currentValue} 
+                          onChange={(e) => {
+                            const newKrs = [...editGoalKeyResults];
+                            newKrs[idx].currentValue = Number(e.target.value);
+                            setEditGoalKeyResults(newKrs);
+                          }} 
+                          className="glass-input text-xs" 
+                        />
+                      </div>
+                      <div className="flex flex-col space-y-1">
+                        <label className="text-[9px] font-bold text-life-muted uppercase">Target</label>
+                        <input 
+                          type="number" 
+                          value={kr.targetValue} 
+                          onChange={(e) => {
+                            const newKrs = [...editGoalKeyResults];
+                            newKrs[idx].targetValue = Number(e.target.value);
+                            setEditGoalKeyResults(newKrs);
+                          }} 
+                          className="glass-input text-xs" 
+                        />
+                      </div>
+                      <div className="flex flex-col space-y-1">
+                        <label className="text-[9px] font-bold text-life-muted uppercase">Unit</label>
+                        <input 
+                          type="text" 
+                          value={kr.unit} 
+                          onChange={(e) => {
+                            const newKrs = [...editGoalKeyResults];
+                            newKrs[idx].unit = e.target.value;
+                            setEditGoalKeyResults(newKrs);
+                          }} 
+                          className="glass-input text-xs" 
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {editGoalKeyResults.length === 0 && (
+                  <p className="text-xs text-life-muted text-center py-4">Belum ada Key Results.</p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4 border-t border-white/5">
+              <Button type="button" variant="secondary" onClick={() => setEditingGoal(null)}>
+                Batal
+              </Button>
+              <Button type="submit" variant="primary">
+                Simpan OKR
+              </Button>
+            </div>
+          </form>
+        )}
+      </Modal>
+
+      {/* Modal New Goal */}
       <Modal
         isOpen={isNewGoalModalOpen}
         onClose={() => setIsNewGoalModalOpen(false)}
-        title={t('goals_new')}
-        subtitle={t('goals_form_desc')}
+        title="Buat Objective Baru"
+        subtitle="Tetapkan Objective utama Anda"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex flex-col space-y-1">
-            <label htmlFor="modalGoalTitle" className="text-xs font-bold text-life-muted uppercase">
-              {t('goals_goal_label')}
+            <label className="text-xs font-bold text-life-muted uppercase">
+              Objective Title
             </label>
             <input
-              id="modalGoalTitle"
               type="text"
               required
-              placeholder={t('goals_outcome')}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               className="glass-input text-sm mt-1"
             />
           </div>
-
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col space-y-1">
-              <label htmlFor="modalCurrentVal" className="text-xs font-bold text-life-muted uppercase">
-                {t('goals_current_value')}
-              </label>
-              <input
-                id="modalCurrentVal"
-                type="number"
-                step="0.01"
-                required
-                value={currentValue}
-                onChange={(e) => setCurrentValue(Number(e.target.value))}
-                className="glass-input text-xs mt-1"
-              />
-            </div>
-
-            <div className="flex flex-col space-y-1">
-              <label htmlFor="modalTargetVal" className="text-xs font-bold text-life-muted uppercase">
-                {t('goals_target_value')}
-              </label>
-              <input
-                id="modalTargetVal"
-                type="number"
-                step="0.01"
-                required
-                value={targetValue}
-                onChange={(e) => setTargetValue(Number(e.target.value))}
-                className="glass-input text-xs mt-1"
-              />
-            </div>
-
-            <div className="flex flex-col space-y-1">
-              <label htmlFor="modalUnit" className="text-xs font-bold text-life-muted uppercase">
-                {t('goals_unit')}
-              </label>
-              <input
-                id="modalUnit"
-                type="text"
-                required
-                placeholder={t('goals_unit_placeholder')}
-                value={unit}
-                onChange={(e) => setUnit(e.target.value)}
-                className="glass-input text-xs mt-1"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col space-y-1">
-              <label htmlFor="modalGoalCat" className="text-xs font-bold text-life-muted uppercase">
-                {t('category')}
+              <label className="text-xs font-bold text-life-muted uppercase">
+                Kategori
               </label>
               <select
-                id="modalGoalCat"
-                value={category || 'Career'}
+                value={category}
                 onChange={(e) => setCategory(e.target.value)}
                 className="glass-select text-xs mt-1"
               >
@@ -472,13 +469,11 @@ export default function GoalsManagePage() {
                 <option value="Relationship">Relationship</option>
               </select>
             </div>
-
             <div className="flex flex-col space-y-1">
-              <label htmlFor="modalTargetDt" className="text-xs font-bold text-life-muted uppercase">
-                {t('goals_target_date')}
+              <label className="text-xs font-bold text-life-muted uppercase">
+                Tenggat Waktu
               </label>
               <input
-                id="modalTargetDt"
                 type="date"
                 value={targetDate}
                 onChange={(e) => setTargetDate(e.target.value)}
@@ -486,9 +481,9 @@ export default function GoalsManagePage() {
               />
             </div>
           </div>
-
-          <div className="flex justify-end gap-2 pt-2 border-t border-white/5">
-            <Button variant="secondary" onClick={() => setIsNewGoalModalOpen(false)}>
+          
+          <div className="flex justify-end gap-2 pt-4 border-t border-white/5">
+            <Button type="button" variant="secondary" onClick={() => setIsNewGoalModalOpen(false)}>
               Batal
             </Button>
             <Button type="submit" variant="primary">
@@ -498,117 +493,6 @@ export default function GoalsManagePage() {
         </form>
       </Modal>
 
-      <Modal
-        isOpen={Boolean(editingGoal)}
-        onClose={() => setEditingGoal(null)}
-        title="Edit Target / Objective"
-        subtitle="Perbarui rincian, target kuantitatif, atau tenggat waktu target Anda"
-      >
-        {editingGoal && (
-          <form onSubmit={handleSaveEditGoal} className="space-y-4">
-            <div className="flex flex-col space-y-1">
-              <label htmlFor="editGoalTitleInput" className="text-xs font-bold text-life-muted uppercase">
-                {t('goals_goal_label')}
-              </label>
-              <input
-                id="editGoalTitleInput"
-                type="text"
-                required
-                value={editGoalTitle}
-                onChange={(e) => setEditGoalTitle(e.target.value)}
-                className="glass-input text-sm mt-1"
-              />
-            </div>
-
-            <div className="grid grid-cols-3 gap-3">
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="editGoalCurrentVal" className="text-xs font-bold text-life-muted uppercase">
-                  Current
-                </label>
-                <input
-                  id="editGoalCurrentVal"
-                  type="number"
-                  required
-                  value={editGoalCurrentValue}
-                  onChange={(e) => setEditGoalCurrentValue(Number(e.target.value))}
-                  className="glass-input text-xs mt-1"
-                />
-              </div>
-
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="editGoalTargetVal" className="text-xs font-bold text-life-muted uppercase">
-                  Target
-                </label>
-                <input
-                  id="editGoalTargetVal"
-                  type="number"
-                  required
-                  value={editGoalTargetValue}
-                  onChange={(e) => setEditGoalTargetValue(Number(e.target.value))}
-                  className="glass-input text-xs mt-1"
-                />
-              </div>
-
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="editGoalUnitInput" className="text-xs font-bold text-life-muted uppercase">
-                  Unit
-                </label>
-                <input
-                  id="editGoalUnitInput"
-                  type="text"
-                  required
-                  value={editGoalUnit}
-                  onChange={(e) => setEditGoalUnit(e.target.value)}
-                  className="glass-input text-xs mt-1"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="editGoalCat" className="text-xs font-bold text-life-muted uppercase">
-                  {t('area')} / Kategori
-                </label>
-                <select
-                  id="editGoalCat"
-                  value={editGoalCategory}
-                  onChange={(e) => setEditGoalCategory(e.target.value)}
-                  className="glass-select text-xs mt-1"
-                >
-                  <option value="Career">Career</option>
-                  <option value="Finance">Finance</option>
-                  <option value="Health">Health</option>
-                  <option value="Learning">Learning</option>
-                  <option value="Personal">Personal</option>
-                  <option value="Relationship">Relationship</option>
-                </select>
-              </div>
-
-              <div className="flex flex-col space-y-1">
-                <label htmlFor="editGoalTargetDt" className="text-xs font-bold text-life-muted uppercase">
-                  {t('goals_target_date')}
-                </label>
-                <input
-                  id="editGoalTargetDt"
-                  type="date"
-                  value={editGoalTargetDate}
-                  onChange={(e) => setEditGoalTargetDate(e.target.value)}
-                  className="glass-input text-xs mt-1"
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2 border-t border-white/5">
-              <Button type="button" variant="secondary" onClick={() => setEditingGoal(null)}>
-                Batal
-              </Button>
-              <Button type="submit" variant="primary">
-                Simpan Perubahan
-              </Button>
-            </div>
-          </form>
-        )}
-      </Modal>
     </div>
   );
 }

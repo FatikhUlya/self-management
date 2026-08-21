@@ -16,6 +16,7 @@ export interface Idea {
   priority: 'Low' | 'Medium' | 'High';
   notes: string;
   status: 'active' | 'archived';
+  captureType?: string;
   createdAt: string;
 }
 
@@ -54,6 +55,7 @@ export interface Project {
   area: string;
   status: 'active' | 'paused' | 'done';
   goalId?: string;
+  objectiveId?: string;
   createdAt: string;
 }
 
@@ -61,13 +63,30 @@ export interface Task {
   id: string;
   projectId: string; // empty string for Inbox
   goalId?: string;
+  objectiveId?: string;
   title: string;
+  description?: string;
   due: string;
-  priority: 'Low' | 'Medium' | 'High';
-  status: 'todo' | 'doing' | 'done';
+  priority: 'Low' | 'Medium' | 'High' | 'P1' | 'P2' | 'P3';
+  status: 'todo' | 'doing' | 'done' | 'inbox' | 'planned' | 'today' | 'in_progress' | 'blocked' | 'completed' | 'cancelled';
+  estimatedMinutes?: number;
+  definitionOfDone?: string;
+  expectedOutput?: string;
+  actualOutput?: string;
+  energyRequirement?: 'low' | 'medium' | 'high';
+  context?: string;
+  workCategory?: string;
   completedAt: string;
   googleEventId?: string;
   createdAt: string;
+}
+
+export interface KeyResult {
+  id: string;
+  title: string;
+  targetValue: number;
+  currentValue: number;
+  unit: string;
 }
 
 export interface Goal {
@@ -79,6 +98,7 @@ export interface Goal {
   unit: string;
   targetDate: string;
   progress: number;
+  keyResults?: KeyResult[];
   createdAt: string;
 }
 
@@ -89,6 +109,7 @@ export interface Habit {
   frequency: 'daily' | 'weekly';
   targetPerWeek: number;
   goalId?: string;
+  isCore?: boolean;
   createdAt: string;
 }
 
@@ -233,6 +254,12 @@ export interface Review {
   focus: string;
   evaluationNotes?: string;
   aiSummary?: string;
+  mitCompleted?: boolean;
+  outputs?: string;
+  remainingTasks?: string;
+  distraction?: string;
+  tomorrowMit?: string;
+  selfMirror?: any;
   createdAt: string;
 }
 
@@ -298,6 +325,77 @@ export interface SelfRule {
   rule_text: string;
   section?: string;
   orderIndex?: number;
+  title?: string;
+  category?: string;
+  ruleType?: string;
+  description?: string;
+  reason?: string;
+  startTime?: string;
+  endTime?: string;
+  activeDays?: string[];
+  exception?: string;
+  severity?: string;
+  isActive?: boolean;
+  recoveryAction?: string;
+  createdAt: string;
+}
+
+export interface Objective {
+  id: string;
+  goalId?: string;
+  title: string;
+  description?: string;
+  status: 'active' | 'completed' | 'paused' | 'cancelled';
+  progress: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface DailyPlan {
+  id: string;
+  date: string;
+  mitTaskId?: string;
+  secondaryTaskIds?: string[];
+  dayStatus: 'not_started' | 'in_progress' | 'day_closed';
+  dayMode: 'normal' | 'low_energy' | 'sick' | 'emergency';
+  morningCheckin?: any;
+  dailyReview?: any;
+  distractionNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FocusSession {
+  id: string;
+  taskId?: string;
+  startedAt: string;
+  endedAt?: string;
+  plannedMinutes: number;
+  actualMinutes: number;
+  completed: boolean;
+  notes?: string;
+  createdAt: string;
+}
+
+export interface SleepLog {
+  id: string;
+  date: string;
+  targetSleepTime?: string;
+  actualSleepTime?: string;
+  actualWakeTime?: string;
+  durationMinutes: number;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface RuleComplianceLog {
+  id: string;
+  ruleId: string;
+  date: string;
+  status: 'followed' | 'missed' | 'exempt' | 'not_applicable';
+  reason?: string;
+  improvement?: string;
   createdAt: string;
 }
 
@@ -383,6 +481,11 @@ export interface GrowthGoalMilestone {
 }
 
 export interface LifeOSState {
+  objectives: Objective[];
+  dailyPlans: DailyPlan[];
+  focusSessions: FocusSession[];
+  sleepLogs: SleepLog[];
+  ruleComplianceLogs: RuleComplianceLog[];
   selfRules: SelfRule[];
   ideas: Idea[];
   journals: Journal[];
@@ -423,6 +526,24 @@ export interface LifeOSState {
 }
 
 interface LifeOSContextProps {
+  // Objectives
+  addObjective: (objective: Omit<Objective, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  updateObjective: (id: string, updates: Partial<Objective>) => Promise<void>;
+  deleteObjective: (id: string) => Promise<void>;
+
+  // Daily Plans
+  saveDailyPlan: (plan: Omit<DailyPlan, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+  updateDailyPlan: (date: string, updates: Partial<DailyPlan>) => Promise<void>;
+
+  // Focus Sessions
+  saveFocusSession: (session: Omit<FocusSession, 'id' | 'createdAt'>) => Promise<void>;
+
+  // Sleep Logs
+  saveSleepLog: (log: Omit<SleepLog, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
+
+  // Rule Compliance Logs
+  addRuleComplianceLog: (log: Omit<RuleComplianceLog, 'id' | 'createdAt'>) => Promise<void>;
+
   state: LifeOSState;
   loading: boolean;
   isDbConnected: boolean;
@@ -549,6 +670,11 @@ interface LifeOSContextProps {
 const LifeOSContext = createContext<LifeOSContextProps | undefined>(undefined);
 
 const initialDefaultState = (today: string): LifeOSState => ({
+  objectives: [],
+  dailyPlans: [],
+  focusSessions: [],
+  sleepLogs: [],
+  ruleComplianceLogs: [],
   selfRules: [],
   ideas: [
     {
@@ -962,13 +1088,14 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
             goals: (goals as any[] || []).map(g => ({
               id: g.id,
               title: g.title,
-              category: g.category,
+              category: g.category || 'General',
               currentValue: g.current_value || 0,
-              targetValue: g.target_value || 0,
-              unit: g.unit,
-              targetDate: g.target_date || '',
+              targetValue: g.target_value || 100,
+              unit: g.unit || '%',
+              targetDate: g.target_date || new Date().toISOString(),
               progress: g.progress || 0,
-              createdAt: g.created_at || g.createdAt
+              keyResults: g.key_results || [],
+              createdAt: g.created_at || new Date().toISOString()
             })),
             habits: (habits as any[] || []).map(h => ({
               id: h.id,
@@ -1777,7 +1904,9 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
           target_value: item.targetValue,
           unit: item.unit,
           target_date: item.targetDate || null,
-          progress: item.progress
+          progress: item.progress,
+          key_results: item.keyResults || [],
+          created_at: item.createdAt
         });
         checkError(error, 'addGoal');
       }
@@ -1833,8 +1962,9 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
       if (updates.currentValue !== undefined) payload.current_value = updates.currentValue;
       if (updates.targetValue !== undefined) payload.target_value = updates.targetValue;
       if (updates.unit !== undefined) payload.unit = updates.unit;
-      if (updates.targetDate !== undefined) payload.target_date = updates.targetDate || null;
+      if (updates.targetDate !== undefined) payload.target_date = updates.targetDate;
       if (updates.progress !== undefined) payload.progress = updates.progress;
+      if (updates.keyResults !== undefined) payload.key_results = updates.keyResults;
 
       const { error } = await supabase.from('goals').update(payload).eq('id', id);
       checkError(error, 'updateGoal');
@@ -3294,6 +3424,140 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
     goals: processedGoals
   }), [state, processedGoals]);
 
+  // =========================================================================
+  // PERSONAL OS PHASE 1 ADDITIONS (CRUD)
+  // =========================================================================
+
+  const addObjective = useCallback(async (objective: Omit<Objective, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const item: Objective = { ...objective, id: generateId(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    if (isDbConnected) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase.from('objectives').insert({
+          id: item.id, user_id: user.id, goal_id: item.goalId || null, title: item.title, description: item.description, status: item.status, progress: item.progress
+        });
+        checkError(error, 'addObjective');
+      }
+    }
+    updateStateAndPersist(prev => ({ ...prev, objectives: [item, ...prev.objectives] }));
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const updateObjective = useCallback(async (id: string, updates: Partial<Objective>) => {
+    updates.updatedAt = new Date().toISOString();
+    updateStateAndPersist(prev => ({ ...prev, objectives: prev.objectives.map(o => o.id === id ? { ...o, ...updates } : o) }));
+    if (isDbConnected) {
+      const dbUpdates: any = { updated_at: updates.updatedAt };
+      if (updates.title !== undefined) dbUpdates.title = updates.title;
+      if (updates.description !== undefined) dbUpdates.description = updates.description;
+      if (updates.status !== undefined) dbUpdates.status = updates.status;
+      if (updates.progress !== undefined) dbUpdates.progress = updates.progress;
+      if (updates.goalId !== undefined) dbUpdates.goal_id = updates.goalId;
+      const { error } = await supabase.from('objectives').update(dbUpdates).eq('id', id);
+      checkError(error, 'updateObjective');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const deleteObjective = useCallback(async (id: string) => {
+    updateStateAndPersist(prev => ({ ...prev, objectives: prev.objectives.filter(o => o.id !== id) }));
+    if (isDbConnected) {
+      const { error } = await supabase.from('objectives').delete().eq('id', id);
+      checkError(error, 'deleteObjective');
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const saveDailyPlan = useCallback(async (plan: Omit<DailyPlan, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const item: DailyPlan = { ...plan, id: generateId(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    if (isDbConnected) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase.from('daily_plans').upsert({
+          id: item.id, user_id: user.id, date: item.date, mit_task_id: item.mitTaskId || null,
+          secondary_task_ids: item.secondaryTaskIds || [], day_status: item.dayStatus, day_mode: item.dayMode,
+          morning_checkin: item.morningCheckin || null, daily_review: item.dailyReview || null, distraction_notes: item.distractionNotes
+        }, { onConflict: 'user_id, date' });
+        checkError(error, 'saveDailyPlan');
+      }
+    }
+    updateStateAndPersist(prev => ({
+      ...prev,
+      dailyPlans: [...prev.dailyPlans.filter(p => p.date !== item.date), item]
+    }));
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const updateDailyPlan = useCallback(async (date: string, updates: Partial<DailyPlan>) => {
+    updates.updatedAt = new Date().toISOString();
+    updateStateAndPersist(prev => ({
+      ...prev,
+      dailyPlans: prev.dailyPlans.map(p => p.date === date ? { ...p, ...updates } : p)
+    }));
+    if (isDbConnected) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const dbUpdates: any = { updated_at: updates.updatedAt };
+        if (updates.mitTaskId !== undefined) dbUpdates.mit_task_id = updates.mitTaskId;
+        if (updates.secondaryTaskIds !== undefined) dbUpdates.secondary_task_ids = updates.secondaryTaskIds;
+        if (updates.dayStatus !== undefined) dbUpdates.day_status = updates.dayStatus;
+        if (updates.dayMode !== undefined) dbUpdates.day_mode = updates.dayMode;
+        if (updates.morningCheckin !== undefined) dbUpdates.morning_checkin = updates.morningCheckin;
+        if (updates.dailyReview !== undefined) dbUpdates.daily_review = updates.dailyReview;
+        if (updates.distractionNotes !== undefined) dbUpdates.distraction_notes = updates.distractionNotes;
+        
+        const { error } = await supabase.from('daily_plans').update(dbUpdates).eq('date', date).eq('user_id', user.id);
+        checkError(error, 'updateDailyPlan');
+      }
+    }
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const saveFocusSession = useCallback(async (session: Omit<FocusSession, 'id' | 'createdAt'>) => {
+    const item: FocusSession = { ...session, id: generateId(), createdAt: new Date().toISOString() };
+    if (isDbConnected) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase.from('focus_sessions').insert({
+          id: item.id, user_id: user.id, task_id: item.taskId || null, started_at: item.startedAt,
+          ended_at: item.endedAt || null, planned_minutes: item.plannedMinutes, actual_minutes: item.actualMinutes,
+          completed: item.completed, notes: item.notes
+        });
+        checkError(error, 'saveFocusSession');
+      }
+    }
+    updateStateAndPersist(prev => ({ ...prev, focusSessions: [item, ...prev.focusSessions] }));
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const saveSleepLog = useCallback(async (log: Omit<SleepLog, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const item: SleepLog = { ...log, id: generateId(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    if (isDbConnected) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase.from('sleep_logs').upsert({
+          id: item.id, user_id: user.id, date: item.date, target_sleep_time: item.targetSleepTime || null,
+          actual_sleep_time: item.actualSleepTime || null, actual_wake_time: item.actualWakeTime || null,
+          duration_minutes: item.durationMinutes, notes: item.notes
+        }, { onConflict: 'user_id, date' });
+        checkError(error, 'saveSleepLog');
+      }
+    }
+    updateStateAndPersist(prev => ({
+      ...prev,
+      sleepLogs: [...prev.sleepLogs.filter(l => l.date !== item.date), item]
+    }));
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
+  const addRuleComplianceLog = useCallback(async (log: Omit<RuleComplianceLog, 'id' | 'createdAt'>) => {
+    const item: RuleComplianceLog = { ...log, id: generateId(), createdAt: new Date().toISOString() };
+    if (isDbConnected) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { error } = await supabase.from('rule_compliance_logs').insert({
+          id: item.id, user_id: user.id, rule_id: item.ruleId, date: item.date,
+          status: item.status, reason: item.reason, improvement: item.improvement
+        });
+        checkError(error, 'addRuleComplianceLog');
+      }
+    }
+    updateStateAndPersist(prev => ({ ...prev, ruleComplianceLogs: [item, ...prev.ruleComplianceLogs] }));
+  }, [isDbConnected, updateStateAndPersist, checkError]);
+
   return (
     <LifeOSContext.Provider
       value={{
@@ -3389,7 +3653,16 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
         updateGrowthGoal,
         addGrowthGoalMilestone,
         toggleGrowthGoalMilestone,
+        toggleGrowthGoalMilestone,
         clearSerendipity,
+        addObjective,
+        updateObjective,
+        deleteObjective,
+        saveDailyPlan,
+        updateDailyPlan,
+        saveFocusSession,
+        saveSleepLog,
+        addRuleComplianceLog,
       }}
     >
       {children}

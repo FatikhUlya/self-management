@@ -39,6 +39,13 @@ export default function ProjectTasksPage() {
   const [taskDue, setTaskDue] = useLocalStorageState('draft_task_due', state.selectedDate);
   const [taskPriority, setTaskPriority] = useLocalStorageState<Priority>('draft_task_priority', 'Medium');
   const [taskGoalId, setTaskGoalId] = useLocalStorageState('draft_task_goalId', '');
+  const [taskDescription, setTaskDescription] = useLocalStorageState('draft_task_desc', '');
+  const [taskDoD, setTaskDoD] = useLocalStorageState('draft_task_dod', '');
+  const [taskExpectedOutput, setTaskExpectedOutput] = useLocalStorageState('draft_task_output', '');
+  const [taskEstimatedMins, setTaskEstimatedMins] = useLocalStorageState('draft_task_mins', '30');
+  const [taskEnergy, setTaskEnergy] = useLocalStorageState('draft_task_energy', 'Medium');
+  const [taskContext, setTaskContext] = useLocalStorageState('draft_task_context', 'Deep Work');
+  const [taskWorkCategory, setTaskWorkCategory] = useLocalStorageState('draft_task_category', 'Feature');
 
   // Edit Task Modal state
   const [editingTask, setEditingTask] = useState<any | null>(null);
@@ -48,6 +55,13 @@ export default function ProjectTasksPage() {
   const [editTaskPriority, setEditTaskPriority] = useState<Priority>('Medium');
   const [editTaskGoalId, setEditTaskGoalId] = useState('');
   const [editTaskStatus, setEditTaskStatus] = useState<'todo' | 'doing' | 'done'>('todo');
+  const [editTaskDescription, setEditTaskDescription] = useState('');
+  const [editTaskDoD, setEditTaskDoD] = useState('');
+  const [editTaskExpectedOutput, setEditTaskExpectedOutput] = useState('');
+  const [editTaskEstimatedMins, setEditTaskEstimatedMins] = useState('30');
+  const [editTaskEnergy, setEditTaskEnergy] = useState<any>('Medium');
+  const [editTaskContext, setEditTaskContext] = useState<any>('Deep Work');
+  const [editTaskWorkCategory, setEditTaskWorkCategory] = useState<any>('Feature');
 
   const [isGCalConfigured, setIsGCalConfigured] = useState(false);
   const [isGCalConnected, setIsGCalConnected] = useState(false);
@@ -189,6 +203,13 @@ export default function ProjectTasksPage() {
     setEditTaskPriority(task.priority || 'Medium');
     setEditTaskGoalId(task.goalId || '');
     setEditTaskStatus(task.status);
+    setEditTaskDescription(task.description || '');
+    setEditTaskDoD(task.definitionOfDone || '');
+    setEditTaskExpectedOutput(task.expectedOutput || '');
+    setEditTaskEstimatedMins(task.estimatedMinutes?.toString() || '30');
+    setEditTaskEnergy(task.energyRequirement || 'Medium');
+    setEditTaskContext(task.context || 'Deep Work');
+    setEditTaskWorkCategory(task.workCategory || 'Feature');
   };
 
   const handleSaveEditTask = async (e: React.FormEvent) => {
@@ -200,7 +221,14 @@ export default function ProjectTasksPage() {
       due: editTaskDue,
       priority: editTaskPriority,
       goalId: editTaskGoalId || '',
-      status: editTaskStatus
+      status: editTaskStatus,
+      description: editTaskDescription,
+      definitionOfDone: editTaskDoD,
+      expectedOutput: editTaskExpectedOutput,
+      estimatedMinutes: parseInt(editTaskEstimatedMins) || undefined,
+      energyRequirement: editTaskEnergy,
+      context: editTaskContext,
+      workCategory: editTaskWorkCategory
     });
     setEditingTask(null);
   };
@@ -214,10 +242,21 @@ export default function ProjectTasksPage() {
       projectId: taskProjectId,
       due: taskDue,
       priority: taskPriority,
-      goalId: taskGoalId || undefined
+      goalId: taskGoalId || undefined,
+      description: taskDescription,
+      definitionOfDone: taskDoD,
+      expectedOutput: taskExpectedOutput,
+      estimatedMinutes: parseInt(taskEstimatedMins) || undefined,
+      energyRequirement: taskEnergy as any,
+      context: taskContext as any,
+      workCategory: taskWorkCategory as any
     });
 
     setTaskTitle('');
+    setTaskDescription('');
+    setTaskDoD('');
+    setTaskExpectedOutput('');
+    setTaskEstimatedMins('30');
     setTaskProjectId('');
     setTaskDue(state.selectedDate);
     setTaskPriority('Medium');
@@ -623,6 +662,78 @@ export default function ProjectTasksPage() {
             </div>
           </div>
 
+          <div className="flex flex-col space-y-1">
+            <label className="text-xs font-bold text-life-muted uppercase">Deskripsi</label>
+            <textarea
+              value={taskDescription}
+              onChange={(e) => setTaskDescription(e.target.value)}
+              className="glass-input text-xs resize-none h-16"
+              placeholder="Deskripsi tugas..."
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col space-y-1">
+              <label className="text-xs font-bold text-life-muted uppercase">Definition of Done</label>
+              <textarea
+                value={taskDoD}
+                onChange={(e) => setTaskDoD(e.target.value)}
+                className="glass-input text-xs resize-none h-16"
+                placeholder="Kapan tugas ini dianggap selesai?"
+              />
+            </div>
+            <div className="flex flex-col space-y-1">
+              <label className="text-xs font-bold text-life-muted uppercase">Expected Output</label>
+              <textarea
+                value={taskExpectedOutput}
+                onChange={(e) => setTaskExpectedOutput(e.target.value)}
+                className="glass-input text-xs resize-none h-16"
+                placeholder="Apa hasil dari tugas ini?"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="flex flex-col space-y-1">
+              <label className="text-xs font-bold text-life-muted uppercase">Estimasi (Menit)</label>
+              <input
+                type="number"
+                value={taskEstimatedMins}
+                onChange={(e) => setTaskEstimatedMins(e.target.value)}
+                className="glass-input text-xs"
+                placeholder="30"
+              />
+            </div>
+            <div className="flex flex-col space-y-1">
+              <label className="text-xs font-bold text-life-muted uppercase">Energi</label>
+              <select value={taskEnergy} onChange={(e) => setTaskEnergy(e.target.value)} className="glass-select text-xs">
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+            <div className="flex flex-col space-y-1">
+              <label className="text-xs font-bold text-life-muted uppercase">Konteks</label>
+              <select value={taskContext} onChange={(e) => setTaskContext(e.target.value)} className="glass-select text-xs">
+                <option value="Deep Work">Deep Work</option>
+                <option value="Shallow Work">Shallow Work</option>
+                <option value="Meetings">Meetings</option>
+                <option value="Learning">Learning</option>
+                <option value="Errands">Errands</option>
+              </select>
+            </div>
+            <div className="flex flex-col space-y-1">
+              <label className="text-xs font-bold text-life-muted uppercase">Kategori</label>
+              <select value={taskWorkCategory} onChange={(e) => setTaskWorkCategory(e.target.value)} className="glass-select text-xs">
+                <option value="Feature">Feature</option>
+                <option value="Bugfix">Bugfix</option>
+                <option value="Refactor">Refactor</option>
+                <option value="Chore">Chore</option>
+                <option value="Research">Research</option>
+              </select>
+            </div>
+          </div>
+
           <Button type="submit" variant="primary" icon="plus" className="w-full">
             {t('tasks_add_btn')}
           </Button>
@@ -739,6 +850,78 @@ export default function ProjectTasksPage() {
                 ))}
               </select>
             </div>
+
+          <div className="flex flex-col space-y-1">
+            <label className="text-xs font-bold text-life-muted uppercase">Deskripsi</label>
+            <textarea
+              value={editTaskDescription}
+              onChange={(e) => setEditTaskDescription(e.target.value)}
+              className="glass-input text-xs resize-none h-16"
+              placeholder="Deskripsi tugas..."
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col space-y-1">
+              <label className="text-xs font-bold text-life-muted uppercase">Definition of Done</label>
+              <textarea
+                value={editTaskDoD}
+                onChange={(e) => setEditTaskDoD(e.target.value)}
+                className="glass-input text-xs resize-none h-16"
+                placeholder="Kapan tugas ini dianggap selesai?"
+              />
+            </div>
+            <div className="flex flex-col space-y-1">
+              <label className="text-xs font-bold text-life-muted uppercase">Expected Output</label>
+              <textarea
+                value={editTaskExpectedOutput}
+                onChange={(e) => setEditTaskExpectedOutput(e.target.value)}
+                className="glass-input text-xs resize-none h-16"
+                placeholder="Apa hasil dari tugas ini?"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="flex flex-col space-y-1">
+              <label className="text-xs font-bold text-life-muted uppercase">Estimasi (Menit)</label>
+              <input
+                type="number"
+                value={editTaskEstimatedMins}
+                onChange={(e) => setEditTaskEstimatedMins(e.target.value)}
+                className="glass-input text-xs"
+                placeholder="30"
+              />
+            </div>
+            <div className="flex flex-col space-y-1">
+              <label className="text-xs font-bold text-life-muted uppercase">Energi</label>
+              <select value={editTaskEnergy} onChange={(e) => setEditTaskEnergy(e.target.value)} className="glass-select text-xs">
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+            <div className="flex flex-col space-y-1">
+              <label className="text-xs font-bold text-life-muted uppercase">Konteks</label>
+              <select value={editTaskContext} onChange={(e) => setEditTaskContext(e.target.value)} className="glass-select text-xs">
+                <option value="Deep Work">Deep Work</option>
+                <option value="Shallow Work">Shallow Work</option>
+                <option value="Meetings">Meetings</option>
+                <option value="Learning">Learning</option>
+                <option value="Errands">Errands</option>
+              </select>
+            </div>
+            <div className="flex flex-col space-y-1">
+              <label className="text-xs font-bold text-life-muted uppercase">Kategori</label>
+              <select value={editTaskWorkCategory} onChange={(e) => setEditTaskWorkCategory(e.target.value)} className="glass-select text-xs">
+                <option value="Feature">Feature</option>
+                <option value="Bugfix">Bugfix</option>
+                <option value="Refactor">Refactor</option>
+                <option value="Chore">Chore</option>
+                <option value="Research">Research</option>
+              </select>
+            </div>
+          </div>
 
             <div className="flex justify-end gap-2 pt-2 border-t border-white/5">
               <Button type="button" variant="secondary" onClick={() => setEditingTask(null)}>

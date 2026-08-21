@@ -1,35 +1,32 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { useI18n } from '@/lib/i18n/context';
-import { Surface } from '@/components/ui/Surface';
 import { DashboardCard } from '@/components/ui/DashboardCard';
 import { QuickNavGrid } from '@/components/ui/QuickNavGrid';
 import { Icon } from '@/components/ui/Icon';
-import { formatDate } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
-
 import { StreakFlame } from '@/components/ui/StreakFlame';
 
-export default function JournalDashboardPage() {
+export default function ReviewDashboardPage() {
   const { state } = useLifeOS();
-  const { t, locale } = useI18n();
+  const { t } = useI18n();
   const router = useRouter();
 
   const today = state.selectedDate;
-  const currentJournal = state.journals.find((j) => j.date === today);
-
-  const addDays = (dateStr: string, days: number): string => {
-    const d = new Date(`${dateStr}T00:00:00`);
-    d.setDate(d.getDate() + days);
-    return d.toISOString().slice(0, 10);
-  };
-
+  
+  // Calculate streak based on daily reviews
   const getStreak = () => {
     let streak = 0;
+    const addDays = (dateStr: string, days: number): string => {
+      const d = new Date(`${dateStr}T00:00:00`);
+      d.setDate(d.getDate() + days);
+      return d.toISOString().slice(0, 10);
+    };
+
     let cursor = today;
-    while (state.journals.some((j) => j.date === cursor)) {
+    while (state.reviews.some((r) => r.date === cursor && r.period === 'daily')) {
       streak += 1;
       cursor = addDays(cursor, -1);
     }
@@ -37,27 +34,27 @@ export default function JournalDashboardPage() {
   };
 
   const currentStreak = getStreak();
-  const hasJournalToday = !!currentJournal;
+  const todayReview = state.reviews.find((r) => r.date === today && r.period === 'daily');
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto pb-24">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-purple-600 dark:from-violet-300 dark:to-purple-500 flex items-center gap-2">
-            <Icon name="journal" size={28} className="text-purple-500" />
-            {t('journal_title')}
+          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-indigo-600 dark:from-violet-300 dark:to-indigo-500 flex items-center gap-2">
+            <Icon name="activity" size={28} className="text-indigo-500" />
+            Sistem Evaluasi (Reviews)
           </h1>
           <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
-            Refleksi harian, evaluasi mood, energi, dan pencapaian hari ini.
+            Refleksi terstruktur untuk daily, weekly, monthly, dan yearly.
           </p>
         </div>
       </div>
 
       <QuickNavGrid 
         items={[
-          { label: 'Tulis Jurnal Hari Ini', icon: 'edit', iconColor: 'text-purple-500', href: '/journal/write' },
-          { label: 'Riwayat & Tren', icon: 'list', iconColor: 'text-indigo-500', href: '/journal/entries' }
+          { label: 'Tulis Review Baru', icon: 'edit', iconColor: 'text-indigo-500', href: '/journal/write' },
+          { label: 'Riwayat Review', icon: 'list', iconColor: 'text-purple-500', href: '/journal/entries' }
         ]} 
       />
 
@@ -66,7 +63,7 @@ export default function JournalDashboardPage() {
           icon="activity"
           iconColor="text-amber-500"
           accentColor="amber-500"
-          label="Streak Menulis Jurnal"
+          label="Streak Review Harian"
           value={<StreakFlame streakCount={currentStreak} />}
           detail="Terus pertahankan konsistensi!"
         >
@@ -78,39 +75,39 @@ export default function JournalDashboardPage() {
           </div>
         </DashboardCard>
 
-        {hasJournalToday ? (
+        {todayReview ? (
           <>
             <DashboardCard
-              icon={`mood${currentJournal?.mood || 3}`}
+              icon="star"
               iconColor="text-emerald-500"
               accentColor="emerald-500"
-              label="Mood Hari Ini"
-              value={`${currentJournal?.mood || 3}/5`}
-              detail="Evaluasi perasaan Anda hari ini"
+              label="Skor Hari Ini"
+              value={`${todayReview.score}/5`}
+              detail="Evaluasi kinerja hari ini"
             />
             <DashboardCard
-              icon="zap"
+              icon="checkCircle"
               iconColor="text-indigo-500"
               accentColor="indigo-500"
-              label="Energi Hari Ini"
-              value={`${currentJournal?.energy || 3}/5`}
-              detail="Tingkat energi harian Anda"
+              label="Fokus Besok"
+              value={todayReview.focus ? "Telah Diatur" : "Belum Ada"}
+              detail={todayReview.focus || "Tentukan fokus Anda!"}
             />
           </>
         ) : (
           <div className="sm:col-span-2 p-6 rounded-2xl bg-white/[0.01] border border-dashed border-life-line flex flex-col items-center justify-center text-center">
             <Icon name="edit" size={32} className="text-life-muted mb-3 opacity-50" />
             <h3 className="text-sm font-bold text-life-text uppercase tracking-wider mb-1">
-              Belum Menulis Jurnal
+              Belum Menulis Review
             </h3>
             <p className="text-xs text-life-muted mb-4 max-w-xs">
-              Luangkan waktu sejenak untuk merefleksikan hari Anda, mencatat hal yang disyukuri, dan menyusun rencana esok hari.
+              Luangkan waktu untuk melakukan evaluasi harian, mingguan, atau bulanan.
             </p>
             <button
               onClick={() => router.push('/journal/write')}
-              className="px-6 py-2 rounded-lg bg-life-purple/20 text-purple-400 font-bold text-xs uppercase tracking-wider hover:bg-life-purple/30 transition-all border border-life-purple/30"
+              className="px-6 py-2 rounded-lg bg-indigo-500/20 text-indigo-400 font-bold text-xs uppercase tracking-wider hover:bg-indigo-500/30 transition-all border border-indigo-500/30"
             >
-              Mulai Menulis Jurnal
+              Mulai Evaluasi
             </button>
           </div>
         )}
