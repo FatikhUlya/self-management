@@ -41,11 +41,11 @@ export default function FocusModePage() {
     if (mode === 'focus' && startTime) {
       saveFocusSession({
         taskId: task?.id || undefined,
-        startTime,
-        endTime: new Date().toISOString(),
-        durationMinutes: FOCUS_MINUTES,
-        type: 'deep_work',
-        distractionsCount: 0
+        startedAt: startTime,
+        endedAt: new Date().toISOString(),
+        plannedMinutes: FOCUS_MINUTES,
+        actualMinutes: FOCUS_MINUTES,
+        completed: true,
       });
     }
 
