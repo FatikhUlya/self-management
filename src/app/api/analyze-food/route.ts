@@ -74,7 +74,7 @@ PENTING:
 
 Berikan angka sebagai integer (tanpa desimal). Jangan tambahkan teks apapun selain JSON.`;
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
     const response = await fetch(geminiUrl, {
       method: 'POST',
