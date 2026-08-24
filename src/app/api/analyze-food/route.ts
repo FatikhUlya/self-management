@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { callGemini } from '@/lib/gemini';
 
 // Next.js 14 App Router: increase body size limit for base64 images
 export const runtime = 'nodejs';
@@ -74,56 +75,46 @@ PENTING:
 
 Berikan angka sebagai integer (tanpa desimal). Jangan tambahkan teks apapun selain JSON.`;
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-
-    const response = await fetch(geminiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [
-          {
-            parts: [
-              { text: prompt },
-              {
-                inlineData: {
-                  mimeType: mimeType,
-                  data: base64Data,
+    const { ok, data, status, message, model } = await (async () => {
+      const result = await callGemini(
+        GEMINI_API_KEY,
+        {
+          contents: [
+            {
+              parts: [
+                { text: prompt },
+                {
+                  inlineData: {
+                    mimeType: mimeType,
+                    data: base64Data,
+                  },
                 },
-              },
-            ],
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0.4,
           },
-        ],
-        generationConfig: {
-          temperature: 0.4,
         },
-      }),
-    });
+        'analyze-food',
+      );
+      // Normalise so we can destructure both cases uniformly
+      return result.ok
+        ? { ok: true as const, data: result.data, model: result.model, status: 200, message: '' }
+        : { ok: false as const, data: null, model: '', status: result.status, message: result.message };
+    })();
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`[analyze-food] Gemini API error (${response.status}):`, errorText);
-      
-      // Parse error for user-friendly message
-      let userMessage = `Gemini API error (${response.status})`;
-      try {
-        const errorJson = JSON.parse(errorText);
-        if (errorJson?.error?.message) {
-          userMessage = errorJson.error.message;
-        }
-      } catch {
-        // errorText is not JSON
-      }
-
+    if (!ok) {
+      console.error(`[analyze-food] All Gemini models failed: ${message}`);
       return NextResponse.json(
-        { error: userMessage },
-        { status: response.status }
+        { error: message },
+        { status },
       );
     }
 
-    const data = await response.json();
-    
+    console.log(`[analyze-food] Gemini responded via model=${model}`);
+
+
     // Extract the text response from Gemini
     const textContent = data?.candidates?.[0]?.content?.parts?.[0]?.text;
     

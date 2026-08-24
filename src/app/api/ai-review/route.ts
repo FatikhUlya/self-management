@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { callGemini } from '@/lib/gemini';
 
 export const runtime = 'nodejs';
 
@@ -59,14 +60,9 @@ Struktur ulasan yang diharapkan:
 
 Format dalam Markdown murni (tanpa tag \`\`\`markdown di awal/akhir, langsung teksnya). Jangan menggunakan bahasa yang terlalu kaku, gunakan bahasa Indonesia yang natural, elegan, dan profesional.`;
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-
-    const response = await fetch(geminiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    const result = await callGemini(
+      GEMINI_API_KEY,
+      {
         contents: [
           {
             parts: [
@@ -77,20 +73,21 @@ Format dalam Markdown murni (tanpa tag \`\`\`markdown di awal/akhir, langsung te
         generationConfig: {
           temperature: 0.7,
         },
-      }),
-    });
+      },
+      'ai-review',
+    );
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`[ai-review] Gemini API error (${response.status}):`, errorText);
+    if (!result.ok) {
+      console.error(`[ai-review] All Gemini models failed: ${result.message}`);
       return NextResponse.json(
-        { error: `Gemini API error (${response.status})` },
-        { status: response.status }
+        { error: result.message },
+        { status: result.status },
       );
     }
 
-    const data = await response.json();
-    const textContent = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    console.log(`[ai-review] Gemini responded via model=${result.model}`);
+
+    const textContent = result.data?.candidates?.[0]?.content?.parts?.[0]?.text;
     
     if (!textContent) {
       return NextResponse.json(
