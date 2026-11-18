@@ -1,16 +1,13 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { Icon } from './Icon';
-import { addDays, inLastDays } from '@/lib/utils';
+import { addDays, cn } from '@/lib/utils';
 
 interface Alert {
   id: string;
   icon: string;
-  iconColor: string;
-  borderColor: string;
-  bgColor: string;
   title: string;
   detail: string;
   tone: 'amber' | 'rose' | 'teal' | 'indigo';
@@ -19,11 +16,12 @@ interface Alert {
 export function SmartAlerts() {
   const { state } = useLifeOS();
   const today = state.selectedDate;
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const alerts = useMemo(() => {
     const result: Alert[] = [];
 
-    // 1. Budget Warning: expense > budget this month
+    // 1. Budget Warning
     const thisMonth = today.slice(0, 7);
     const monthExpense = state.transactions
       .filter(t => t.type === 'expense' && t.date.startsWith(thisMonth))
@@ -35,16 +33,13 @@ export function SmartAlerts() {
       result.push({
         id: 'budget-warn',
         icon: 'wallet',
-        iconColor: 'text-amber-400',
-        borderColor: 'border-amber-500/20',
-        bgColor: 'bg-amber-500/5',
-        title: `Budget ${pct >= 100 ? 'Terlampaui!' : 'Hampir Habis'}`,
-        detail: `Pengeluaran bulan ini: ${pct}% dari total budget`,
+        title: `Budget ${pct >= 100 ? 'Terlampaui' : 'Mendekati Batas'}`,
+        detail: `Pengeluaran bulan ini mencapai ${pct}% dari pagu`,
         tone: 'amber',
       });
     }
 
-    // 2. Calorie Alert: check if today's meals exceed health profile target
+    // 2. Calorie Alert
     const todayMeals = state.meals.filter(m => m.date === today);
     const todayCalories = todayMeals.reduce((sum, m) => sum + (m.calories || 0), 0);
     const calorieTarget = Number(state.healthProfile?.mealGoalCalories || 0);
@@ -52,18 +47,14 @@ export function SmartAlerts() {
       result.push({
         id: 'calorie-warn',
         icon: 'activity',
-        iconColor: 'text-rose-400',
-        borderColor: 'border-rose-500/20',
-        bgColor: 'bg-rose-500/5',
-        title: 'Kalori Melebihi Target',
-        detail: `${todayCalories} kcal dimakan vs ${Math.round(calorieTarget)} kcal target TDEE`,
+        title: 'Asupan Kalori di Atas Target',
+        detail: `${todayCalories} kcal terkonsumsi (target ${Math.round(calorieTarget)} kcal)`,
         tone: 'rose',
       });
     }
 
     // 3. Habit Streak Breaking Warning
     state.habits.forEach(habit => {
-      // Check if habit was done for 3+ consecutive days before today but NOT done today
       const isDoneToday = state.habitLogs.some(l => l.habitId === habit.id && l.date === today);
       if (isDoneToday) return;
 
@@ -78,17 +69,14 @@ export function SmartAlerts() {
         result.push({
           id: `habit-streak-${habit.id}`,
           icon: 'zap',
-          iconColor: 'text-amber-400',
-          borderColor: 'border-amber-500/20',
-          bgColor: 'bg-amber-500/5',
-          title: `Streak "${habit.name}" Terancam!`,
-          detail: `${streakBeforeToday} hari berturut — jangan putus hari ini!`,
+          title: `Pertahankan Streak "${habit.name}"`,
+          detail: `${streakBeforeToday} hari beruntun selesai — selesaikan hari ini`,
           tone: 'amber',
         });
       }
     });
 
-    // 4. Goal Deadline Approaching (within 7 days)
+    // 4. Goal Deadline Approaching
     state.goals.forEach(goal => {
       if (!goal.targetDate || Number(goal.progress) >= 100) return;
       const daysLeft = Math.ceil((new Date(goal.targetDate).getTime() - new Date(today).getTime()) / (1000 * 60 * 60 * 24));
@@ -96,51 +84,9 @@ export function SmartAlerts() {
         result.push({
           id: `goal-dl-${goal.id}`,
           icon: 'target',
-          iconColor: 'text-teal-400',
-          borderColor: 'border-teal-500/20',
-          bgColor: 'bg-teal-500/5',
-          title: `Goal Deadline: ${daysLeft} Hari Lagi`,
-          detail: `"${goal.title}" — progress ${goal.progress}%`,
+          title: `Tenggat Goal: ${daysLeft} hari lagi`,
+          detail: `"${goal.title}" — progres saat ini ${goal.progress}%`,
           tone: 'teal',
-        });
-      }
-    });
-
-    // 5. Debt Due Date Warning (within 7 days)
-    (state.debts || []).forEach(debt => {
-      if (!debt.nextDueDate) return;
-      const daysLeft = Math.ceil((new Date(debt.nextDueDate).getTime() - new Date(today).getTime()) / (1000 * 60 * 60 * 24));
-      if (daysLeft >= 0 && daysLeft <= 7) {
-        result.push({
-          id: `debt-due-${debt.id}`,
-          icon: 'alertTriangle',
-          iconColor: 'text-rose-400',
-          borderColor: 'border-rose-500/20',
-          bgColor: 'bg-rose-500/5',
-          title: `Cicilan Jatuh Tempo ${daysLeft === 0 ? 'HARI INI' : `${daysLeft} Hari Lagi`}`,
-          detail: `${debt.name || 'Hutang'} — Rp ${(debt.monthlyInstallment || 0).toLocaleString('id-ID')}`,
-          tone: 'rose',
-        });
-      }
-    });
-
-    // 6. Work Application Deadline (applications with upcoming deadlines)
-    (state.workApplications || []).forEach(app => {
-      if (app.status === 'rejected' || app.status === 'offer') return;
-      if (!app.deadline) return;
-      const checkDate = app.deadline;
-      if (!checkDate) return;
-      const daysLeft = Math.ceil((new Date(checkDate).getTime() - new Date(today).getTime()) / (1000 * 60 * 60 * 24));
-      if (daysLeft >= 0 && daysLeft <= 3) {
-        result.push({
-          id: `work-dl-${app.id}`,
-          icon: 'briefcase',
-          iconColor: 'text-indigo-400',
-          borderColor: 'border-indigo-500/20',
-          bgColor: 'bg-indigo-500/5',
-          title: `Deadline Lamaran ${daysLeft === 0 ? 'HARI INI' : `${daysLeft} Hari Lagi`}`,
-          detail: `${app.company || ''} — ${app.role || ''}`,
-          tone: 'indigo',
         });
       }
     });
@@ -150,22 +96,64 @@ export function SmartAlerts() {
 
   if (alerts.length === 0) return null;
 
+  const toneConfig: Record<string, { container: string; icon: string }> = {
+    amber: {
+      container: 'border-amber-500/25 bg-amber-500/5 text-amber-900 dark:text-amber-200',
+      icon: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+    },
+    rose: {
+      container: 'border-red-500/25 bg-red-500/5 text-red-900 dark:text-red-200',
+      icon: 'bg-red-500/10 text-red-600 dark:text-red-400',
+    },
+    teal: {
+      container: 'border-emerald-500/25 bg-emerald-500/5 text-emerald-900 dark:text-emerald-200',
+      icon: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+    },
+    indigo: {
+      container: 'border-indigo-500/25 bg-indigo-500/5 text-indigo-900 dark:text-indigo-200',
+      icon: 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400',
+    },
+  };
+
   return (
     <div className="space-y-2">
-      {alerts.slice(0, 5).map(alert => (
-        <div
-          key={alert.id}
-          className={`flex items-start gap-3 p-3.5 rounded-xl border ${alert.borderColor} ${alert.bgColor} transition-all duration-200 hover:scale-[1.005]`}
-        >
-          <div className={`shrink-0 mt-0.5 ${alert.iconColor}`}>
-            <Icon name={alert.icon} size={16} />
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-bold text-life-text leading-tight">{alert.title}</p>
-            <p className="text-xs text-life-muted mt-0.5">{alert.detail}</p>
-          </div>
-        </div>
-      ))}
+      <div className="flex items-center justify-between text-xs font-medium text-muted-foreground px-1">
+        <span className="flex items-center gap-1.5 font-semibold text-foreground text-[11px] uppercase tracking-wider">
+          <Icon name="bell" size={13} className="text-amber-500" />
+          Pemberitahuan Cerdas ({alerts.length})
+        </span>
+        {alerts.length > 2 && (
+          <button 
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="text-[11px] text-primary hover:underline font-medium"
+          >
+            {isExpanded ? 'Ringkas' : `Lihat Semua (${alerts.length})`}
+          </button>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        {(isExpanded ? alerts : alerts.slice(0, 2)).map(alert => {
+          const config = toneConfig[alert.tone] || toneConfig.amber;
+          return (
+            <div
+              key={alert.id}
+              className={cn(
+                "flex items-center gap-2.5 p-3 rounded-lg border transition-all text-xs shadow-2xs",
+                config.container
+              )}
+            >
+              <div className={cn("w-6 h-6 rounded-md flex items-center justify-center shrink-0", config.icon)}>
+                <Icon name={alert.icon} size={13} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-foreground tracking-tight truncate leading-tight">{alert.title}</p>
+                <p className="text-muted-foreground mt-0.5 truncate text-[11px]">{alert.detail}</p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

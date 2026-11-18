@@ -1,175 +1,347 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --life-bg: #f2f3f5;
-  --life-text: #111827;
-  --life-panel: rgba(255, 255, 255, 0.85);
-  --life-panel-hover: rgba(255, 255, 255, 0.95);
-  --life-panel-active: rgba(0, 0, 0, 0.08);
-  --life-line: rgba(0, 0, 0, 0.12);
-  --life-line-strong: rgba(0, 0, 0, 0.22);
-  --life-muted: #4b5563;
-}
-
-.dark {
-  --life-bg: #0a0e17;
-  --life-text: #f3f4f6;
-  --life-panel: rgba(255, 255, 255, 0.03);
-  --life-panel-hover: rgba(255, 255, 255, 0.07);
-  --life-panel-active: rgba(255, 255, 255, 0.12);
-  --life-line: rgba(255, 255, 255, 0.07);
-  --life-line-strong: rgba(255, 255, 255, 0.15);
-  --life-muted: #9ca3af;
-
-  .ql-snow .ql-stroke {
-    stroke: #d1d5db;
-  }
-  .ql-snow .ql-fill, .ql-snow .ql-stroke.ql-fill {
-    fill: #d1d5db;
-  }
-  .ql-snow .ql-editor.ql-blank::before {
-    color: rgba(255, 255, 255, 0.4);
-    font-style: normal;
-  }
-
-  /* Override inline colors (like Google Docs pastes) when in dark mode */
-  .quill-content-override * {
-    color: inherit !important;
-    background-color: transparent !important;
-  }
-}
-
+/* ============================================================
+   DESIGN SYSTEM TOKENS — Linear / Vercel / Stripe Aesthetic
+   Zinc-based neutral scale · Emerald accent · Precision borders
+   ============================================================ */
 @layer base {
-  body {
-    @apply bg-life-bg text-life-text font-sans antialiased;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(15, 118, 110, 0.08) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(67, 56, 202, 0.08) 0px, transparent 50%),
-      radial-gradient(at 50% 100%, rgba(217, 119, 6, 0.03) 0px, transparent 50%);
-    background-attachment: fixed;
-    min-height: 100vh;
+  :root {
+    /* ── Surfaces — Modern Canvas with subtle depth ── */
+    --background: 240 5% 97%;          /* #F4F4F6 — refined soft canvas */
+    --foreground: 240 6% 10%;        /* #18181B — zinc-900 */
+    --card: 0 0% 100%;               /* #FFFFFF — clean elevated white */
+    --card-foreground: 240 6% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 6% 10%;
+
+    /* ── Primary accent: Emerald-600 — elegant, professional ── */
+    --primary: 160 84% 39%;          /* #059669 */
+    --primary-foreground: 0 0% 100%;
+
+    /* ── Secondary ── */
+    --secondary: 240 5% 94%;         /* #EFEFF1 */
+    --secondary-foreground: 240 4% 16%;
+
+    /* ── Muted ── */
+    --muted: 240 5% 94%;
+    --muted-foreground: 240 4% 46%;  /* #71717A — zinc-500 */
+
+    /* ── Accent (hover states) ── */
+    --accent: 240 5% 94%;
+    --accent-foreground: 240 4% 16%;
+
+    /* ── Destructive ── */
+    --destructive: 0 72% 51%;        /* #EF4444 */
+    --destructive-foreground: 0 0% 100%;
+
+    /* ── Borders & inputs ── */
+    --border: 240 5% 88%;            /* #E1E1E6 — crisp border */
+    --input: 240 5% 88%;
+    --ring: 160 84% 39%;             /* matches primary */
+
+    /* ── Radius ── */
+    --radius: 0.625rem;
+
+    /* ── Status colors ── */
+    --success: 160 84% 39%;          /* Emerald-600 */
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;           /* Amber-500 */
+    --warning-foreground: 38 92% 14%;
+    --info: 217 91% 60%;             /* Blue-500 */
+    --info-foreground: 0 0% 100%;
+
+    /* ── Legacy compatibility vars ── */
+    --life-bg: hsl(var(--background));
+    --life-text: hsl(var(--foreground));
+    --life-panel: hsl(var(--card));
+    --life-panel-hover: hsl(var(--accent));
+    --life-panel-active: hsl(var(--accent));
+    --life-line: hsl(var(--border));
+    --life-line-strong: hsl(240 6% 80%);
+    --life-muted: hsl(var(--muted-foreground));
   }
 
-  /* Custom Scrollbar */
+  .dark {
+    --background: 240 6% 7%;         /* #111113 — deep modern canvas */
+    --foreground: 0 0% 95%;          /* #F2F2F2 */
+    --card: 240 5% 10%;              /* #18181B — elevated surface */
+    --card-foreground: 0 0% 95%;
+    --popover: 240 5% 10%;
+    --popover-foreground: 0 0% 95%;
+
+    --primary: 160 72% 47%;          /* Emerald-500 for dark */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 4% 16%;
+    --secondary-foreground: 0 0% 95%;
+
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 5% 65%;
+
+    --accent: 240 4% 16%;
+    --accent-foreground: 0 0% 95%;
+
+    --destructive: 0 63% 58%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 4% 18%;            /* zinc-800 */
+    --input: 240 4% 18%;
+    --ring: 160 72% 47%;
+
+    --success: 160 72% 47%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 217 91% 60%;
+    --info-foreground: 0 0% 100%;
+
+    --life-bg: hsl(var(--background));
+    --life-text: hsl(var(--foreground));
+    --life-panel: hsl(var(--card));
+    --life-panel-hover: hsl(var(--accent));
+    --life-panel-active: hsl(var(--accent));
+    --life-line: hsl(var(--border));
+    --life-line-strong: hsl(240 4% 24%);
+    --life-muted: hsl(var(--muted-foreground));
+  }
+}
+
+/* ============================================================
+   BASE LAYER — Typography & Global Resets
+   ============================================================ */
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, sans-serif;
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, sans-serif;
+    @apply bg-background text-foreground min-h-screen;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  /* ── Headings: tracking-tight for SaaS feel ── */
+  h1, h2, h3 {
+    font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, sans-serif;
+    @apply font-bold tracking-tight text-foreground;
+    letter-spacing: -0.02em;
+  }
+  h4, h5, h6 {
+    font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, sans-serif;
+    @apply font-semibold text-foreground;
+  }
+
+  /* ── Tabular nums for numeric data ── */
+  .tabular-nums,
+  [data-numeric],
+  td:has(> [data-numeric]),
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Minimal scrollbar ── */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: var(--life-line);
+    @apply bg-transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: var(--life-muted);
-    border-radius: 999px;
+    @apply bg-zinc-300 dark:bg-zinc-700 rounded-full;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--life-text);
+    @apply bg-zinc-400 dark:bg-zinc-600;
   }
 
-  /* Fix for native select dropdown options readability */
+  input[type="date"] {
+    color-scheme: light;
+  }
+  .dark input[type="date"] {
+    color-scheme: dark;
+  }
+
   select option {
-    background-color: var(--life-bg);
-    color: var(--life-text);
+    @apply bg-card text-foreground;
   }
 }
 
+/* ============================================================
+   COMPONENT LAYER — Refined Surface Components
+   ============================================================ */
 @layer components {
 
-
-  /* Glassmorphism primitives */
+  /* ── Card / Surface (replaces .glass) ── */
   .glass {
-    @apply bg-life-panel backdrop-blur-md border border-life-line rounded-xl shadow-glass transition-all duration-300;
+    @apply bg-card text-card-foreground rounded-xl;
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
   }
-  
-  .glass-hover {
-    @apply hover:bg-life-panel-hover hover:border-life-line-strong hover:shadow-glass-glow;
+  .glass-hover:hover {
+    border-color: hsl(var(--border));
+    box-shadow: 0 4px 12px 0 rgb(0 0 0 / 0.05), 0 1px 3px 0 rgb(0 0 0 / 0.05);
   }
 
+  /* ── Input ── */
   .glass-input {
-    background-color: var(--life-panel);
-    @apply border border-life-line rounded-lg py-2 px-3 outline-none text-life-text placeholder-life-muted focus:border-life-teal focus:ring-1 focus:ring-life-teal/30 transition-all duration-200;
+    @apply bg-background text-foreground text-sm font-normal w-full;
+    @apply rounded-lg outline-none;
+    border: 1px solid hsl(var(--input));
+    padding: 8px 12px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .glass-input::placeholder {
+    @apply text-muted-foreground/70;
+  }
+  .glass-input:focus {
+    border-color: hsl(var(--ring));
+    box-shadow: 0 0 0 2px hsl(var(--ring) / 0.18);
   }
 
   .glass-select {
-    background-color: var(--life-bg);
-    @apply border border-life-line rounded-lg py-2 px-3 outline-none text-life-text focus:border-life-teal focus:ring-1 focus:ring-life-teal/30 transition-all duration-200;
+    @apply bg-background text-foreground text-sm font-normal;
+    @apply rounded-lg outline-none;
+    border: 1px solid hsl(var(--input));
+    padding: 8px 12px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .glass-select:focus {
+    border-color: hsl(var(--ring));
+    box-shadow: 0 0 0 2px hsl(var(--ring) / 0.18);
   }
 
+  /* ── Primary Button — Flat, professional ── */
   .btn-primary {
-    @apply bg-gradient-to-r from-life-teal to-teal-500 hover:from-teal-500 hover:to-life-teal text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:shadow-life-teal/20 active:scale-[0.98] transition-all duration-200;
+    @apply inline-flex items-center justify-center gap-2;
+    @apply text-sm font-semibold;
+    @apply bg-primary text-primary-foreground;
+    @apply rounded-md;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s ease, transform 0.1s ease;
+    text-decoration: none;
+    user-select: none;
+  }
+  .btn-primary:hover {
+    opacity: 0.9;
+  }
+  .btn-primary:active {
+    transform: scale(0.98);
+  }
+  .btn-primary:disabled {
+    @apply bg-muted text-muted-foreground cursor-not-allowed;
+    opacity: 0.5;
   }
 
+  /* ── Secondary Button — Ghost / outlined ── */
   .btn-secondary {
-    @apply bg-black/[0.03] dark:bg-white/[0.04] hover:bg-black/[0.06] dark:hover:bg-white/[0.08] border border-life-line hover:border-life-line-strong text-life-text font-semibold py-2 px-4 rounded-lg active:scale-[0.98] transition-all duration-200;
+    @apply inline-flex items-center justify-center gap-2;
+    @apply text-sm font-medium;
+    @apply bg-secondary text-secondary-foreground;
+    @apply rounded-md;
+    padding: 10px 20px;
+    border: 1px solid hsl(var(--border));
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+    user-select: none;
+  }
+  .btn-secondary:hover {
+    @apply bg-accent;
+  }
+  .btn-secondary:active {
+    transform: scale(0.98);
   }
 
+  /* ── Danger Button ── */
   .btn-danger {
-    @apply bg-gradient-to-r from-life-rose to-rose-500 hover:from-rose-500 hover:to-life-rose text-white font-semibold py-2 px-4 rounded-lg shadow-lg hover:shadow-life-rose/20 active:scale-[0.98] transition-all duration-200;
+    @apply inline-flex items-center justify-center gap-2;
+    @apply text-sm font-semibold;
+    @apply bg-destructive text-destructive-foreground;
+    @apply rounded-md;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s ease, transform 0.1s ease;
+    user-select: none;
+  }
+  .btn-danger:hover {
+    opacity: 0.9;
+  }
+  .btn-danger:active {
+    transform: scale(0.98);
   }
 
-  /* Habit Heatmap */
-  .tone-0 { @apply bg-black/[0.02] dark:bg-white/[0.02] text-life-muted border border-life-line; }
-  .tone-25 { @apply bg-life-teal-soft/35 dark:bg-life-teal-soft/20 text-teal-700 dark:text-teal-300 border border-life-teal/20 dark:border-life-teal/30; }
-  .tone-50 { @apply bg-life-teal-soft/70 dark:bg-life-teal-soft/40 text-teal-800 dark:text-teal-200 border border-life-teal/40 dark:border-life-teal/50; }
-  .tone-75 { @apply bg-life-teal/40 dark:bg-life-teal/60 text-teal-900 dark:text-teal-100 border border-life-teal/60 dark:border-life-teal/70; }
-  .tone-100 { @apply bg-life-teal text-white border border-teal-500/30 shadow-[0_0_12px_rgba(15,118,110,0.2)] dark:shadow-[0_0_12px_rgba(15,118,110,0.4)]; }
+  /* ── Habit Heatmap Tones ── */
+  .tone-0   { @apply bg-muted text-muted-foreground border border-border; }
+  .tone-25  { @apply bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900; }
+  .tone-50  { @apply bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800; }
+  .tone-75  { @apply bg-emerald-200 dark:bg-emerald-800/60 text-emerald-900 dark:text-emerald-200 border border-emerald-400 dark:border-emerald-700; }
+  .tone-100 { @apply bg-primary text-primary-foreground border border-primary; }
 
-  /* Work Application Heatmap tone */
-  .has-deadline { @apply bg-life-amber-soft/50 dark:bg-life-amber-soft/20 text-amber-800 dark:text-amber-200 border border-life-amber/30 dark:border-life-amber/40; }
+  .has-deadline { @apply bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800; }
 
-  /* SVG Line Chart styling */
-  .chart-grid {
-    stroke: var(--life-line);
-    stroke-width: 1;
-    stroke-dasharray: 4 4;
+  /* ── SVG Chart ── */
+  .chart-grid { stroke: hsl(var(--border)); stroke-width: 1; stroke-dasharray: 4 4; }
+  .chart-axis { stroke: hsl(var(--border)); stroke-width: 1; }
+  .chart-line { fill: none; stroke: hsl(var(--primary)); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .chart-area { fill: hsl(var(--primary)); opacity: 0.06; }
+  .chart-point { fill: hsl(var(--card)); stroke: hsl(var(--primary)); stroke-width: 2; transition: all 0.2s; }
+  .chart-point:hover { r: 5; stroke-width: 2.5; }
+
+  /* ── Badge ── */
+  .duo-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium;
   }
-  .chart-axis {
-    stroke: var(--life-line-strong);
-    stroke-width: 1;
+  .duo-badge-green  { @apply bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400; }
+  .duo-badge-bee    { @apply bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400; }
+  .duo-badge-fox    { @apply bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-400; }
+  .duo-badge-red    { @apply bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400; }
+  .duo-badge-blue   { @apply bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400; }
+  .duo-badge-purple { @apply bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-400; }
+  .duo-badge-gray   { @apply bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400; }
+
+  /* ── Progress Bar ── */
+  .duo-progress-track {
+    @apply w-full h-1.5 bg-muted rounded-full overflow-hidden;
   }
-  .chart-line {
-    fill: none;
-    stroke: url(#teal-gradient);
-    stroke-width: 3;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .chart-area {
-    fill: url(#area-gradient);
-    opacity: 0.15;
-  }
-  .chart-point {
-    fill: var(--life-bg);
-    stroke-width: 2.5;
-    transition: all 0.2s;
-  }
-  .chart-point:hover {
-    r: 6;
-    stroke-width: 3.5;
+  .duo-progress-fill {
+    @apply h-full bg-primary rounded-full;
+    transition: width 0.5s ease;
   }
 }
 
-/* 
-  Global overrides for hardcoded Tailwind transparent white utilities 
-  that are practically invisible in light mode. 
-*/
-:root:not(.dark) .bg-white\/\[0\.005\] { background-color: rgba(0, 0, 0, 0.01) !important; }
-:root:not(.dark) .bg-white\/\[0\.01\] { background-color: rgba(0, 0, 0, 0.02) !important; }
-:root:not(.dark) .bg-white\/\[0\.015\] { background-color: rgba(0, 0, 0, 0.03) !important; }
-:root:not(.dark) .bg-white\/\[0\.02\] { background-color: rgba(0, 0, 0, 0.04) !important; }
-:root:not(.dark) .bg-white\/\[0\.03\] { background-color: rgba(0, 0, 0, 0.06) !important; }
-:root:not(.dark) .bg-white\/\[0\.04\] { background-color: rgba(0, 0, 0, 0.08) !important; }
-:root:not(.dark) .bg-white\/\[0\.05\] { background-color: rgba(0, 0, 0, 0.1) !important; }
-:root:not(.dark) .bg-white\/\[0\.07\] { background-color: rgba(0, 0, 0, 0.12) !important; }
-:root:not(.dark) .bg-white\/5 { background-color: rgba(0, 0, 0, 0.05) !important; }
+/* ============================================================
+   GLOBAL UTILITY OVERRIDES (backward compat for old classes)
+   ============================================================ */
+.bg-white\/\[0\.005\], .bg-white\/\[0\.01\], .bg-white\/\[0\.015\],
+.bg-white\/\[0\.02\], .bg-white\/\[0\.03\], .bg-white\/\[0\.04\],
+.bg-white\/\[0\.05\], .bg-white\/\[0\.07\], .bg-white\/5 {
+  background-color: hsl(var(--muted)) !important;
+}
 
-:root:not(.dark) .border-white\/\[0\.02\] { border-color: rgba(0, 0, 0, 0.05) !important; }
-:root:not(.dark) .border-white\/\[0\.03\] { border-color: rgba(0, 0, 0, 0.06) !important; }
-:root:not(.dark) .border-white\/\[0\.05\] { border-color: rgba(0, 0, 0, 0.1) !important; }
-:root:not(.dark) .border-white\/\[0\.08\] { border-color: rgba(0, 0, 0, 0.15) !important; }
-:root:not(.dark) .border-white\/5 { border-color: rgba(0, 0, 0, 0.1) !important; }
+.border-white\/\[0\.02\], .border-white\/\[0\.03\],
+.border-white\/\[0\.05\], .border-white\/\[0\.08\], .border-white\/5 {
+  border-color: hsl(var(--border)) !important;
+}
 
-:root:not(.dark) .text-white\/5 { color: rgba(0, 0, 0, 0.3) !important; }
-:root:not(.dark) .text-white\/20 { color: rgba(0, 0, 0, 0.5) !important; }
+.text-white\/5  { color: hsl(var(--muted-foreground)) !important; }
+.text-white\/20 { color: hsl(var(--muted-foreground)) !important; }
+
+/* Quill editor */
+.ql-snow .ql-stroke { stroke: hsl(var(--muted-foreground)); }
+.ql-snow .ql-fill, .ql-snow .ql-stroke.ql-fill { fill: hsl(var(--muted-foreground)); }
+.ql-snow .ql-editor.ql-blank::before { color: hsl(var(--muted-foreground)); font-style: normal; }
+.quill-content-override * { color: inherit !important; background-color: transparent !important; }

@@ -3,7 +3,6 @@
 import React, { useMemo, useState } from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { Icon } from './Icon';
-import { addDays } from '@/lib/utils';
 
 export function NotificationBanner() {
   const { state } = useLifeOS();
@@ -24,8 +23,8 @@ export function NotificationBanner() {
       result.push({
         id: 'budget-warn-urgent',
         icon: 'alertTriangle',
-        title: 'Budget Terlampaui!',
-        detail: `Pengeluaran bulan ini melebihi total budget (100%+). Segera evaluasi pengeluaran.`,
+        title: 'Budget Terlampaui',
+        detail: `Pengeluaran bulan ini melebihi total pagu yang ditetapkan.`,
         tone: 'rose',
       });
     }
@@ -38,8 +37,8 @@ export function NotificationBanner() {
         result.push({
           id: `goal-dl-urgent-${goal.id}`,
           icon: 'target',
-          title: `Goal Deadline ${daysLeft === 0 ? 'Hari Ini' : `${daysLeft} Hari Lagi`}!`,
-          detail: `"${goal.title}" belum tercapai (Progress: ${goal.progress}%).`,
+          title: `Goal Deadline ${daysLeft === 0 ? 'Hari Ini' : `${daysLeft} Hari Lagi`}`,
+          detail: `"${goal.title}" progres saat ini ${goal.progress}%.`,
           tone: 'amber',
         });
       }
@@ -53,8 +52,8 @@ export function NotificationBanner() {
         result.push({
           id: `debt-due-urgent-${debt.id}`,
           icon: 'alertTriangle',
-          title: `Cicilan ${daysLeft === 0 ? 'Jatuh Tempo Hari Ini' : `${daysLeft} Hari Lagi`}!`,
-          detail: `${debt.name || 'Hutang'} — Rp ${(debt.monthlyInstallment || 0).toLocaleString('id-ID')}`,
+          title: `Cicilan ${daysLeft === 0 ? 'Jatuh Tempo Hari Ini' : `${daysLeft} Hari Lagi`}`,
+          detail: `${debt.name || 'Kewajiban'} — Rp ${(debt.monthlyInstallment || 0).toLocaleString('id-ID')}`,
           tone: 'rose',
         });
       }
@@ -65,29 +64,49 @@ export function NotificationBanner() {
 
   if (urgentAlerts.length === 0) return null;
 
+  const toneMap: Record<string, { bg: string; border: string; iconBg: string; text: string }> = {
+    rose: { 
+      bg: 'bg-destructive/5 dark:bg-destructive/10', 
+      border: 'border-destructive/25', 
+      iconBg: 'bg-destructive/15 text-destructive', 
+      text: 'text-destructive' 
+    },
+    amber: { 
+      bg: 'bg-amber-500/5 dark:bg-amber-500/10', 
+      border: 'border-amber-500/25', 
+      iconBg: 'bg-amber-500/15 text-amber-600 dark:text-amber-400', 
+      text: 'text-amber-700 dark:text-amber-300' 
+    },
+  };
+
   return (
-    <div className="flex flex-col space-y-2 mb-6 px-6 md:px-8 mt-6">
-      {urgentAlerts.map(alert => (
-        <div
-          key={alert.id}
-          className={`relative flex items-start sm:items-center gap-3 p-4 rounded-xl border border-${alert.tone}-500/20 bg-${alert.tone}-500/10 text-life-text`}
-        >
-          <div className={`shrink-0 text-${alert.tone}-400`}>
-            <Icon name={alert.icon} size={20} />
-          </div>
-          <div className="flex-1 min-w-0 pr-8">
-            <h4 className="text-sm font-bold">{alert.title}</h4>
-            <p className="text-xs text-life-muted mt-0.5">{alert.detail}</p>
-          </div>
-          <button
-            onClick={() => setDismissed(prev => [...prev, alert.id])}
-            className="absolute top-4 right-4 sm:static p-1.5 text-life-muted hover:text-life-text hover:bg-white/10 rounded-md transition-colors"
-            title="Tutup peringatan"
+    <div className="flex flex-col space-y-2 mb-3 px-5 md:px-8 pt-3">
+      {urgentAlerts.map(alert => {
+        const theme = toneMap[alert.tone] || toneMap.rose;
+        return (
+          <div
+            key={alert.id}
+            className={`relative flex items-center justify-between gap-3 px-3.5 py-2 rounded-lg border ${theme.border} ${theme.bg} text-foreground shadow-2xs transition-all`}
           >
-            <Icon name="x" size={14} />
-          </button>
-        </div>
-      ))}
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className={`w-6 h-6 rounded-md ${theme.iconBg} flex items-center justify-center shrink-0`}>
+                <Icon name={alert.icon} size={13} />
+              </div>
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="text-xs font-semibold text-foreground tracking-tight shrink-0">{alert.title}:</span>
+                <span className="text-xs text-muted-foreground truncate">{alert.detail}</span>
+              </div>
+            </div>
+            <button
+              onClick={() => setDismissed(prev => [...prev, alert.id])}
+              className="p-1 text-muted-foreground/70 hover:text-foreground hover:bg-muted/50 rounded-md transition-colors shrink-0 ml-2"
+              title="Tutup peringatan"
+            >
+              <Icon name="x" size={13} />
+            </button>
+          </div>
+        );
+      })}
     </div>
   );
 }

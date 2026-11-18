@@ -1,4 +1,8 @@
+'use client';
+
 import React from 'react';
+import { motion } from 'framer-motion';
+import { cn } from '@/lib/utils';
 import { Surface } from './Surface';
 import { Icon } from './Icon';
 
@@ -12,15 +16,32 @@ interface MetricCardProps {
 
 export function MetricCard({ icon, label, value, detail, glow = false }: MetricCardProps) {
   return (
-    <Surface glow={glow} className="glass-hover p-5 flex items-center space-x-4">
-      <div className="flex-shrink-0 w-12 h-12 bg-white/[0.04] border border-white/[0.08] rounded-xl flex items-center justify-center text-life-teal shadow-inner">
-        <Icon name={icon} size={22} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <span className="block text-xs uppercase tracking-wider text-life-muted font-semibold">{label}</span>
-        <strong className="block text-2xl font-extrabold text-life-text mt-0.5 tracking-tight">{value}</strong>
-        <p className="text-xs text-life-muted mt-1 truncate font-medium">{detail}</p>
-      </div>
-    </Surface>
+    <motion.div
+      whileHover={{ y: -2, transition: { duration: 0.15, ease: 'easeOut' } }}
+      className="will-change-transform h-full"
+    >
+      <Surface 
+        glow={glow} 
+        className="p-4 flex flex-col justify-between cursor-default h-full transition-all hover:shadow-xs"
+      >
+        <div className="flex items-center justify-between gap-2 mb-2">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground truncate">
+            {label}
+          </span>
+          <div className={cn(
+            'shrink-0 w-7 h-7 rounded-lg flex items-center justify-center',
+            'bg-primary/10 text-primary',
+          )}>
+            <Icon name={icon} size={15} />
+          </div>
+        </div>
+        <div>
+          <strong className="block text-2xl font-bold tracking-tight tabular-nums text-foreground font-mono">
+            {value}
+          </strong>
+          <p className="text-xs text-muted-foreground mt-1 truncate font-medium">{detail}</p>
+        </div>
+      </Surface>
+    </motion.div>
   );
 }

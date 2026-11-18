@@ -1,10 +1,10 @@
 'use client';
 import React, { useState } from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
-import { Surface } from '@/components/ui/Surface';
 import { Button } from '@/components/ui/Button';
 import { DailyPlan } from '@/lib/hooks/useLifeOSState';
 import { Icon } from '@/components/ui/Icon';
+import { cn } from '@/lib/utils';
 
 export function EveningReview({ 
   todayPlan, 
@@ -14,9 +14,9 @@ export function EveningReview({
   onCloseDay: (plan: Partial<DailyPlan>) => void;
 }) {
   const { state, addRuleComplianceLog } = useLifeOS();
-  const [distractionNotes, setDistractionNotes] = useState(todayPlan.distractionNotes || '');
-  const [wins, setWins] = useState('');
-  const [lessons, setLessons] = useState('');
+  const [rating, setRating] = useState<number>(3);
+  const [note, setNote] = useState('');
+  const [showRules, setShowRules] = useState(false);
   const [ruleCompliance, setRuleCompliance] = useState<Record<string, 'followed' | 'missed' | 'not_applicable'>>({});
 
   const mit = state.tasks.find(t => t.id === todayPlan.mitTaskId);
@@ -37,141 +37,156 @@ export function EveningReview({
     onCloseDay({
       date: todayPlan.date,
       dayStatus: 'day_closed',
-      distractionNotes,
-      dailyReview: { wins, lessons }
+      distractionNotes: '',
+      dailyReview: { wins: note, lessons: `Rating: ${rating}/5` }
     });
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 pt-10">
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold text-life-text">Evening Review</h1>
-        <p className="text-life-muted">Waktunya mengevaluasi eksekusi hari ini.</p>
+    <div className="p-5 rounded-xl border border-border bg-card text-card-foreground shadow-sm relative overflow-hidden">
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 tracking-tight">
+            <span className="w-6 h-6 rounded-md bg-amber-500/10 flex items-center justify-center text-amber-500 shrink-0">
+              <Icon name="moon" size={14} />
+            </span>
+            Akhiri Hari (Review Malam)
+          </h3>
+          <p className="text-xs text-muted-foreground mt-1">Evaluasi singkat pencapaian dan refleksi hari ini.</p>
+        </div>
       </div>
 
-      <Surface className="p-6 space-y-6">
-        {/* Execution Summary */}
-        <div className="space-y-4">
-          <h3 className="text-sm font-bold text-life-text uppercase tracking-wider border-b border-life-line pb-2">
-            Ringkasan Eksekusi
-          </h3>
-          
-          <div className="flex items-center justify-between p-3 rounded-lg border border-life-line bg-white/[0.01]">
-            <div className="flex items-center gap-3">
-              <Icon name="target" size={20} className="text-rose-400" />
-              <div>
-                <p className="text-xs text-life-muted">MIT Hari Ini</p>
-                <p className="text-sm font-bold text-life-text">{mit ? mit.title : 'Tidak ada MIT'}</p>
-              </div>
+      <div className="space-y-4">
+        {/* MIT Status */}
+        {mit && (
+          <div className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/30">
+            <div className="flex items-center gap-2 min-w-0 pr-2">
+              <Icon name="target" size={14} className="text-primary shrink-0" />
+              <span className="text-xs font-medium text-foreground truncate">{mit.title}</span>
             </div>
-            {mit && (
-              <span className={`text-xs font-bold px-2 py-1 rounded ${mit.status === 'done' ? 'bg-green-500/10 text-green-400' : 'bg-rose-500/10 text-rose-400'}`}>
-                {mit.status === 'done' ? 'SELESAI' : 'TIDAK SELESAI'}
-              </span>
-            )}
+            <span className={cn(
+              "text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0",
+              mit.status === 'done' 
+                ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20' 
+                : 'bg-destructive/10 text-destructive border border-destructive/20'
+            )}>
+              {mit.status === 'done' ? 'Selesai' : 'Belum Selesai'}
+            </span>
+          </div>
+        )}
+
+        {/* Rating */}
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Rating Kepuasan Hari Ini</label>
+          <div className="flex items-center gap-1.5">
+            {[1, 2, 3, 4, 5].map(star => (
+              <button
+                key={star}
+                type="button"
+                onClick={() => setRating(star)}
+                className={cn(
+                  "w-8 h-8 rounded-lg font-bold flex items-center justify-center transition-all text-xs",
+                  rating >= star 
+                    ? "bg-amber-500 text-white shadow-2xs" 
+                    : "bg-muted/40 border border-border text-muted-foreground hover:border-amber-500/50 hover:text-amber-500"
+                )}
+              >
+                <Icon name="star" size={14} />
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Distractions */}
-        <div className="space-y-3">
-          <label className="text-sm font-bold text-life-text uppercase tracking-wider flex items-center gap-2">
-            <Icon name="alertTriangle" size={16} className="text-amber-400" />
-            Distraksi & Hambatan
-          </label>
-          <p className="text-xs text-life-muted">Apa yang membuat fokus terpecah hari ini?</p>
+        {/* Single Note */}
+        <div className="space-y-1.5">
+          <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Pencapaian Terbaik / Catatan</label>
           <textarea
-            value={distractionNotes}
-            onChange={(e) => setDistractionNotes(e.target.value)}
-            placeholder="Contoh: Terlalu banyak scroll sosmed, ada rapat dadakan..."
-            className="glass-input w-full h-24 resize-none"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Apa hal terbaik atau pelajaran penting hari ini?"
+            className="glass-input w-full h-16 resize-none text-xs"
           />
         </div>
 
-        {/* Reflection */}
-        <div className="space-y-4">
-          <h3 className="text-sm font-bold text-life-text uppercase tracking-wider border-b border-life-line pb-2 flex items-center gap-2">
-            <Icon name="moon" size={16} className="text-indigo-400" />
-            Refleksi
-          </h3>
-          
-          <div className="space-y-3">
-            <label className="text-xs font-bold text-life-muted">Wins (Pencapaian)</label>
-            <textarea
-              value={wins}
-              onChange={(e) => setWins(e.target.value)}
-              placeholder="Apa hal baik yang terjadi hari ini?"
-              className="glass-input w-full h-20 resize-none"
-            />
-          </div>
-
-          <div className="space-y-3">
-            <label className="text-xs font-bold text-life-muted">Lessons (Pelajaran)</label>
-            <textarea
-              value={lessons}
-              onChange={(e) => setLessons(e.target.value)}
-              placeholder="Apa yang bisa diperbaiki untuk besok?"
-              className="glass-input w-full h-20 resize-none"
-            />
-          </div>
-        </div>
-
-        {/* Rule Compliance */}
+        {/* Rule Compliance (Collapsible) */}
         {state.selfRules.length > 0 && (
-          <div className="space-y-4">
-            <h3 className="text-sm font-bold text-life-text uppercase tracking-wider border-b border-life-line pb-2 flex items-center gap-2">
-              <Icon name="shield" size={16} className="text-emerald-400" />
-              Evaluasi Aturan (Rules)
-            </h3>
-            
-            <div className="space-y-2">
-              {state.selfRules.map(rule => (
-                <div key={rule.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-lg border border-life-line bg-white/[0.01]">
-                  <span className="text-sm text-life-text">{rule.rule_text}</span>
-                  <div className="flex bg-white/[0.02] border border-life-line rounded-lg p-0.5 shrink-0">
-                    <button
-                      onClick={() => setRuleCompliance(prev => ({ ...prev, [rule.id]: 'not_applicable' }))}
-                      className={`px-3 py-1 rounded text-[10px] font-bold uppercase transition-all ${
-                        ruleCompliance[rule.id] === 'not_applicable' || !ruleCompliance[rule.id]
-                          ? 'bg-zinc-500/20 text-zinc-300' : 'text-life-muted hover:text-life-text'
-                      }`}
-                    >
-                      N/A
-                    </button>
-                    <button
-                      onClick={() => setRuleCompliance(prev => ({ ...prev, [rule.id]: 'followed' }))}
-                      className={`px-3 py-1 rounded text-[10px] font-bold uppercase transition-all ${
-                        ruleCompliance[rule.id] === 'followed' 
-                          ? 'bg-emerald-500/20 text-emerald-400' : 'text-life-muted hover:text-life-text'
-                      }`}
-                    >
-                      Dipatuhi
-                    </button>
-                    <button
-                      onClick={() => setRuleCompliance(prev => ({ ...prev, [rule.id]: 'missed' }))}
-                      className={`px-3 py-1 rounded text-[10px] font-bold uppercase transition-all ${
-                        ruleCompliance[rule.id] === 'missed' 
-                          ? 'bg-rose-500/20 text-rose-400' : 'text-life-muted hover:text-life-text'
-                      }`}
-                    >
-                      Dilanggar
-                    </button>
+          showRules ? (
+            <div className="space-y-2.5 pt-3 border-t border-border animate-in fade-in">
+              <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                <Icon name="shield" size={12} className="text-primary" />
+                Evaluasi Prinsip Hidup
+              </label>
+              <div className="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+                {state.selfRules.map(rule => (
+                  <div key={rule.id} className="flex flex-col gap-1 p-2 rounded-lg border border-border bg-muted/20">
+                    <span className="text-xs text-foreground truncate">{rule.rule_text}</span>
+                    <div className="flex bg-muted/60 border border-border rounded-md p-0.5 gap-1">
+                      <button
+                        onClick={() => setRuleCompliance(prev => ({ ...prev, [rule.id]: 'not_applicable' }))}
+                        className={cn(
+                          "flex-1 py-0.5 rounded text-[10px] font-medium uppercase transition-all",
+                          ruleCompliance[rule.id] === 'not_applicable' || !ruleCompliance[rule.id]
+                            ? "bg-background text-foreground shadow-2xs font-semibold"
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        N/A
+                      </button>
+                      <button
+                        onClick={() => setRuleCompliance(prev => ({ ...prev, [rule.id]: 'followed' }))}
+                        className={cn(
+                          "flex-1 py-0.5 rounded text-[10px] font-medium uppercase transition-all",
+                          ruleCompliance[rule.id] === 'followed' 
+                            ? "bg-primary text-primary-foreground shadow-2xs font-semibold"
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        Dipatuhi
+                      </button>
+                      <button
+                        onClick={() => setRuleCompliance(prev => ({ ...prev, [rule.id]: 'missed' }))}
+                        className={cn(
+                          "flex-1 py-0.5 rounded text-[10px] font-medium uppercase transition-all",
+                          ruleCompliance[rule.id] === 'missed' 
+                            ? "bg-destructive text-destructive-foreground shadow-2xs font-semibold"
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        Terlewat
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              <button 
+                type="button" 
+                onClick={() => setShowRules(false)}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+              >
+                <Icon name="chevronUp" size={13} /> Sembunyikan rules
+              </button>
             </div>
-          </div>
+          ) : (
+            <button 
+              type="button" 
+              onClick={() => setShowRules(true)}
+              className="text-xs text-primary hover:underline transition-colors flex items-center gap-1 font-medium"
+            >
+              <Icon name="chevronDown" size={13} /> Evaluasi Rules (Opsional)
+            </button>
+          )
         )}
 
         <Button 
           variant="primary" 
-          size="lg" 
+          size="sm" 
           className="w-full"
           onClick={handleCloseDay}
           icon="checkSquare"
         >
-          Tutup Hari Ini
+          Selesaikan & Tutup Hari Ini
         </Button>
-      </Surface>
+      </div>
     </div>
   );
 }

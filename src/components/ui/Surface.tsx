@@ -1,18 +1,23 @@
 import React, { ReactNode } from 'react';
+import { cn } from '@/lib/utils';
 
 interface SurfaceProps extends React.HTMLAttributes<HTMLDivElement> {
-  children: ReactNode;
-  className?: string;
-  glow?: boolean;
+ children: ReactNode;
+ className?: string;
+ glow?: boolean;
 }
 
 export function Surface({ children, className = '', glow = false, ...props }: SurfaceProps) {
-  return (
-    <div 
-      className={`glass ${glow ? 'shadow-glass-glow border-life-teal/30 bg-life-teal-soft/5' : ''} ${className}`}
-      {...props}
-    >
-      {children}
-    </div>
-  );
+ return (
+ <div
+ className={cn(
+ 'glass',
+ glow && 'ring-1 ring-primary/20 border-primary/30',
+ className,
+ )}
+ {...props}
+ >
+ {children}
+ </div>
+ );
 }

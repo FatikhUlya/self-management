@@ -1,10 +1,10 @@
 'use client';
 import React, { useState } from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
-import { Surface } from '@/components/ui/Surface';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
-import { DailyPlan, Task } from '@/lib/hooks/useLifeOSState';
+import { DailyPlan } from '@/lib/hooks/useLifeOSState';
+import { cn } from '@/lib/utils';
 
 export function MorningCheckIn({ 
   today, 
@@ -19,6 +19,7 @@ export function MorningCheckIn({
   const [mitTaskId, setMitTaskId] = useState<string>('');
   const [secondaryTaskIds, setSecondaryTaskIds] = useState<string[]>([]);
   const [intention, setIntention] = useState('');
+  const [showOptions, setShowOptions] = useState(false);
 
   // Get available tasks that are not done
   const availableTasks = state.tasks.filter(t => t.status !== 'done' && t.status !== 'cancelled');
@@ -45,101 +46,125 @@ export function MorningCheckIn({
   };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 pt-10">
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold text-life-text">Selamat Pagi.</h1>
-        <p className="text-life-muted">Mari atur fokus hari ini sebelum memulai eksekusi.</p>
+    <div className="p-5 rounded-xl border border-border bg-card text-card-foreground shadow-sm relative overflow-hidden">
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 tracking-tight">
+            <span className="w-6 h-6 rounded-md bg-amber-500/10 flex items-center justify-center text-amber-500 shrink-0">
+              <Icon name="sun" size={14} />
+            </span>
+            Mulai Hari Ini (Check-in Pagi)
+          </h3>
+          <p className="text-xs text-muted-foreground mt-1">Tentukan satu fokus utama (MIT) untuk memulai hari Anda.</p>
+        </div>
       </div>
 
-      <Surface className="p-6 space-y-6">
-        {/* Day Mode Selection */}
-        <div className="space-y-3">
-          <label className="text-sm font-bold text-life-text uppercase tracking-wider">Kondisi Hari Ini</label>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {[
-              { id: 'normal', label: 'Normal', icon: 'sun' },
-              { id: 'low_energy', label: 'Low Energy', icon: 'battery' },
-              { id: 'sick', label: 'Sakit', icon: 'activity' },
-              { id: 'emergency', label: 'Darurat', icon: 'alertTriangle' },
-            ].map(mode => (
-              <button
-                key={mode.id}
-                type="button"
-                onClick={() => setDayMode(mode.id as any)}
-                className={`p-3 rounded-lg border text-center transition-all flex flex-col items-center gap-2 ${
-                  dayMode === mode.id
-                    ? 'bg-life-indigo-soft/10 border-life-indigo text-indigo-400'
-                    : 'bg-white/[0.02] border-life-line text-life-muted hover:border-life-line-strong'
-                }`}
-              >
-                <Icon name={mode.icon as any} size={20} />
-                <span className="text-xs font-bold">{mode.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* MIT Selection */}
-        <div className="space-y-3">
-          <label className="text-sm font-bold text-life-text uppercase tracking-wider flex items-center gap-2">
-            <Icon name="target" size={16} className="text-rose-400" />
-            Most Important Task (MIT)
+      <div className="space-y-4">
+        {/* Mandatory: MIT */}
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+            Prioritas Utama Hari Ini (MIT)
           </label>
-          <p className="text-xs text-life-muted">Pilih SATU tugas utama yang paling berdampak hari ini.</p>
           <select 
             value={mitTaskId}
             onChange={(e) => setMitTaskId(e.target.value)}
-            className="glass-select w-full"
+            className="glass-select w-full text-xs font-medium"
           >
-            <option value="">-- Pilih MIT --</option>
+            <option value="">-- Pilih Tugas Utama --</option>
             {availableTasks.map(t => (
               <option key={t.id} value={t.id}>{t.title}</option>
             ))}
           </select>
         </div>
 
-        {/* Secondary Tasks Selection */}
-        <div className="space-y-3">
-          <label className="text-sm font-bold text-life-text uppercase tracking-wider flex items-center gap-2">
-            <Icon name="checkSquare" size={16} className="text-teal-400" />
-            Secondary Tasks (Maks 3)
-          </label>
-          <p className="text-xs text-life-muted">Tugas pendukung jika MIT selesai.</p>
-          <div className="max-h-48 overflow-y-auto space-y-2 pr-2">
-            {availableTasks.filter(t => t.id !== mitTaskId).map(t => {
-              const isSelected = secondaryTaskIds.includes(t.id);
-              return (
-                <div 
-                  key={t.id}
-                  onClick={() => toggleSecondaryTask(t.id)}
-                  className={`p-3 rounded-lg border cursor-pointer select-none transition-all flex items-center justify-between ${
-                    isSelected
-                      ? 'bg-life-teal-soft/10 border-life-teal/50 text-teal-300'
-                      : 'bg-white/[0.01] border-life-line text-life-text hover:border-life-line-strong'
-                  }`}
-                >
-                  <span className="text-sm truncate">{t.title}</span>
-                  {isSelected && <Icon name="check" size={16} />}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        {/* Collapsible Options */}
+        {showOptions ? (
+          <div className="space-y-3 pt-3 border-t border-border animate-in fade-in">
+            {/* Day Mode */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Kondisi Fisik / Energi</label>
+              <div className="flex gap-2">
+                {[
+                  { id: 'normal', icon: 'sun', label: 'Bugar' },
+                  { id: 'low_energy', icon: 'battery', label: 'Lelah' },
+                  { id: 'sick', icon: 'activity', label: 'Sakit' },
+                ].map(mode => (
+                  <button
+                    key={mode.id}
+                    type="button"
+                    onClick={() => setDayMode(mode.id as any)}
+                    className={cn(
+                      "p-2 rounded-lg border text-center transition-all flex items-center justify-center gap-1.5 flex-1 text-xs font-medium",
+                      dayMode === mode.id
+                        ? "bg-primary/10 border-primary/30 text-primary font-semibold shadow-2xs"
+                        : "bg-muted/40 border-border text-muted-foreground hover:border-border hover:text-foreground"
+                    )}
+                  >
+                    <Icon name={mode.icon as any} size={14} />
+                    <span>{mode.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
 
-        {/* Intention */}
-        <div className="space-y-3">
-          <label className="text-sm font-bold text-life-text uppercase tracking-wider">Intensi Hari Ini</label>
-          <textarea
-            value={intention}
-            onChange={(e) => setIntention(e.target.value)}
-            placeholder="Apa yang ingin dicapai secara mental/emosional hari ini?"
-            className="glass-input w-full h-24 resize-none"
-          />
-        </div>
+            {/* Secondary Tasks */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Tugas Pendukung (Maksimal 3)</label>
+              <div className="max-h-36 overflow-y-auto space-y-1 pr-1">
+                {availableTasks.filter(t => t.id !== mitTaskId).map(t => {
+                  const isSelected = secondaryTaskIds.includes(t.id);
+                  return (
+                    <div 
+                      key={t.id}
+                      onClick={() => toggleSecondaryTask(t.id)}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg border cursor-pointer select-none transition-all flex items-center justify-between text-xs",
+                        isSelected
+                          ? "bg-primary/10 border-primary/30 text-primary font-medium"
+                          : "bg-muted/30 border-border text-foreground hover:bg-muted/50"
+                      )}
+                    >
+                      <span className="truncate">{t.title}</span>
+                      {isSelected && <Icon name="check" size={13} className="text-primary shrink-0" />}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Intention */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Intensi / Mindset Hari Ini</label>
+              <input
+                type="text"
+                value={intention}
+                onChange={(e) => setIntention(e.target.value)}
+                placeholder="Fokus pada hal penting, jangan terdistraksi..."
+                className="glass-input w-full text-xs"
+              />
+            </div>
+            
+            <button 
+              type="button" 
+              onClick={() => setShowOptions(false)}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+            >
+              <Icon name="chevronUp" size={13} /> Sembunyikan opsi
+            </button>
+          </div>
+        ) : (
+          <button 
+            type="button" 
+            onClick={() => setShowOptions(true)}
+            className="text-xs text-primary hover:underline transition-colors flex items-center gap-1 font-medium"
+          >
+            <Icon name="chevronDown" size={13} /> Opsi tambahan (Kondisi fisik, intensi, dll)
+          </button>
+        )}
 
         <Button 
           variant="primary" 
-          size="lg" 
+          size="sm" 
           className="w-full"
           disabled={!mitTaskId && dayMode === 'normal'}
           onClick={handleStartDay}
@@ -147,7 +172,7 @@ export function MorningCheckIn({
         >
           Mulai Hari Ini
         </Button>
-      </Surface>
+      </div>
     </div>
   );
 }

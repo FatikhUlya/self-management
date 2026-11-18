@@ -1,19 +1,83 @@
 import React from 'react';
 import { useT } from '@/lib/i18n/context';
+import { cn } from '@/lib/utils';
+import { Button } from './Button';
 
 interface EmptyStateProps {
-  message?: string;
+ /** Override the default folder icon with a custom SVG icon name */
+ icon?: React.ReactNode;
+ /** Short headline */
+ title?: string;
+ /** Longer description text */
+ description?: string;
+ /** Legacy `message` prop for backward compatibility */
+ message?: string;
+ /** Optional action button */
+ action?: {
+ label: string;
+ onClick: () => void;
+ icon?: string;
+ };
+ /** Additional className */
+ className?: string;
+ /** Compact variant for inline use */
+ compact?: boolean;
 }
 
-export function EmptyState({ message }: EmptyStateProps) {
-  const t = useT();
+export function EmptyState({ icon, title, description, message, action, className, compact = false }: EmptyStateProps) {
+ const t = useT();
 
-  return (
-    <div className="flex flex-col items-center justify-center p-6 py-8 border border-dashed border-life-line rounded-xl bg-white/[0.005]">
-      <div className="w-10 h-10 rounded-full bg-white/[0.02] flex items-center justify-center border border-life-line text-life-muted mb-2 shadow-inner select-none font-semibold">
-        !
-      </div>
-      <p className="text-xs text-life-muted font-medium">{message || t('no_data')}</p>
-    </div>
-  );
+ const defaultIcon = (
+ <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+ <path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+ </svg>
+ );
+
+ return (
+ <div
+ className={cn(
+ 'flex flex-col items-center justify-center rounded-lg',
+ 'border border-dashed border-border/80 bg-muted/30',
+ compact ? 'p-4 py-5' : 'p-8 py-10',
+ className,
+ )}
+ >
+ <div className={cn(
+ 'rounded-lg flex items-center justify-center bg-muted/80 text-muted-foreground select-none',
+ compact ? 'w-8 h-8 mb-2' : 'w-11 h-11 mb-3',
+ )}>
+ {icon || defaultIcon}
+ </div>
+
+ {title && (
+ <h4 className={cn(
+ 'font-semibold text-foreground tracking-tight text-center',
+ compact ? 'text-xs' : 'text-sm',
+ )}>
+ {title}
+ </h4>
+ )}
+
+ <p className={cn(
+ 'text-muted-foreground text-center max-w-xs',
+ compact ? 'text-[11px] mt-0.5' : 'text-xs mt-1',
+ title ? '' : 'mt-0',
+ )}>
+ {description || message || t('no_data')}
+ </p>
+
+ {action && (
+ <div className="mt-3">
+ <Button
+ size="sm"
+ variant="primary"
+ icon={action.icon}
+ onClick={action.onClick}
+ >
+ {action.label}
+ </Button>
+ </div>
+ )}
+ </div>
+ );
 }

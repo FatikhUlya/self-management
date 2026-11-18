@@ -1,4 +1,11 @@
 // ─── Life OS Utility Functions ───
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+/** Merge Tailwind classes with clsx — shadcn/ui standard */
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 /** Get today's date as ISO string (YYYY-MM-DD), timezone-aware */
 export function todayISO(): string {
