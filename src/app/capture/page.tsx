@@ -1,273 +1,476 @@
-﻿'use client';
+'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
 import { Button } from '@/components/ui/Button';
-import { EmptyState } from '@/components/ui/EmptyState';
 import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
-import { formatDate } from '@/lib/utils';
+import { MetricCard } from '@/components/ui/MetricCard';
+import { EmptyState } from '@/components/ui/EmptyState';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { formatDate, cn } from '@/lib/utils';
 import { PRIORITY_OPTIONS, Priority, LIFE_AREAS } from '@/lib/constants';
 
 export default function CapturePage() {
- const { state, addIdea, archiveIdea, deleteIdea, convertIdeaToTask, convertIdeaToProject } = useLifeOS();
- const { t } = useI18n();
+  const { state, addIdea, archiveIdea, deleteIdea, convertIdeaToTask, convertIdeaToProject } = useLifeOS();
+  const { t, locale } = useI18n();
 
- // Form states
- const [title, setTitle] = useState('');
- const [area, setArea] = useState<string>(LIFE_AREAS[1]);
- const [priority, setPriority] = useState<Priority>('Medium');
- const [notes, setNotes] = useState('');
+  // Active Tab
+  const [activeTab, setActiveTab] = useState<'inbox' | 'archived'>('inbox');
 
- const activeIdeas = state.ideas.filter((idea) => idea.status !== 'archived');
- const archivedIdeas = state.ideas.filter((idea) => idea.status === 'archived');
+  // Search & Filters
+  const [searchQuery, setSearchQuery] = useState('');
+  const [areaFilter, setAreaFilter] = useState<string>('all');
+  const [priorityFilter, setPriorityFilter] = useState<string>('all');
 
- const handleSubmit = async (e: React.FormEvent) => {
- e.preventDefault();
- if (!title.trim()) return;
+  // Inline Fast Capture Form State
+  const [quickTitle, setQuickTitle] = useState('');
+  const [quickArea, setQuickArea] = useState<string>(LIFE_AREAS[1]);
+  const [quickPriority, setQuickPriority] = useState<Priority>('Medium');
 
- await addIdea({ title, area, priority, notes });
- setTitle('');
- setArea(LIFE_AREAS[1]);
- setPriority('Medium');
- setNotes('');
- };
+  // Modal Dialog State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalTitle, setModalTitle] = useState('');
+  const [modalArea, setModalArea] = useState<string>(LIFE_AREAS[1]);
+  const [modalPriority, setModalPriority] = useState<Priority>('Medium');
+  const [modalNotes, setModalNotes] = useState('');
 
- return (
- <div className="space-y-6">
- {/* Header */}
- <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
- <div>
- <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-blue-600 dark:from-indigo-300 dark:to-blue-500 flex items-center gap-2">
- <Icon name="lightbulb" size={28} className="text-indigo-500" />
- {t('capture_title')}
- </h1>
- <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
- {t('capture_idea_desc')}
- </p>
- </div>
- </div>
+  // Active vs Archived
+  const activeIdeas = useMemo(() => {
+    return state.ideas.filter((idea) => idea.status !== 'archived');
+  }, [state.ideas]);
 
- <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
- {/* Left: Input Form */}
- <Surface className="p-6">
- <div className="border-b border-border pb-3 mb-4">
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
- {t('capture_inbox')}
- </h3>
- <p className="text-xs text-muted-foreground mt-0.5">
- {activeIdeas.length} {t('capture_active_ideas')}
- </p>
- </div>
+  const archivedIdeas = useMemo(() => {
+    return state.ideas.filter((idea) => idea.status === 'archived');
+  }, [state.ideas]);
 
- <form onSubmit={handleSubmit} className="space-y-4">
- <div className="relative">
- <input
- id="title"
- type="text"
- required
- placeholder="Ketik ide / pikiran di sini lalu tekan Enter..."
- value={title}
- onChange={(e) => setTitle(e.target.value)}
- className="w-full bg-white/5 dark:bg-black/20 border border-border rounded-xl px-4 py-3 text-sm text-foreground placeholder-life-muted focus:outline-none focus:ring-2 focus:ring-indigo-500/50 transition-all pr-12"
- />
- <button 
- type="submit" 
- className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-indigo-500 hover:bg-indigo-500/10 rounded-md transition-colors"
- title="Simpan Ide"
- >
- <Icon name="plus" size={18} />
- </button>
- </div>
+  // Filtered Ideas based on activeTab
+  const displayedIdeas = useMemo(() => {
+    const list = activeTab === 'inbox' ? activeIdeas : archivedIdeas;
+    return list
+      .filter((idea) => {
+        if (areaFilter !== 'all' && (idea.area || 'General') !== areaFilter) return false;
+        if (priorityFilter !== 'all' && idea.priority !== priorityFilter) return false;
+        if (searchQuery.trim()) {
+          const q = searchQuery.toLowerCase();
+          const matchTitle = idea.title.toLowerCase().includes(q);
+          const matchNotes = idea.notes?.toLowerCase().includes(q);
+          if (!matchTitle && !matchNotes) return false;
+        }
+        return true;
+      })
+      .sort((a, b) => new Date(b.createdAt || '0').getTime() - new Date(a.createdAt || '0').getTime());
+  }, [activeTab, activeIdeas, archivedIdeas, areaFilter, priorityFilter, searchQuery]);
 
- <details className="group">
- <summary className="text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer transition-colors flex items-center gap-1 select-none">
- <Icon name="chevronDown" size={14} className="group-open:rotate-180 transition-transform" />
- Detail Tambahan (Opsional)
- </summary>
- <div className="mt-3 pt-3 border-t border-border space-y-4 animate-in fade-in slide-in-from-top-2">
- <div className="grid grid-cols-2 gap-4">
- <div className="flex flex-col space-y-1">
- <label htmlFor="area" className="text-xs font-bold text-muted-foreground uppercase">
- {t('area')}
- </label>
- <select
- id="area"
- value={area}
- onChange={(e) => setArea(e.target.value)}
- className="glass-select text-xs"
- >
- {LIFE_AREAS.map((a) => (
- <option key={a} value={a}>{a}</option>
- ))}
- </select>
- </div>
+  // Fast Submit Idea
+  const handleQuickSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quickTitle.trim()) return;
 
- <div className="flex flex-col space-y-1">
- <label htmlFor="priority" className="text-xs font-bold text-muted-foreground uppercase">
- {t('priority')}
- </label>
- <select
- id="priority"
- value={priority}
- onChange={(e) => setPriority(e.target.value as Priority)}
- className="glass-select text-xs"
- >
- {PRIORITY_OPTIONS.map((opt) => (
- <option key={opt} value={opt}>
- {opt}
- </option>
- ))}
- </select>
- </div>
- </div>
+    await addIdea({
+      title: quickTitle.trim(),
+      area: quickArea,
+      priority: quickPriority,
+      notes: '',
+    });
 
- <div className="flex flex-col space-y-1">
- <label htmlFor="notes" className="text-xs font-bold text-muted-foreground uppercase">
- {t('notes')}
- </label>
- <textarea
- id="notes"
- placeholder={t('capture_notes_placeholder')}
- value={notes}
- onChange={(e) => setNotes(e.target.value)}
- className="glass-input text-xs h-20"
- />
- </div>
- </div>
- </details>
- </form>
- </Surface>
+    setQuickTitle('');
+  };
 
- {/* Right: Active Ideas List */}
- <Surface className="p-6 flex flex-col">
- <div className="border-b border-border pb-3 mb-4">
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
- {t('capture_idea_list')}
- </h3>
- <p className="text-xs text-muted-foreground mt-0.5">
- {t('capture_idea_desc')}
- </p>
- </div>
+  // Detailed Modal Submit
+  const handleModalSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!modalTitle.trim()) return;
 
- <div className="space-y-3 flex-1 overflow-y-auto max-h-[400px] pr-1">
- {activeIdeas.length > 0 ? (
- activeIdeas.map((idea) => (
- <article 
- key={idea.id} 
- className="p-3.5 rounded-lg bg-muted/20 border border-border hover:border-border-strong hover:bg-muted/50/[0.02] transition-all duration-150"
- >
- <div className="flex items-start justify-between gap-4">
- <div className="min-w-0 space-y-1 flex-1">
- <strong className="text-sm text-foreground block tracking-tight leading-tight">{idea.title}</strong>
- <p className="text-xs text-muted-foreground">
- {idea.notes || t('capture_no_notes')}
- </p>
- <div className="flex flex-wrap gap-2 pt-1">
- <Badge tone="teal">{idea.area || 'Inbox'}</Badge>
- <Badge tone={idea.priority === 'High' ? 'rose' : idea.priority === 'Medium' ? 'amber' : 'gray'}>
- {idea.priority}
- </Badge>
- <span className="text-[10px] text-muted-foreground font-bold self-center">
- {formatDate(idea.createdAt?.slice(0, 10))}
- </span>
- </div>
- </div>
+    await addIdea({
+      title: modalTitle.trim(),
+      area: modalArea,
+      priority: modalPriority,
+      notes: modalNotes.trim(),
+    });
 
- <div className="flex items-center space-x-1.5 shrink-0">
- <button
- onClick={() => archiveIdea(idea.id)}
- className="w-8 h-8 rounded-lg bg-muted/30 border border-border hover:bg-primary/20 hover:border-primary/25 hover:text-primary text-muted-foreground flex items-center justify-center transition-all"
- title={t('capture_archive')}
- >
- <Icon name="check" size={14} />
- </button>
- <button
- onClick={() => deleteIdea(idea.id)}
- className="w-8 h-8 rounded-lg bg-muted/30 border border-border hover:bg-destructive/10 hover:border-destructive/25 hover:text-destructive text-muted-foreground flex items-center justify-center transition-all"
- title={t('delete')}
- >
- <Icon name="trash" size={14} />
- </button>
- </div>
- </div>
+    setIsModalOpen(false);
+    setModalTitle('');
+    setModalNotes('');
+  };
 
- {/* ─── Convert-to-Action Pipeline ─── */}
- <div className="flex items-center gap-2 mt-3 pt-3 border-t border-white/5">
- <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mr-auto">Konversi →</span>
- <button
- onClick={() => convertIdeaToTask(idea.id)}
- className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/40 transition-all"
- >
- <Icon name="checkSquare" size={12} />
- Task
- </button>
- <button
- onClick={() => convertIdeaToProject(idea.id)}
- className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 hover:border-blue-500/40 transition-all"
- >
- <Icon name="folder" size={12} />
- Project
- </button>
- </div>
- </article>
- ))
- ) : (
- <EmptyState />
- )}
- </div>
- </Surface>
- </div>
+  return (
+    <div className="space-y-6 max-w-6xl mx-auto pb-24">
+      {/* Header & Page Title */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-blue-600 dark:from-indigo-300 dark:to-blue-500 flex items-center gap-2">
+              <Icon name="lightbulb" size={28} className="text-indigo-500" />
+              Quick Capture & Idea Inbox
+            </h1>
+            <Badge tone="indigo" className="font-mono text-xs">
+              {activeIdeas.length} Ide di Inbox
+            </Badge>
+          </div>
+          <p className="text-muted-foreground text-sm">
+            Tampung seluruh ide mentah, inspirasi mendadak, dan konversikan ke tugas atau proyek terstruktur.
+          </p>
+        </div>
 
- {/* Archive Section */}
- <Surface className="p-6">
- <div className="border-b border-border pb-3 mb-4">
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
- {t('capture_archive')}
- </h3>
- <p className="text-xs text-muted-foreground mt-0.5">
- {archivedIdeas.length} {t('capture_processed')}
- </p>
- </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="primary"
+            icon="plus"
+            onClick={() => setIsModalOpen(true)}
+            className="text-xs"
+          >
+            Ide Lengkap (Detail)
+          </Button>
+        </div>
+      </div>
 
- <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[300px] overflow-y-auto pr-1">
- {archivedIdeas.length > 0 ? (
- archivedIdeas.map((idea) => (
- <div 
- key={idea.id} 
- className="p-3 rounded-lg bg-muted/20 border border-border flex items-center justify-between gap-4"
- >
- <div className="min-w-0">
- <strong className="text-xs text-muted-foreground line-through block truncate">{idea.title}</strong>
- <p className="text-[10px] text-muted-foreground truncate mt-0.5">{idea.area || 'Inbox'}</p>
- </div>
- <div className="flex space-x-1.5 shrink-0">
- <button
- onClick={() => archiveIdea(idea.id)}
- className="w-7 h-7 rounded-md bg-muted/30 border border-border hover:bg-primary/20 text-muted-foreground flex items-center justify-center transition-all"
- title="Aktifkan kembali"
- >
- <Icon name="edit" size={12} />
- </button>
- <button
- onClick={() => deleteIdea(idea.id)}
- className="w-7 h-7 rounded-md bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground flex items-center justify-center transition-all"
- title={t('delete')}
- >
- <Icon name="trash" size={12} />
- </button>
- </div>
- </div>
- ))
- ) : (
- <div className="col-span-full">
- <EmptyState />
- </div>
- )}
- </div>
- </Surface>
- </div>
- );
+      {/* Top Strategic Metric Strip */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <MetricCard
+          icon="lightbulb"
+          label="Ide Aktif di Inbox"
+          value={activeIdeas.length}
+          detail="Siap diproses atau dieksekusi"
+          glow={activeIdeas.length > 0}
+        />
+        <MetricCard
+          icon="checkSquare"
+          label="Konversi ke Task"
+          value={state.tasks.filter((t) => t.description?.includes('Diintegrasikan dari Life OS Tasks') || t.status === 'todo').length}
+          detail="Tugas terencana di backlog"
+        />
+        <MetricCard
+          icon="folder"
+          label="Total Proyek Aktif"
+          value={state.projects.filter((p) => p.status === 'active').length}
+          detail="Inisiatif besar berjalan"
+        />
+        <MetricCard
+          icon="checkCircle"
+          label="Ide Terarsipkan"
+          value={archivedIdeas.length}
+          detail="Tuntas & telah diproses"
+        />
+      </div>
+
+      {/* Inline Fast Capture Bar */}
+      <Surface className="p-4">
+        <form onSubmit={handleQuickSubmit} className="flex flex-col sm:flex-row items-center gap-2">
+          <div className="relative flex-1 w-full">
+            <Icon
+              name="lightbulb"
+              size={15}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500"
+            />
+            <input
+              type="text"
+              required
+              placeholder="Tulis ide atau pemikiran mentah Anda lalu tekan Enter..."
+              value={quickTitle}
+              onChange={(e) => setQuickTitle(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-indigo-500 text-foreground"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <select
+              value={quickArea}
+              onChange={(e) => setQuickArea(e.target.value)}
+              className="px-2.5 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+            >
+              {LIFE_AREAS.map((a) => (
+                <option key={a} value={a}>
+                  {a}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={quickPriority}
+              onChange={(e: any) => setQuickPriority(e.target.value)}
+              className="px-2.5 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+            >
+              {PRIORITY_OPTIONS.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+
+            <Button type="submit" variant="primary" icon="plus" className="text-xs shrink-0 py-2">
+              Tangkap Ide
+            </Button>
+          </div>
+        </form>
+      </Surface>
+
+      {/* Modern Segmented Navigation Tabs */}
+      <div className="flex items-center justify-between border-b border-border pb-2 overflow-x-auto gap-4">
+        <div className="flex p-1 bg-muted/30 rounded-xl border border-border shrink-0">
+          <button
+            onClick={() => setActiveTab('inbox')}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all',
+              activeTab === 'inbox'
+                ? 'bg-background text-foreground shadow-xs border border-border/80'
+                : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <Icon name="lightbulb" size={14} className={activeTab === 'inbox' ? 'text-indigo-500' : ''} />
+            Kotak Masuk Ide (Inbox)
+            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[10px]">
+              {activeIdeas.length}
+            </span>
+          </button>
+          <button
+            onClick={() => setActiveTab('archived')}
+            className={cn(
+              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all',
+              activeTab === 'archived'
+                ? 'bg-background text-foreground shadow-xs border border-border/80'
+                : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <Icon name="checkCircle" size={14} className={activeTab === 'archived' ? 'text-indigo-500' : ''} />
+            Ide Terarsipkan
+            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[10px]">
+              {archivedIdeas.length}
+            </span>
+          </button>
+        </div>
+
+        {/* Search & Area Filter Bar */}
+        <div className="flex items-center gap-2">
+          <div className="relative w-48 sm:w-60">
+            <Icon
+              name="search"
+              size={13}
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+            />
+            <input
+              type="text"
+              placeholder="Cari ide..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-8 pr-2.5 py-1 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+            />
+          </div>
+
+          <select
+            value={areaFilter}
+            onChange={(e) => setAreaFilter(e.target.value)}
+            className="px-2 py-1 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden max-w-[120px] truncate"
+          >
+            <option value="all">Semua Area</option>
+            {LIFE_AREAS.map((a) => (
+              <option key={a} value={a}>
+                {a}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Ideas Feed Grid */}
+      {displayedIdeas.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in duration-200">
+          {displayedIdeas.map((idea) => {
+            const isHigh = idea.priority === 'High';
+            return (
+              <Surface
+                key={idea.id}
+                className="p-5 flex flex-col justify-between hover:border-indigo-500/40 transition-all space-y-3 group"
+              >
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <strong className="text-sm font-bold text-foreground leading-snug">
+                      {idea.title}
+                    </strong>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <Badge
+                        tone={isHigh ? 'rose' : idea.priority === 'Medium' ? 'amber' : 'gray'}
+                        className="text-[10px]"
+                      >
+                        {idea.priority}
+                      </Badge>
+                      <button
+                        onClick={() => archiveIdea(idea.id)}
+                        className="p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                        title={activeTab === 'inbox' ? 'Arsipkan Ide' : 'Aktifkan Kembali'}
+                      >
+                        <Icon name="check" size={13} />
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (confirm(`Hapus ide "${idea.title}"?`)) {
+                            await deleteIdea(idea.id);
+                          }
+                        }}
+                        className="p-1 rounded-md hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                        title="Hapus"
+                      >
+                        <Icon name="trash" size={13} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {idea.notes && (
+                    <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                      {idea.notes}
+                    </p>
+                  )}
+
+                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                    <Badge tone="indigo" className="text-[10px] py-0">
+                      {idea.area || 'General'}
+                    </Badge>
+                    <span>•</span>
+                    <span>{idea.createdAt ? formatDate(idea.createdAt.slice(0, 10)) : 'Baru saja'}</span>
+                  </div>
+                </div>
+
+                {/* Pipeline Conversion Actions */}
+                <div className="pt-3 border-t border-border flex items-center justify-between text-xs">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                    Konversi ke:
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => convertIdeaToTask(idea.id)}
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-[10px] transition-colors border border-emerald-500/20"
+                    >
+                      <Icon name="checkSquare" size={12} />
+                      Tugas (Task)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => convertIdeaToProject(idea.id)}
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 font-bold text-[10px] transition-colors border border-blue-500/20"
+                    >
+                      <Icon name="folder" size={12} />
+                      Proyek (Project)
+                    </button>
+                  </div>
+                </div>
+              </Surface>
+            );
+          })}
+        </div>
+      ) : (
+        <Surface className="p-8">
+          <EmptyState
+            message={
+              searchQuery || areaFilter !== 'all'
+                ? 'Tidak ada ide yang cocok dengan filter.'
+                : activeTab === 'inbox'
+                ? 'Kotak masuk ide bersih! Semua ide telah diproses atau dieksekusi.'
+                : 'Belum ada ide yang diarsipkan.'
+            }
+          />
+        </Surface>
+      )}
+
+      {/* DIALOG: MODAL TAMBAH IDE LENGKAP */}
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="max-w-md">
+          <form onSubmit={handleModalSubmit}>
+            <DialogHeader>
+              <DialogTitle className="text-lg font-bold flex items-center gap-2">
+                <Icon name="lightbulb" size={18} className="text-indigo-500" />
+                Tambah Ide Lengkap
+              </DialogTitle>
+              <DialogDescription>
+                Tuliskan konsep atau rencana baru untuk diproses ke sistem.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-3 py-3 text-xs">
+              <div>
+                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  Judul Ide *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Contoh: Bikin fitur offline sync dengan IndexedDB"
+                  value={modalTitle}
+                  onChange={(e) => setModalTitle(e.target.value)}
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-indigo-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                    Area Kehidupan
+                  </label>
+                  <select
+                    value={modalArea}
+                    onChange={(e) => setModalArea(e.target.value)}
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+                  >
+                    {LIFE_AREAS.map((a) => (
+                      <option key={a} value={a}>
+                        {a}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                    Prioritas
+                  </label>
+                  <select
+                    value={modalPriority}
+                    onChange={(e: any) => setModalPriority(e.target.value)}
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+                  >
+                    {PRIORITY_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  Catatan / Konteks Tambahan
+                </label>
+                <textarea
+                  rows={4}
+                  placeholder="Tuliskan latar belakang ide, potensi manfaat, atau langkah berikutnya..."
+                  value={modalNotes}
+                  onChange={(e) => setModalNotes(e.target.value)}
+                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed focus:outline-hidden resize-none"
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+                Batal
+              </Button>
+              <Button type="submit" variant="primary">
+                Simpan Ide
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
 }
