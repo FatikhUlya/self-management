@@ -59,29 +59,39 @@ export function Topbar() {
   };
 
   return (
-    <header className="flex items-center justify-between gap-3 py-2.5 px-5 md:px-8 sticky top-0 z-30 select-none bg-background/80 backdrop-blur-md border-b border-border">
-      {/* Breadcrumb / Section Header */}
-      <div className="flex items-center gap-2 min-w-0">
-        <span className="w-6 h-6 rounded-md bg-muted/80 flex items-center justify-center text-foreground shrink-0">
-          <Icon name={activeNavItem.icon} size={13} />
-        </span>
-        <div className="flex items-center gap-1.5 min-w-0">
-          <span className="text-xs font-semibold text-foreground tracking-[-0.015em] truncate">
+    <header className="flex items-center justify-between gap-3 px-4 py-2.5 sm:px-6 lg:px-8 sticky top-0 z-30 select-none bg-background/85 backdrop-blur-md border-b border-border">
+      {/* ── Brand & Page Identifier ── */}
+      <div className="flex items-center gap-2.5 min-w-0">
+        <div className="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+          <Icon name={activeNavItem.icon} size={16} />
+        </div>
+        <div className="flex flex-col min-w-0">
+          <span className="text-sm font-semibold text-foreground tracking-[-0.015em] truncate">
             {t(activeNavItem.labelKey)}
           </span>
-          <span className="text-muted-foreground/30 text-xs hidden sm:inline">•</span>
-          <span className="text-xs text-muted-foreground hidden sm:inline font-mono tabular-nums">
+          <span className="text-[11px] text-zinc-500 font-mono tabular-nums truncate">
             {formatDate(state.selectedDate, { locale: locale === 'id' ? 'id-ID' : 'en-US' })}
           </span>
         </div>
       </div>
 
-      {/* Utility Controls */}
-      <div className="flex items-center gap-1.5 shrink-0">
+      {/* ── Mobile Right Actions (Thumb-friendly 44x44px target) ── */}
+      <div className="flex md:hidden items-center gap-2 shrink-0">
+        <button
+          onClick={toggleTheme}
+          aria-label={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
+          className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-xl border border-border bg-card text-muted-foreground hover:text-foreground active:scale-95 transition-all"
+        >
+          <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={17} />
+        </button>
+      </div>
+
+      {/* ── Desktop Full Utility Controls ── */}
+      <div className="hidden md:flex items-center gap-2 shrink-0">
         {/* Connection Status Badge */}
         <div
           className={cn(
-            "flex items-center space-x-1.5 px-2 py-1 rounded-md text-[11px] font-medium border transition-colors",
+            "flex items-center space-x-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-colors",
             isDbConnected
               ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20"
               : "bg-muted/60 text-muted-foreground border-border"
@@ -90,16 +100,16 @@ export function Topbar() {
         >
           <span
             className={cn(
-              "w-1.5 h-1.5 rounded-full",
+              "w-2 h-2 rounded-full",
               isDbConnected ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground"
             )}
           />
-          <span className="hidden sm:inline font-mono">{isDbConnected ? 'Sync' : 'Local'}</span>
+          <span className="font-mono text-[11px]">{isDbConnected ? 'Sync Active' : 'Local Storage'}</span>
         </div>
 
         {/* Date Selector */}
-        <label className="flex items-center space-x-1.5 px-2 py-1 rounded-md border border-border bg-card text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer shadow-2xs">
-          <Icon name="calendar" size={12} className="text-muted-foreground" />
+        <label className="flex items-center space-x-2 px-2.5 py-1.5 rounded-lg border border-border bg-card text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer shadow-2xs">
+          <Icon name="calendar" size={14} className="text-muted-foreground" />
           <input
             type="date"
             value={state.selectedDate}
@@ -111,20 +121,20 @@ export function Topbar() {
         {/* Theme Switcher */}
         <button
           onClick={toggleTheme}
-          className="flex items-center justify-center p-1.5 rounded-md border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-2xs"
+          className="flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-2xs"
           title={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
         >
-          <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={13} />
+          <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={15} />
         </button>
 
         {/* Language Switcher */}
         <button
           onClick={toggleLanguage}
-          className="flex items-center justify-center gap-1 px-2 py-1 rounded-md border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted text-[11px] font-medium transition-colors font-mono shadow-2xs"
+          className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted text-xs font-medium transition-colors font-mono shadow-2xs"
           title={t('settings_language')}
         >
-          <Icon name="globe" size={12} />
-          <span className="uppercase">{locale}</span>
+          <Icon name="globe" size={13} />
+          <span className="uppercase text-[11px]">{locale}</span>
         </button>
       </div>
     </header>

@@ -206,6 +206,23 @@
   select option {
     @apply bg-card text-foreground;
   }
+
+  /* ── Mobile Ergonomics: Touch targets & Prevent iOS auto-zoom ── */
+  @media (max-width: 767px) {
+    input:not([type="checkbox"]):not([type="radio"]),
+    select,
+    textarea,
+    .glass-input,
+    .glass-select {
+      font-size: 16px !important; /* Prevents iOS auto-zoom */
+      min-height: 44px;
+    }
+  }
+
+  /* ── Safe Area for modern mobile browsers ── */
+  .pb-safe {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
 }
 
 /* ============================================================

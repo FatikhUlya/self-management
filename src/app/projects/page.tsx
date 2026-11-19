@@ -277,11 +277,11 @@ export default function ProjectsDashboardPage() {
       <StaggerItem>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-muted/40 p-1.5 rounded-xl border border-border/80">
           {/* Main Tabs */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar w-full sm:w-auto px-0.5">
             <button
               onClick={() => setActiveTab('tasks')}
               className={cn(
-                "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all",
+                "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-all min-h-[44px] touch-manipulation shrink-0",
                 activeTab === 'tasks'
                   ? "bg-card text-foreground font-semibold shadow-2xs border border-border/60"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -293,7 +293,7 @@ export default function ProjectsDashboardPage() {
             <button
               onClick={() => setActiveTab('projects')}
               className={cn(
-                "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all",
+                "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-all min-h-[44px] touch-manipulation shrink-0",
                 activeTab === 'projects'
                   ? "bg-card text-foreground font-semibold shadow-2xs border border-border/60"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -311,7 +311,7 @@ export default function ProjectsDashboardPage() {
                 <button
                   onClick={() => setTaskViewMode('kanban')}
                   className={cn(
-                    "px-2.5 py-1 rounded text-[11px] font-medium transition-all flex items-center gap-1.5",
+                    "px-3 py-1.5 rounded text-[11px] font-medium transition-all flex items-center gap-1.5 min-h-[40px] touch-manipulation",
                     taskViewMode === 'kanban'
                       ? "bg-primary/10 text-primary font-semibold"
                       : "text-muted-foreground hover:text-foreground"
@@ -324,7 +324,7 @@ export default function ProjectsDashboardPage() {
                 <button
                   onClick={() => setTaskViewMode('list')}
                   className={cn(
-                    "px-2.5 py-1 rounded text-[11px] font-medium transition-all flex items-center gap-1.5",
+                    "px-3 py-1.5 rounded text-[11px] font-medium transition-all flex items-center gap-1.5 min-h-[40px] touch-manipulation",
                     taskViewMode === 'list'
                       ? "bg-primary/10 text-primary font-semibold"
                       : "text-muted-foreground hover:text-foreground"

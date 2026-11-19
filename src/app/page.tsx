@@ -292,11 +292,11 @@ export default function Dashboard() {
                 </div>
 
                 {/* Filter Pills */}
-                <div className="flex items-center gap-1 bg-muted/50 p-0.5 rounded-lg border border-border/60">
+                <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-lg border border-border/60 overflow-x-auto no-scrollbar">
                   <button
                     onClick={() => setTaskFilter('all')}
                     className={cn(
-                      "px-2.5 py-1 text-[11px] font-medium rounded-md transition-all",
+                      "px-3 py-1.5 text-xs font-medium rounded-md transition-all min-h-[40px] touch-manipulation shrink-0",
                       taskFilter === 'all'
                         ? "bg-card text-foreground font-semibold shadow-2xs"
                         : "text-muted-foreground hover:text-foreground"
@@ -307,7 +307,7 @@ export default function Dashboard() {
                   <button
                     onClick={() => setTaskFilter('high')}
                     className={cn(
-                      "px-2.5 py-1 text-[11px] font-medium rounded-md transition-all",
+                      "px-3 py-1.5 text-xs font-medium rounded-md transition-all min-h-[40px] touch-manipulation shrink-0",
                       taskFilter === 'high'
                         ? "bg-card text-foreground font-semibold shadow-2xs"
                         : "text-muted-foreground hover:text-foreground"
@@ -318,7 +318,7 @@ export default function Dashboard() {
                   <button
                     onClick={() => setTaskFilter('done')}
                     className={cn(
-                      "px-2.5 py-1 text-[11px] font-medium rounded-md transition-all",
+                      "px-3 py-1.5 text-xs font-medium rounded-md transition-all min-h-[40px] touch-manipulation shrink-0",
                       taskFilter === 'done'
                         ? "bg-card text-foreground font-semibold shadow-2xs"
                         : "text-muted-foreground hover:text-foreground"

@@ -11,128 +11,180 @@ import { cn } from '@/lib/utils';
 import { slideUp } from '@/lib/animations';
 
 export function MobileNav() {
- const pathname = usePathname();
- const { t } = useI18n();
- const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
+  const { t, locale } = useI18n();
+  const [isOpen, setIsOpen] = useState(false);
 
- const mainBarItems = [
- NAV_ITEMS.find(item => item.id === 'dashboard'),
- NAV_ITEMS.find(item => item.id === 'planning'),
- NAV_ITEMS.find(item => item.id === 'health'),
- NAV_ITEMS.find(item => item.id === 'journal'),
- ].filter(Boolean) as typeof NAV_ITEMS[number][];
+  const mainBarItems = [
+    NAV_ITEMS.find((item) => item.id === 'dashboard'),
+    NAV_ITEMS.find((item) => item.id === 'projects'),
+    NAV_ITEMS.find((item) => item.id === 'planning'),
+    NAV_ITEMS.find((item) => item.id === 'finance'),
+  ].filter(Boolean) as (typeof NAV_ITEMS)[number][];
 
- return (
- <>
- <nav 
- className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex justify-around items-center px-1 bg-card/90 backdrop-blur-md border-t border-border h-14"
- aria-label="Navigasi bawah mobile"
- >
- {mainBarItems.map((item) => {
- const isActive = pathname === item.path;
- return (
- <Link
- key={item.id}
- href={item.path}
- className={cn(
- "flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-medium transition-colors",
- isActive ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground"
- )}
- >
- <Icon 
- name={item.icon} 
- size={18} 
- className={isActive ? "text-primary" : "text-muted-foreground"}
- />
- <span className="mt-1 tracking-tight text-[9px]">{t(item.labelKey)}</span>
- </Link>
- );
- })}
+  const sectionLabels: Record<string, { id: string; en: string }> = {
+    core: { id: 'Utama', en: 'Core' },
+    productivity: { id: 'Produktivitas', en: 'Productivity' },
+    wellness: { id: 'Kesehatan & Diri', en: 'Wellness' },
+    growth: { id: 'Karier & Finansial', en: 'Growth' },
+    system: { id: 'Pengaturan', en: 'System' },
+  };
 
- {/* More Menu Button */}
- <button
- type="button"
- onClick={() => setIsOpen(!isOpen)}
- className={cn(
- "flex flex-col items-center justify-center flex-1 py-1 text-[10px] font-medium transition-colors",
- isOpen ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground"
- )}
- >
- <Icon 
- name={isOpen ? 'x' : 'menu'} 
- size={18} 
- className={isOpen ? "text-primary" : "text-muted-foreground"}
- />
- <span className="mt-1 tracking-tight text-[9px]">{isOpen ? 'Tutup' : 'Lainnya'}</span>
- </button>
- </nav>
+  const sections = ['core', 'productivity', 'wellness', 'growth', 'system'] as const;
 
- <AnimatePresence>
- {isOpen && (
- <>
- {/* Backdrop */}
- <motion.div
- key="mobile-backdrop"
- initial={{ opacity: 0 }}
- animate={{ opacity: 1 }}
- exit={{ opacity: 0 }}
- transition={{ duration: 0.2 }}
- className="md:hidden fixed inset-0 z-30 bg-black/60 backdrop-blur-xs"
- onClick={() => setIsOpen(false)}
- />
+  return (
+    <>
+      {/* ═══════════════ Thumb Zone Bottom Navigation ═══════════════ */}
+      <nav
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 flex justify-around items-center px-2 bg-card/95 backdrop-blur-md border-t border-border h-16 pb-safe shadow-lg select-none"
+        aria-label="Navigasi bawah mobile"
+      >
+        {mainBarItems.map((item) => {
+          const isActive = pathname === item.path || (item.path !== '/' && pathname.startsWith(item.path));
+          return (
+            <Link
+              key={item.id}
+              href={item.path}
+              className={cn(
+                'flex flex-col items-center justify-center flex-1 h-full min-h-[44px] min-w-[44px] py-1 text-xs font-medium transition-colors touch-manipulation',
+                isActive
+                  ? 'text-primary font-semibold'
+                  : 'text-zinc-500 hover:text-foreground active:text-primary'
+              )}
+            >
+              <div
+                className={cn(
+                  'w-8 h-8 rounded-lg flex items-center justify-center transition-colors',
+                  isActive ? 'bg-primary/10 text-primary' : 'text-zinc-500'
+                )}
+              >
+                <Icon name={item.icon} size={18} />
+              </div>
+              <span className="text-[10px] tracking-tight mt-0.5 truncate max-w-[64px]">
+                {t(item.labelKey)}
+              </span>
+            </Link>
+          );
+        })}
 
- {/* Bottom Sheet Panel */}
- <motion.div
- key="mobile-sheet"
- variants={slideUp}
- initial="hidden"
- animate="visible"
- exit="exit"
- className="md:hidden fixed bottom-0 left-0 right-0 z-30 rounded-t-2xl px-6 pb-20 pt-4 max-h-[75vh] overflow-y-auto bg-card border-t border-border shadow-xl"
- >
- {/* Grab Handle */}
- <div className="w-10 h-1 rounded-full mx-auto mb-4 bg-muted-foreground/30" />
+        {/* More Menu Drawer Trigger */}
+        <button
+          type="button"
+          onClick={() => setIsOpen(!isOpen)}
+          aria-label={isOpen ? 'Tutup Menu' : 'Semua Menu'}
+          className={cn(
+            'flex flex-col items-center justify-center flex-1 h-full min-h-[44px] min-w-[44px] py-1 text-xs font-medium transition-colors touch-manipulation',
+            isOpen
+              ? 'text-primary font-semibold'
+              : 'text-zinc-500 hover:text-foreground active:text-primary'
+          )}
+        >
+          <div
+            className={cn(
+              'w-8 h-8 rounded-lg flex items-center justify-center transition-colors',
+              isOpen ? 'bg-primary/10 text-primary' : 'text-zinc-500'
+            )}
+          >
+            <Icon name={isOpen ? 'x' : 'menu'} size={18} />
+          </div>
+          <span className="text-[10px] tracking-tight mt-0.5">
+            {isOpen ? 'Tutup' : 'Lainnya'}
+          </span>
+        </button>
+      </nav>
 
- <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider text-center mb-5">
- Semua Fitur Life OS
- </h3>
+      {/* ═══════════════ Slide-Up Bottom Sheet / Drawer ═══════════════ */}
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              key="mobile-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="md:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-xs"
+              onClick={() => setIsOpen(false)}
+            />
 
- {/* Grid of all items */}
- <div className="grid grid-cols-3 gap-2.5 pb-6">
- {NAV_ITEMS.map((item, index) => {
- const isActive = pathname === item.path;
- return (
- <motion.div
- key={item.id}
- initial={{ opacity: 0, y: 8 }}
- animate={{ opacity: 1, y: 0 }}
- transition={{ delay: index * 0.03, duration: 0.2 }}
- >
- <Link
- href={item.path}
- onClick={() => setIsOpen(false)}
- className={cn(
- "flex flex-col items-center p-3 rounded-lg border text-center transition-all active:scale-95",
- isActive
- ? "bg-primary/10 text-primary border-primary/20 font-semibold"
- : "bg-muted/40 border-border text-muted-foreground hover:text-foreground hover:bg-muted"
- )}
- >
- <Icon 
- name={item.icon} 
- size={18} 
- className={isActive ? "text-primary" : "text-muted-foreground"}
- />
- <span className="mt-1.5 text-[10px] font-medium leading-tight">{t(item.labelKey)}</span>
- </Link>
- </motion.div>
- );
- })}
- </div>
- </motion.div>
- </>
- )}
- </AnimatePresence>
- </>
- );
+            {/* Bottom Sheet Panel */}
+            <motion.div
+              key="mobile-sheet"
+              variants={slideUp}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="md:hidden fixed bottom-0 left-0 right-0 z-50 rounded-t-3xl px-5 pb-24 pt-3.5 max-h-[85vh] overflow-y-auto bg-card border-t border-border shadow-2xl space-y-5"
+            >
+              {/* Grab Handle */}
+              <div className="w-12 h-1.5 rounded-full mx-auto bg-zinc-300 dark:bg-zinc-700 shrink-0" />
+
+              <div className="text-center">
+                <h3 className="text-sm font-semibold tracking-[-0.015em] text-foreground">
+                  Semua Fitur Life OS
+                </h3>
+                <p className="text-xs text-zinc-500 mt-0.5">
+                  Navigasi cepat ke seluruh modul operasional
+                </p>
+              </div>
+
+              {/* Grouped Modules */}
+              <div className="space-y-4">
+                {sections.map((sectionKey) => {
+                  const items = (NAV_ITEMS as readonly any[]).filter(
+                    (item) => (item.section || 'core') === sectionKey
+                  );
+                  if (items.length === 0) return null;
+
+                  const label = sectionLabels[sectionKey]?.[locale === 'id' ? 'id' : 'en'] || sectionKey;
+
+                  return (
+                    <div key={sectionKey} className="space-y-2">
+                      <span className="text-[11px] font-medium tracking-[0.02em] uppercase text-zinc-500 block px-1">
+                        {label}
+                      </span>
+                      <div className="grid grid-cols-2 gap-2">
+                        {items.map((item) => {
+                          const isActive =
+                            pathname === item.path ||
+                            (item.path !== '/' && pathname.startsWith(item.path));
+
+                          return (
+                            <Link
+                              key={item.id}
+                              href={item.path}
+                              onClick={() => setIsOpen(false)}
+                              className={cn(
+                                'flex items-center gap-3 p-3 rounded-xl border transition-all min-h-[48px] touch-manipulation active:scale-[0.98]',
+                                isActive
+                                  ? 'bg-primary/10 border-primary/25 text-primary font-semibold shadow-xs'
+                                  : 'bg-muted/30 border-border text-foreground hover:bg-muted/60'
+                              )}
+                            >
+                              <div
+                                className={cn(
+                                  'w-8 h-8 rounded-lg flex items-center justify-center shrink-0',
+                                  isActive ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                                )}
+                              >
+                                <Icon name={item.icon} size={16} />
+                              </div>
+                              <span className="text-xs font-medium truncate">
+                                {t(item.labelKey)}
+                              </span>
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
+  );
 }

@@ -19,22 +19,22 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { StaggerGroup, StaggerItem } from '@/lib/animations';
-import { 
-  formatDate, 
-  addDays, 
-  todayISO, 
-  timeToMinutes, 
+import {
+  formatDate,
+  addDays,
+  todayISO,
+  timeToMinutes,
   minutesToTime,
   formatDuration,
   percent,
-  cn 
+  cn
 } from '@/lib/utils';
 import { PRIORITY_OPTIONS, Priority } from '@/lib/constants';
-import { 
-  initGoogleCalendar, 
-  signInGoogle, 
+import {
+  initGoogleCalendar,
+  signInGoogle,
   restoreGoogleToken,
-  fetchCalendarEvents, 
+  fetchCalendarEvents,
   deleteCalendarEvent,
   isGoogleCalendarConfigured,
   GoogleCalendarEvent
@@ -187,10 +187,10 @@ export default function PlanningHubPage() {
       if (token) {
         setIsGCalConnected(true);
         const events = await fetchCalendarEvents(selectedDate, selectedDate);
-        
+
         for (const gevent of events) {
           if (gevent.summary?.startsWith('[Tugas]')) continue;
-          
+
           const startIso = gevent.start?.dateTime || gevent.start?.date || '';
           const endIso = gevent.end?.dateTime || gevent.end?.date || '';
           const startT = startIso.includes('T') ? startIso.slice(11, 16) : '08:00';
@@ -243,7 +243,7 @@ export default function PlanningHubPage() {
               <button
                 onClick={() => setSelectedDate(today)}
                 className={cn(
-                  "px-2.5 py-1 text-xs font-medium rounded-md transition-all",
+                  "px-3 py-2 text-xs font-medium rounded-md transition-all min-h-[44px] touch-manipulation flex items-center",
                   selectedDate === today
                     ? "bg-card text-foreground font-semibold shadow-2xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -254,7 +254,7 @@ export default function PlanningHubPage() {
               <button
                 onClick={() => setSelectedDate(addDays(today, 1))}
                 className={cn(
-                  "px-2.5 py-1 text-xs font-medium rounded-md transition-all",
+                  "px-3 py-2 text-xs font-medium rounded-md transition-all min-h-[44px] touch-manipulation flex items-center",
                   selectedDate === addDays(today, 1)
                     ? "bg-card text-foreground font-semibold shadow-2xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -262,13 +262,13 @@ export default function PlanningHubPage() {
               >
                 Besok
               </button>
-              <label className="flex items-center px-2 py-1 text-xs text-muted-foreground hover:text-foreground cursor-pointer">
-                <Icon name="calendar" size={12} className="mr-1" />
+              <label className="flex items-center px-2.5 py-2 text-xs text-muted-foreground hover:text-foreground cursor-pointer min-h-[44px] touch-manipulation">
+                <Icon name="calendar" size={13} className="mr-1" />
                 <input
                   type="date"
                   value={selectedDate}
                   onChange={(e) => e.target.value && setSelectedDate(e.target.value)}
-                  className="bg-transparent border-none p-0 text-xs font-mono outline-none cursor-pointer text-foreground"
+                  className="bg-transparent border-0 p-0 text-xs font-mono tabular-nums outline-none cursor-pointer text-foreground"
                 />
               </label>
             </div>
@@ -336,10 +336,10 @@ export default function PlanningHubPage() {
 
         {/* ──────── Left Column: Chronological Timeline (7 cols) ──────── */}
         <div className="lg:col-span-7 space-y-4">
-          
+
           {/* Timeline Surface */}
           <Surface className="p-5 md:p-6 space-y-4">
-            
+
             {/* Header & Filter Tabs */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/80 pb-3">
               <div>
@@ -472,7 +472,7 @@ export default function PlanningHubPage() {
                               </span>
                             )}
                           </div>
-                          
+
                           <strong className={cn(
                             "block text-xs font-medium text-foreground mt-0.5 truncate",
                             isDone && "line-through text-muted-foreground"

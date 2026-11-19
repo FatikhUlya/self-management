@@ -268,13 +268,13 @@ export default function CareerAndWorkPage() {
         />
       </div>
 
-      {/* Modern Segmented Navigation Tabs */}
-      <div className="flex items-center justify-between border-b border-border pb-2 overflow-x-auto gap-4">
-        <div className="flex p-1 bg-muted/30 rounded-xl border border-border shrink-0">
+      {/* Modern Segmented Navigation Tabs (Swipe-friendly) */}
+      <div className="flex items-center justify-between border-b border-border pb-2 overflow-x-auto no-scrollbar gap-4 px-1">
+        <div className="flex p-1 bg-muted/30 rounded-xl border border-border shrink-0 gap-1">
           <button
             onClick={() => setActiveTab('kanban')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all',
+              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all min-h-[44px] touch-manipulation',
               activeTab === 'kanban'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
@@ -286,19 +286,19 @@ export default function CareerAndWorkPage() {
           <button
             onClick={() => setActiveTab('list')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all',
+              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all min-h-[44px] touch-manipulation',
               activeTab === 'list'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
             )}
           >
             <Icon name="list" size={14} className={activeTab === 'list' ? 'text-sky-500' : ''} />
-            Daftar Tabel ({filteredApplications.length})
+            Daftar Lamaran ({filteredApplications.length})
           </button>
           <button
             onClick={() => setActiveTab('calendar')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all',
+              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all min-h-[44px] touch-manipulation',
               activeTab === 'calendar'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
@@ -553,96 +553,208 @@ export default function CareerAndWorkPage() {
             </div>
           </Surface>
 
-          {/* Table Surface */}
+          {/* Applications List (Mobile Stacked Card List & Desktop Table) */}
           {filteredApplications.length > 0 ? (
-            <Surface className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr className="border-b border-border bg-muted/20 text-muted-foreground uppercase text-[10px] font-bold tracking-wider">
-                    <th className="p-3">Perusahaan & Posisi</th>
-                    <th className="p-3">Status</th>
-                    <th className="p-3">Prioritas</th>
-                    <th className="p-3">Deadline</th>
-                    <th className="p-3">Sumber</th>
-                    <th className="p-3">Aksi Berikutnya</th>
-                    <th className="p-3 text-right">Aksi</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                  {filteredApplications.map((app) => {
-                    const stage = STAGE_CONFIG[app.status];
-                    return (
-                      <tr
-                        key={app.id}
-                        onClick={() => setViewingApp(app)}
-                        className="hover:bg-muted/10 cursor-pointer transition-colors"
-                      >
-                        <td className="p-3">
-                          <strong className="block text-foreground font-semibold">
+            <>
+              {/* Mobile Stacked Card List (Thumb-friendly) */}
+              <div className="block md:hidden space-y-3">
+                {filteredApplications.map((app) => {
+                  const stage = STAGE_CONFIG[app.status];
+                  return (
+                    <Surface
+                      key={app.id}
+                      onClick={() => setViewingApp(app)}
+                      className="p-4 space-y-3 cursor-pointer active:scale-[0.99] transition-all"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <strong className="block text-sm font-semibold text-foreground">
                             {app.company}
                           </strong>
-                          <span className="text-muted-foreground text-[11px]">
-                            {app.role}
-                          </span>
-                        </td>
-                        <td className="p-3">
+                          <span className="text-xs text-zinc-500">{app.role}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 shrink-0">
                           <Badge tone={stage.tone} className="text-[10px]">
                             {stage.label}
                           </Badge>
-                        </td>
-                        <td className="p-3">
                           <Badge
                             tone={app.priority === 'High' ? 'rose' : 'gray'}
                             className="text-[10px]"
                           >
                             {app.priority}
                           </Badge>
-                        </td>
-                        <td className="p-3 text-muted-foreground font-mono">
-                          {app.deadline ? formatDate(app.deadline) : '-'}
-                        </td>
-                        <td className="p-3 text-muted-foreground">
-                          {app.source || '-'}
-                        </td>
-                        <td className="p-3 text-foreground font-medium max-w-[200px] truncate">
-                          {app.nextAction || '-'}
-                        </td>
-                        <td className="p-3 text-right" onClick={(e) => e.stopPropagation()}>
-                          <div className="flex items-center justify-end gap-1">
-                            {app.link && (
-                              <a
-                                href={safeUrl(app.link)}
-                                target="_blank"
-                                rel="noreferrer"
+                        </div>
+                      </div>
+
+                      {/* Details row */}
+                      <div className="grid grid-cols-2 gap-2 text-xs py-2 border-y border-border">
+                        <div>
+                          <span className="text-[10px] uppercase font-medium text-zinc-500 block">Deadline</span>
+                          <span className="text-foreground font-mono tabular-nums">
+                            {app.deadline ? formatDate(app.deadline) : '-'}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-[10px] uppercase font-medium text-zinc-500 block">Sumber</span>
+                          <span className="text-foreground truncate block">{app.source || '-'}</span>
+                        </div>
+                      </div>
+
+                      {app.nextAction && (
+                        <div className="text-xs text-foreground bg-muted/30 p-2.5 rounded-lg border border-border">
+                          <span className="font-semibold text-primary block text-[10px] uppercase">Aksi Berikutnya:</span>
+                          <p className="mt-0.5 line-clamp-2">{app.nextAction}</p>
+                        </div>
+                      )}
+
+                      {/* Mobile Actions Toolbar (44x44px touch targets) */}
+                      <div
+                        className="flex items-center justify-between pt-1 gap-2"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={(e) => handleMoveStage(app, 'prev', e)}
+                            disabled={PIPELINE_ORDER.indexOf(app.status) === 0}
+                            title="Mundurkan Tahap"
+                            className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:pointer-events-none active:scale-95 transition-all"
+                          >
+                            <Icon name="chevronLeft" size={16} />
+                          </button>
+                          <button
+                            onClick={(e) => handleMoveStage(app, 'next', e)}
+                            disabled={PIPELINE_ORDER.indexOf(app.status) === PIPELINE_ORDER.length - 1}
+                            title="Majukan Tahap"
+                            className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:pointer-events-none active:scale-95 transition-all"
+                          >
+                            <Icon name="chevronRight" size={16} />
+                          </button>
+                        </div>
+
+                        <div className="flex items-center gap-1">
+                          {app.link && (
+                            <a
+                              href={safeUrl(app.link)}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground active:scale-95 transition-all"
+                            >
+                              <Icon name="globe" size={16} />
+                            </a>
+                          )}
+                          <button
+                            onClick={() => handleOpenEditModal(app)}
+                            className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground active:scale-95 transition-all"
+                          >
+                            <Icon name="edit" size={16} />
+                          </button>
+                          <button
+                            onClick={async () => {
+                              if (confirm(`Hapus lamaran di ${app.company}?`)) {
+                                await deleteWorkApplication(app.id);
+                              }
+                            }}
+                            className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border border-border bg-card text-rose-500 hover:bg-rose-500/10 active:scale-95 transition-all"
+                          >
+                            <Icon name="trash" size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </Surface>
+                  );
+                })}
+              </div>
+
+              {/* Desktop Table Surface */}
+              <Surface className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-border bg-muted/20 text-muted-foreground uppercase text-[10px] font-bold tracking-wider">
+                      <th className="p-3">Perusahaan & Posisi</th>
+                      <th className="p-3">Status</th>
+                      <th className="p-3">Prioritas</th>
+                      <th className="p-3">Deadline</th>
+                      <th className="p-3">Sumber</th>
+                      <th className="p-3">Aksi Berikutnya</th>
+                      <th className="p-3 text-right">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {filteredApplications.map((app) => {
+                      const stage = STAGE_CONFIG[app.status];
+                      return (
+                        <tr
+                          key={app.id}
+                          onClick={() => setViewingApp(app)}
+                          className="hover:bg-muted/10 cursor-pointer transition-colors"
+                        >
+                          <td className="p-3">
+                            <strong className="block text-foreground font-semibold">
+                              {app.company}
+                            </strong>
+                            <span className="text-muted-foreground text-[11px]">
+                              {app.role}
+                            </span>
+                          </td>
+                          <td className="p-3">
+                            <Badge tone={stage.tone} className="text-[10px]">
+                              {stage.label}
+                            </Badge>
+                          </td>
+                          <td className="p-3">
+                            <Badge
+                              tone={app.priority === 'High' ? 'rose' : 'gray'}
+                              className="text-[10px]"
+                            >
+                              {app.priority}
+                            </Badge>
+                          </td>
+                          <td className="p-3 text-muted-foreground font-mono">
+                            {app.deadline ? formatDate(app.deadline) : '-'}
+                          </td>
+                          <td className="p-3 text-muted-foreground">
+                            {app.source || '-'}
+                          </td>
+                          <td className="p-3 text-foreground font-medium max-w-[200px] truncate">
+                            {app.nextAction || '-'}
+                          </td>
+                          <td className="p-3 text-right" onClick={(e) => e.stopPropagation()}>
+                            <div className="flex items-center justify-end gap-1">
+                              {app.link && (
+                                <a
+                                  href={safeUrl(app.link)}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
+                                >
+                                  <Icon name="globe" size={13} />
+                                </a>
+                              )}
+                              <button
+                                onClick={() => handleOpenEditModal(app)}
                                 className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
                               >
-                                <Icon name="globe" size={13} />
-                              </a>
-                            )}
-                            <button
-                              onClick={() => handleOpenEditModal(app)}
-                              className="p-1 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
-                            >
-                              <Icon name="edit" size={13} />
-                            </button>
-                            <button
-                              onClick={async () => {
-                                if (confirm(`Hapus lamaran di ${app.company}?`)) {
-                                  await deleteWorkApplication(app.id);
-                                }
-                              }}
-                              className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
-                            >
-                              <Icon name="trash" size={13} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </Surface>
+                                <Icon name="edit" size={13} />
+                              </button>
+                              <button
+                                onClick={async () => {
+                                  if (confirm(`Hapus lamaran di ${app.company}?`)) {
+                                    await deleteWorkApplication(app.id);
+                                  }
+                                }}
+                                className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive"
+                              >
+                                <Icon name="trash" size={13} />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </Surface>
+            </>
           ) : (
             <Surface className="p-8">
               <EmptyState message="Tidak ada data lamaran kerja yang cocok dengan filter." />

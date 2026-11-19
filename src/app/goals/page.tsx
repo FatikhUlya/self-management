@@ -347,13 +347,13 @@ export default function GoalsDashboardPage() {
         />
       </div>
 
-      {/* Modern Segmented Navigation Tabs */}
-      <div className="flex items-center justify-between border-b border-border pb-2 overflow-x-auto gap-4">
-        <div className="flex p-1 bg-muted/30 rounded-xl border border-border shrink-0">
+      {/* Modern Segmented Navigation Tabs (Swipe-friendly) */}
+      <div className="flex items-center justify-between border-b border-border pb-2 overflow-x-auto no-scrollbar gap-4 px-1">
+        <div className="flex p-1 bg-muted/30 rounded-xl border border-border shrink-0 gap-1">
           <button
             onClick={() => setActiveTab('okrs')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all',
+              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all min-h-[44px] touch-manipulation',
               activeTab === 'okrs'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
@@ -368,7 +368,7 @@ export default function GoalsDashboardPage() {
           <button
             onClick={() => setActiveTab('compass')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all',
+              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all min-h-[44px] touch-manipulation',
               activeTab === 'compass'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
@@ -380,7 +380,7 @@ export default function GoalsDashboardPage() {
           <button
             onClick={() => setActiveTab('archive')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all',
+              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all min-h-[44px] touch-manipulation',
               activeTab === 'archive'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'

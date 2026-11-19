@@ -252,14 +252,14 @@ export default function HabitsDashboardPage() {
         </div>
       </StaggerItem>
 
-      {/* ═══════════════ Tab Switcher ═══════════════ */}
+      {/* ═══════════════ Tab Switcher (Swipe-friendly) ═══════════════ */}
       <StaggerItem>
-        <div className="flex items-center justify-between gap-3 bg-muted/40 p-1.5 rounded-xl border border-border/80">
-          <div className="flex items-center gap-1">
+        <div className="flex items-center justify-between gap-3 bg-muted/40 p-1.5 rounded-xl border border-border/80 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-1 shrink-0">
             <button
               onClick={() => setActiveTab('matrix')}
               className={cn(
-                "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all",
+                "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-all min-h-[44px] touch-manipulation",
                 activeTab === 'matrix'
                   ? "bg-card text-foreground font-semibold shadow-2xs border border-border/60"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -271,7 +271,7 @@ export default function HabitsDashboardPage() {
             <button
               onClick={() => setActiveTab('calendar')}
               className={cn(
-                "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all",
+                "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-all min-h-[44px] touch-manipulation",
                 activeTab === 'calendar'
                   ? "bg-card text-foreground font-semibold shadow-2xs border border-border/60"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -283,7 +283,7 @@ export default function HabitsDashboardPage() {
             <button
               onClick={() => setActiveTab('manage')}
               className={cn(
-                "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all",
+                "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-all min-h-[44px] touch-manipulation",
                 activeTab === 'manage'
                   ? "bg-card text-foreground font-semibold shadow-2xs border border-border/60"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/60"

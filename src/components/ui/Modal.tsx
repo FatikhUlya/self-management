@@ -33,16 +33,16 @@ export function Modal({
   if (!isOpen) return null;
 
   const sizeClasses = {
-    sm: 'max-w-md',
-    md: 'max-w-xl',
-    lg: 'max-w-3xl',
+    sm: 'sm:max-w-md',
+    md: 'sm:max-w-xl',
+    lg: 'sm:max-w-3xl',
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-[2px] transition-opacity duration-200"
+        className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-xs transition-opacity duration-200"
         onClick={onClose}
       />
 
@@ -50,14 +50,19 @@ export function Modal({
       <section
         className={cn(
           'relative w-full z-10 overflow-hidden transform transition-all duration-200',
-          'flex flex-col max-h-[90vh]',
-          'bg-card text-card-foreground rounded-lg',
-          'border border-border shadow-lg',
+          'flex flex-col max-h-[85vh] sm:max-h-[90vh]',
+          // Mobile: Bottom Sheet with rounded top
+          'rounded-t-3xl sm:rounded-2xl',
+          'border-t sm:border border-border shadow-2xl sm:shadow-lg',
+          'bg-card text-card-foreground',
           sizeClasses[size],
         )}
         role="dialog"
         aria-modal="true"
       >
+        {/* Mobile Grab Handle */}
+        <div className="sm:hidden w-12 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-700 mx-auto mt-2.5 mb-1 shrink-0" />
+
         {/* Header */}
         <div className="flex justify-between items-start p-5 border-b border-border">
           <div>
@@ -72,10 +77,11 @@ export function Modal({
           </div>
           <button
             onClick={onClose}
-            className="flex items-center justify-center p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted active:scale-95 transition-all"
             title="Tutup"
+            aria-label="Tutup"
           >
-            <Icon name="x" size={16} />
+            <Icon name="x" size={18} />
           </button>
         </div>
 
