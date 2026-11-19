@@ -3,53 +3,53 @@
 @tailwind utilities;
 
 /* ============================================================
-   DESIGN SYSTEM TOKENS — Linear / Vercel / Stripe Aesthetic
-   Zinc-based neutral scale · Emerald accent · Precision borders
+   DESIGN SYSTEM TOKENS — Option 1: Executive Monolith (Linear & Apple Aesthetic)
+   Slate/Zinc neutral scale · Teal & Amber accents · Precision borders
    ============================================================ */
 @layer base {
   :root {
     /* ── Surfaces — Modern Canvas with subtle depth ── */
-    --background: 240 5% 97%;          /* #F4F4F6 — refined soft canvas */
-    --foreground: 240 6% 10%;        /* #18181B — zinc-900 */
-    --card: 0 0% 100%;               /* #FFFFFF — clean elevated white */
-    --card-foreground: 240 6% 10%;
+    --background: 210 40% 98%;          /* #F8FAFC — refined soft slate canvas */
+    --foreground: 222 47% 11%;          /* #0F172A — executive slate-900 */
+    --card: 0 0% 100%;                  /* #FFFFFF — clean elevated white */
+    --card-foreground: 222 47% 11%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 6% 10%;
+    --popover-foreground: 222 47% 11%;
 
-    /* ── Primary accent: Emerald-600 — elegant, professional ── */
-    --primary: 160 84% 39%;          /* #059669 */
-    --primary-foreground: 0 0% 100%;
+    /* ── Primary: Executive Slate with crisp contrast ── */
+    --primary: 222 47% 11%;             /* #0F172A — authoritative slate */
+    --primary-foreground: 210 40% 98%;  /* #F8FAFC — slate-50 */
 
     /* ── Secondary ── */
-    --secondary: 240 5% 94%;         /* #EFEFF1 */
-    --secondary-foreground: 240 4% 16%;
+    --secondary: 210 40% 96.1%;         /* #F1F5F9 */
+    --secondary-foreground: 222 47% 11%;
 
     /* ── Muted ── */
-    --muted: 240 5% 94%;
-    --muted-foreground: 240 4% 46%;  /* #71717A — zinc-500 */
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215 16% 47%;    /* #64748B — slate-500 */
 
     /* ── Accent (hover states) ── */
-    --accent: 240 5% 94%;
-    --accent-foreground: 240 4% 16%;
+    --accent: 210 40% 94%;
+    --accent-foreground: 222 47% 11%;
 
     /* ── Destructive ── */
-    --destructive: 0 72% 51%;        /* #EF4444 */
+    --destructive: 0 84% 60%;           /* #DC2626 */
     --destructive-foreground: 0 0% 100%;
 
     /* ── Borders & inputs ── */
-    --border: 240 5% 88%;            /* #E1E1E6 — crisp border */
-    --input: 240 5% 88%;
-    --ring: 160 84% 39%;             /* matches primary */
+    --border: 214 32% 91%;              /* #E2E8F0 — slate-200 crisp border */
+    --input: 214 32% 91%;
+    --ring: 222 47% 11%;
 
     /* ── Radius ── */
     --radius: 0.625rem;
 
-    /* ── Status colors ── */
-    --success: 160 84% 39%;          /* Emerald-600 */
+    /* ── Status colors (Executive Palette) ── */
+    --success: 173 80% 32%;             /* #0D9488 — Teal-600 */
     --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;           /* Amber-500 */
+    --warning: 38 92% 50%;              /* #D97706 — Amber-600 */
     --warning-foreground: 38 92% 14%;
-    --info: 217 91% 60%;             /* Blue-500 */
+    --info: 217 91% 60%;                /* #3B82F6 — Blue-500 */
     --info-foreground: 0 0% 100%;
 
     /* ── Legacy compatibility vars ── */
@@ -59,42 +59,43 @@
     --life-panel-hover: hsl(var(--accent));
     --life-panel-active: hsl(var(--accent));
     --life-line: hsl(var(--border));
-    --life-line-strong: hsl(240 6% 80%);
+    --life-line-strong: hsl(214 32% 82%);
     --life-muted: hsl(var(--muted-foreground));
   }
 
   .dark {
-    --background: 240 6% 7%;         /* #111113 — deep modern canvas */
-    --foreground: 0 0% 95%;          /* #F2F2F2 */
-    --card: 240 5% 10%;              /* #18181B — elevated surface */
-    --card-foreground: 0 0% 95%;
-    --popover: 240 5% 10%;
-    --popover-foreground: 0 0% 95%;
+    /* ── Executive Monolith Dark — Deep Obsidian Canvas ── */
+    --background: 240 10% 3.9%;         /* #09090B — deep obsidian canvas */
+    --foreground: 210 40% 98%;          /* #F8FAFC — slate-50 */
+    --card: 240 7% 7.5%;                /* #121215 — elevated executive surface */
+    --card-foreground: 210 40% 98%;
+    --popover: 240 7% 7.5%;
+    --popover-foreground: 210 40% 98%;
 
-    --primary: 160 72% 47%;          /* Emerald-500 for dark */
-    --primary-foreground: 0 0% 100%;
+    --primary: 210 40% 98%;             /* #F8FAFC — high contrast white/slate */
+    --primary-foreground: 222 47% 11%;  /* #0F172A */
 
-    --secondary: 240 4% 16%;
-    --secondary-foreground: 0 0% 95%;
+    --secondary: 240 4% 15%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 240 4% 16%;
-    --muted-foreground: 240 5% 65%;
+    --muted: 240 4% 14%;
+    --muted-foreground: 240 5% 65%;     /* #A1A1AA — zinc-400 */
 
-    --accent: 240 4% 16%;
-    --accent-foreground: 0 0% 95%;
+    --accent: 240 4% 14%;
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 63% 58%;
+    --destructive: 0 63% 58%;           /* #F87171 */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 4% 18%;            /* zinc-800 */
-    --input: 240 4% 18%;
-    --ring: 160 72% 47%;
+    --border: 240 4% 16%;               /* #27272A — zinc-800 */
+    --input: 240 4% 16%;
+    --ring: 210 40% 98%;
 
-    --success: 160 72% 47%;
+    --success: 173 70% 40%;             /* #14B8A6 — Teal-400 */
     --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;
+    --warning: 38 92% 50%;              /* #F59E0B — Amber-400 */
     --warning-foreground: 0 0% 100%;
-    --info: 217 91% 60%;
+    --info: 217 91% 60%;                /* Blue-500 */
     --info-foreground: 0 0% 100%;
 
     --life-bg: hsl(var(--background));

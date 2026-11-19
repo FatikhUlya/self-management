@@ -87,6 +87,14 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        /* ── Brand accent tokens (Option 1: Executive Monolith) ── */
+        brand: {
+          slate: "#0F172A",
+          teal: "#0D9488",
+          amber: "#D97706",
+          emerald: "#10B981",
+          rose: "#DC2626",
+        },
         /* ── Status colors (flat, muted, professional) ── */
         success: {
           DEFAULT: "hsl(var(--success))",
