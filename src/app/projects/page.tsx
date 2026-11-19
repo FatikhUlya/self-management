@@ -207,13 +207,13 @@ export default function ProjectsDashboardPage() {
       <StaggerItem>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border/60">
           <div>
-            <h1 className="text-xl md:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
+            <h1 className="text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground flex items-center gap-2.5">
               <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
                 <Icon name="checkSquare" size={17} />
               </span>
               Proyek & Tugas
             </h1>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
               Pusat manajemen ruang lingkup kerja, papan tugas, dan penyelesaian sasaran.
             </p>
           </div>

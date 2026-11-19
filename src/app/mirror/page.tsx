@@ -80,13 +80,13 @@ export default function MirrorDashboard() {
       {/* Executive Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
+          <h1 className="text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground flex items-center gap-2.5">
             <div className="p-2 rounded-xl bg-purple-500/10 text-purple-500 border border-purple-500/20">
               <Icon name="lightbulb" size={22} />
             </div>
             Self-Awareness Mirror
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
             Eksplorasi diri melalui evaluasi sifat, refleksi berkala, feedback rekan 360°, dan target pertumbuhan karakter.
           </p>
         </div>

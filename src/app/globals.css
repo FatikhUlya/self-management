@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -111,7 +109,7 @@
 }
 
 /* ============================================================
-   BASE LAYER — Typography & Global Resets
+   BASE LAYER — Modern & Timeless Swiss Grid Typography (Apple / Notion)
    ============================================================ */
 @layer base {
   * {
@@ -119,34 +117,67 @@
   }
 
   html {
-    font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-family: var(--font-sans), 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
     @apply bg-background text-foreground;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   body {
-    font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, sans-serif;
-    @apply bg-background text-foreground min-h-screen;
+    font-family: var(--font-sans), 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+    @apply bg-background text-zinc-700 dark:text-zinc-300 min-h-screen leading-[1.6];
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
-  /* ── Headings: tracking-tight for SaaS feel ── */
-  h1, h2, h3 {
-    font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, sans-serif;
-    @apply font-bold tracking-tight text-foreground;
-    letter-spacing: -0.02em;
-  }
-  h4, h5, h6 {
-    font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, sans-serif;
-    @apply font-semibold text-foreground;
+  /* ── Heading Utama (h1): Swiss / Apple authority ── */
+  h1, .h1 {
+    font-family: var(--font-heading, var(--font-sans)), 'Plus Jakarta Sans', system-ui, sans-serif;
+    @apply text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground;
   }
 
-  /* ── Tabular nums for numeric data ── */
+  /* ── Sub-heading (h2, h3): Balanced rhythm & contrast ── */
+  h2, .h2 {
+    font-family: var(--font-heading, var(--font-sans)), 'Plus Jakarta Sans', system-ui, sans-serif;
+    @apply text-lg sm:text-xl font-medium tracking-[-0.015em] leading-[1.3] text-foreground;
+  }
+
+  h3, .h3 {
+    font-family: var(--font-heading, var(--font-sans)), 'Plus Jakarta Sans', system-ui, sans-serif;
+    @apply text-base sm:text-lg font-medium tracking-[-0.015em] leading-[1.3] text-foreground;
+  }
+
+  h4, h5, h6 {
+    font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, sans-serif;
+    @apply font-semibold tracking-[-0.01em] text-foreground;
+  }
+
+  /* ── Body Text: High readability without harsh pitch-black #000 ── */
+  p {
+    @apply text-sm sm:text-base leading-[1.6] text-zinc-700 dark:text-zinc-300;
+  }
+
+  /* ── Max width for reading comfort (65ch) ── */
+  article p,
+  .prose p,
+  .reading-content p,
+  p.max-prose {
+    max-width: 65ch;
+  }
+
+  /* ── Micro-copy / Label / Table Headers ── */
+  .micro-copy,
+  .micro-label,
+  th {
+    @apply text-xs font-medium tracking-[0.02em] uppercase text-zinc-500;
+  }
+
+  /* ── Tabular numbers for numeric data, codes, & timestamps ── */
   .tabular-nums,
   [data-numeric],
   td:has(> [data-numeric]),
   .font-mono {
+    font-family: var(--font-mono), 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-variant-numeric: tabular-nums;
   }
 
@@ -345,3 +376,27 @@
 .ql-snow .ql-fill, .ql-snow .ql-stroke.ql-fill { fill: hsl(var(--muted-foreground)); }
 .ql-snow .ql-editor.ql-blank::before { color: hsl(var(--muted-foreground)); font-style: normal; }
 .quill-content-override * { color: inherit !important; background-color: transparent !important; }
+
+/* ============================================================
+   TYPOGRAPHY UTILITIES — Swiss / Apple / Notion Scale
+   ============================================================ */
+@layer utilities {
+  .text-h1 {
+    @apply text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground;
+  }
+  .text-h2 {
+    @apply text-lg sm:text-xl font-medium tracking-[-0.015em] leading-[1.3] text-foreground;
+  }
+  .text-h3 {
+    @apply text-base sm:text-lg font-medium tracking-[-0.015em] leading-[1.3] text-foreground;
+  }
+  .text-body {
+    @apply text-sm sm:text-base leading-[1.6] text-zinc-700 dark:text-zinc-300;
+  }
+  .text-micro {
+    @apply text-xs font-medium tracking-[0.02em] uppercase text-zinc-500;
+  }
+  .max-prose {
+    max-width: 65ch;
+  }
+}

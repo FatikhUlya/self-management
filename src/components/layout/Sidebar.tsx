@@ -101,10 +101,10 @@ export function Sidebar() {
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            <h1 className="text-xs font-bold tracking-tight text-foreground">Life OS</h1>
-            <span className="text-[9px] px-1 py-0.2 rounded font-mono bg-primary/10 text-primary font-medium">v2.0</span>
+            <span className="text-xs font-semibold tracking-[-0.015em] text-foreground">Life OS</span>
+            <span className="text-[9px] px-1 py-0.2 rounded font-mono tabular-nums bg-primary/10 text-primary font-medium">v2.0</span>
           </div>
-          <p className="text-[10px] text-muted-foreground truncate">
+          <p className="text-[10px] text-zinc-500 truncate">
             {locale === 'id' ? 'Executive Life OS' : 'Personal Command Center'}
           </p>
         </div>
@@ -121,7 +121,7 @@ export function Sidebar() {
           return (
             <div key={sectionKey} className="space-y-0.5">
               {sectionKey !== 'core' && (
-                <p className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-wider px-2 pt-1 pb-1">
+                <p className="text-xs font-medium tracking-[0.02em] uppercase text-zinc-500 px-2 pt-1 pb-1">
                   {label}
                 </p>
               )}

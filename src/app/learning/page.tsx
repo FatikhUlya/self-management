@@ -198,15 +198,17 @@ export default function LearningDashboardPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-600 dark:from-amber-300 dark:to-orange-500 flex items-center gap-2">
-              <Icon name="book" size={28} className="text-amber-500" />
+            <h1 className="text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground flex items-center gap-2.5">
+              <span className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
+                <Icon name="book" size={17} />
+              </span>
               Knowledge & Learning
             </h1>
-            <Badge tone="amber" className="font-mono text-xs">
+            <Badge tone="amber" className="font-mono tabular-nums text-xs">
               {todayMinutes}m Hari Ini
             </Badge>
           </div>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
             Pusat manajemen pengetahuan, kurikulum belajar terarah, log sesi studi, dan bank kosakata bahasa.
           </p>
         </div>

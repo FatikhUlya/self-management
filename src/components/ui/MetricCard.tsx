@@ -25,7 +25,7 @@ export function MetricCard({ icon, label, value, detail, glow = false }: MetricC
         className="p-4 flex flex-col justify-between cursor-default h-full transition-all hover:shadow-xs"
       >
         <div className="flex items-center justify-between gap-2 mb-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground truncate">
+          <span className="text-xs font-medium tracking-[0.02em] uppercase text-zinc-500 truncate">
             {label}
           </span>
           <div className={cn(
@@ -36,10 +36,10 @@ export function MetricCard({ icon, label, value, detail, glow = false }: MetricC
           </div>
         </div>
         <div>
-          <strong className="block text-2xl font-bold tracking-tight tabular-nums text-foreground font-mono">
+          <strong className="block text-2xl sm:text-3xl font-semibold tracking-[-0.025em] tabular-nums text-foreground font-mono">
             {value}
           </strong>
-          <p className="text-xs text-muted-foreground mt-1 truncate font-medium">{detail}</p>
+          <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 truncate font-medium">{detail}</p>
         </div>
       </Surface>
     </motion.div>

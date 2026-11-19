@@ -277,15 +277,17 @@ export default function GoalsDashboardPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-cyan-600 dark:from-teal-300 dark:to-cyan-400 flex items-center gap-2">
-              <Icon name="target" size={28} className="text-teal-500" />
+            <h1 className="text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground flex items-center gap-2.5">
+              <span className="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center text-teal-600 dark:text-teal-400 shrink-0">
+                <Icon name="target" size={17} />
+              </span>
               Goals & Strategic OKRs
             </h1>
-            <Badge tone="teal" className="font-mono text-xs">
+            <Badge tone="teal" className="font-mono tabular-nums text-xs">
               {activeGoals.length} Target Aktif
             </Badge>
           </div>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
             Penyelarasan visi hidup, target strategis (Objectives), dan hasil kunci terukur (Key Results).
           </p>
         </div>

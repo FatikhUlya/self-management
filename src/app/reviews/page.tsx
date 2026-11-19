@@ -43,11 +43,13 @@ export default function ReviewsDashboardPage() {
  {/* Header */}
  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
  <div>
- <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-fuchsia-400 to-pink-600 dark:from-fuchsia-300 dark:to-pink-500 flex items-center gap-2">
- <Icon name="review" size={28} className="text-fuchsia-500" />
+ <h1 className="text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground flex items-center gap-2.5">
+ <span className="w-8 h-8 rounded-lg bg-fuchsia-500/10 flex items-center justify-center text-fuchsia-600 dark:text-fuchsia-400 shrink-0">
+ <Icon name="review" size={17} />
+ </span>
  {t('reviews_title')}
  </h1>
- <p className="text-zinc-500 dark:text-zinc-400 mt-1 text-sm">
+ <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
  Tinjau ulang performa kehidupan Anda dan kelola evaluasi berkala.
  </p>
  </div>

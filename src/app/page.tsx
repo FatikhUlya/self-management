@@ -165,7 +165,7 @@ export default function Dashboard() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-border/60">
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl md:text-2xl font-bold tracking-tight text-foreground">
+              <h1 className="text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground">
                 {t(greetingKey)}, Fatikh!
               </h1>
               {todayPlan?.dayStatus === 'in_progress' && (
@@ -181,7 +181,7 @@ export default function Dashboard() {
                 </span>
               )}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
               {formatDate(today, { locale: locale === 'id' ? 'id-ID' : 'en-US' })} — Pusat kendali dan fokus eksekusi hari ini.
             </p>
           </div>
@@ -282,11 +282,11 @@ export default function Dashboard() {
               {/* Header with Filter Pills */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/80 pb-3">
                 <div>
-                  <h3 className="text-xs font-semibold text-foreground tracking-tight uppercase flex items-center gap-2">
+                  <h3 className="text-xs font-medium tracking-[0.02em] uppercase text-zinc-500 flex items-center gap-2">
                     <Icon name="checkSquare" size={14} className="text-primary" />
                     Tugas & Prioritas Hari Ini
                   </h3>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
                     {activeTodaysTasks.length} tugas menunggu • {doneTodayCount} diselesaikan
                   </p>
                 </div>
@@ -428,11 +428,11 @@ export default function Dashboard() {
             <Surface className="p-5 md:p-6 space-y-4">
               <div className="flex justify-between items-center border-b border-border/80 pb-3">
                 <div>
-                  <h3 className="text-xs font-semibold text-foreground tracking-tight uppercase flex items-center gap-2">
+                  <h3 className="text-xs font-medium tracking-[0.02em] uppercase text-zinc-500 flex items-center gap-2">
                     <Icon name="check" size={14} className="text-primary" />
                     Rutinitas & Habit Hari Ini
                   </h3>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
                     {habitsDoneCount} dari {state.habits.length} habit selesai ({habitPercent}%)
                   </p>
                 </div>
@@ -499,11 +499,11 @@ export default function Dashboard() {
             <Surface className="p-5 md:p-6 space-y-4">
               <div className="flex justify-between items-center border-b border-border/80 pb-3">
                 <div>
-                  <h3 className="text-xs font-semibold text-foreground tracking-tight uppercase flex items-center gap-2">
+                  <h3 className="text-xs font-medium tracking-[0.02em] uppercase text-zinc-500 flex items-center gap-2">
                     <Icon name="calendar" size={14} className="text-primary" />
                     Agenda & Timeline
                   </h3>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
                     {todayPlans.length} blok aktivitas terjadwal
                   </p>
                 </div>
@@ -571,11 +571,11 @@ export default function Dashboard() {
             <Surface className="p-5 md:p-6 space-y-4">
               <div className="flex justify-between items-center border-b border-border/80 pb-3">
                 <div>
-                  <h3 className="text-xs font-semibold text-foreground tracking-tight uppercase flex items-center gap-2">
+                  <h3 className="text-xs font-medium tracking-[0.02em] uppercase text-zinc-500 flex items-center gap-2">
                     <Icon name="plus" size={14} className="text-primary" />
                     Tangkap Cepat (Capture)
                   </h3>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">Simpan ide atau catatan seketika</p>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">Simpan ide atau catatan seketika</p>
                 </div>
                 <div className="flex gap-1 bg-muted/60 p-0.5 rounded-md border border-border/60">
                   <button
@@ -655,11 +655,11 @@ export default function Dashboard() {
             <Surface className="p-5 md:p-6 space-y-4">
               <div className="flex justify-between items-center border-b border-border/80 pb-3">
                 <div>
-                  <h3 className="text-xs font-semibold text-foreground tracking-tight uppercase flex items-center gap-2">
+                  <h3 className="text-xs font-medium tracking-[0.02em] uppercase text-zinc-500 flex items-center gap-2">
                     <Icon name="activity" size={14} className="text-primary" />
                     Kesehatan & Nutrisi
                   </h3>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">Ringkasan asupan dan latihan fisik</p>
+                  <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">Ringkasan asupan dan latihan fisik</p>
                 </div>
                 <Link href="/health">
                   <Button size="sm" variant="ghost" icon="arrowRight" className="text-xs">
@@ -694,7 +694,7 @@ export default function Dashboard() {
           <StaggerItem>
             <Surface className="p-5 md:p-6 space-y-3">
               <div className="flex justify-between items-center border-b border-border/80 pb-2.5">
-                <h3 className="text-xs font-semibold text-foreground tracking-tight uppercase flex items-center gap-2">
+                <h3 className="text-xs font-medium tracking-[0.02em] uppercase text-zinc-500 flex items-center gap-2">
                   <Icon name="compass" size={14} className="text-primary" />
                   Kompas Hidup
                 </h3>

@@ -13,16 +13,44 @@ const config: Config = {
         sans: [
           "var(--font-sans)",
           "Plus Jakarta Sans",
-          "Inter",
-          "system-ui",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "SF Pro Text",
+          "Segoe UI",
+          "Roboto",
+          "sans-serif",
+        ],
+        heading: [
+          "var(--font-heading)",
+          "var(--font-sans)",
+          "Plus Jakarta Sans",
+          "-apple-system",
+          "BlinkMacSystemFont",
           "sans-serif",
         ],
         mono: [
           "var(--font-mono)",
           "JetBrains Mono",
           "ui-monospace",
+          "SFMono-Regular",
+          "Menlo",
+          "Monaco",
+          "Consolas",
           "monospace",
         ],
+      },
+      letterSpacing: {
+        'tight-h1': '-0.025em',
+        'tight-h2': '-0.015em',
+        micro: '0.02em',
+      },
+      lineHeight: {
+        'heading-1': '1.15',
+        'heading-2': '1.3',
+        body: '1.6',
+      },
+      maxWidth: {
+        prose: '65ch',
       },
       colors: {
         /* ── Surface & semantic tokens (CSS variable driven) ── */

@@ -381,15 +381,17 @@ export default function FinanceDashboard() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-teal-600 dark:from-emerald-400 dark:to-teal-400 flex items-center gap-2">
-              <Icon name="wallet" size={28} className="text-emerald-500" />
+            <h1 className="text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground flex items-center gap-2.5">
+              <span className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                <Icon name="wallet" size={17} />
+              </span>
               Keuangan & Kekayaan
             </h1>
-            <Badge tone="green" className="font-mono text-xs">
+            <Badge tone="green" className="font-mono tabular-nums text-xs">
               Live Balance
             </Badge>
           </div>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
             Kendali arus kas harian, alokasi kekayaan bersih, pelunasan utang, dan target tabungan masa depan.
           </p>
         </div>

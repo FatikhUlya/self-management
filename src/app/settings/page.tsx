@@ -57,13 +57,13 @@ export default function SettingsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
+          <h1 className="text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground flex items-center gap-2.5">
             <div className="p-2 rounded-xl bg-zinc-500/10 text-muted-foreground border border-zinc-500/20">
               <Icon name="settings" size={22} />
             </div>
             {t('settings_title')}
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
             Konfigurasi preferensi tampilan, bahasa sistem, status integrasi cloud, dan pencadangan data lokal.
           </p>
         </div>

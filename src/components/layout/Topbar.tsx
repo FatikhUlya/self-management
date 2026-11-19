@@ -66,11 +66,11 @@ export function Topbar() {
           <Icon name={activeNavItem.icon} size={13} />
         </span>
         <div className="flex items-center gap-1.5 min-w-0">
-          <h2 className="text-xs font-semibold text-foreground tracking-tight truncate">
+          <span className="text-xs font-semibold text-foreground tracking-[-0.015em] truncate">
             {t(activeNavItem.labelKey)}
-          </h2>
+          </span>
           <span className="text-muted-foreground/30 text-xs hidden sm:inline">•</span>
-          <span className="text-xs text-muted-foreground hidden sm:inline font-mono">
+          <span className="text-xs text-muted-foreground hidden sm:inline font-mono tabular-nums">
             {formatDate(state.selectedDate, { locale: locale === 'id' ? 'id-ID' : 'en-US' })}
           </span>
         </div>

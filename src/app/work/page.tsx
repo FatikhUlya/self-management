@@ -211,15 +211,17 @@ export default function CareerAndWorkPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-blue-600 dark:from-sky-300 dark:to-blue-500 flex items-center gap-2">
-              <Icon name="briefcase" size={28} className="text-sky-500" />
+            <h1 className="text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground flex items-center gap-2.5">
+              <span className="w-8 h-8 rounded-lg bg-sky-500/10 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0">
+                <Icon name="briefcase" size={17} />
+              </span>
               Career & Job Pipeline
             </h1>
-            <Badge tone="blue" className="font-mono text-xs">
+            <Badge tone="blue" className="font-mono tabular-nums text-xs">
               {activePipelineCount} Proses Aktif
             </Badge>
           </div>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
             Pantau pipeline lamaran kerja, persiapan wawancara, negosiasi tawaran (offer), dan rekruter.
           </p>
         </div>
