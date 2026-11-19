@@ -302,7 +302,7 @@ export default function RulesPage() {
       </div>
 
       {/* Modern Segmented Navigation Tabs */}
-      <div className="flex items-center justify-between border-b border-border pb-2 overflow-x-auto gap-4">
+      <div className="flex items-center justify-between border-b border-border pb-2 overflow-x-auto no-scrollbar gap-4 px-1">
         <div className="flex p-1 bg-muted/30 rounded-xl border border-border shrink-0">
           <button
             onClick={() => setActiveTab('compliance')}
@@ -413,7 +413,7 @@ export default function RulesPage() {
                         type="button"
                         onClick={() => handleMarkCompliance(rule.id, 'followed')}
                         className={cn(
-                          'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 border',
+                          'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 border min-h-[44px]',
                           isFollowed
                             ? 'bg-emerald-500 text-white border-emerald-600 shadow-xs'
                             : 'bg-muted/30 text-muted-foreground border-border hover:bg-emerald-500/10 hover:text-emerald-500 hover:border-emerald-500/30'
@@ -427,7 +427,7 @@ export default function RulesPage() {
                         type="button"
                         onClick={() => handleMarkCompliance(rule.id, 'missed')}
                         className={cn(
-                          'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 border',
+                          'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 border min-h-[44px]',
                           isMissed
                             ? 'bg-rose-500 text-white border-rose-600 shadow-xs'
                             : 'bg-muted/30 text-muted-foreground border-border hover:bg-rose-500/10 hover:text-rose-500 hover:border-rose-500/30'

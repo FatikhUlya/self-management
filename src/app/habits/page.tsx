@@ -352,93 +352,183 @@ export default function HabitsDashboardPage() {
               </form>
             </div>
 
-            {/* Matrix View */}
+            {/* Matrix View (Mobile Stacked Cards & Desktop 7-Day Matrix) */}
             {filteredHabits.length > 0 ? (
-              <div className="overflow-x-auto">
-                <div className="min-w-[640px] divide-y divide-border/60">
-                  {/* Table Header: Days of the week */}
-                  <div className="flex items-center justify-between pb-2 text-[11px] font-medium text-muted-foreground">
-                    <span className="w-2/5">Nama Kebiasaan & Streak</span>
-                    <div className="w-3/5 flex items-center justify-around">
-                      {sevenDays.map((d) => {
-                        const isCurrentDay = d === today;
-                        return (
-                          <div
-                            key={d}
-                            className={cn(
-                              "flex flex-col items-center justify-center w-10 py-1 rounded-md transition-colors",
-                              isCurrentDay && "bg-primary/10 text-primary font-bold border border-primary/20"
-                            )}
-                          >
-                            <span className="text-[10px] uppercase">{dayName(d, 'id-ID')}</span>
-                            <span className="text-xs font-mono">{d.slice(8, 10)}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Habit Rows */}
+              <>
+                {/* Mobile Stacked Habit Cards (Thumb-friendly) */}
+                <div className="block md:hidden space-y-2.5">
                   {filteredHabits.map((habit) => {
                     const streak = getHabitStreak(habit.id, today);
-                    const isCore = habit.isCore;
+                    const isDoneToday = state.habitLogs.some(
+                      (log) => log.habitId === habit.id && log.date === today
+                    );
                     const goal = state.goals.find((g) => g.id === habit.goalId);
 
                     return (
                       <div
                         key={habit.id}
-                        className="py-3 flex items-center justify-between group hover:bg-muted/20 rounded-lg px-1 transition-colors select-none"
+                        className={cn(
+                          "p-3.5 rounded-xl border transition-all space-y-3",
+                          isDoneToday
+                            ? "bg-emerald-500/10 border-emerald-500/25 text-foreground"
+                            : "bg-muted/30 border-border text-foreground"
+                        )}
                       >
-                        {/* Habit Title & Metadata */}
-                        <div className="w-2/5 pr-4 min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            <strong className="text-xs font-semibold text-foreground truncate block">
-                              {habit.name}
-                            </strong>
-                            {streak > 0 && (
-                              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 shrink-0">
-                                🔥 {streak}h
-                              </span>
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <strong className="text-sm font-semibold text-foreground block">
+                                {habit.name}
+                              </strong>
+                              {streak > 0 && (
+                                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                                  🔥 {streak}h
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 mt-1 text-[11px] text-zinc-500">
+                              <span>{habit.area || 'Personal'}</span>
+                              {goal && <span>• 🎯 {goal.title.slice(0, 16)}</span>}
+                            </div>
+                          </div>
+
+                          {/* Quick 1-tap Today Complete Toggle (44x44px touch target) */}
+                          <button
+                            type="button"
+                            onClick={() => toggleHabit(habit.id, today)}
+                            className={cn(
+                              "min-h-[44px] min-w-[44px] px-3 py-2 rounded-xl flex items-center justify-center gap-1.5 text-xs font-semibold border transition-all active:scale-95 touch-manipulation",
+                              isDoneToday
+                                ? "bg-primary border-primary text-primary-foreground shadow-xs"
+                                : "bg-card border-input text-zinc-600 dark:text-zinc-400 hover:border-primary/50"
                             )}
-                          </div>
-                          <div className="flex items-center gap-2 mt-0.5 text-[10px] text-muted-foreground">
-                            <span>{habit.area || 'Personal'}</span>
-                            {goal && <span>• 🎯 {goal.title.slice(0, 16)}</span>}
-                          </div>
+                          >
+                            <Icon name="check" size={16} />
+                            <span>{isDoneToday ? 'Selesai' : 'Centang'}</span>
+                          </button>
                         </div>
 
-                        {/* 7 Interactive Day Bubbles */}
-                        <div className="w-3/5 flex items-center justify-around">
-                          {sevenDays.map((dateStr) => {
-                            const isDone = state.habitLogs.some(
-                              (log) => log.habitId === habit.id && log.date === dateStr
-                            );
-                            const isCurrentDay = dateStr === today;
-
-                            return (
-                              <button
-                                key={dateStr}
-                                type="button"
-                                onClick={() => toggleHabit(habit.id, dateStr)}
-                                className={cn(
-                                  "w-7 h-7 rounded-lg flex items-center justify-center transition-all",
-                                  isDone
-                                    ? "bg-primary border border-primary text-primary-foreground shadow-2xs scale-100"
-                                    : "bg-muted/40 border border-border/80 hover:border-primary/50 text-transparent hover:text-muted-foreground/40",
-                                  isCurrentDay && !isDone && "ring-1 ring-primary/40 border-primary/50"
-                                )}
-                                title={`${habit.name} — ${formatDate(dateStr)}: ${isDone ? 'Selesai' : 'Belum'}`}
-                              >
-                                <Icon name="check" size={13} />
-                              </button>
-                            );
-                          })}
+                        {/* 7-Day Mini Dots strip */}
+                        <div className="flex items-center justify-between pt-2 border-t border-border/60">
+                          <span className="text-[10px] uppercase font-medium text-zinc-500">7 Hari Terakhir</span>
+                          <div className="flex items-center gap-1.5">
+                            {sevenDays.map((d) => {
+                              const done = state.habitLogs.some(
+                                (l) => l.habitId === habit.id && l.date === d
+                              );
+                              const isCur = d === today;
+                              return (
+                                <button
+                                  key={d}
+                                  type="button"
+                                  onClick={() => toggleHabit(habit.id, d)}
+                                  className={cn(
+                                    "w-7 h-7 rounded-md flex items-center justify-center text-[9px] font-mono font-medium transition-all active:scale-90 touch-manipulation",
+                                    done
+                                      ? "bg-primary text-primary-foreground font-bold"
+                                      : "bg-muted text-zinc-400 border border-border/80",
+                                    isCur && !done && "border-primary/50 ring-1 ring-primary/30"
+                                  )}
+                                  title={`${dayName(d, 'id-ID')} (${d.slice(8, 10)}): ${done ? 'Selesai' : 'Belum'}`}
+                                >
+                                  {d.slice(8, 10)}
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
                       </div>
                     );
                   })}
                 </div>
-              </div>
+
+                {/* Desktop 7-Day Matrix */}
+                <div className="hidden md:block overflow-x-auto">
+                  <div className="min-w-[640px] divide-y divide-border/60">
+                    {/* Table Header: Days of the week */}
+                    <div className="flex items-center justify-between pb-2 text-[11px] font-medium text-muted-foreground">
+                      <span className="w-2/5">Nama Kebiasaan & Streak</span>
+                      <div className="w-3/5 flex items-center justify-around">
+                        {sevenDays.map((d) => {
+                          const isCurrentDay = d === today;
+                          return (
+                            <div
+                              key={d}
+                              className={cn(
+                                "flex flex-col items-center justify-center w-10 py-1 rounded-md transition-colors",
+                                isCurrentDay && "bg-primary/10 text-primary font-bold border border-primary/20"
+                              )}
+                            >
+                              <span className="text-[10px] uppercase">{dayName(d, 'id-ID')}</span>
+                              <span className="text-xs font-mono">{d.slice(8, 10)}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Habit Rows */}
+                    {filteredHabits.map((habit) => {
+                      const streak = getHabitStreak(habit.id, today);
+                      const isCore = habit.isCore;
+                      const goal = state.goals.find((g) => g.id === habit.goalId);
+
+                      return (
+                        <div
+                          key={habit.id}
+                          className="py-3 flex items-center justify-between group hover:bg-muted/20 rounded-lg px-1 transition-colors select-none"
+                        >
+                          {/* Habit Title & Metadata */}
+                          <div className="w-2/5 pr-4 min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <strong className="text-xs font-semibold text-foreground truncate block">
+                                {habit.name}
+                              </strong>
+                              {streak > 0 && (
+                                <span className="text-[10px] font-mono px-1.5 py-0.2 rounded font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 shrink-0">
+                                  🔥 {streak}h
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 mt-0.5 text-[10px] text-muted-foreground">
+                              <span>{habit.area || 'Personal'}</span>
+                              {goal && <span>• 🎯 {goal.title.slice(0, 16)}</span>}
+                            </div>
+                          </div>
+
+                          {/* 7 Interactive Day Bubbles */}
+                          <div className="w-3/5 flex items-center justify-around">
+                            {sevenDays.map((dateStr) => {
+                              const isDone = state.habitLogs.some(
+                                (log) => log.habitId === habit.id && log.date === dateStr
+                              );
+                              const isCurrentDay = dateStr === today;
+
+                              return (
+                                <button
+                                  key={dateStr}
+                                  type="button"
+                                  onClick={() => toggleHabit(habit.id, dateStr)}
+                                  className={cn(
+                                    "w-7 h-7 rounded-lg flex items-center justify-center transition-all",
+                                    isDone
+                                      ? "bg-primary border border-primary text-primary-foreground shadow-2xs scale-100"
+                                      : "bg-muted/40 border border-border/80 hover:border-primary/50 text-transparent hover:text-muted-foreground/40",
+                                    isCurrentDay && !isDone && "ring-1 ring-primary/40 border-primary/50"
+                                  )}
+                                  title={`${habit.name} — ${formatDate(dateStr)}: ${isDone ? 'Selesai' : 'Belum'}`}
+                                >
+                                  <Icon name="check" size={13} />
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
             ) : (
               <EmptyState
                 title="Tidak ada habit"

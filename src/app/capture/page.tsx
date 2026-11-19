@@ -217,7 +217,7 @@ export default function CapturePage() {
       </Surface>
 
       {/* Modern Segmented Navigation Tabs */}
-      <div className="flex items-center justify-between border-b border-border pb-2 overflow-x-auto gap-4">
+      <div className="flex items-center justify-between border-b border-border pb-2 overflow-x-auto no-scrollbar gap-4 px-1">
         <div className="flex p-1 bg-muted/30 rounded-xl border border-border shrink-0">
           <button
             onClick={() => setActiveTab('inbox')}

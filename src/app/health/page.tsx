@@ -249,12 +249,12 @@ export default function HealthPage() {
 
       {/* ═══════════════ Tab Switcher ═══════════════ */}
       <StaggerItem>
-        <div className="flex items-center justify-between gap-3 bg-muted/40 p-1.5 rounded-xl border border-border/80">
-          <div className="flex items-center gap-1">
+        <div className="flex items-center justify-between gap-3 bg-muted/40 p-1.5 rounded-xl border border-border/80 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-1 shrink-0">
             <button
               onClick={() => setActiveTab('nutrition')}
               className={cn(
-                "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all",
+                "flex items-center gap-2 px-3.5 py-2 md:py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 min-h-[40px] md:min-h-0",
                 activeTab === 'nutrition'
                   ? "bg-card text-foreground font-semibold shadow-2xs border border-border/60"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -266,7 +266,7 @@ export default function HealthPage() {
             <button
               onClick={() => setActiveTab('workout')}
               className={cn(
-                "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all",
+                "flex items-center gap-2 px-3.5 py-2 md:py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 min-h-[40px] md:min-h-0",
                 activeTab === 'workout'
                   ? "bg-card text-foreground font-semibold shadow-2xs border border-border/60"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -278,7 +278,7 @@ export default function HealthPage() {
             <button
               onClick={() => setActiveTab('metrics')}
               className={cn(
-                "flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all",
+                "flex items-center gap-2 px-3.5 py-2 md:py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 min-h-[40px] md:min-h-0",
                 activeTab === 'metrics'
                   ? "bg-card text-foreground font-semibold shadow-2xs border border-border/60"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -289,7 +289,7 @@ export default function HealthPage() {
             </button>
           </div>
 
-          <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground font-mono">
+          <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground font-mono shrink-0">
             <span>{formatDate(today, { locale: locale === 'id' ? 'id-ID' : 'en-US' })}</span>
           </div>
         </div>
@@ -385,7 +385,7 @@ export default function HealthPage() {
                         </div>
                         <button
                           onClick={() => deleteMeal(meal.id)}
-                          className="opacity-0 group-hover:opacity-100 p-1 text-muted-foreground hover:text-destructive transition-all rounded"
+                          className="opacity-100 md:opacity-0 md:group-hover:opacity-100 p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center text-muted-foreground hover:text-destructive transition-all rounded-md"
                           title="Hapus"
                         >
                           <Icon name="trash" size={12} />
@@ -515,7 +515,7 @@ export default function HealthPage() {
                       </span>
                       <button
                         onClick={() => deleteWorkout(workout.id)}
-                        className="p-1 rounded text-muted-foreground hover:text-destructive transition-colors"
+                        className="p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-md text-muted-foreground hover:text-destructive transition-colors"
                         title="Hapus sesi"
                       >
                         <Icon name="trash" size={13} />

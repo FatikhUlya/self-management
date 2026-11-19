@@ -594,7 +594,7 @@ export default function LearningDashboardPage() {
                             await deleteLearningSession(session.id);
                           }
                         }}
-                        className="text-muted-foreground hover:text-destructive p-1 rounded-md transition-colors"
+                        className="text-muted-foreground hover:text-destructive p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-md transition-colors"
                         title="Hapus Sesi"
                       >
                         <Icon name="trash" size={13} />
@@ -760,7 +760,7 @@ export default function LearningDashboardPage() {
                               await deleteDictionaryEntry(entry.id);
                             }
                           }}
-                          className="text-muted-foreground hover:text-destructive p-1 rounded-md transition-colors"
+                          className="text-muted-foreground hover:text-destructive p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center rounded-md transition-colors"
                         >
                           <Icon name="trash" size={13} />
                         </button>

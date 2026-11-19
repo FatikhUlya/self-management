@@ -306,7 +306,7 @@ export default function JournalHubPage() {
       </div>
 
       {/* Modern Segmented Navigation Tabs */}
-      <div className="flex items-center justify-between border-b border-border pb-2 overflow-x-auto gap-4">
+      <div className="flex items-center justify-between border-b border-border pb-2 overflow-x-auto no-scrollbar gap-4 px-1">
         <div className="flex p-1 bg-muted/30 rounded-xl border border-border shrink-0">
           <button
             onClick={() => setActiveTab('today')}
@@ -405,7 +405,7 @@ export default function JournalHubPage() {
                             type="button"
                             onClick={() => setMood(m.level)}
                             className={cn(
-                              'flex flex-col items-center justify-center py-2.5 rounded-lg text-xs transition-all',
+                              'flex flex-col items-center justify-center py-2.5 rounded-lg text-xs transition-all min-h-[44px]',
                               active
                                 ? 'bg-background shadow-xs text-foreground font-bold border border-border ring-1 ring-primary/20'
                                 : 'text-muted-foreground hover:bg-background/50 hover:text-foreground'
@@ -436,7 +436,7 @@ export default function JournalHubPage() {
                             type="button"
                             onClick={() => setEnergy(e.level)}
                             className={cn(
-                              'flex flex-col items-center justify-center py-2.5 rounded-lg text-xs transition-all',
+                              'flex flex-col items-center justify-center py-2.5 rounded-lg text-xs transition-all min-h-[44px]',
                               active
                                 ? 'bg-background shadow-xs text-foreground font-bold border border-border ring-1 ring-primary/20'
                                 : 'text-muted-foreground hover:bg-background/50 hover:text-foreground'
