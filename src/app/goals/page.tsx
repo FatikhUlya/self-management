@@ -83,39 +83,55 @@ export default function GoalsDashboardPage() {
   const [keyResults, setKeyResults] = useState<KeyResult[]>([]);
 
   // Top Metrics Calculation
-  const totalGoals = state.goals.length;
-  const completedGoals = useMemo(() => state.goals.filter((g) => g.progress >= 100), [state.goals]);
-  const activeGoals = useMemo(() => state.goals.filter((g) => g.progress < 100), [state.goals]);
+  const goals = useMemo(() => state?.goals || [], [state?.goals]);
+  const tasks = useMemo(() => state?.tasks || [], [state?.tasks]);
+  const projects = useMemo(() => state?.projects || [], [state?.projects]);
+
+  const totalGoals = goals.length;
+  const completedGoals = useMemo(() => goals.filter((g) => (g?.progress || 0) >= 100), [goals]);
+  const activeGoals = useMemo(() => goals.filter((g) => (g?.progress || 0) < 100), [goals]);
 
   const avgProgress = useMemo(() => {
     if (totalGoals === 0) return 0;
-    const sum = state.goals.reduce((acc, g) => acc + (g.progress || 0), 0);
+    const sum = goals.reduce((acc, g) => acc + (g?.progress || 0), 0);
     return Math.round(sum / totalGoals);
-  }, [state.goals, totalGoals]);
+  }, [goals, totalGoals]);
 
   const linkedTasksCount = useMemo(() => {
-    return state.tasks.filter((t) => t.goalId).length;
-  }, [state.tasks]);
+    return tasks.filter((t) => t?.goalId).length;
+  }, [tasks]);
 
   // Helper for Timeframe
-  const getGoalTimeframe = (targetDateStr: string) => {
+  const getGoalTimeframe = (targetDateStr: string | undefined | null) => {
     if (!targetDateStr) return 'medium';
-    const diffTime = new Date(targetDateStr).getTime() - new Date().getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    if (diffDays <= 90) return 'short';
-    if (diffDays <= 365) return 'medium';
-    return 'long';
+    try {
+      const d = targetDateStr.includes('T') ? new Date(targetDateStr) : new Date(`${targetDateStr}T00:00:00`);
+      if (isNaN(d.getTime())) return 'medium';
+      const diffTime = d.getTime() - new Date().getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      if (diffDays <= 90) return 'short';
+      if (diffDays <= 365) return 'medium';
+      return 'long';
+    } catch {
+      return 'medium';
+    }
   };
 
   // Helper for Status
   const getGoalStatus = (goal: Goal) => {
-    if (goal.progress >= 100) return { label: 'Selesai', tone: 'green' as const };
-    if (goal.targetDate) {
-      const diffTime = new Date(goal.targetDate).getTime() - new Date().getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      if (diffDays > 0 && diffDays <= 15 && goal.progress < 50) {
-        return { label: 'At Risk', tone: 'rose' as const };
-      }
+    const progress = goal?.progress || 0;
+    if (progress >= 100) return { label: 'Selesai', tone: 'green' as const };
+    if (goal?.targetDate) {
+      try {
+        const d = goal.targetDate.includes('T') ? new Date(goal.targetDate) : new Date(`${goal.targetDate}T00:00:00`);
+        if (!isNaN(d.getTime())) {
+          const diffTime = d.getTime() - new Date().getTime();
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          if (diffDays > 0 && diffDays <= 15 && progress < 50) {
+            return { label: 'At Risk', tone: 'rose' as const };
+          }
+        }
+      } catch {}
     }
     return { label: 'On Track', tone: 'teal' as const };
   };
@@ -124,38 +140,47 @@ export default function GoalsDashboardPage() {
   const calculateKrProgress = (krs: KeyResult[]) => {
     if (!krs || krs.length === 0) return 0;
     const total = krs.reduce((acc, kr) => {
-      if (!kr.targetValue || kr.targetValue === 0) return acc;
-      return acc + Math.min(1, kr.currentValue / kr.targetValue);
+      const target = Number(kr?.targetValue) || 0;
+      const current = Number(kr?.currentValue) || 0;
+      if (target <= 0) return acc;
+      return acc + Math.min(1, Math.max(0, current / target));
     }, 0);
     return Math.min(100, Math.round((total / krs.length) * 100));
   };
 
   // Filtered Goals
   const filteredGoals = useMemo(() => {
-    return state.goals
+    return goals
       .filter((goal) => {
-        if (statusFilter === 'active' && goal.progress >= 100) return false;
-        if (statusFilter === 'completed' && goal.progress < 100) return false;
+        if (!goal) return false;
+        const progress = goal.progress || 0;
+        if (statusFilter === 'active' && progress >= 100) return false;
+        if (statusFilter === 'completed' && progress < 100) return false;
         if (timeframeFilter !== 'all' && getGoalTimeframe(goal.targetDate) !== timeframeFilter) return false;
         if (categoryFilter !== 'all' && goal.category !== categoryFilter) return false;
         if (searchQuery.trim()) {
           const q = searchQuery.toLowerCase();
-          const matchTitle = goal.title.toLowerCase().includes(q);
-          const matchCat = goal.category?.toLowerCase().includes(q);
-          const matchKrs = goal.keyResults?.some((kr) => kr.title.toLowerCase().includes(q));
+          const matchTitle = goal.title?.toLowerCase().includes(q) || false;
+          const matchCat = goal.category?.toLowerCase().includes(q) || false;
+          const matchKrs = Array.isArray(goal.keyResults) && goal.keyResults.some((kr) => kr?.title?.toLowerCase().includes(q));
           if (!matchTitle && !matchCat && !matchKrs) return false;
         }
         return true;
       })
       .sort((a, b) => {
-        // Sort active goals first, then by closest target date
-        if (a.progress >= 100 && b.progress < 100) return 1;
-        if (a.progress < 100 && b.progress >= 100) return -1;
-        if (!a.targetDate) return 1;
-        if (!b.targetDate) return -1;
-        return new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime();
+        const aProg = a?.progress || 0;
+        const bProg = b?.progress || 0;
+        if (aProg >= 100 && bProg < 100) return 1;
+        if (aProg < 100 && bProg >= 100) return -1;
+        if (!a?.targetDate) return 1;
+        if (!b?.targetDate) return -1;
+        try {
+          return new Date(a.targetDate).getTime() - new Date(b.targetDate).getTime();
+        } catch {
+          return 0;
+        }
       });
-  }, [state.goals, statusFilter, timeframeFilter, categoryFilter, searchQuery]);
+  }, [goals, statusFilter, timeframeFilter, categoryFilter, searchQuery]);
 
   // Open Vision Modal
   const handleOpenVisionModal = () => {
@@ -472,11 +497,11 @@ export default function GoalsDashboardPage() {
             <div className="grid grid-cols-1 gap-4">
               {filteredGoals.map((goal) => {
                 const status = getGoalStatus(goal);
-                const hasKrs = goal.keyResults && goal.keyResults.length > 0;
+                const hasKrs = Array.isArray(goal.keyResults) && goal.keyResults.length > 0;
                 const isKrsExpanded = expandedKrs[goal.id] ?? true;
-                const linkedTasks = state.tasks.filter((t) => t.goalId === goal.id);
+                const linkedTasks = tasks.filter((t) => t?.goalId === goal.id);
                 const isTasksExpanded = expandedTasks[goal.id] ?? false;
-                const linkedProjects = state.projects.filter((p) => p.goalId === goal.id);
+                const linkedProjects = projects.filter((p) => p?.goalId === goal.id);
 
                 return (
                   <Surface key={goal.id} className="p-5 space-y-4">
@@ -559,7 +584,9 @@ export default function GoalsDashboardPage() {
                         {isKrsExpanded && (
                           <div className="space-y-2 pl-1">
                             {goal.keyResults?.map((kr) => {
-                              const krPct = kr.targetValue > 0 ? Math.min(100, Math.round((kr.currentValue / kr.targetValue) * 100)) : 0;
+                              const targetVal = Number(kr?.targetValue) || 0;
+                              const currentVal = Number(kr?.currentValue) || 0;
+                              const krPct = targetVal > 0 ? Math.min(100, Math.max(0, Math.round((currentVal / targetVal) * 100))) : 0;
                               return (
                                 <div
                                   key={kr.id}
@@ -763,8 +790,8 @@ export default function GoalsDashboardPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               {LIFE_AREAS.map((area) => {
-                const areaGoals = state.goals.filter((g) => g.category === area.id);
-                const areaProjects = state.projects.filter((p) => p.area === area.id || p.name.includes(area.label));
+                const areaGoals = goals.filter((g) => g?.category === area.id);
+                const areaProjects = projects.filter((p) => p?.area === area.id || p?.name?.includes(area.label));
 
                 return (
                   <Surface key={area.id} className="p-4 flex flex-col justify-between space-y-3">

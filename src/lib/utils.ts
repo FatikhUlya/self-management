@@ -28,6 +28,28 @@ export function toISODate(date: Date): string {
   return copy.toISOString().slice(0, 10);
 }
 
+/** Safely parse any date string without throwing Invalid Date */
+function parseDateSafely(str: string | undefined | null): Date | null {
+  if (!str) return null;
+  const trimmed = String(str).trim();
+  if (!trimmed) return null;
+
+  // If already contains T or space, try direct parse
+  if (trimmed.includes('T') || trimmed.includes(' ')) {
+    const d = new Date(trimmed);
+    if (!isNaN(d.getTime())) return d;
+  }
+
+  // If YYYY-MM-DD
+  const dWithTime = new Date(`${trimmed}T00:00:00`);
+  if (!isNaN(dWithTime.getTime())) return dWithTime;
+
+  const dDirect = new Date(trimmed);
+  if (!isNaN(dDirect.getTime())) return dDirect;
+
+  return null;
+}
+
 /** Format date for display */
 export function formatDate(
   dateString: string | undefined | null,
@@ -35,26 +57,47 @@ export function formatDate(
 ): string {
   if (!dateString) return '-';
   const locale = options.locale || 'id-ID';
-  return new Intl.DateTimeFormat(locale, {
-    day: '2-digit',
-    month: 'short',
-    year: options.short ? undefined : 'numeric',
-  }).format(new Date(`${dateString}T00:00:00`));
+  const d = parseDateSafely(dateString);
+  if (!d) return String(dateString);
+
+  try {
+    return new Intl.DateTimeFormat(locale, {
+      day: '2-digit',
+      month: 'short',
+      year: options.short ? undefined : 'numeric',
+    }).format(d);
+  } catch {
+    return String(dateString);
+  }
 }
 
 /** Get full month label */
 export function monthLabel(dateString: string, locale = 'id-ID'): string {
-  return new Intl.DateTimeFormat(locale, {
-    month: 'long',
-    year: 'numeric',
-  }).format(new Date(`${dateString}T00:00:00`));
+  if (!dateString) return '-';
+  const d = parseDateSafely(dateString);
+  if (!d) return String(dateString);
+
+  try {
+    return new Intl.DateTimeFormat(locale, {
+      month: 'long',
+      year: 'numeric',
+    }).format(d);
+  } catch {
+    return String(dateString);
+  }
 }
 
 /** Get short day name */
 export function dayName(dateString: string, locale = 'id-ID'): string {
-  return new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(
-    new Date(`${dateString}T00:00:00`)
-  );
+  if (!dateString) return '-';
+  const d = parseDateSafely(dateString);
+  if (!d) return String(dateString);
+
+  try {
+    return new Intl.DateTimeFormat(locale, { weekday: 'short' }).format(d);
+  } catch {
+    return String(dateString);
+  }
 }
 
 /** Clamp a number between min and max */
