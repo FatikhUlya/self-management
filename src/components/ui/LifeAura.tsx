@@ -111,7 +111,7 @@ export function LifeAura() {
  )`
  }}
  />
- <div className="absolute inset-1 rounded-full bg-[#0a0c10] blur-[2px] opacity-80" />
+ <div className="absolute inset-1 rounded-full bg-background blur-[2px] opacity-80" />
  <div className="relative z-10 flex flex-col items-center">
  <Icon name="sun" size={24} className="text-foreground drop-shadow-md animate-[pulse_3s_ease-in-out_infinite]" />
  </div>
@@ -123,7 +123,7 @@ export function LifeAura() {
  </div>
 
  {/* Mini Stats Row */}
- <div className="relative z-10 flex gap-4 mt-4 bg-[#0a0c10]/80 px-4 py-2 rounded-full border border-white/5">
+ <div className="relative z-10 flex gap-4 mt-4 bg-background/80 px-4 py-2 rounded-full border border-border/30">
  <div className="flex flex-col items-center" title="Vitality (Kesehatan)">
  <div className="w-2 h-2 rounded-full bg-rose-500 mb-1" style={{ opacity: vitality / 100 }} />
  <span className="text-[8px] font-bold text-muted-foreground">VIT</span>

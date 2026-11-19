@@ -96,8 +96,9 @@ export function Sidebar() {
         transition={{ duration: 0.25, ease: 'easeOut' }}
         className="flex items-center space-x-2.5 px-2 mb-5"
       >
-        <div className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary text-primary-foreground text-xs font-bold tracking-tight shadow-2xs">
-          LO
+        <div className="relative flex items-center justify-center w-7 h-7 rounded-lg bg-foreground text-background font-mono text-[11px] font-bold tracking-tight shadow-2xs border border-border select-none">
+          <span>LO</span>
+          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-teal-500 ring-2 ring-card" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">

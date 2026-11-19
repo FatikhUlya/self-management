@@ -33,7 +33,7 @@ export function SerendipityOverlay() {
  }`}
  >
  <div
- className={`relative w-[90%] max-w-md p-8 rounded-3xl border border-white/10 bg-[#0a0c10]/90 shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden transition-all duration-700 delay-100 ${
+ className={`relative w-[90%] max-w-md p-8 rounded-3xl border border-border/30 bg-card/95 shadow-[0_0_80px_rgba(0,0,0,0.5)] backdrop-blur-xl overflow-hidden transition-all duration-700 delay-100 ${
  isVisible ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-12 scale-95 opacity-0'
  }`}
  >
@@ -45,7 +45,7 @@ export function SerendipityOverlay() {
  />
 
  <div className="relative z-10 flex flex-col items-center text-center">
- <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-6 text-foreground shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+ <div className="w-12 h-12 rounded-full bg-primary/10 border border-border/40 flex items-center justify-center mb-6 text-foreground shadow-glass">
  <Icon name={activeEvent.type === 'habit' ? 'zap' : 'sun'} size={20} />
  </div>
 
