@@ -15,6 +15,20 @@ export function MobileNav() {
   const { t, locale } = useI18n();
   const [isOpen, setIsOpen] = useState(false);
 
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+      }
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
+
   const mainBarItems = [
     NAV_ITEMS.find((item) => item.id === 'dashboard'),
     NAV_ITEMS.find((item) => item.id === 'projects'),
@@ -45,6 +59,7 @@ export function MobileNav() {
             <Link
               key={item.id}
               href={item.path}
+              aria-current={isActive ? 'page' : undefined}
               className={cn(
                 'flex flex-col items-center justify-center flex-1 h-full min-h-[44px] min-w-[44px] py-1 text-xs font-medium transition-colors touch-manipulation',
                 isActive
@@ -71,7 +86,9 @@ export function MobileNav() {
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          aria-label={isOpen ? 'Tutup Menu' : 'Semua Menu'}
+          aria-label={isOpen ? 'Tutup Menu Navigasi' : 'Buka Semua Menu Fitur'}
+          aria-expanded={isOpen}
+          aria-controls="mobile-drawer-sheet"
           className={cn(
             'flex flex-col items-center justify-center flex-1 h-full min-h-[44px] min-w-[44px] py-1 text-xs font-medium transition-colors touch-manipulation',
             isOpen
@@ -110,6 +127,10 @@ export function MobileNav() {
 
             {/* Bottom Sheet Panel */}
             <motion.div
+              id="mobile-drawer-sheet"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="mobile-drawer-title"
               key="mobile-sheet"
               variants={slideUp}
               initial="hidden"
@@ -121,7 +142,7 @@ export function MobileNav() {
               <div className="w-12 h-1.5 rounded-full mx-auto bg-zinc-300 dark:bg-zinc-700 shrink-0" />
 
               <div className="text-center">
-                <h3 className="text-sm font-semibold tracking-[-0.015em] text-foreground">
+                <h3 id="mobile-drawer-title" className="text-sm font-semibold tracking-[-0.015em] text-foreground">
                   Semua Fitur Life OS
                 </h3>
                 <p className="text-xs text-zinc-500 mt-0.5">

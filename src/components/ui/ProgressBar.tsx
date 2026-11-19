@@ -12,7 +12,15 @@ export function ProgressBar({ value, max = 100, label, detail }: ProgressBarProp
  const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
 
  return (
- <div className="w-full">
+ <div 
+   className="w-full"
+   role="progressbar"
+   aria-valuenow={Math.round(value)}
+   aria-valuemin={0}
+   aria-valuemax={max}
+   aria-label={label || "Progres pencapaian"}
+   aria-valuetext={detail || `${Math.round(percentage)}%`}
+ >
  {(label || detail) && (
  <div className="flex justify-between items-baseline mb-1.5">
  {label && <span className="text-sm font-medium text-foreground">{label}</span>}

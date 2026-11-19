@@ -20,15 +20,23 @@ export function Modal({
   size = 'md',
 }: ModalProps) {
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      window.addEventListener('keydown', handleKeyDown);
     } else {
       document.body.style.overflow = '';
     }
     return () => {
       document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -59,6 +67,7 @@ export function Modal({
         )}
         role="dialog"
         aria-modal="true"
+        aria-labelledby="modal-title"
       >
         {/* Mobile Grab Handle */}
         <div className="sm:hidden w-12 h-1.5 rounded-full bg-zinc-300 dark:bg-zinc-700 mx-auto mt-2.5 mb-1 shrink-0" />
@@ -66,7 +75,7 @@ export function Modal({
         {/* Header */}
         <div className="flex justify-between items-start p-5 border-b border-border">
           <div>
-            <h3 className="text-lg sm:text-xl font-medium tracking-[-0.015em] leading-[1.3] text-foreground">
+            <h3 id="modal-title" className="text-lg sm:text-xl font-medium tracking-[-0.015em] leading-[1.3] text-foreground">
               {title}
             </h3>
             {subtitle && (

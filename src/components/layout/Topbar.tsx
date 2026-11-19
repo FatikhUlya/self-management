@@ -112,6 +112,7 @@ export function Topbar() {
           <Icon name="calendar" size={14} className="text-muted-foreground" />
           <input
             type="date"
+            aria-label="Pilih tanggal operasional"
             value={state.selectedDate}
             onChange={handleDateChange}
             className="bg-transparent outline-none cursor-pointer text-xs font-medium text-foreground border-none p-0 focus:ring-0 font-mono tabular-nums"
@@ -121,6 +122,7 @@ export function Topbar() {
         {/* Theme Switcher */}
         <button
           onClick={toggleTheme}
+          aria-label={theme === 'dark' ? 'Ganti ke Mode Terang' : 'Ganti ke Mode Gelap'}
           className="flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-2xs"
           title={theme === 'dark' ? 'Mode Terang' : 'Mode Gelap'}
         >
@@ -130,6 +132,7 @@ export function Topbar() {
         {/* Language Switcher */}
         <button
           onClick={toggleLanguage}
+          aria-label={`Ubah bahasa, saat ini ${locale === 'id' ? 'Bahasa Indonesia' : 'English'}`}
           className="flex items-center justify-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted text-xs font-medium transition-colors font-mono shadow-2xs"
           title={t('settings_language')}
         >

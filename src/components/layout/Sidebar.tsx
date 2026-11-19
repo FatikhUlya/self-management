@@ -133,6 +133,7 @@ export function Sidebar() {
                   <Link
                     key={item.id}
                     href={item.path}
+                    aria-current={isActive ? 'page' : undefined}
                     className={cn(
                       "group flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 select-none",
                       isActive
@@ -182,6 +183,7 @@ export function Sidebar() {
           href="/settings"
           className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
           title="Pengaturan"
+          aria-label="Pengaturan"
         >
           <Icon name="settings" size={13} />
         </Link>
