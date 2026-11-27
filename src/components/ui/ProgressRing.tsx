@@ -30,7 +30,7 @@ export function ProgressRing({ label, value, colorClass = 'text-primary', size =
  />
  {/* Progress */}
  <circle
- className={`${colorClass} transition-all duration-700 ease-out`}
+ className={`${colorClass} transition-colors duration-700 ease-out`}
  strokeWidth={stroke}
  strokeDasharray={circumference + ' ' + circumference}
  style={{ strokeDashoffset }}

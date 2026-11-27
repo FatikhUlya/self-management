@@ -12,7 +12,7 @@ export function Surface({ children, className = '', glow = false, ...props }: Su
  <div
  className={cn(
  'glass',
- glow && 'ring-1 ring-primary/20 border-primary/30',
+ 
  className,
  )}
  {...props}

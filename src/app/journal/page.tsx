@@ -19,13 +19,14 @@ import {
 } from '@/components/ui/dialog';
 import { formatDate, todayISO, cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
+import { DateStamp } from '@/components/ui/DateStamp';
 
 const MOOD_CONFIG = [
-  { level: 1, label: 'Sangat Rendah', icon: 'mood1', tone: 'rose' as const, emoji: '😞' },
-  { level: 2, label: 'Kurang Baik', icon: 'mood2', tone: 'amber' as const, emoji: '😕' },
-  { level: 3, label: 'Cukup / Netral', icon: 'mood3', tone: 'amber' as const, emoji: '😐' },
-  { level: 4, label: 'Baik & Tenang', icon: 'mood4', tone: 'green' as const, emoji: '😊' },
-  { level: 5, label: 'Prima & Semangat', icon: 'mood5', tone: 'indigo' as const, emoji: '✨' },
+  { level: 1, label: 'Sangat Rendah', icon: 'mood1', tone: 'rose' as const },
+  { level: 2, label: 'Kurang Baik', icon: 'mood2', tone: 'amber' as const },
+  { level: 3, label: 'Cukup / Netral', icon: 'mood3', tone: 'amber' as const },
+  { level: 4, label: 'Baik & Tenang', icon: 'mood4', tone: 'green' as const },
+  { level: 5, label: 'Prima & Semangat', icon: 'mood5', tone: 'indigo' as const },
 ];
 
 const ENERGY_CONFIG = [
@@ -248,11 +249,9 @@ export default function JournalHubPage() {
       {/* Header & Page Title */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
+          <DateStamp />
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground flex items-center gap-2.5">
-              <span className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
-                <Icon name="journal" size={17} />
-              </span>
+            <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
               Journal & Reflection
             </h1>
             <Badge tone="indigo" className="font-mono tabular-nums text-xs">
@@ -282,7 +281,7 @@ export default function JournalHubPage() {
           icon="zap"
           label="Streak Refleksi"
           value={`${streak} Hari`}
-          detail={streak > 0 ? 'Konsistensi terjaga!' : 'Mulai entri hari ini'}
+          detail={streak > 0 ? 'Konsistensi terjaga' : 'Mulai entri hari ini'}
           glow={streak >= 3}
         />
         <MetricCard
@@ -311,7 +310,7 @@ export default function JournalHubPage() {
           <button
             onClick={() => setActiveTab('today')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all',
+              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-colors',
               activeTab === 'today'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
@@ -326,7 +325,7 @@ export default function JournalHubPage() {
           <button
             onClick={() => setActiveTab('archive')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all',
+              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-colors',
               activeTab === 'archive'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
@@ -334,14 +333,14 @@ export default function JournalHubPage() {
           >
             <Icon name="bookOpen" size={14} className={activeTab === 'archive' ? 'text-indigo-500' : ''} />
             Riwayat & Arsip Jurnal
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[10px]">
+            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
               {state.journals.length}
             </span>
           </button>
           <button
             onClick={() => setActiveTab('reviews')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all',
+              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-colors',
               activeTab === 'reviews'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
@@ -349,7 +348,7 @@ export default function JournalHubPage() {
           >
             <Icon name="review" size={14} className={activeTab === 'reviews' ? 'text-indigo-500' : ''} />
             Evaluasi Berkala (Reviews)
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[10px]">
+            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
               {state.reviews.length}
             </span>
           </button>
@@ -366,21 +365,21 @@ export default function JournalHubPage() {
                 {/* Status Bar */}
                 <div className="flex items-center justify-between pb-4 border-b border-border">
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    <span className="text-xs font-semibold text-muted-foreground">
                       {isToday ? 'Refleksi Hari Ini' : `Refleksi Tanggal: ${selectedDate}`}
                     </span>
                     {currentJournal ? (
-                      <Badge tone="green" className="text-[10px] py-0 px-2">
+                      <Badge tone="green" className="text-[11px] py-0 px-2">
                         Tersimpan
                       </Badge>
                     ) : (
-                      <Badge tone="gray" className="text-[10px] py-0 px-2">
+                      <Badge tone="gray" className="text-[11px] py-0 px-2">
                         Belum Diisi
                       </Badge>
                     )}
                   </div>
                   {saveSuccess && (
-                    <span className="text-xs font-medium text-emerald-500 flex items-center gap-1 animate-pulse">
+                    <span className="text-xs font-medium text-emerald-500 flex items-center gap-1 ">
                       <Icon name="checkCircle" size={14} /> Refleksi berhasil disimpan!
                     </span>
                   )}
@@ -390,7 +389,7 @@ export default function JournalHubPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Mood Selector */}
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
+                    <label className="text-xs font-semibold text-muted-foreground flex items-center justify-between">
                       <span>Mood / Suasana Hati</span>
                       <span className="font-normal lowercase text-[11px] text-foreground">
                         {MOOD_CONFIG.find((m) => m.level === mood)?.label}
@@ -405,14 +404,14 @@ export default function JournalHubPage() {
                             type="button"
                             onClick={() => setMood(m.level)}
                             className={cn(
-                              'flex flex-col items-center justify-center py-2.5 rounded-lg text-xs transition-all min-h-[44px]',
+                              'flex flex-col items-center justify-center py-2.5 rounded-lg text-xs transition-colors min-h-[44px]',
                               active
-                                ? 'bg-background shadow-xs text-foreground font-bold border border-border ring-1 ring-primary/20'
+                                ? 'bg-background shadow-xs text-foreground font-medium border border-border ring-1 ring-primary/20'
                                 : 'text-muted-foreground hover:bg-background/50 hover:text-foreground'
                             )}
                           >
-                            <span className="text-lg leading-none mb-1">{m.emoji}</span>
-                            <span className="text-[10px] font-mono">{m.level}</span>
+                            <Icon name={m.icon} size={20} className="mb-1" />
+                            <span className="text-[11px] font-mono">{m.level}</span>
                           </button>
                         );
                       })}
@@ -421,7 +420,7 @@ export default function JournalHubPage() {
 
                   {/* Energy Selector */}
                   <div className="space-y-2">
-                    <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center justify-between">
+                    <label className="text-xs font-semibold text-muted-foreground flex items-center justify-between">
                       <span>Level Energi</span>
                       <span className="font-normal lowercase text-[11px] text-foreground">
                         {ENERGY_CONFIG.find((e) => e.level === energy)?.label}
@@ -436,9 +435,9 @@ export default function JournalHubPage() {
                             type="button"
                             onClick={() => setEnergy(e.level)}
                             className={cn(
-                              'flex flex-col items-center justify-center py-2.5 rounded-lg text-xs transition-all min-h-[44px]',
+                              'flex flex-col items-center justify-center py-2.5 rounded-lg text-xs transition-colors min-h-[44px]',
                               active
-                                ? 'bg-background shadow-xs text-foreground font-bold border border-border ring-1 ring-primary/20'
+                                ? 'bg-background shadow-xs text-foreground font-medium border border-border ring-1 ring-primary/20'
                                 : 'text-muted-foreground hover:bg-background/50 hover:text-foreground'
                             )}
                           >
@@ -453,7 +452,7 @@ export default function JournalHubPage() {
                                 />
                               ))}
                             </div>
-                            <span className="text-[10px] font-mono">{e.level}</span>
+                            <span className="text-[11px] font-mono">{e.level}</span>
                           </button>
                         );
                       })}
@@ -467,46 +466,46 @@ export default function JournalHubPage() {
                     <div className="w-6 h-6 rounded-md bg-amber-500/10 text-amber-500 flex items-center justify-center">
                       <Icon name="star" size={13} />
                     </div>
-                    <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
+                    <span className="text-xs font-semibold text-foreground">
                       3 Hal yang Disyukuri Hari Ini (Gratitude)
                     </span>
                   </div>
                   <div className="space-y-2">
                     <div className="relative flex items-center">
-                      <span className="absolute left-3 text-xs font-mono font-bold text-muted-foreground/60">
+                      <span className="absolute left-3 text-xs font-mono font-medium text-muted-foreground/60">
                         1.
                       </span>
                       <input
                         type="text"
                         value={gratitude1}
                         onChange={(e) => setGratitude1(e.target.value)}
-                        placeholder="Hal sederhana yang membuat hari Anda lebih baik..."
-                        className="w-full pl-8 pr-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 text-foreground"
-                      />
+                        placeholder="Hal sederhana yang membuat hari Anda lebih baik"
+                        className="w-full pl-8 pr-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 text-foreground" aria-label="Hal sederhana yang membuat hari Anda lebih baik"
+/>
                     </div>
                     <div className="relative flex items-center">
-                      <span className="absolute left-3 text-xs font-mono font-bold text-muted-foreground/60">
+                      <span className="absolute left-3 text-xs font-mono font-medium text-muted-foreground/60">
                         2.
                       </span>
                       <input
                         type="text"
                         value={gratitude2}
                         onChange={(e) => setGratitude2(e.target.value)}
-                        placeholder="Seseorang atau interaksi berharga hari ini..."
-                        className="w-full pl-8 pr-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 text-foreground"
-                      />
+                        placeholder="Seseorang atau interaksi berharga hari ini"
+                        className="w-full pl-8 pr-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 text-foreground" aria-label="Seseorang atau interaksi berharga hari ini"
+/>
                     </div>
                     <div className="relative flex items-center">
-                      <span className="absolute left-3 text-xs font-mono font-bold text-muted-foreground/60">
+                      <span className="absolute left-3 text-xs font-mono font-medium text-muted-foreground/60">
                         3.
                       </span>
                       <input
                         type="text"
                         value={gratitude3}
                         onChange={(e) => setGratitude3(e.target.value)}
-                        placeholder="Peluang atau berkat tersembunyi..."
-                        className="w-full pl-8 pr-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 text-foreground"
-                      />
+                        placeholder="Peluang atau berkat tersembunyi"
+                        className="w-full pl-8 pr-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 text-foreground" aria-label="Peluang atau berkat tersembunyi"
+/>
                     </div>
                   </div>
                 </div>
@@ -517,7 +516,7 @@ export default function JournalHubPage() {
                     <div className="w-6 h-6 rounded-md bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
                       <Icon name="trophy" size={13} />
                     </div>
-                    <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
+                    <span className="text-xs font-semibold text-foreground">
                       Kemenangan Hari Ini (Daily Win)
                     </span>
                   </div>
@@ -526,8 +525,8 @@ export default function JournalHubPage() {
                     value={win}
                     onChange={(e) => setWin(e.target.value)}
                     placeholder="Apa pencapaian atau satu hal terbaik yang berhasil Anda selesaikan?"
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 text-foreground"
-                  />
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 text-foreground" aria-label="Apa pencapaian atau satu hal terbaik yang berhasil Anda selesaikan?"
+/>
                 </div>
 
                 {/* Deep Reflection */}
@@ -537,7 +536,7 @@ export default function JournalHubPage() {
                       <div className="w-6 h-6 rounded-md bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
                         <Icon name="penTool" size={13} />
                       </div>
-                      <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
+                      <span className="text-xs font-semibold text-foreground">
                         Refleksi & Catatan Bebas
                       </span>
                     </div>
@@ -546,9 +545,9 @@ export default function JournalHubPage() {
                     rows={5}
                     value={reflection}
                     onChange={(e) => setReflection(e.target.value)}
-                    placeholder="Tuliskan pikiran, perasaan, atau pelajaran penting hari ini secara leluasa..."
-                    className="w-full p-3 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 text-foreground resize-y leading-relaxed"
-                  />
+                    placeholder="Tuliskan pikiran, perasaan, atau pelajaran penting hari ini secara leluasa"
+                    className="w-full p-3 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 text-foreground resize-y leading-relaxed" aria-label="Tuliskan pikiran, perasaan, atau pelajaran penting hari ini secara leluasa"
+/>
                 </div>
 
                 {/* Next Action */}
@@ -557,7 +556,7 @@ export default function JournalHubPage() {
                     <div className="w-6 h-6 rounded-md bg-purple-500/10 text-purple-500 flex items-center justify-center">
                       <Icon name="target" size={13} />
                     </div>
-                    <span className="text-xs font-semibold uppercase tracking-wider text-foreground">
+                    <span className="text-xs font-semibold text-foreground">
                       Satu Fokus Utama Esok Hari (Next Priority)
                     </span>
                   </div>
@@ -565,9 +564,9 @@ export default function JournalHubPage() {
                     type="text"
                     value={nextAction}
                     onChange={(e) => setNextAction(e.target.value)}
-                    placeholder="Satu hal paling esensial yang ingin Anda capai besok..."
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-purple-500 focus:ring-1 focus:ring-purple-500/20 text-foreground"
-                  />
+                    placeholder="Satu hal paling esensial yang ingin Anda capai besok"
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-purple-500 focus:ring-1 focus:ring-purple-500/20 text-foreground" aria-label="Satu hal paling esensial yang ingin Anda capai besok"
+/>
                 </div>
 
                 {/* Submit Action */}
@@ -591,14 +590,14 @@ export default function JournalHubPage() {
             <Surface className="p-5 border-l-4 border-l-indigo-500">
               <div className="flex items-center gap-2 text-indigo-500 mb-2">
                 <Icon name="sparkles" size={16} />
-                <span className="text-xs font-bold uppercase tracking-wider">
+                <span className="text-xs font-medium ">
                   Pertanyaan Reflektif Hari Ini
                 </span>
               </div>
-              <p className="text-xs italic text-foreground leading-relaxed">
+              <p className="text-xs text-foreground leading-relaxed">
                 "{dailyPrompt}"
               </p>
-              <p className="text-[10px] text-muted-foreground mt-3 font-medium">
+              <p className="text-[11px] text-muted-foreground mt-3 font-medium">
                 Gunakan pertanyaan ini untuk memicu kejernihan pikiran dalam jurnal Anda.
               </p>
             </Surface>
@@ -606,11 +605,11 @@ export default function JournalHubPage() {
             {/* Yesterday's Recap Card */}
             <Surface className="p-5">
               <div className="flex items-center justify-between mb-3 pb-2 border-b border-border">
-                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-muted-foreground flex items-center gap-1.5">
                   <Icon name="clock" size={13} />
                   Kilas Balik Kemarin
                 </span>
-                <span className="text-[10px] font-mono text-muted-foreground">
+                <span className="text-[11px] font-mono text-muted-foreground">
                   {yesterdayDate}
                 </span>
               </div>
@@ -618,16 +617,16 @@ export default function JournalHubPage() {
               {yesterdayJournal ? (
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <Badge tone="indigo" className="text-[10px]">
+                    <Badge tone="indigo" className="text-[11px]">
                       Mood: {yesterdayJournal.mood}/5
                     </Badge>
-                    <Badge tone="green" className="text-[10px]">
+                    <Badge tone="green" className="text-[11px]">
                       Energi: {yesterdayJournal.energy}/5
                     </Badge>
                   </div>
                   {yesterdayJournal.win && (
                     <div className="text-xs">
-                      <span className="text-[10px] uppercase font-bold text-muted-foreground block">
+                      <span className="text-[11px] font-medium text-muted-foreground block">
                         Win Kemarin:
                       </span>
                       <p className="text-foreground font-medium mt-0.5 line-clamp-2">
@@ -637,7 +636,7 @@ export default function JournalHubPage() {
                   )}
                   {yesterdayJournal.next && (
                     <div className="text-xs bg-muted/20 p-2.5 rounded-lg border border-border">
-                      <span className="text-[10px] uppercase font-bold text-indigo-400 block">
+                      <span className="text-[11px] font-medium text-indigo-400 block">
                         Fokus yang Direncanakan:
                       </span>
                       <p className="text-foreground font-medium mt-0.5">
@@ -657,7 +656,7 @@ export default function JournalHubPage() {
 
             {/* Quick Tips */}
             <Surface className="p-5 bg-muted/10">
-              <h4 className="text-xs font-bold text-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <h4 className="text-xs font-medium text-foreground mb-2 flex items-center gap-1.5">
                 <Icon name="lightbulb" size={14} className="text-amber-500" />
                 Manfaat Menulis Jurnal
               </h4>
@@ -684,11 +683,11 @@ export default function JournalHubPage() {
               />
               <input
                 type="text"
-                placeholder="Cari win, rasa syukur, atau refleksi..."
+                placeholder="Cari win, rasa syukur, atau refleksi"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-indigo-500 text-foreground"
-              />
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-indigo-500 text-foreground" aria-label="Cari win, rasa syukur, atau refleksi"
+/>
             </div>
 
             {/* Mood Filter Pill */}
@@ -699,9 +698,9 @@ export default function JournalHubPage() {
               <button
                 onClick={() => setMoodFilter('all')}
                 className={cn(
-                  'px-2.5 py-1 text-xs rounded-lg font-medium transition-all shrink-0',
+                  'px-2.5 py-1 text-xs rounded-lg font-medium transition-colors shrink-0',
                   moodFilter === 'all'
-                    ? 'bg-foreground text-background font-bold'
+                    ? 'bg-foreground text-background font-medium'
                     : 'text-muted-foreground hover:bg-muted/30'
                 )}
               >
@@ -712,13 +711,13 @@ export default function JournalHubPage() {
                   key={m.level}
                   onClick={() => setMoodFilter(m.level)}
                   className={cn(
-                    'flex items-center gap-1 px-2 py-1 text-xs rounded-lg font-medium transition-all shrink-0',
+                    'flex items-center gap-1 px-2 py-1 text-xs rounded-lg font-medium transition-colors shrink-0',
                     moodFilter === m.level
-                      ? 'bg-foreground text-background font-bold'
+                      ? 'bg-foreground text-background font-medium'
                       : 'text-muted-foreground hover:bg-muted/30'
                   )}
                 >
-                  <span>{m.emoji}</span>
+                  <Icon name={m.icon} size={16} />
                   <span>{m.level}</span>
                 </button>
               ))}
@@ -736,29 +735,29 @@ export default function JournalHubPage() {
                 return (
                   <Surface
                     key={entry.id}
-                    className="p-5 flex flex-col justify-between hover:border-indigo-500/40 transition-all cursor-pointer group"
+                    className="p-5 flex flex-col justify-between hover:border-indigo-500/40 transition-colors cursor-pointer group"
                     onClick={() => setViewingJournal(entry)}
                   >
                     <div className="space-y-3">
                       {/* Card Header */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <strong className="text-sm font-bold text-foreground">
+                          <strong className="text-sm font-medium text-foreground">
                             {formatDate(entry.date)}
                           </strong>
                           {entry.date === todayISO() && (
-                            <Badge tone="indigo" className="text-[10px] py-0">
+                            <Badge tone="indigo" className="text-[11px] py-0">
                               Hari Ini
                             </Badge>
                           )}
                         </div>
                         <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-                          <Badge tone={moodObj?.tone || 'gray'} className="text-[10px] flex items-center gap-1">
-                            <span>{moodObj?.emoji}</span>
+                          <Badge tone={moodObj?.tone || 'gray'} className="text-[11px] flex items-center gap-1">
+                            {moodObj && <Icon name={moodObj.icon} size={14} />}
                             <span>Mood {entry.mood}/5</span>
                           </Badge>
-                          <Badge tone="indigo" className="text-[10px]">
-                            ⚡ {entry.energy}/5
+                          <Badge tone="indigo" className="text-[11px]">
+                            Energi {entry.energy}/5
                           </Badge>
                           <button
                             onClick={async () => {
@@ -779,7 +778,7 @@ export default function JournalHubPage() {
                         <div className="p-2.5 rounded-lg bg-emerald-500/5 border border-emerald-500/20 text-xs flex items-start gap-2">
                           <Icon name="trophy" size={14} className="text-emerald-500 shrink-0 mt-0.5" />
                           <div>
-                            <span className="text-[10px] font-bold uppercase text-emerald-500 block">
+                            <span className="text-[11px] font-medium text-emerald-500 block">
                               Daily Win
                             </span>
                             <p className="text-foreground font-medium line-clamp-1">{entry.win}</p>
@@ -790,7 +789,7 @@ export default function JournalHubPage() {
                       {/* Gratitude Chips */}
                       {hasGratitudes && (
                         <div className="space-y-1 text-xs">
-                          <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">
+                          <span className="text-[11px] font-semibold text-muted-foreground block">
                             Gratitude
                           </span>
                           <div className="flex flex-wrap gap-1.5">
@@ -841,7 +840,7 @@ export default function JournalHubPage() {
                 message={
                   searchQuery || moodFilter !== 'all'
                     ? 'Tidak ada jurnal yang sesuai dengan kriteria filter.'
-                    : 'Belum ada entri jurnal yang tersimpan. Mulai tulis refleksi pertama Anda!'
+                    : 'Belum ada entri jurnal yang tersimpan. Mulai tulis refleksi pertama Anda'
                 }
               />
             </Surface>
@@ -863,9 +862,9 @@ export default function JournalHubPage() {
                   key={period}
                   onClick={() => setReviewPeriodFilter(period)}
                   className={cn(
-                    'px-2.5 py-1 text-xs rounded-lg font-medium transition-all capitalize shrink-0',
+                    'px-2.5 py-1 text-xs rounded-lg font-medium transition-colors capitalize shrink-0',
                     reviewPeriodFilter === period
-                      ? 'bg-foreground text-background font-bold'
+                      ? 'bg-foreground text-background font-medium'
                       : 'text-muted-foreground hover:bg-muted/30'
                   )}
                 >
@@ -891,17 +890,17 @@ export default function JournalHubPage() {
                 <Surface key={r.id} className="p-5 space-y-3">
                   <div className="flex items-center justify-between border-b border-border pb-3">
                     <div className="flex items-center gap-2">
-                      <strong className="text-sm font-bold text-foreground">
+                      <strong className="text-sm font-medium text-foreground">
                         {formatDate(r.date)}
                       </strong>
-                      <Badge tone="indigo" className="text-[10px] uppercase font-bold tracking-wider">
+                      <Badge tone="indigo" className="text-[11px] font-medium ">
                         {r.period}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-2">
-                      <Badge tone="green" className="flex items-center gap-1 text-[10px]">
+                      <Badge tone="green" className="flex items-center gap-1 text-[11px]">
                         <Icon name="star" size={12} className="text-emerald-500" />
-                        <span className="font-bold">{r.score}/5</span>
+                        <span className="font-medium">{r.score}/5</span>
                       </Badge>
                       <button
                         onClick={async () => {
@@ -922,7 +921,7 @@ export default function JournalHubPage() {
                       <div className="flex items-start gap-2">
                         <Icon name="trophy" size={14} className="text-amber-500 mt-0.5 shrink-0" />
                         <div>
-                          <span className="font-bold text-foreground">Wins: </span>
+                          <span className="font-medium text-foreground">Wins: </span>
                           <span className="text-muted-foreground">{r.wins}</span>
                         </div>
                       </div>
@@ -931,7 +930,7 @@ export default function JournalHubPage() {
                       <div className="flex items-start gap-2">
                         <Icon name="lightbulb" size={14} className="text-yellow-500 mt-0.5 shrink-0" />
                         <div>
-                          <span className="font-bold text-foreground">Pelajaran: </span>
+                          <span className="font-medium text-foreground">Pelajaran: </span>
                           <span className="text-muted-foreground">{r.lessons}</span>
                         </div>
                       </div>
@@ -940,7 +939,7 @@ export default function JournalHubPage() {
                       <div className="flex items-start gap-2">
                         <Icon name="alertCircle" size={14} className="text-rose-500 mt-0.5 shrink-0" />
                         <div>
-                          <span className="font-bold text-foreground">Tantangan: </span>
+                          <span className="font-medium text-foreground">Tantangan: </span>
                           <span className="text-muted-foreground">{r.challenges}</span>
                         </div>
                       </div>
@@ -949,7 +948,7 @@ export default function JournalHubPage() {
                       <div className="flex items-start gap-2 pt-2 border-t border-border">
                         <Icon name="target" size={14} className="text-indigo-500 mt-0.5 shrink-0" />
                         <div>
-                          <span className="font-bold text-indigo-500">Fokus Berikutnya: </span>
+                          <span className="font-medium text-indigo-500">Fokus Berikutnya: </span>
                           <span className="text-foreground font-medium">{r.focus}</span>
                         </div>
                       </div>
@@ -973,7 +972,7 @@ export default function JournalHubPage() {
             <>
               <DialogHeader>
                 <div className="flex items-center gap-2 mb-1">
-                  <DialogTitle className="text-lg font-bold">
+                  <DialogTitle className="text-lg font-medium">
                     Jurnal: {formatDate(viewingJournal.date)}
                   </DialogTitle>
                 </div>
@@ -988,21 +987,21 @@ export default function JournalHubPage() {
                   <div className="flex items-center gap-1.5">
                     <span className="text-muted-foreground">Mood:</span>
                     <strong className="text-foreground text-sm">
-                      {MOOD_CONFIG.find((m) => m.level === viewingJournal.mood)?.emoji} {viewingJournal.mood}/5
+                      Mood {viewingJournal.mood}/5
                     </strong>
                   </div>
                   <div className="w-px h-4 bg-border" />
                   <div className="flex items-center gap-1.5">
                     <span className="text-muted-foreground">Energi:</span>
                     <strong className="text-foreground text-sm">
-                      ⚡ {viewingJournal.energy}/5
+                      Energi {viewingJournal.energy}/5
                     </strong>
                   </div>
                 </div>
 
                 {/* Gratitudes */}
                 <div className="space-y-1.5">
-                  <h4 className="font-bold text-foreground uppercase tracking-wider text-[11px] flex items-center gap-1">
+                  <h4 className="font-medium text-foreground text-[11px] flex items-center gap-1">
                     <Icon name="star" size={13} className="text-amber-500" /> 3 Hal yang Disyukuri
                   </h4>
                   <div className="space-y-1 pl-2">
@@ -1015,7 +1014,7 @@ export default function JournalHubPage() {
                 {/* Win */}
                 {viewingJournal.win && (
                   <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                    <h4 className="font-bold text-emerald-500 uppercase tracking-wider text-[11px] mb-1 flex items-center gap-1">
+                    <h4 className="font-medium text-emerald-500 text-[11px] mb-1 flex items-center gap-1">
                       <Icon name="trophy" size={13} /> Kemenangan Hari Ini
                     </h4>
                     <p className="text-foreground font-medium">{viewingJournal.win}</p>
@@ -1025,7 +1024,7 @@ export default function JournalHubPage() {
                 {/* Reflection */}
                 {viewingJournal.reflection && (
                   <div className="space-y-1">
-                    <h4 className="font-bold text-foreground uppercase tracking-wider text-[11px]">
+                    <h4 className="font-medium text-foreground text-[11px]">
                       Refleksi & Catatan
                     </h4>
                     <div className="p-3 rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed whitespace-pre-wrap">
@@ -1037,7 +1036,7 @@ export default function JournalHubPage() {
                 {/* Next */}
                 {viewingJournal.next && (
                   <div className="p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
-                    <h4 className="font-bold text-indigo-500 uppercase tracking-wider text-[11px] mb-1 flex items-center gap-1">
+                    <h4 className="font-medium text-indigo-500 text-[11px] mb-1 flex items-center gap-1">
                       <Icon name="target" size={13} /> Target / Langkah Esok Hari
                     </h4>
                     <p className="text-foreground font-medium">{viewingJournal.next}</p>
@@ -1060,7 +1059,7 @@ export default function JournalHubPage() {
         <DialogContent className="max-w-xl">
           <form onSubmit={handleSaveReview}>
             <DialogHeader>
-              <DialogTitle className="text-lg font-bold flex items-center gap-2">
+              <DialogTitle className="text-lg font-medium flex items-center gap-2">
                 <Icon name="review" size={18} className="text-indigo-500" />
                 Tulis Evaluasi Berkala
               </DialogTitle>
@@ -1073,7 +1072,7 @@ export default function JournalHubPage() {
               {/* Period & Score */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Periode Evaluasi
                   </label>
                   <select
@@ -1089,7 +1088,7 @@ export default function JournalHubPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Skor Kinerja (1-5)
                   </label>
                   <select
@@ -1108,7 +1107,7 @@ export default function JournalHubPage() {
 
               {/* Wins */}
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Pencapaian Utama (Wins)
                 </label>
                 <textarea
@@ -1116,13 +1115,13 @@ export default function JournalHubPage() {
                   value={reviewWins}
                   onChange={(e) => setReviewWins(e.target.value)}
                   placeholder="Apa pencapaian atau 20% tindakan yang menghasilkan 80% dampak?"
-                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
-                />
+                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden" aria-label="Apa pencapaian atau 20% tindakan yang menghasilkan 80% dampak?"
+/>
               </div>
 
               {/* Lessons */}
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Pelajaran Terbesar (Lessons Learned)
                 </label>
                 <textarea
@@ -1130,13 +1129,13 @@ export default function JournalHubPage() {
                   value={reviewLessons}
                   onChange={(e) => setReviewLessons(e.target.value)}
                   placeholder="Pelajaran atau insight apa yang Anda dapatkan?"
-                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
-                />
+                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden" aria-label="Pelajaran atau insight apa yang Anda dapatkan?"
+/>
               </div>
 
               {/* Challenges */}
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Hambatan / Distraksi (Challenges)
                 </label>
                 <textarea
@@ -1144,22 +1143,22 @@ export default function JournalHubPage() {
                   value={reviewChallenges}
                   onChange={(e) => setReviewChallenges(e.target.value)}
                   placeholder="Apa yang menghambat kemajuan atau menguras energi Anda?"
-                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
-                />
+                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden" aria-label="Apa yang menghambat kemajuan atau menguras energi Anda?"
+/>
               </div>
 
               {/* Focus */}
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Fokus Utama Periode Selanjutnya (Next Focus)
                 </label>
                 <input
                   type="text"
                   value={reviewFocus}
                   onChange={(e) => setReviewFocus(e.target.value)}
-                  placeholder="Satu atau dua prioritas utama untuk periode berikutnya..."
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
-                />
+                  placeholder="Satu atau dua prioritas utama untuk periode berikutnya"
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden" aria-label="Satu atau dua prioritas utama untuk periode berikutnya"
+/>
               </div>
             </div>
 

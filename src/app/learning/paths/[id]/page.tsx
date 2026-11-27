@@ -16,7 +16,7 @@ const ReactQuill = dynamic(() => import('react-quill'), { ssr: false });
 const quillModules = {
  toolbar: [
  [{ 'header': [1, 2, 3, false] }],
- ['bold', 'italic', 'underline', 'strike'],
+ ['bold', '', 'underline', 'strike'],
  [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
  ['link', 'image'],
  ['clean']
@@ -52,7 +52,7 @@ export default function LearningPathDetailPage() {
  if (!subject && !loading) {
  return (
  <div className="text-center py-20 space-y-4">
- <h1 className="text-2xl font-bold text-zinc-800 dark:text-zinc-200">Topik tidak ditemukan</h1>
+ <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">Topik tidak ditemukan</h1>
  <Button onClick={() => router.push('/learning')}>Kembali</Button>
  </div>
  );
@@ -113,15 +113,15 @@ export default function LearningPathDetailPage() {
  type="text" 
  value={editSubjectTitle} 
  onChange={e => setEditSubjectTitle(e.target.value)}
- className="w-full text-2xl font-bold bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700/50 rounded-lg px-4 py-2 text-zinc-900 dark:text-zinc-100"
- placeholder="Judul Topik"
- />
+ className="w-full text-2xl font-medium bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700/50 rounded-lg px-4 py-2 text-zinc-900 dark:text-zinc-100"
+ placeholder="Judul Topik" aria-label="Judul Topik"
+/>
  <textarea 
  value={editSubjectDesc}
  onChange={e => setEditSubjectDesc(e.target.value)}
  className="w-full h-24 bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700/50 rounded-lg px-4 py-2 text-zinc-900 dark:text-zinc-100 resize-none"
- placeholder="Deskripsi Singkat"
- />
+ placeholder="Deskripsi Singkat" aria-label="Deskripsi Singkat"
+/>
  <div className="flex gap-2">
  <Button onClick={handleSaveSubject} className="bg-amber-500 text-white hover:bg-amber-600">Simpan</Button>
  <Button variant="secondary" onClick={() => setIsEditingSubject(false)}>Batal</Button>
@@ -130,7 +130,7 @@ export default function LearningPathDetailPage() {
  ) : (
  <div className="flex justify-between items-start">
  <div>
- <h1 className="text-3xl font-bold text-zinc-800 dark:text-zinc-100">{subject?.title}</h1>
+ <h1 className="text-3xl font-medium text-zinc-800 dark:text-zinc-100">{subject?.title}</h1>
  <p className="text-zinc-500 dark:text-zinc-400 mt-2">{subject?.description || 'Belum ada deskripsi.'}</p>
  </div>
  <button 
@@ -149,7 +149,7 @@ export default function LearningPathDetailPage() {
  </div>
  <div className="h-3 w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
  <div 
- className="h-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500"
+ className="h-full transition-colors duration-500 bg-amber-500"
  style={{ width: `${progress}%` }}
  />
  </div>
@@ -157,7 +157,7 @@ export default function LearningPathDetailPage() {
  </Surface>
 
  <div className="flex items-center justify-between mt-8 mb-4">
- <h2 className="text-2xl font-bold text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
+ <h2 className="text-2xl font-medium text-zinc-800 dark:text-zinc-200 flex items-center gap-2">
  <Icon name="list" size={24} className="text-amber-500" />
  Modul & Aksi
  </h2>
@@ -173,22 +173,22 @@ export default function LearningPathDetailPage() {
 
  {isAddingModule && (
  <Surface className="p-4 border-l-4 border-l-amber-500 mb-6">
- <h3 className="text-lg font-bold mb-4">Tambah Modul Baru</h3>
+ <h3 className="text-lg font-medium mb-4">Tambah Modul Baru</h3>
  <div className="space-y-4">
  <input 
  type="text" 
  value={newModuleData.title} 
  onChange={e => setNewModuleData({...newModuleData, title: e.target.value})}
- className="w-full font-bold bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700/50 rounded-lg px-4 py-2 text-zinc-900 dark:text-zinc-100"
- placeholder="Judul Modul"
- />
+ className="w-full font-medium bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700/50 rounded-lg px-4 py-2 text-zinc-900 dark:text-zinc-100"
+ placeholder="Judul Modul" aria-label="Judul Modul"
+/>
  <div className="bg-white/50 dark:bg-black/20 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700/50">
  <ReactQuill 
  theme="snow" 
  modules={quillModules}
  value={newModuleData.contentMaterial} 
  onChange={(value: string) => setNewModuleData({...newModuleData, contentMaterial: value})}
- placeholder="✨ Ketik atau paste materi dari Google Docs di sini..."
+ placeholder="Tulis atau tempel materi"
  className="text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-900"
  />
  </div>
@@ -197,15 +197,15 @@ export default function LearningPathDetailPage() {
  value={newModuleData.contentVideoLink} 
  onChange={e => setNewModuleData({...newModuleData, contentVideoLink: e.target.value})}
  className="w-full bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700/50 rounded-lg px-4 py-2 text-zinc-900 dark:text-zinc-100"
- placeholder="Link Video (Opsional)"
- />
+ placeholder="Link Video (Opsional)" aria-label="Link Video (Opsional)"
+/>
  <input 
  type="url" 
  value={newModuleData.contentImageUrl} 
  onChange={e => setNewModuleData({...newModuleData, contentImageUrl: e.target.value})}
  className="w-full bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700/50 rounded-lg px-4 py-2 text-zinc-900 dark:text-zinc-100"
- placeholder="Link Gambar (Opsional)"
- />
+ placeholder="Link Gambar (Opsional)" aria-label="Link Gambar (Opsional)"
+/>
  <div className="flex gap-2 pt-2">
  <Button onClick={handleAddModule} className="bg-amber-500 text-white hover:bg-amber-600">Simpan Modul</Button>
  <Button variant="secondary" onClick={() => setIsAddingModule(false)}>Batal</Button>
@@ -224,7 +224,7 @@ export default function LearningPathDetailPage() {
  {modules.map((module) => (
  <Surface 
  key={module.id} 
- className={`p-5 transition-all ${module.isCompleted ? 'border-emerald-500/30 bg-emerald-50/30 dark:bg-emerald-900/10' : ''}`}
+ className={`p-5 transition-colors ${module.isCompleted ? 'border-emerald-500/30 bg-emerald-50/30 dark:bg-emerald-900/10' : ''}`}
  >
  {editingModuleId === module.id ? (
  <div className="space-y-4">
@@ -232,7 +232,7 @@ export default function LearningPathDetailPage() {
  type="text" 
  value={editModuleData.title} 
  onChange={e => setEditModuleData({...editModuleData, title: e.target.value})}
- className="w-full font-bold bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700/50 rounded-lg px-4 py-2"
+ className="w-full font-medium bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700/50 rounded-lg px-4 py-2"
  />
  <div className="bg-white/50 dark:bg-black/20 rounded-lg overflow-hidden border border-zinc-200 dark:border-zinc-700/50">
  <ReactQuill 
@@ -248,15 +248,15 @@ export default function LearningPathDetailPage() {
  value={editModuleData.contentVideoLink} 
  onChange={e => setEditModuleData({...editModuleData, contentVideoLink: e.target.value})}
  className="w-full bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700/50 rounded-lg px-4 py-2"
- placeholder="Link Video"
- />
+ placeholder="Link Video" aria-label="Link Video"
+/>
  <input 
  type="url" 
  value={editModuleData.contentImageUrl} 
  onChange={e => setEditModuleData({...editModuleData, contentImageUrl: e.target.value})}
  className="w-full bg-white/50 dark:bg-black/20 border border-zinc-200 dark:border-zinc-700/50 rounded-lg px-4 py-2"
- placeholder="Link Gambar"
- />
+ placeholder="Link Gambar" aria-label="Link Gambar"
+/>
  <div className="flex gap-2">
  <Button onClick={handleSaveModule} className="bg-amber-500 text-white">Simpan</Button>
  <Button variant="secondary" onClick={() => setEditingModuleId(null)}>Batal</Button>
@@ -278,7 +278,7 @@ export default function LearningPathDetailPage() {
  </button>
  <div className="flex-1">
  <Link href={`/learning/paths/${id}/modules/${module.id}`}>
- <h3 className={`text-lg font-bold hover:text-amber-500 transition-colors ${module.isCompleted ? 'text-zinc-500 line-through' : 'text-zinc-800 dark:text-zinc-100'}`}>
+ <h3 className={`text-lg font-medium hover:text-amber-500 transition-colors ${module.isCompleted ? 'text-zinc-500 line-through' : 'text-zinc-800 dark:text-zinc-100'}`}>
  {module.title}
  </h3>
  </Link>

@@ -3,7 +3,6 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { motion } from 'framer-motion';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { useI18n } from '@/lib/i18n/context';
 import { Icon } from '../ui/Icon';
@@ -12,7 +11,7 @@ import { addDays, inLastDays, cn } from '@/lib/utils';
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { state } = useLifeOS();
+  const { state, user, signOut } = useLifeOS();
   const { t, locale } = useI18n();
 
   const getBadgeCount = (id: string): string | number => {
@@ -30,7 +29,7 @@ export function Sidebar() {
       }
       case 'journal': {
         const exists = state.journals.some((j) => j.date === state.selectedDate);
-        return exists ? '✓' : '✎';
+        return exists ? 'done' : '';
       }
       case 'planning': {
         const tomorrow = addDays(state.selectedDate, 1);
@@ -84,35 +83,28 @@ export function Sidebar() {
   // Group items by section
   const sections = ['core', 'productivity', 'wellness', 'growth', 'system'] as const;
 
+  const email: string = user?.email || '';
+  const displayName = email ? email.split('@')[0] : 'Life OS';
+  const initial = displayName.charAt(0).toUpperCase();
+
   return (
-    <aside 
-      className="hidden md:flex flex-col w-60 h-screen sticky top-0 py-4 px-3 shrink-0 overflow-y-auto bg-card border-r border-border select-none"
+    <aside
+      className="hidden md:flex flex-col w-60 h-screen sticky top-0 shrink-0 overflow-y-auto bg-card border-r border-border select-none"
       aria-label="Navigasi utama"
     >
-      {/* Brand Header */}
-      <motion.div
-        initial={{ opacity: 0, x: -10 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.25, ease: 'easeOut' }}
-        className="flex items-center space-x-2.5 px-2 mb-5"
-      >
-        <div className="relative flex items-center justify-center w-7 h-7 rounded-lg bg-foreground text-background font-mono text-[11px] font-bold tracking-tight shadow-2xs border border-border select-none">
-          <span>LO</span>
-          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-teal-500 ring-2 ring-card" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs font-semibold tracking-[-0.015em] text-foreground">Life OS</span>
-            <span className="text-[9px] px-1 py-0.2 rounded font-mono tabular-nums bg-primary/10 text-primary font-medium">v2.0</span>
-          </div>
-          <p className="text-[10px] text-zinc-500 truncate">
-            {locale === 'id' ? 'Executive Life OS' : 'Personal Command Center'}
-          </p>
-        </div>
-      </motion.div>
+      {/* Wordmark */}
+      <div className="flex items-center gap-2 h-14 px-4 border-b border-border">
+        <span
+          aria-hidden="true"
+          className="flex items-center justify-center w-6 h-6 rounded-md bg-foreground text-background font-mono text-[11px] font-medium"
+        >
+          L
+        </span>
+        <span className="text-[15px] font-medium text-foreground">Life OS</span>
+      </div>
 
-      {/* Nav List grouped by section */}
-      <nav className="flex-1 space-y-4" aria-label="Menu aplikasi">
+      {/* Navigation */}
+      <nav className="flex-1 px-3 pb-4" aria-label="Menu aplikasi">
         {sections.map((sectionKey) => {
           const items = (NAV_ITEMS as readonly any[]).filter(item => (item.section || 'core') === sectionKey);
           if (items.length === 0) return null;
@@ -120,74 +112,62 @@ export function Sidebar() {
           const label = sectionLabels[sectionKey]?.[locale === 'id' ? 'id' : 'en'] || sectionKey;
 
           return (
-            <div key={sectionKey} className="space-y-0.5">
+            <div key={sectionKey} className={sectionKey === 'core' ? 'pt-3' : 'pt-6'}>
               {sectionKey !== 'core' && (
-                <p className="text-xs font-medium tracking-[0.02em] uppercase text-zinc-500 px-2 pt-1 pb-1">
-                  {label}
-                </p>
+                <p className="px-2 pb-2 text-xs text-muted-foreground">{label}</p>
               )}
-              {items.map((item) => {
-                const isActive = pathname === item.path || (item.path !== '/' && pathname.startsWith(item.path));
-                const badge = getBadgeCount(item.id);
+              <div className="flex flex-col gap-0.5">
+                {items.map((item) => {
+                  const isActive = pathname === item.path || (item.path !== '/' && pathname.startsWith(item.path));
+                  const badge = getBadgeCount(item.id);
 
-                return (
-                  <Link
-                    key={item.id}
-                    href={item.path}
-                    aria-current={isActive ? 'page' : undefined}
-                    className={cn(
-                      "group flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 select-none",
-                      isActive
-                        ? "bg-primary/10 text-primary font-semibold shadow-2xs border border-primary/20"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/60 border border-transparent"
-                    )}
-                  >
-                    <div className="flex items-center space-x-2.5 min-w-0">
-                      <span className={cn(
-                        "flex items-center justify-center transition-colors shrink-0",
-                        isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
-                      )}>
-                        <Icon name={item.icon} size={15} />
-                      </span>
-                      <span className="truncate">{t(item.labelKey)}</span>
-                    </div>
-                    {badge !== '' && (
-                      <span className={cn(
-                        "px-1.5 py-0.5 text-[10px] rounded font-mono tabular-nums leading-none shrink-0",
+                  return (
+                    <Link
+                      key={item.id}
+                      href={item.path}
+                      aria-current={isActive ? 'page' : undefined}
+                      className={cn(
+                        'group flex items-center gap-2.5 h-8 px-2 rounded-lg text-[13px] transition-colors duration-150',
                         isActive
-                          ? "bg-primary/20 text-primary font-semibold"
-                          : "bg-muted text-muted-foreground"
-                      )}>
-                        {badge}
+                          ? 'bg-secondary text-foreground font-medium shadow-[inset_0_0_0_1px_hsl(var(--border))]'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/70'
+                      )}
+                    >
+                      <span className="flex w-4 justify-center shrink-0">
+                        <Icon name={item.icon} size={16} />
                       </span>
-                    )}
-                  </Link>
-                );
-              })}
+                      <span className="flex-1 truncate">{t(item.labelKey)}</span>
+                      {badge === 'done' ? (
+                        <Icon name="check" size={14} className="text-success shrink-0"/>
+                      ) : badge !== '' ? (
+                        <span className="font-mono text-[11px] tabular-nums text-muted-foreground shrink-0">{badge}</span>
+                      ) : null}
+                    </Link>
+                  );
+                })}
+              </div>
             </div>
           );
         })}
       </nav>
 
-      {/* Footer Profile Strip */}
-      <div className="pt-3 mt-2 border-t border-border/80 px-2 flex items-center justify-between">
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="w-6 h-6 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center shrink-0">
-            F
-          </div>
-          <div className="min-w-0">
-            <p className="text-xs font-semibold text-foreground truncate leading-tight">Fatikh</p>
-            <p className="text-[10px] text-muted-foreground font-mono truncate">Solo Operator</p>
-          </div>
-        </div>
-        <Link 
-          href="/settings"
-          className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
-          title="Pengaturan"
-          aria-label="Pengaturan"
-        >
-          <Icon name="settings" size={13} />
-        </Link>
+      {/* Account */}
+      <div className="flex items-center gap-2 h-14 px-4 border-t border-border">
+        <span className="flex items-center justify-center w-6 h-6 rounded-full bg-secondary text-foreground text-[11px] font-medium shrink-0">
+          {initial}
+        </span>
+        <span className="flex-1 min-w-0 text-[13px] text-foreground truncate" title={email}>{displayName}</span>
+        {user && (
+          <button
+            type="button"
+            onClick={() => signOut()}
+            className="flex items-center justify-center w-7 h-7 rounded-md text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+            title="Keluar"
+            aria-label="Keluar"
+          >
+            <Icon name="logOut" size={16} />
+          </button>
+        )}
       </div>
     </aside>
   );

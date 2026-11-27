@@ -73,7 +73,7 @@ export default function FeedbackManager() {
  </button>
  </Link>
  <div>
- <h1 className="text-3xl font-bold text-white flex items-center gap-2">
+ <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
  Feedback Kolega
  </h1>
  <p className="text-zinc-400 mt-1 text-sm">
@@ -89,7 +89,7 @@ export default function FeedbackManager() {
  <div className="space-y-6">
  {/* Active Requests */}
  <Surface className="p-6">
- <h3 className="text-sm font-bold text-teal-400 uppercase tracking-wider mb-4 border-b border-white/10 pb-2">
+ <h3 className="text-sm font-medium text-foreground mb-4 border-b border-border pb-2">
  Permintaan Aktif
  </h3>
  
@@ -118,7 +118,7 @@ export default function FeedbackManager() {
  onClick={() => handleCopy(req.token)}
  icon={copiedToken === req.token ? 'check' : 'copy'}
  >
- {copiedToken === req.token ? 'Disalin!' : 'Salin Tautan'}
+ {copiedToken === req.token ? 'Disalin' : 'Salin Tautan'}
  </Button>
  <Button 
  variant="secondary" 
@@ -145,7 +145,7 @@ export default function FeedbackManager() {
  {/* Closed Requests */}
  {closedRequests.length > 0 && (
  <Surface className="p-6">
- <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-4 border-b border-white/10 pb-2">
+ <h3 className="text-sm font-medium text-foreground mb-4 border-b border-border pb-2">
  Permintaan Selesai
  </h3>
  <div className="space-y-2">
@@ -174,19 +174,19 @@ export default function FeedbackManager() {
  >
  <form onSubmit={handleSubmit} className="space-y-4">
  <div className="space-y-2">
- <label className="text-xs font-bold text-zinc-400 uppercase">Judul</label>
+ <label className="text-xs font-medium text-zinc-400 ">Judul</label>
  <input 
  type="text" 
  required
  value={title}
  onChange={e => setTitle(e.target.value)}
  placeholder="Mis. Feedback Tengah Tahun 2026"
- className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
- />
+ className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white" aria-label="Mis. Feedback Tengah Tahun 2026"
+/>
  </div>
 
  <div className="space-y-2">
- <label className="text-xs font-bold text-zinc-400 uppercase">Privasi</label>
+ <label className="text-xs font-medium text-zinc-400 ">Privasi</label>
  <select 
  value={privacyMode}
  onChange={e => setPrivacyMode(e.target.value as any)}
@@ -198,7 +198,7 @@ export default function FeedbackManager() {
  </div>
 
  <div className="space-y-2">
- <label className="text-xs font-bold text-zinc-400 uppercase">Deadline (Opsional)</label>
+ <label className="text-xs font-medium text-zinc-400 ">Deadline (Opsional)</label>
  <input 
  type="date" 
  value={deadline}
@@ -208,7 +208,7 @@ export default function FeedbackManager() {
  </div>
 
  <div className="space-y-2 pt-2 border-t border-white/10">
- <label className="text-xs font-bold text-zinc-400 uppercase">Pilih Area Evaluasi (Pilih 1+)</label>
+ <label className="text-xs font-medium text-zinc-400 ">Pilih Area Evaluasi (Pilih 1+)</label>
  <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-1">
  {SELF_AWARENESS_DOMAINS.map(domain => {
  const isSelected = selectedDomains.includes(domain.key);
@@ -216,7 +216,7 @@ export default function FeedbackManager() {
  <div 
  key={domain.key}
  onClick={() => toggleDomain(domain.key)}
- className={`p-2 rounded-lg border cursor-pointer flex items-center gap-2 text-xs transition-all ${
+ className={`p-2 rounded-lg border cursor-pointer flex items-center gap-2 text-xs transition-colors ${
  isSelected ? 'bg-teal-500/10 border-teal-500/30 text-teal-300' : 'bg-white/5 border-white/10 text-zinc-400 hover:border-white/20'
  }`}
  >

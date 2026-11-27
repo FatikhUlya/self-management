@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/dialog';
 import { formatDate, todayISO, safeUrl, cn } from '@/lib/utils';
 import { WORK_STATUSES, Priority, WorkStatusId } from '@/lib/constants';
+import { DateStamp } from '@/components/ui/DateStamp';
 
 const PIPELINE_ORDER: WorkStatusId[] = ['wishlist', 'applied', 'screening', 'interview', 'offer', 'rejected'];
 
@@ -210,11 +211,9 @@ export default function CareerAndWorkPage() {
       {/* Header & Page Title */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
+          <DateStamp />
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground flex items-center gap-2.5">
-              <span className="w-8 h-8 rounded-lg bg-sky-500/10 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0">
-                <Icon name="briefcase" size={17} />
-              </span>
+            <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
               Career & Job Pipeline
             </h1>
             <Badge tone="blue" className="font-mono tabular-nums text-xs">
@@ -274,7 +273,7 @@ export default function CareerAndWorkPage() {
           <button
             onClick={() => setActiveTab('kanban')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all min-h-[44px] touch-manipulation',
+              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px] touch-manipulation',
               activeTab === 'kanban'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
@@ -286,7 +285,7 @@ export default function CareerAndWorkPage() {
           <button
             onClick={() => setActiveTab('list')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all min-h-[44px] touch-manipulation',
+              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px] touch-manipulation',
               activeTab === 'list'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
@@ -298,7 +297,7 @@ export default function CareerAndWorkPage() {
           <button
             onClick={() => setActiveTab('calendar')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all min-h-[44px] touch-manipulation',
+              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px] touch-manipulation',
               activeTab === 'calendar'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
@@ -323,11 +322,11 @@ export default function CareerAndWorkPage() {
               />
               <input
                 type="text"
-                placeholder="Cari perusahaan atau posisi..."
+                placeholder="Cari perusahaan atau posisi"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-sky-500 text-foreground"
-              />
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-sky-500 text-foreground" aria-label="Cari perusahaan atau posisi"
+/>
             </div>
 
             <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -359,10 +358,10 @@ export default function CareerAndWorkPage() {
                   {/* Lane Header */}
                   <div className="p-3 border-b border-border bg-muted/30 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Badge tone={stage.tone} className="text-[10px] uppercase font-bold py-0.5">
+                      <Badge tone={stage.tone} className="text-[11px] font-medium py-0.5">
                         {stage.label}
                       </Badge>
-                      <span className="text-xs font-mono text-muted-foreground font-bold">
+                      <span className="text-xs font-mono text-muted-foreground font-medium">
                         {appsInStage.length}
                       </span>
                     </div>
@@ -384,12 +383,12 @@ export default function CareerAndWorkPage() {
                           <div
                             key={app.id}
                             onClick={() => setViewingApp(app)}
-                            className="p-3 rounded-lg bg-card border border-border hover:border-sky-500/40 hover:shadow-xs transition-all cursor-pointer space-y-2 group"
+                            className="p-3 rounded-lg bg-card border border-border hover:border-sky-500/40 hover:shadow-xs transition-colors cursor-pointer space-y-2 group"
                           >
                             {/* Card Top */}
                             <div className="flex items-start justify-between gap-1">
                               <div>
-                                <strong className="block text-xs font-bold text-foreground group-hover:text-sky-500 transition-colors">
+                                <strong className="block text-xs font-medium text-foreground group-hover:text-sky-500 transition-colors">
                                   {app.company}
                                 </strong>
                                 <span className="text-[11px] text-muted-foreground font-medium block">
@@ -398,14 +397,14 @@ export default function CareerAndWorkPage() {
                               </div>
                               <Badge
                                 tone={isHigh ? 'rose' : 'gray'}
-                                className="text-[9px] py-0 px-1 font-semibold shrink-0"
+                                className="text-[11px] py-0 px-1 font-semibold shrink-0"
                               >
                                 {app.priority}
                               </Badge>
                             </div>
 
                             {/* Source & Deadline */}
-                            <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-muted-foreground">
+                            <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
                               {app.source && (
                                 <span className="px-1.5 py-0.2 rounded bg-muted/40 border border-border">
                                   {app.source}
@@ -493,7 +492,7 @@ export default function CareerAndWorkPage() {
                       })
                     ) : (
                       <div className="py-8 text-center">
-                        <p className="text-[11px] text-muted-foreground italic">
+                        <p className="text-[11px] text-muted-foreground ">
                           Kosong
                         </p>
                       </div>
@@ -519,11 +518,11 @@ export default function CareerAndWorkPage() {
               />
               <input
                 type="text"
-                placeholder="Cari perusahaan, posisi, atau catatan..."
+                placeholder="Cari perusahaan, posisi, atau catatan"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-sky-500 text-foreground"
-              />
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-sky-500 text-foreground" aria-label="Cari perusahaan, posisi, atau catatan"
+/>
             </div>
 
             <div className="flex items-center gap-2 w-full md:w-auto">
@@ -564,7 +563,7 @@ export default function CareerAndWorkPage() {
                     <Surface
                       key={app.id}
                       onClick={() => setViewingApp(app)}
-                      className="p-4 space-y-3 cursor-pointer active:scale-[0.99] transition-all"
+                      className="p-4 space-y-3 cursor-pointer active:scale-[0.99] transition-colors"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div>
@@ -574,12 +573,12 @@ export default function CareerAndWorkPage() {
                           <span className="text-xs text-zinc-500">{app.role}</span>
                         </div>
                         <div className="flex items-center gap-1.5 shrink-0">
-                          <Badge tone={stage.tone} className="text-[10px]">
+                          <Badge tone={stage.tone} className="text-[11px]">
                             {stage.label}
                           </Badge>
                           <Badge
                             tone={app.priority === 'High' ? 'rose' : 'gray'}
-                            className="text-[10px]"
+                            className="text-[11px]"
                           >
                             {app.priority}
                           </Badge>
@@ -589,20 +588,20 @@ export default function CareerAndWorkPage() {
                       {/* Details row */}
                       <div className="grid grid-cols-2 gap-2 text-xs py-2 border-y border-border">
                         <div>
-                          <span className="text-[10px] uppercase font-medium text-zinc-500 block">Deadline</span>
+                          <span className="text-[11px] font-medium text-zinc-500 block">Deadline</span>
                           <span className="text-foreground font-mono tabular-nums">
                             {app.deadline ? formatDate(app.deadline) : '-'}
                           </span>
                         </div>
                         <div>
-                          <span className="text-[10px] uppercase font-medium text-zinc-500 block">Sumber</span>
+                          <span className="text-[11px] font-medium text-zinc-500 block">Sumber</span>
                           <span className="text-foreground truncate block">{app.source || '-'}</span>
                         </div>
                       </div>
 
                       {app.nextAction && (
                         <div className="text-xs text-foreground bg-muted/30 p-2.5 rounded-lg border border-border">
-                          <span className="font-semibold text-primary block text-[10px] uppercase">Aksi Berikutnya:</span>
+                          <span className="font-semibold text-primary block text-[11px] ">Aksi Berikutnya:</span>
                           <p className="mt-0.5 line-clamp-2">{app.nextAction}</p>
                         </div>
                       )}
@@ -617,7 +616,7 @@ export default function CareerAndWorkPage() {
                             onClick={(e) => handleMoveStage(app, 'prev', e)}
                             disabled={PIPELINE_ORDER.indexOf(app.status) === 0}
                             title="Mundurkan Tahap"
-                            className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:pointer-events-none active:scale-95 transition-all"
+                            className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:pointer-events-none active:scale-95 transition-colors"
                           >
                             <Icon name="chevronLeft" size={16} />
                           </button>
@@ -625,7 +624,7 @@ export default function CareerAndWorkPage() {
                             onClick={(e) => handleMoveStage(app, 'next', e)}
                             disabled={PIPELINE_ORDER.indexOf(app.status) === PIPELINE_ORDER.length - 1}
                             title="Majukan Tahap"
-                            className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:pointer-events-none active:scale-95 transition-all"
+                            className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:pointer-events-none active:scale-95 transition-colors"
                           >
                             <Icon name="chevronRight" size={16} />
                           </button>
@@ -637,14 +636,14 @@ export default function CareerAndWorkPage() {
                               href={safeUrl(app.link)}
                               target="_blank"
                               rel="noreferrer"
-                              className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground active:scale-95 transition-all"
+                              className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground active:scale-95 transition-colors"
                             >
                               <Icon name="globe" size={16} />
                             </a>
                           )}
                           <button
                             onClick={() => handleOpenEditModal(app)}
-                            className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground active:scale-95 transition-all"
+                            className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground active:scale-95 transition-colors"
                           >
                             <Icon name="edit" size={16} />
                           </button>
@@ -654,7 +653,7 @@ export default function CareerAndWorkPage() {
                                 await deleteWorkApplication(app.id);
                               }
                             }}
-                            className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border border-border bg-card text-rose-500 hover:bg-rose-500/10 active:scale-95 transition-all"
+                            className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border border-border bg-card text-rose-500 hover:bg-rose-500/10 active:scale-95 transition-colors"
                           >
                             <Icon name="trash" size={16} />
                           </button>
@@ -669,7 +668,7 @@ export default function CareerAndWorkPage() {
               <Surface className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="border-b border-border bg-muted/20 text-muted-foreground uppercase text-[10px] font-bold tracking-wider">
+                    <tr className="border-b border-border bg-muted/20 text-muted-foreground text-[11px] font-medium ">
                       <th className="p-3">Perusahaan & Posisi</th>
                       <th className="p-3">Status</th>
                       <th className="p-3">Prioritas</th>
@@ -697,14 +696,14 @@ export default function CareerAndWorkPage() {
                             </span>
                           </td>
                           <td className="p-3">
-                            <Badge tone={stage.tone} className="text-[10px]">
+                            <Badge tone={stage.tone} className="text-[11px]">
                               {stage.label}
                             </Badge>
                           </td>
                           <td className="p-3">
                             <Badge
                               tone={app.priority === 'High' ? 'rose' : 'gray'}
-                              className="text-[10px]"
+                              className="text-[11px]"
                             >
                               {app.priority}
                             </Badge>
@@ -772,7 +771,7 @@ export default function CareerAndWorkPage() {
               {/* Month Selector Bar */}
               <div className="flex items-center justify-between mb-4 pb-3 border-b border-border">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+                  <h3 className="text-sm font-medium text-foreground ">
                     {monthNames[calMonth]} {calYear}
                   </h3>
                 </div>
@@ -824,7 +823,7 @@ export default function CareerAndWorkPage() {
               </div>
 
               {/* Day Headers (Sen - Min) */}
-              <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-muted-foreground uppercase pb-2">
+              <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-medium text-muted-foreground pb-2">
                 <span>Sen</span>
                 <span>Sel</span>
                 <span>Rab</span>
@@ -853,7 +852,7 @@ export default function CareerAndWorkPage() {
                       key={dayStr}
                       onClick={() => setActiveCalDate(dayStr)}
                       className={cn(
-                        'h-16 p-1 rounded-lg border text-xs flex flex-col justify-between transition-all cursor-pointer',
+                        'h-16 p-1 rounded-lg border text-xs flex flex-col justify-between transition-colors cursor-pointer',
                         isSelected
                           ? 'border-sky-500 bg-sky-500/10'
                           : 'border-border/60 hover:bg-muted/20',
@@ -863,7 +862,7 @@ export default function CareerAndWorkPage() {
                       <div className="flex items-center justify-between">
                         <span
                           className={cn(
-                            'text-[11px] font-mono font-bold leading-none',
+                            'text-[11px] font-mono font-medium leading-none',
                             isTodayDay ? 'text-primary' : 'text-foreground'
                           )}
                         >
@@ -879,13 +878,13 @@ export default function CareerAndWorkPage() {
                           {matchingApps.slice(0, 1).map((app) => (
                             <div
                               key={app.id}
-                              className="text-[9px] font-semibold truncate px-1 py-0.2 rounded bg-sky-500/20 text-sky-600 dark:text-sky-300"
+                              className="text-[11px] font-semibold truncate px-1 py-0.2 rounded bg-sky-500/20 text-sky-600 dark:text-sky-300"
                             >
                               {app.company}
                             </div>
                           ))}
                           {matchingApps.length > 1 && (
-                            <span className="text-[8px] text-muted-foreground block text-right font-mono">
+                            <span className="text-[11px] text-muted-foreground block text-right font-mono">
                               +{matchingApps.length - 1} lagi
                             </span>
                           )}
@@ -902,11 +901,11 @@ export default function CareerAndWorkPage() {
           <div className="lg:col-span-4 space-y-4">
             <Surface className="p-5">
               <div className="flex items-center justify-between mb-3 pb-2 border-b border-border">
-                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
                   <Icon name="calendar" size={13} className="text-sky-500" />
                   Jadwal Tanggal
                 </span>
-                <span className="text-xs font-mono font-bold text-foreground">
+                <span className="text-xs font-mono font-medium text-foreground">
                   {activeCalDate ? formatDate(activeCalDate) : '-'}
                 </span>
               </div>
@@ -922,13 +921,13 @@ export default function CareerAndWorkPage() {
                         <div
                           key={app.id}
                           onClick={() => setViewingApp(app)}
-                          className="p-3 rounded-lg bg-muted/20 border border-border hover:border-sky-500/40 cursor-pointer transition-all space-y-1.5"
+                          className="p-3 rounded-lg bg-muted/20 border border-border hover:border-sky-500/40 cursor-pointer transition-colors space-y-1.5"
                         >
                           <div className="flex items-center justify-between">
-                            <strong className="text-xs font-bold text-foreground">
+                            <strong className="text-xs font-medium text-foreground">
                               {app.company}
                             </strong>
-                            <Badge tone={STAGE_CONFIG[app.status].tone} className="text-[9px]">
+                            <Badge tone={STAGE_CONFIG[app.status].tone} className="text-[11px]">
                               {STAGE_CONFIG[app.status].label}
                             </Badge>
                           </div>
@@ -976,7 +975,7 @@ export default function CareerAndWorkPage() {
         <DialogContent className="max-w-lg">
           <form onSubmit={handleSubmitForm}>
             <DialogHeader>
-              <DialogTitle className="text-lg font-bold flex items-center gap-2">
+              <DialogTitle className="text-lg font-medium flex items-center gap-2">
                 <Icon name="briefcase" size={18} className="text-sky-500" />
                 {editingApp ? 'Edit Data Lamaran' : 'Tambah Lamaran Kerja Baru'}
               </DialogTitle>
@@ -988,7 +987,7 @@ export default function CareerAndWorkPage() {
             <div className="space-y-3 py-3 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Nama Perusahaan *
                   </label>
                   <input
@@ -997,11 +996,11 @@ export default function CareerAndWorkPage() {
                     placeholder="Contoh: Google, GoTo, Vercel"
                     value={company}
                     onChange={(e) => setCompany(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-sky-500"
-                  />
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-sky-500" aria-label="Contoh: Google, GoTo, Vercel"
+/>
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Posisi / Role *
                   </label>
                   <input
@@ -1010,14 +1009,14 @@ export default function CareerAndWorkPage() {
                     placeholder="Contoh: Senior Frontend Engineer"
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-sky-500"
-                  />
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-sky-500" aria-label="Contoh: Senior Frontend Engineer"
+/>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Tahap Rekrutmen
                   </label>
                   <select
@@ -1033,7 +1032,7 @@ export default function CareerAndWorkPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Prioritas Minat
                   </label>
                   <select
@@ -1050,7 +1049,7 @@ export default function CareerAndWorkPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Batas Waktu (Deadline)
                   </label>
                   <input
@@ -1061,34 +1060,34 @@ export default function CareerAndWorkPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Sumber Informasi
                   </label>
                   <input
                     type="text"
-                    placeholder="LinkedIn, Glints, Referal..."
+                    placeholder="LinkedIn, Glints, Referal"
                     value={source}
                     onChange={(e) => setSource(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
-                  />
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden" aria-label="LinkedIn, Glints, Referal"
+/>
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Link URL Lowongan
                 </label>
                 <input
                   type="url"
-                  placeholder="https://linkedin.com/jobs/..."
+                  placeholder="https://linkedin.com/jobs/"
                   value={link}
                   onChange={(e) => setLink(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
-                />
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden" aria-label="https://linkedin.com/jobs/"
+/>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Tindakan Selanjutnya (Next Action)
                 </label>
                 <input
@@ -1096,21 +1095,21 @@ export default function CareerAndWorkPage() {
                   placeholder="Contoh: Kirim email follow-up portofolio ke Recruiter"
                   value={nextAction}
                   onChange={(e) => setNextAction(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
-                />
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden" aria-label="Contoh: Kirim email follow-up portofolio ke Recruiter"
+/>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Catatan Tambahan / Gaji / Info Recruiter
                 </label>
                 <textarea
                   rows={3}
-                  placeholder="Catatan gaji, profil interviewer, link resume khusus..."
+                  placeholder="Catatan gaji, profil interviewer, link resume khusus"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed focus:outline-hidden resize-none"
-                />
+                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed focus:outline-hidden resize-none" aria-label="Catatan gaji, profil interviewer, link resume khusus"
+/>
               </div>
             </div>
 
@@ -1133,7 +1132,7 @@ export default function CareerAndWorkPage() {
             <>
               <DialogHeader>
                 <div className="flex items-center gap-2 mb-1">
-                  <DialogTitle className="text-lg font-bold">
+                  <DialogTitle className="text-lg font-medium">
                     {viewingApp.company}
                   </DialogTitle>
                 </div>
@@ -1144,7 +1143,7 @@ export default function CareerAndWorkPage() {
 
               <div className="space-y-3 py-2 text-xs">
                 <div className="flex items-center gap-2">
-                  <Badge tone={STAGE_CONFIG[viewingApp.status].tone} className="text-xs font-bold">
+                  <Badge tone={STAGE_CONFIG[viewingApp.status].tone} className="text-xs font-medium">
                     {STAGE_CONFIG[viewingApp.status].label}
                   </Badge>
                   <Badge tone={viewingApp.priority === 'High' ? 'rose' : 'gray'}>
@@ -1185,7 +1184,7 @@ export default function CareerAndWorkPage() {
 
                 {viewingApp.nextAction && (
                   <div className="p-3 rounded-lg bg-sky-500/10 border border-sky-500/20">
-                    <span className="text-[10px] uppercase font-bold text-sky-500 block">
+                    <span className="text-[11px] font-medium text-sky-500 block">
                       Aksi Selanjutnya:
                     </span>
                     <p className="text-foreground font-medium mt-0.5">
@@ -1196,7 +1195,7 @@ export default function CareerAndWorkPage() {
 
                 {viewingApp.notes && (
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-muted-foreground block mb-1">
+                    <span className="text-[11px] font-medium text-muted-foreground block mb-1">
                       Catatan:
                     </span>
                     <p className="p-3 rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed whitespace-pre-wrap">

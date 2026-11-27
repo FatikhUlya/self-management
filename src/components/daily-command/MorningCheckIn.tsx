@@ -49,7 +49,7 @@ export function MorningCheckIn({
     <div className="p-5 rounded-xl border border-border bg-card text-card-foreground shadow-sm relative overflow-hidden">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 tracking-tight">
+          <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
             <span className="w-6 h-6 rounded-md bg-amber-500/10 flex items-center justify-center text-amber-500 shrink-0">
               <Icon name="sun" size={14} />
             </span>
@@ -62,7 +62,7 @@ export function MorningCheckIn({
       <div className="space-y-4">
         {/* Mandatory: MIT */}
         <div className="space-y-1.5">
-          <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+          <label className="text-[11px] font-semibold text-muted-foreground ">
             Prioritas Utama Hari Ini (MIT)
           </label>
           <select 
@@ -82,7 +82,7 @@ export function MorningCheckIn({
           <div className="space-y-3 pt-3 border-t border-border animate-in fade-in">
             {/* Day Mode */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Kondisi Fisik / Energi</label>
+              <label className="text-[11px] font-semibold text-muted-foreground ">Kondisi Fisik / Energi</label>
               <div className="flex gap-2">
                 {[
                   { id: 'normal', icon: 'sun', label: 'Bugar' },
@@ -94,7 +94,7 @@ export function MorningCheckIn({
                     type="button"
                     onClick={() => setDayMode(mode.id as any)}
                     className={cn(
-                      "p-2 rounded-lg border text-center transition-all flex items-center justify-center gap-1.5 flex-1 text-xs font-medium",
+                      "p-2 rounded-lg border text-center transition-colors flex items-center justify-center gap-1.5 flex-1 text-xs font-medium",
                       dayMode === mode.id
                         ? "bg-primary/10 border-primary/30 text-primary font-semibold shadow-2xs"
                         : "bg-muted/40 border-border text-muted-foreground hover:border-border hover:text-foreground"
@@ -109,7 +109,7 @@ export function MorningCheckIn({
 
             {/* Secondary Tasks */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Tugas Pendukung (Maksimal 3)</label>
+              <label className="text-[11px] font-semibold text-muted-foreground ">Tugas Pendukung (Maksimal 3)</label>
               <div className="max-h-36 overflow-y-auto space-y-1 pr-1">
                 {availableTasks.filter(t => t.id !== mitTaskId).map(t => {
                   const isSelected = secondaryTaskIds.includes(t.id);
@@ -118,7 +118,7 @@ export function MorningCheckIn({
                       key={t.id}
                       onClick={() => toggleSecondaryTask(t.id)}
                       className={cn(
-                        "px-3 py-1.5 rounded-lg border cursor-pointer select-none transition-all flex items-center justify-between text-xs",
+                        "px-3 py-1.5 rounded-lg border cursor-pointer select-none transition-colors flex items-center justify-between text-xs",
                         isSelected
                           ? "bg-primary/10 border-primary/30 text-primary font-medium"
                           : "bg-muted/30 border-border text-foreground hover:bg-muted/50"
@@ -134,14 +134,14 @@ export function MorningCheckIn({
 
             {/* Intention */}
             <div className="space-y-1.5">
-              <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Intensi / Mindset Hari Ini</label>
+              <label className="text-[11px] font-semibold text-muted-foreground ">Intensi / Mindset Hari Ini</label>
               <input
                 type="text"
                 value={intention}
                 onChange={(e) => setIntention(e.target.value)}
-                placeholder="Fokus pada hal penting, jangan terdistraksi..."
-                className="glass-input w-full text-xs"
-              />
+                placeholder="Fokus pada hal penting, jangan terdistraksi"
+                className="glass-input w-full text-xs" aria-label="Fokus pada hal penting, jangan terdistraksi"
+/>
             </div>
             
             <button 

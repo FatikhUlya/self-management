@@ -130,7 +130,7 @@ export default function RecordTransactionPage() {
  setTxIsRecurring(false);
  
  // Show success alert
- alert(locale === 'id' ? 'Transaksi berhasil dicatat!' : 'Transaction recorded successfully!');
+ alert(locale === 'id' ? 'Transaksi berhasil dicatat' : 'Transaction recorded successfully');
  };
 
  return (
@@ -138,8 +138,7 @@ export default function RecordTransactionPage() {
  {/* Header */}
  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
  <div>
- <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-600 flex items-center gap-2">
- <Icon name="receipt" size={28} className="text-green-500" />
+ <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
  {locale === 'id' ? 'Catat Transaksi' : 'Record Transaction'}
  </h1>
  <p className="text-zinc-500 mt-1 text-sm">
@@ -164,7 +163,7 @@ export default function RecordTransactionPage() {
  setTxType('expense');
  setTxCategory(EXPENSE_CATEGORIES[0]);
  }}
- className={`py-2 rounded-md text-[10px] font-semibold uppercase tracking-wider transition-all duration-150 ${
+ className={`py-2 rounded-md text-[11px] font-semibold   transition-colors duration-150 ${
  txType === 'expense'
  ? 'bg-rose-500 text-white shadow-md'
  : 'text-muted-foreground hover:text-foreground'
@@ -178,7 +177,7 @@ export default function RecordTransactionPage() {
  setTxType('income');
  setTxCategory(INCOME_CATEGORIES[0]);
  }}
- className={`py-2 rounded-md text-[10px] font-semibold uppercase tracking-wider transition-all duration-150 ${
+ className={`py-2 rounded-md text-[11px] font-semibold   transition-colors duration-150 ${
  txType === 'income'
  ? 'bg-emerald-500 text-white shadow-md'
  : 'text-muted-foreground hover:text-foreground'
@@ -189,7 +188,7 @@ export default function RecordTransactionPage() {
  <button
  type="button"
  onClick={() => setTxType('transfer')}
- className={`py-2 rounded-md text-[10px] font-semibold uppercase tracking-wider transition-all duration-150 ${
+ className={`py-2 rounded-md text-[11px] font-semibold   transition-colors duration-150 ${
  txType === 'transfer'
  ? 'bg-blue-500 text-white shadow-md'
  : 'text-muted-foreground hover:text-foreground'
@@ -200,7 +199,7 @@ export default function RecordTransactionPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label htmlFor="txTitle" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="txTitle" className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Nama Transaksi' : 'Transaction Name'}
  </label>
  <input
@@ -216,21 +215,21 @@ export default function RecordTransactionPage() {
 
  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
  <div className="flex flex-col space-y-1">
- <label htmlFor="txAmount" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="txAmount" className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Jumlah (Nominal)' : 'Amount'}
  </label>
  <input
  id="txAmount"
  type="number"
  required
- placeholder="Rp..."
+ placeholder="Rp"
  value={txAmount}
  onChange={(e) => setTxAmount(e.target.value)}
  className="glass-input font-semibold text-lg text-foreground"
  />
  </div>
  <div className="flex flex-col space-y-1">
- <label htmlFor="txDate" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="txDate" className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Tanggal' : 'Date'}
  </label>
  <input
@@ -248,10 +247,10 @@ export default function RecordTransactionPage() {
  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
  <div className="flex flex-col space-y-1">
  <div className="flex justify-between items-center">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Dari Akun' : 'From Account'}
  </label>
- <button type="button" onClick={() => setIsAccountModalOpen(true)} className="text-[10px] text-emerald-500 font-bold hover:underline">
+ <button type="button" onClick={() => setIsAccountModalOpen(true)} className="text-[11px] text-emerald-500 font-medium hover:underline">
  {locale === 'id' ? 'Kelola Rekening' : 'Manage Accounts'}
  </button>
  </div>
@@ -268,10 +267,10 @@ export default function RecordTransactionPage() {
  </div>
  <div className="flex flex-col space-y-1">
  <div className="flex justify-between items-center">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Ke Akun' : 'To Account'}
  </label>
- <button type="button" onClick={() => setIsAccountModalOpen(true)} className="text-[10px] text-emerald-500 font-bold hover:underline">
+ <button type="button" onClick={() => setIsAccountModalOpen(true)} className="text-[11px] text-emerald-500 font-medium hover:underline">
  {locale === 'id' ? 'Kelola Rekening' : 'Manage Accounts'}
  </button>
  </div>
@@ -290,7 +289,7 @@ export default function RecordTransactionPage() {
  ) : (
  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Kategori' : 'Category'}
  </label>
  <select
@@ -305,10 +304,10 @@ export default function RecordTransactionPage() {
  </div>
  <div className="flex flex-col space-y-1">
  <div className="flex justify-between items-center">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Akun/Sumber Kas' : 'Account/Source'}
  </label>
- <button type="button" onClick={() => setIsAccountModalOpen(true)} className="text-[10px] text-emerald-500 font-bold hover:underline">
+ <button type="button" onClick={() => setIsAccountModalOpen(true)} className="text-[11px] text-emerald-500 font-medium hover:underline">
  {locale === 'id' ? 'Kelola Rekening' : 'Manage Accounts'}
  </button>
  </div>
@@ -328,13 +327,13 @@ export default function RecordTransactionPage() {
 
  {txType === 'transfer' && (
  <div className="flex flex-col space-y-1">
- <label htmlFor="txAdminFee" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="txAdminFee" className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Biaya Admin (Opsional)' : 'Admin Fee (Optional)'}
  </label>
  <input
  id="txAdminFee"
  type="number"
- placeholder="Rp..."
+ placeholder="Rp"
  value={txAdminFee}
  onChange={(e) => setTxAdminFee(e.target.value)}
  className="glass-input text-sm"
@@ -343,7 +342,7 @@ export default function RecordTransactionPage() {
  )}
 
  <div className="flex flex-col space-y-1">
- <label htmlFor="txNotes" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="txNotes" className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Catatan Tambahan (Opsional)' : 'Additional Notes (Optional)'}
  </label>
  <input
@@ -357,7 +356,7 @@ export default function RecordTransactionPage() {
  </div>
 
  <div className="pt-2">
- <Button type="submit" variant="primary" icon="plus" className="w-full h-12 text-sm uppercase tracking-widest font-semibold">
+ <Button type="submit" variant="primary" icon="plus" className="w-full h-12 text-sm font-semibold">
  {locale === 'id' ? 'Simpan Transaksi' : 'Save Transaction'}
  </Button>
  </div>
@@ -374,7 +373,7 @@ export default function RecordTransactionPage() {
  <div className="space-y-2">
  {state.financialAccounts?.map(acc => (
  <div key={acc.id} className="flex justify-between items-center p-2 rounded bg-muted/30 border border-border">
- <span className="text-sm font-bold text-foreground">{acc.name}</span>
+ <span className="text-sm font-medium text-foreground">{acc.name}</span>
  <button
  type="button"
  onClick={() => {
@@ -389,7 +388,7 @@ export default function RecordTransactionPage() {
  </div>
  ))}
  {(!state.financialAccounts || state.financialAccounts.length === 0) && (
- <p className="text-xs text-muted-foreground text-center italic py-2">
+ <p className="text-xs text-muted-foreground text-center py-2">
  {locale === 'id' ? 'Belum ada rekening yang ditambahkan.' : 'No accounts added yet.'}
  </p>
  )}

@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { callGemini } from '@/lib/gemini';
+import { requireUser } from '@/lib/server/auth';
 
 export const runtime = 'nodejs';
 
+const MAX_BODY_CHARS = 200_000;
+
 export async function POST(request: NextRequest) {
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-  
+
+  const auth = await requireUser(request);
+  if (!auth.ok) return auth.response;
+
   try {
     if (!GEMINI_API_KEY) {
       console.error('[ai-review] GEMINI_API_KEY is not set');
@@ -17,7 +23,11 @@ export async function POST(request: NextRequest) {
 
     let body;
     try {
-      body = await request.json();
+      const raw = await request.text();
+      if (raw.length > MAX_BODY_CHARS) {
+        return NextResponse.json({ error: 'Data terlalu besar untuk dianalisis.' }, { status: 413 });
+      }
+      body = JSON.parse(raw);
     } catch {
       return NextResponse.json(
         { error: 'Request body tidak valid (bukan JSON)' },
@@ -25,7 +35,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { period, metrics, journal, habits, workouts, nutrition, finance } = body;
+    const { metrics, journal, habits, workouts, nutrition, finance } = body;
+    const period = ['7 Hari Terakhir', '30 Hari Terakhir'].includes(body?.period) ? body.period : '7 Hari Terakhir';
 
     const prompt = `Anda adalah seorang Life Coach dan Quantitative Analyst pribadi (berbahasa Indonesia).
 Tugas Anda adalah meninjau data hidup klien selama periode "${period}" terakhir dan memberikan wawasan, korelasi, serta saran yang sangat tajam dan bisa ditindaklanjuti.
@@ -102,7 +113,7 @@ Format dalam Markdown murni (tanpa tag \`\`\`markdown di awal/akhir, langsung te
   } catch (error) {
     console.error('[ai-review] Unexpected error:', error);
     return NextResponse.json(
-      { error: `Server error: ${error instanceof Error ? error.message : 'Unknown error'}` },
+      { error: 'Terjadi kesalahan server. Coba lagi.' },
       { status: 500 }
     );
   }

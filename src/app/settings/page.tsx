@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
 import { isGoogleCalendarConfigured } from '@/lib/google-calendar';
+import { DateStamp } from '@/components/ui/DateStamp';
 
 export default function SettingsPage() {
   const { 
@@ -57,7 +58,8 @@ export default function SettingsPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground flex items-center gap-2.5">
+          <DateStamp />
+          <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
             <div className="p-2 rounded-xl bg-zinc-500/10 text-muted-foreground border border-zinc-500/20">
               <Icon name="settings" size={22} />
             </div>
@@ -75,7 +77,7 @@ export default function SettingsPage() {
             icon="copy"
             onClick={handleCopyDiagnostics}
           >
-            {copiedStatus ? 'Diagnostik Tersalin!' : 'Salin Diagnostik'}
+            {copiedStatus ? 'Diagnostik Tersalin' : 'Salin Diagnostik'}
           </Button>
           <Button 
             variant="primary" 
@@ -98,8 +100,8 @@ export default function SettingsPage() {
           </div>
           <div>
             <div className="text-xs text-muted-foreground font-medium">Supabase DB</div>
-            <div className="text-sm font-bold text-foreground mt-0.5 flex items-center gap-1.5">
-              <span className={`w-2 h-2 rounded-full ${isDbConnected ? 'bg-teal-400 animate-pulse' : 'bg-zinc-500'}`} />
+            <div className="text-sm font-medium text-foreground mt-0.5 flex items-center gap-1.5">
+              <span className={`w-2 h-2 rounded-full ${isDbConnected ? 'bg-teal-400 ' : 'bg-zinc-500'}`} />
               {isDbConnected ? t('settings_supabase_connected') : t('settings_supabase_disconnected')}
             </div>
           </div>
@@ -113,7 +115,7 @@ export default function SettingsPage() {
           </div>
           <div>
             <div className="text-xs text-muted-foreground font-medium">Google Calendar</div>
-            <div className="text-sm font-bold text-foreground mt-0.5">
+            <div className="text-sm font-medium text-foreground mt-0.5">
               {isGoogleCalendarConfigured() ? t('settings_google_connected') : t('settings_google_disconnected')}
             </div>
           </div>
@@ -125,7 +127,7 @@ export default function SettingsPage() {
           </div>
           <div>
             <div className="text-xs text-muted-foreground font-medium">Mode Tampilan</div>
-            <div className="text-sm font-bold text-foreground mt-0.5 capitalize">
+            <div className="text-sm font-medium text-foreground mt-0.5 capitalize">
               {state.displayMode}
             </div>
           </div>
@@ -137,7 +139,7 @@ export default function SettingsPage() {
           </div>
           <div>
             <div className="text-xs text-muted-foreground font-medium">Bahasa Antarmuka</div>
-            <div className="text-sm font-bold text-foreground mt-0.5">
+            <div className="text-sm font-medium text-foreground mt-0.5">
               {locale === 'id' ? 'Bahasa Indonesia' : 'English'}
             </div>
           </div>
@@ -147,7 +149,7 @@ export default function SettingsPage() {
       {/* Display Mode Selection */}
       <Surface className="p-6 space-y-4">
         <div className="border-b border-border pb-3">
-          <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+          <h3 className="text-sm font-medium text-foreground ">
             {t('settings_display_mode')}
           </h3>
           <p className="text-xs text-muted-foreground mt-0.5">
@@ -158,7 +160,7 @@ export default function SettingsPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button
             onClick={() => setDisplayMode('auto')}
-            className={`p-4 rounded-xl border text-left flex items-start gap-3.5 transition-all ${
+            className={`p-4 rounded-xl border text-left flex items-start gap-3.5 transition-colors ${
               state.displayMode === 'auto'
                 ? 'bg-primary/10 border-primary shadow-sm text-foreground'
                 : 'bg-card border-border hover:border-border-strong text-muted-foreground hover:text-foreground'
@@ -170,7 +172,7 @@ export default function SettingsPage() {
               <Icon name="layout" size={18} />
             </div>
             <div>
-              <strong className="text-sm font-bold block text-foreground">{t('settings_auto')}</strong>
+              <strong className="text-sm font-medium block text-foreground">{t('settings_auto')}</strong>
               <span className="text-xs leading-relaxed text-muted-foreground mt-1 block">
                 {t('settings_auto_desc')}
               </span>
@@ -179,7 +181,7 @@ export default function SettingsPage() {
 
           <button
             onClick={() => setDisplayMode('desktop')}
-            className={`p-4 rounded-xl border text-left flex items-start gap-3.5 transition-all ${
+            className={`p-4 rounded-xl border text-left flex items-start gap-3.5 transition-colors ${
               state.displayMode === 'desktop'
                 ? 'bg-primary/10 border-primary shadow-sm text-foreground'
                 : 'bg-card border-border hover:border-border-strong text-muted-foreground hover:text-foreground'
@@ -191,7 +193,7 @@ export default function SettingsPage() {
               <Icon name="folder" size={18} />
             </div>
             <div>
-              <strong className="text-sm font-bold block text-foreground">{t('settings_desktop')}</strong>
+              <strong className="text-sm font-medium block text-foreground">{t('settings_desktop')}</strong>
               <span className="text-xs leading-relaxed text-muted-foreground mt-1 block">
                 {t('settings_desktop_desc')}
               </span>
@@ -200,7 +202,7 @@ export default function SettingsPage() {
 
           <button
             onClick={() => setDisplayMode('mobile')}
-            className={`p-4 rounded-xl border text-left flex items-start gap-3.5 transition-all ${
+            className={`p-4 rounded-xl border text-left flex items-start gap-3.5 transition-colors ${
               state.displayMode === 'mobile'
                 ? 'bg-primary/10 border-primary shadow-sm text-foreground'
                 : 'bg-card border-border hover:border-border-strong text-muted-foreground hover:text-foreground'
@@ -212,7 +214,7 @@ export default function SettingsPage() {
               <Icon name="journal" size={18} />
             </div>
             <div>
-              <strong className="text-sm font-bold block text-foreground">{t('settings_mobile')}</strong>
+              <strong className="text-sm font-medium block text-foreground">{t('settings_mobile')}</strong>
               <span className="text-xs leading-relaxed text-muted-foreground mt-1 block">
                 {t('settings_mobile_desc')}
               </span>
@@ -224,7 +226,7 @@ export default function SettingsPage() {
       {/* Language Switcher */}
       <Surface className="p-6 space-y-4">
         <div className="border-b border-border pb-3">
-          <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+          <h3 className="text-sm font-medium text-foreground ">
             {t('settings_language')}
           </h3>
           <p className="text-xs text-muted-foreground mt-0.5">
@@ -235,7 +237,7 @@ export default function SettingsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <button
             onClick={() => setLocale('id')}
-            className={`p-4 rounded-xl border text-left flex items-center justify-between transition-all ${
+            className={`p-4 rounded-xl border text-left flex items-center justify-between transition-colors ${
               locale === 'id'
                 ? 'bg-primary/10 border-primary text-foreground'
                 : 'bg-card border-border hover:border-border-strong text-muted-foreground hover:text-foreground'
@@ -244,7 +246,7 @@ export default function SettingsPage() {
             <div className="flex items-center gap-3">
               <span className="text-2xl">🇮🇩</span>
               <div>
-                <strong className="text-sm font-bold block text-foreground">Bahasa Indonesia</strong>
+                <strong className="text-sm font-medium block text-foreground">Bahasa Indonesia</strong>
                 <span className="text-xs text-muted-foreground">Bahasa utama aplikasi</span>
               </div>
             </div>
@@ -257,7 +259,7 @@ export default function SettingsPage() {
 
           <button
             onClick={() => setLocale('en')}
-            className={`p-4 rounded-xl border text-left flex items-center justify-between transition-all ${
+            className={`p-4 rounded-xl border text-left flex items-center justify-between transition-colors ${
               locale === 'en'
                 ? 'bg-primary/10 border-primary text-foreground'
                 : 'bg-card border-border hover:border-border-strong text-muted-foreground hover:text-foreground'
@@ -266,7 +268,7 @@ export default function SettingsPage() {
             <div className="flex items-center gap-3">
               <span className="text-2xl">🇬🇧</span>
               <div>
-                <strong className="text-sm font-bold block text-foreground">English</strong>
+                <strong className="text-sm font-medium block text-foreground">English</strong>
                 <span className="text-xs text-muted-foreground">International locale</span>
               </div>
             </div>
@@ -282,7 +284,7 @@ export default function SettingsPage() {
       {/* Cloud & External Services Integration */}
       <Surface className="p-6 space-y-4">
         <div className="border-b border-border pb-3">
-          <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+          <h3 className="text-sm font-medium text-foreground ">
             Integrasi Cloud & Layanan Eksternal
           </h3>
           <p className="text-xs text-muted-foreground mt-0.5">
@@ -298,7 +300,7 @@ export default function SettingsPage() {
                 <Icon name="briefcase" size={18} />
               </div>
               <div>
-                <strong className="text-sm font-bold text-foreground block">Supabase DB Backend</strong>
+                <strong className="text-sm font-medium text-foreground block">Supabase DB Backend</strong>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Sinkronisasi cloud otomatis multi-device secara real-time.
                 </p>
@@ -316,7 +318,7 @@ export default function SettingsPage() {
                 <Icon name="calendar" size={18} />
               </div>
               <div>
-                <strong className="text-sm font-bold text-foreground block">Google Calendar API</strong>
+                <strong className="text-sm font-medium text-foreground block">Google Calendar API</strong>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Sinkronisasi jadwal dan time block 2 arah dengan Google Calendar.
                 </p>
@@ -332,7 +334,7 @@ export default function SettingsPage() {
       {/* Data Administration & Statistics */}
       <Surface className="p-6 space-y-4">
         <div className="border-b border-border pb-3">
-          <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+          <h3 className="text-sm font-medium text-foreground ">
             Manajemen Data & Cadangan
           </h3>
           <p className="text-xs text-muted-foreground mt-0.5">
@@ -343,26 +345,26 @@ export default function SettingsPage() {
         {/* Database counter grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
           <div className="p-3 rounded-lg bg-muted/20 border border-border">
-            <span className="text-lg font-bold text-foreground block">{state.tasks.length}</span>
-            <span className="text-[10px] text-muted-foreground font-medium uppercase">Tasks</span>
+            <span className="text-lg font-medium text-foreground block">{state.tasks.length}</span>
+            <span className="text-[11px] text-muted-foreground font-medium ">Tasks</span>
           </div>
           <div className="p-3 rounded-lg bg-muted/20 border border-border">
-            <span className="text-lg font-bold text-foreground block">{state.projects.length}</span>
-            <span className="text-[10px] text-muted-foreground font-medium uppercase">Projects</span>
+            <span className="text-lg font-medium text-foreground block">{state.projects.length}</span>
+            <span className="text-[11px] text-muted-foreground font-medium ">Projects</span>
           </div>
           <div className="p-3 rounded-lg bg-muted/20 border border-border">
-            <span className="text-lg font-bold text-foreground block">{state.habits.length}</span>
-            <span className="text-[10px] text-muted-foreground font-medium uppercase">Habits</span>
+            <span className="text-lg font-medium text-foreground block">{state.habits.length}</span>
+            <span className="text-[11px] text-muted-foreground font-medium ">Habits</span>
           </div>
           <div className="p-3 rounded-lg bg-muted/20 border border-border">
-            <span className="text-lg font-bold text-foreground block">{state.journals.length}</span>
-            <span className="text-[10px] text-muted-foreground font-medium uppercase">Journals</span>
+            <span className="text-lg font-medium text-foreground block">{state.journals.length}</span>
+            <span className="text-[11px] text-muted-foreground font-medium ">Journals</span>
           </div>
         </div>
 
         <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 bg-muted/10 p-4 rounded-xl border border-border">
           <div>
-            <h4 className="text-xs font-bold text-foreground">Ekspor Salinan Cadangan (JSON)</h4>
+            <h4 className="text-xs font-medium text-foreground">Ekspor Salinan Cadangan (JSON)</h4>
             <p className="text-xs text-muted-foreground mt-0.5">
               Unduh seluruh snapshot data Life OS Anda ke dalam file JSON terenkode aman.
             </p>

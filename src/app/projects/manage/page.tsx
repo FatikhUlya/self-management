@@ -79,13 +79,12 @@ export default function ProjectsManagePage() {
  <div className="space-y-6 max-w-5xl mx-auto pb-24">
  <div className="flex items-center gap-3">
  <Link href="/projects">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-all">
+ <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
  <Icon name="arrowLeft" size={18} />
  </button>
  </Link>
  <div className="flex-1">
- <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
- <Icon name="briefcase" size={24} className="text-cyan-500" />
+ <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
  Kelola Proyek
  </h1>
  <p className="text-zinc-500 text-xs mt-1">
@@ -104,7 +103,7 @@ export default function ProjectsManagePage() {
 
  <Surface className="p-6">
  <div className="border-b border-border pb-3 mb-4">
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  {t('projects_list')}
  </h3>
  <p className="text-xs text-muted-foreground mt-0.5">
@@ -122,19 +121,19 @@ export default function ProjectsManagePage() {
  return (
  <div 
  key={proj.id} 
- className="p-4 rounded-xl bg-muted/20 border border-border hover:border-border-strong hover:bg-muted/50/[0.01] transition-all space-y-3"
+ className="p-4 rounded-xl bg-muted/20 border border-border hover:border-border-strong hover:bg-muted/50/[0.01] transition-colors space-y-3"
  >
  <div className="flex justify-between items-start">
  <div className="space-y-1">
  <strong className="text-sm text-foreground block tracking-tight">{proj.name}</strong>
  <div className="flex flex-wrap items-center gap-2">
- <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+ <span className="text-[11px] font-medium text-muted-foreground ">
  Area: {proj.area || 'Inbox'} / {projTasks.length} Tasks
  </span>
  <select
  value={proj.goalId || ''}
  onChange={(e) => updateProjectGoal(proj.id, e.target.value || null)}
- className="glass-select py-0.5 px-1.5 text-[9px] bg-black/40 border border-white/5 text-muted-foreground hover:text-foreground focus:text-foreground"
+ className="glass-select py-0.5 px-1.5 text-[11px] bg-black/40 border border-white/5 text-muted-foreground hover:text-foreground focus:text-foreground"
  >
  <option value="">-- Hubungkan Goal --</option>
  {state.goals.map((g) => (
@@ -152,14 +151,14 @@ export default function ProjectsManagePage() {
  </Badge>
  <button
  onClick={() => handleOpenEditProject(proj)}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-primary/20 text-muted-foreground hover:text-foreground flex items-center justify-center transition-all"
+ className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-primary/20 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors"
  title="Edit Project"
  >
  <Icon name="edit" size={12} />
  </button>
  <button
  onClick={() => deleteProject(proj.id)}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-all"
+ className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors"
  title={t('delete')}
  >
  <Icon name="trash" size={12} />
@@ -168,13 +167,13 @@ export default function ProjectsManagePage() {
  </div>
 
  <div className="space-y-1">
- <div className="flex justify-between text-[10px] text-muted-foreground font-bold uppercase">
+ <div className="flex justify-between text-[11px] text-muted-foreground font-medium ">
  <span>{completionRate}% {t('projects_completed')}</span>
  <span>{doneTasks.length}/{projTasks.length}</span>
  </div>
  <div className="h-1.5 w-full bg-muted/30 rounded-full overflow-hidden">
  <div 
- className="h-full rounded-full bg-gradient-to-r from-life-teal to-teal-400"
+ className="h-full rounded-full bg-life-teal"
  style={{ width: `${completionRate}%` }}
  />
  </div>
@@ -199,7 +198,7 @@ export default function ProjectsManagePage() {
  >
  <form onSubmit={handleProjectSubmit} className="space-y-4">
  <div className="flex flex-col space-y-1">
- <label htmlFor="projectNameInput" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="projectNameInput" className="text-xs font-medium text-muted-foreground ">
  {t('projects_name')}
  </label>
  <input
@@ -215,7 +214,7 @@ export default function ProjectsManagePage() {
 
  <div className="grid grid-cols-2 gap-4">
  <div className="flex flex-col space-y-1">
- <label htmlFor="projectAreaInput" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="projectAreaInput" className="text-xs font-medium text-muted-foreground ">
  {t('area')}
  </label>
  <select
@@ -234,7 +233,7 @@ export default function ProjectsManagePage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label htmlFor="projectStatusInput" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="projectStatusInput" className="text-xs font-medium text-muted-foreground ">
  {t('status')}
  </label>
  <select
@@ -251,7 +250,7 @@ export default function ProjectsManagePage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label htmlFor="projectGoalInput" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="projectGoalInput" className="text-xs font-medium text-muted-foreground ">
  Hubungkan ke Target (Goal)
  </label>
  <select
@@ -285,7 +284,7 @@ export default function ProjectsManagePage() {
  {editingProject && (
  <form onSubmit={handleSaveEditProject} className="space-y-4">
  <div className="flex flex-col space-y-1">
- <label htmlFor="editProjectNameInput" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="editProjectNameInput" className="text-xs font-medium text-muted-foreground ">
  {t('projects_name')}
  </label>
  <input
@@ -300,7 +299,7 @@ export default function ProjectsManagePage() {
 
  <div className="grid grid-cols-2 gap-4">
  <div className="flex flex-col space-y-1">
- <label htmlFor="editProjectAreaInput" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="editProjectAreaInput" className="text-xs font-medium text-muted-foreground ">
  {t('area')}
  </label>
  <select
@@ -319,7 +318,7 @@ export default function ProjectsManagePage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label htmlFor="editProjectStatusInput" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="editProjectStatusInput" className="text-xs font-medium text-muted-foreground ">
  {t('status')}
  </label>
  <select
@@ -336,7 +335,7 @@ export default function ProjectsManagePage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label htmlFor="editProjectGoalInput" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="editProjectGoalInput" className="text-xs font-medium text-muted-foreground ">
  Hubungkan ke Target (Goal)
  </label>
  <select

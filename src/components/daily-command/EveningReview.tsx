@@ -46,7 +46,7 @@ export function EveningReview({
     <div className="p-5 rounded-xl border border-border bg-card text-card-foreground shadow-sm relative overflow-hidden">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 tracking-tight">
+          <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
             <span className="w-6 h-6 rounded-md bg-amber-500/10 flex items-center justify-center text-amber-500 shrink-0">
               <Icon name="moon" size={14} />
             </span>
@@ -65,7 +65,7 @@ export function EveningReview({
               <span className="text-xs font-medium text-foreground truncate">{mit.title}</span>
             </div>
             <span className={cn(
-              "text-[10px] font-semibold px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0",
+              "text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0",
               mit.status === 'done' 
                 ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20' 
                 : 'bg-destructive/10 text-destructive border border-destructive/20'
@@ -77,7 +77,7 @@ export function EveningReview({
 
         {/* Rating */}
         <div className="space-y-1.5">
-          <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Rating Kepuasan Hari Ini</label>
+          <label className="text-[11px] font-semibold text-muted-foreground ">Rating Kepuasan Hari Ini</label>
           <div className="flex items-center gap-1.5">
             {[1, 2, 3, 4, 5].map(star => (
               <button
@@ -85,7 +85,7 @@ export function EveningReview({
                 type="button"
                 onClick={() => setRating(star)}
                 className={cn(
-                  "w-8 h-8 rounded-lg font-bold flex items-center justify-center transition-all text-xs",
+                  "w-8 h-8 rounded-lg font-medium flex items-center justify-center transition-colors text-xs",
                   rating >= star 
                     ? "bg-amber-500 text-white shadow-2xs" 
                     : "bg-muted/40 border border-border text-muted-foreground hover:border-amber-500/50 hover:text-amber-500"
@@ -99,20 +99,20 @@ export function EveningReview({
 
         {/* Single Note */}
         <div className="space-y-1.5">
-          <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Pencapaian Terbaik / Catatan</label>
+          <label className="text-[11px] font-semibold text-muted-foreground ">Pencapaian Terbaik / Catatan</label>
           <textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Apa hal terbaik atau pelajaran penting hari ini?"
-            className="glass-input w-full h-16 resize-none text-xs"
-          />
+            className="glass-input w-full h-16 resize-none text-xs" aria-label="Apa hal terbaik atau pelajaran penting hari ini?"
+/>
         </div>
 
         {/* Rule Compliance (Collapsible) */}
         {state.selfRules.length > 0 && (
           showRules ? (
             <div className="space-y-2.5 pt-3 border-t border-border animate-in fade-in">
-              <label className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+              <label className="text-[11px] font-semibold text-muted-foreground flex items-center gap-1.5">
                 <Icon name="shield" size={12} className="text-primary" />
                 Evaluasi Prinsip Hidup
               </label>
@@ -124,7 +124,7 @@ export function EveningReview({
                       <button
                         onClick={() => setRuleCompliance(prev => ({ ...prev, [rule.id]: 'not_applicable' }))}
                         className={cn(
-                          "flex-1 py-0.5 rounded text-[10px] font-medium uppercase transition-all",
+                          "flex-1 py-0.5 rounded text-[11px] font-medium transition-colors",
                           ruleCompliance[rule.id] === 'not_applicable' || !ruleCompliance[rule.id]
                             ? "bg-background text-foreground shadow-2xs font-semibold"
                             : "text-muted-foreground hover:text-foreground"
@@ -135,7 +135,7 @@ export function EveningReview({
                       <button
                         onClick={() => setRuleCompliance(prev => ({ ...prev, [rule.id]: 'followed' }))}
                         className={cn(
-                          "flex-1 py-0.5 rounded text-[10px] font-medium uppercase transition-all",
+                          "flex-1 py-0.5 rounded text-[11px] font-medium transition-colors",
                           ruleCompliance[rule.id] === 'followed' 
                             ? "bg-primary text-primary-foreground shadow-2xs font-semibold"
                             : "text-muted-foreground hover:text-foreground"
@@ -146,7 +146,7 @@ export function EveningReview({
                       <button
                         onClick={() => setRuleCompliance(prev => ({ ...prev, [rule.id]: 'missed' }))}
                         className={cn(
-                          "flex-1 py-0.5 rounded text-[10px] font-medium uppercase transition-all",
+                          "flex-1 py-0.5 rounded text-[11px] font-medium transition-colors",
                           ruleCompliance[rule.id] === 'missed' 
                             ? "bg-destructive text-destructive-foreground shadow-2xs font-semibold"
                             : "text-muted-foreground hover:text-foreground"

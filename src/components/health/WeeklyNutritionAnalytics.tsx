@@ -56,8 +56,8 @@ export function WeeklyNutritionAnalytics({
  {/* Header */}
  <div className="flex items-center justify-between mb-5">
  <div>
- <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
- <Icon name="chartBar" size={16} className="text-violet-400" />
+ <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+ <Icon name="chartBar" size={16} className="text-muted-foreground" />
  {locale === 'id' ? 'Analitik Mingguan' : 'Weekly Analytics'}
  </h3>
  <p className="text-xs text-muted-foreground mt-1">
@@ -67,19 +67,19 @@ export function WeeklyNutritionAnalytics({
  <div className="flex items-center gap-1 bg-black/20 rounded-lg p-1 border border-white/5">
  <button 
  onClick={() => setWeekOffset(prev => prev - 1)}
- className="w-8 h-8 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted/50/5 transition-all"
+ className="w-8 h-8 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted/50/5 transition-colors"
  >
  <Icon name="chevronLeft" size={16} />
  </button>
  <button 
  onClick={() => setWeekOffset(0)}
- className={`px-3 text-xs font-bold transition-all ${weekOffset === 0 ? 'text-violet-400' : 'text-muted-foreground hover:text-foreground'}`}
+ className={`px-3 text-xs font-medium transition-colors ${weekOffset === 0 ? 'text-violet-400' : 'text-muted-foreground hover:text-foreground'}`}
  >
  {locale === 'id' ? 'Minggu Ini' : 'This Week'}
  </button>
  <button 
  onClick={() => setWeekOffset(prev => prev + 1)}
- className="w-8 h-8 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted/50/5 transition-all"
+ className="w-8 h-8 flex items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted/50/5 transition-colors"
  disabled={weekOffset >= 0}
  style={{ opacity: weekOffset >= 0 ? 0.3 : 1 }}
  >
@@ -102,14 +102,14 @@ export function WeeklyNutritionAnalytics({
  return (
  <div 
  key={dateStr}
- className={`p-3 sm:px-4 rounded-xl border flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 transition-all ${isToday ? 'bg-violet-500/10 border-violet-500/20' : 'bg-muted/30 border-white/5 hover:border-white/10'}`}
+ className={`p-3 sm:px-4 rounded-xl border flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 transition-colors ${isToday ? 'bg-violet-500/10 border-violet-500/20' : 'bg-muted/30 border-white/5 hover:border-white/10'}`}
  >
  {/* Day Label */}
  <div className="w-24 shrink-0">
- <span className={`text-[10px] font-semibold uppercase tracking-wider block ${isToday ? 'text-violet-400' : 'text-muted-foreground'}`}>
+ <span className={`text-[11px] font-semibold block ${isToday ? 'text-violet-400' : 'text-muted-foreground'}`}>
  {dayName(dateStr, locale)}
  </span>
- <span className={`text-sm font-bold ${isToday ? 'text-violet-200' : 'text-foreground'}`}>
+ <span className={`text-sm font-medium ${isToday ? 'text-violet-200' : 'text-foreground'}`}>
  {formatDate(dateStr, { short: true, locale }).split(' ')[0]} {formatDate(dateStr, { short: true, locale }).split(' ')[1]}
  </span>
  </div>
@@ -119,8 +119,8 @@ export function WeeklyNutritionAnalytics({
  {/* Calories */}
  <div className="space-y-1.5">
  <div className="flex justify-between items-end">
- <span className="text-[9px] font-bold uppercase tracking-wider text-amber-500/70">Kalori</span>
- <span className="text-[10px] text-amber-400 font-bold">{cals} <span className="text-amber-400/50 font-normal">/ {targetCal}</span></span>
+ <span className="text-[11px] font-medium text-amber-500/70">Kalori</span>
+ <span className="text-[11px] text-amber-400 font-medium">{cals} <span className="text-amber-400/50 font-normal">/ {targetCal}</span></span>
  </div>
  <div className="h-1.5 bg-amber-500/20 rounded-full overflow-hidden">
  <div className="h-full bg-amber-500 rounded-full" style={{ width: `${Math.min(100, (cals / targetCal) * 100)}%` }} />
@@ -130,8 +130,8 @@ export function WeeklyNutritionAnalytics({
  {/* Carbs */}
  <div className="space-y-1.5">
  <div className="flex justify-between items-end">
- <span className="text-[9px] font-bold uppercase tracking-wider text-blue-500/70">Karbo</span>
- <span className="text-[10px] text-blue-400 font-bold">{carbs}g <span className="text-blue-400/50 font-normal">/ {targetCarbs}g</span></span>
+ <span className="text-[11px] font-medium text-blue-500/70">Karbo</span>
+ <span className="text-[11px] text-blue-400 font-medium">{carbs}g <span className="text-blue-400/50 font-normal">/ {targetCarbs}g</span></span>
  </div>
  <div className="h-1.5 bg-blue-500/20 rounded-full overflow-hidden">
  <div className="h-full bg-blue-500 rounded-full" style={{ width: `${Math.min(100, (carbs / targetCarbs) * 100)}%` }} />
@@ -141,8 +141,8 @@ export function WeeklyNutritionAnalytics({
  {/* Protein */}
  <div className="space-y-1.5">
  <div className="flex justify-between items-end">
- <span className="text-[9px] font-bold uppercase tracking-wider text-rose-500/70">Protein</span>
- <span className="text-[10px] text-rose-400 font-bold">{protein}g <span className="text-rose-400/50 font-normal">/ {targetProtein}g</span></span>
+ <span className="text-[11px] font-medium text-rose-500/70">Protein</span>
+ <span className="text-[11px] text-rose-400 font-medium">{protein}g <span className="text-rose-400/50 font-normal">/ {targetProtein}g</span></span>
  </div>
  <div className="h-1.5 bg-rose-500/20 rounded-full overflow-hidden">
  <div className="h-full bg-rose-500 rounded-full" style={{ width: `${Math.min(100, (protein / targetProtein) * 100)}%` }} />
@@ -152,8 +152,8 @@ export function WeeklyNutritionAnalytics({
  {/* Fat */}
  <div className="space-y-1.5">
  <div className="flex justify-between items-end">
- <span className="text-[9px] font-bold uppercase tracking-wider text-yellow-500/70">Lemak</span>
- <span className="text-[10px] text-yellow-400 font-bold">{fat}g <span className="text-yellow-400/50 font-normal">/ {targetFat}g</span></span>
+ <span className="text-[11px] font-medium text-yellow-500/70">Lemak</span>
+ <span className="text-[11px] text-yellow-400 font-medium">{fat}g <span className="text-yellow-400/50 font-normal">/ {targetFat}g</span></span>
  </div>
  <div className="h-1.5 bg-yellow-500/20 rounded-full overflow-hidden">
  <div className="h-full bg-yellow-500 rounded-full" style={{ width: `${Math.min(100, (fat / targetFat) * 100)}%` }} />

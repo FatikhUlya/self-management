@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { callGemini } from '@/lib/gemini';
+import { requireUser } from '@/lib/server/auth';
 
-// Next.js 14 App Router: increase body size limit for base64 images
 export const runtime = 'nodejs';
+
+const ALLOWED_MIME = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif']);
+const MAX_BASE64_CHARS = 6_000_000; // ≈4.5 MB image (Vercel caps bodies at 4.5 MB anyway)
+const MAX_DESCRIPTION_CHARS = 500;
 
 export async function POST(request: NextRequest) {
   const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-  
+
+  const auth = await requireUser(request);
+  if (!auth.ok) return auth.response;
+
   try {
     if (!GEMINI_API_KEY) {
       console.error('[analyze-food] GEMINI_API_KEY is not set in environment variables');
@@ -26,9 +33,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { image, description } = body;
+    const { image } = body;
+    const description = typeof body?.description === 'string' ? body.description.slice(0, MAX_DESCRIPTION_CHARS).replace(/"/g, "'") : '';
 
-    if (!image) {
+    if (typeof image !== 'string' || !image) {
       return NextResponse.json(
         { error: 'Tidak ada gambar yang dikirim' },
         { status: 400 }
@@ -37,11 +45,16 @@ export async function POST(request: NextRequest) {
 
     // Extract base64 data (remove data:image/...;base64, prefix if present)
     const base64Data = image.includes(',') ? image.split(',')[1] : image;
-    const mimeType = image.includes('data:') 
-      ? image.split(';')[0].split(':')[1] 
+    const mimeType = image.startsWith('data:')
+      ? image.slice(5, image.indexOf(';'))
       : 'image/jpeg';
 
-    console.log(`[analyze-food] Processing image: mimeType=${mimeType}, base64Length=${base64Data.length}`);
+    if (!ALLOWED_MIME.has(mimeType) || !/^[A-Za-z0-9+/=]+$/.test(base64Data.slice(0, 1000))) {
+      return NextResponse.json({ error: 'Format gambar tidak didukung.' }, { status: 415 });
+    }
+    if (base64Data.length > MAX_BASE64_CHARS) {
+      return NextResponse.json({ error: 'Gambar terlalu besar.' }, { status: 413 });
+    }
 
     const descriptionText = description ? `\nKeterangan tambahan dari user: "${description}"\n(Gunakan keterangan ini sebagai referensi utama untuk membantu identifikasi makanan/bahan jika gambar kurang jelas).` : '';
 
@@ -136,8 +149,6 @@ Berikan angka sebagai integer (tanpa desimal). Jangan tambahkan teks apapun sela
       );
     }
 
-    console.log('[analyze-food] Gemini response:', textContent);
-
     // Parse the JSON from the response (handle markdown and conversational text)
     const firstBrace = textContent.indexOf('{');
     const lastBrace = textContent.lastIndexOf('}');
@@ -158,13 +169,10 @@ Berikan angka sebagai integer (tanpa desimal). Jangan tambahkan teks apapun sela
     try {
       nutritionData = JSON.parse(cleanedText);
     } catch (parseErr: any) {
-      console.error('[analyze-food] Failed to parse Gemini JSON:', parseErr.message, cleanedText);
-      try {
-        require('fs').writeFileSync('failed_json.txt', cleanedText);
-      } catch (e) {}
+      console.error('[analyze-food] Failed to parse Gemini JSON:', parseErr.message);
       return NextResponse.json(
-        { error: `Parse failed: ${parseErr.message}. Raw: ${cleanedText.substring(0, 40)}...` },
-        { status: 500 }
+        { error: 'Hasil AI tidak bisa dibaca. Coba lagi atau gunakan foto lain.' },
+        { status: 502 }
       );
     }
 
@@ -197,7 +205,7 @@ Berikan angka sebagai integer (tanpa desimal). Jangan tambahkan teks apapun sela
   } catch (error) {
     console.error('[analyze-food] Unexpected error:', error);
     return NextResponse.json(
-      { error: `Server error: ${error instanceof Error ? error.message : 'Unknown error'}` },
+      { error: 'Terjadi kesalahan server. Coba lagi.' },
       { status: 500 }
     );
   }

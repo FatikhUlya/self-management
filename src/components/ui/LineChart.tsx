@@ -166,13 +166,13 @@ export function LineChart({
  })}
 
  {/* Y Axis Labels */}
- <text className="fill-life-muted text-[10px] font-bold" x={10} y={yFor(calculatedMax) + 4}>
+ <text className="fill-life-muted text-[11px] font-medium" x={10} y={yFor(calculatedMax) + 4}>
  {calculatedMax.toFixed(1)}
  </text>
- <text className="fill-life-muted text-[10px] font-bold" x={10} y={yFor((calculatedMax + calculatedMin) / 2) + 4}>
+ <text className="fill-life-muted text-[11px] font-medium" x={10} y={yFor((calculatedMax + calculatedMin) / 2) + 4}>
  {((calculatedMax + calculatedMin) / 2).toFixed(1)}
  </text>
- <text className="fill-life-muted text-[10px] font-bold" x={10} y={yFor(calculatedMin) + 4}>
+ <text className="fill-life-muted text-[11px] font-medium" x={10} y={yFor(calculatedMin) + 4}>
  {calculatedMin.toFixed(1)}
  </text>
 
@@ -183,7 +183,7 @@ export function LineChart({
  return (
  <text
  key={index}
- className="fill-life-muted text-[10px] font-bold"
+ className="fill-life-muted text-[11px] font-medium"
  x={xFor(index)}
  y={height - 15}
  textAnchor="middle"

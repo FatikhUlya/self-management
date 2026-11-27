@@ -286,3 +286,19 @@ export function shiftYearStr(dateStr: string, years: number): string {
   const nd = String(dt.getDate()).padStart(2, '0');
   return `${ny}-${nm}-${nd}`;
 }
+
+/** Returns the URL only if it is http(s); blocks javascript:, data: and similar schemes. */
+export function safeExternalUrl(url: string | null | undefined): string | undefined {
+  if (!url) return undefined;
+  try {
+    const parsed = new URL(url.trim());
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.href : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Rupiah without decimals, one format across the app: "Rp 1.250.000". */
+export function formatIDR(val: number): string {
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val || 0);
+}

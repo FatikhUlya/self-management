@@ -238,8 +238,7 @@ export default function LedgerPage() {
  {/* Header */}
  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
  <div>
- <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-600 flex items-center gap-2">
- <Icon name="bookOpen" size={28} className="text-green-500" />
+ <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
  {locale === 'id' ? 'Buku Kas & Distribusi' : 'Ledger & Distribution'}
  </h1>
  <p className="text-zinc-500 mt-1 text-sm">
@@ -261,7 +260,7 @@ export default function LedgerPage() {
  <Surface className="p-6">
  <div className="border-b border-border pb-3 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
  <div className="flex items-center gap-2">
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  {locale === 'id' ? 'Buku Kas Transaksi' : 'Transaction Ledger'}
  </h3>
  <button
@@ -280,7 +279,7 @@ export default function LedgerPage() {
  <select
  value={ledgerAccount}
  onChange={(e) => setLedgerAccount(e.target.value)}
- className="bg-muted/30 border border-border rounded-lg px-2 py-1 text-[10px] font-semibold uppercase text-muted-foreground outline-none hover:border-emerald-500/50 transition-colors"
+ className="bg-muted/30 border border-border rounded-lg px-2 py-1 text-[11px] font-semibold text-muted-foreground outline-none hover:border-emerald-500/50 transition-colors"
  >
  <option value="all">{locale === 'id' ? 'Semua Rekening' : 'All Accounts'}</option>
  {availableAccounts.map(acc => (
@@ -300,7 +299,7 @@ export default function LedgerPage() {
  key={tab.id}
  type="button"
  onClick={() => setLedgerTimeframe(tab.id as any)}
- className={`text-[10px] font-semibold uppercase py-1 px-2 rounded-md transition-all ${
+ className={`text-[11px] font-semibold  py-1 px-2 rounded-md transition-colors ${
  ledgerTimeframe === tab.id
  ? 'bg-primary text-white shadow-sm'
  : 'text-muted-foreground hover:text-foreground'
@@ -327,7 +326,7 @@ export default function LedgerPage() {
  type="date"
  value={ledgerRefDate}
  onChange={(e) => e.target.value && setLedgerRefDate(e.target.value)}
- className="bg-transparent border-0 text-foreground font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
+ className="bg-transparent border-0 text-foreground font-medium text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
  />
  )}
 
@@ -337,9 +336,9 @@ export default function LedgerPage() {
  type="date"
  value={ledgerRefDate}
  onChange={(e) => e.target.value && setLedgerRefDate(e.target.value)}
- className="bg-transparent border-0 text-foreground font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
+ className="bg-transparent border-0 text-foreground font-medium text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
  />
- <span className="text-[9px] text-muted-foreground font-bold">(7 hr)</span>
+ <span className="text-[11px] text-muted-foreground font-medium">(7 hr)</span>
  </div>
  )}
 
@@ -348,7 +347,7 @@ export default function LedgerPage() {
  type="month"
  value={ledgerRefDate.slice(0, 7)}
  onChange={(e) => e.target.value && setLedgerRefDate(`${e.target.value}-01`)}
- className="bg-transparent border-0 text-foreground font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
+ className="bg-transparent border-0 text-foreground font-medium text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
  />
  )}
 
@@ -359,7 +358,7 @@ export default function LedgerPage() {
  max="2100"
  value={ledgerRefDate.slice(0, 4)}
  onChange={(e) => e.target.value && setLedgerRefDate(`${e.target.value}-01-01`)}
- className="bg-transparent border-0 text-foreground font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-14"
+ className="bg-transparent border-0 text-foreground font-medium text-[11px] focus:ring-0 cursor-pointer p-0 w-14"
  />
  )}
 
@@ -409,7 +408,7 @@ export default function LedgerPage() {
  {filteredTransactions.length > 0 ? (
  <table className="w-full text-left border-collapse">
  <thead className="sticky top-0 bg-[#0f1115] z-10 shadow-sm border-b border-border">
- <tr className="text-[10px] uppercase tracking-wider text-muted-foreground">
+ <tr className="text-[11px] text-muted-foreground">
  <th className="py-3 px-4 font-semibold">{locale === 'id' ? 'Tanggal' : 'Date'}</th>
  <th className="py-3 px-4 font-semibold">{locale === 'id' ? 'Deskripsi' : 'Description'}</th>
  <th className="py-3 px-4 font-semibold">{locale === 'id' ? 'Kategori' : 'Category'}</th>
@@ -437,9 +436,9 @@ export default function LedgerPage() {
  <Icon name={tx.type === 'income' ? 'arrowDown' : 'arrowUp'} size={10} />
  </div>
  <div>
- <p className="font-bold text-sm text-foreground">{tx.title}</p>
+ <p className="font-medium text-sm text-foreground">{tx.title}</p>
  {tx.isRecurring && tx.recurringInterval !== 'none' && (
- <p className="text-[9px] text-indigo-400 uppercase tracking-widest font-semibold mt-0.5">
+ <p className="text-[11px] text-indigo-400 font-semibold mt-0.5">
  Recurring: {tx.recurringInterval}
  </p>
  )}
@@ -486,7 +485,7 @@ export default function LedgerPage() {
  <Surface className="p-6">
  <div className="border-b border-border pb-3 mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
  <div>
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  {locale === 'id' ? 'Distribusi Pengeluaran' : 'Expense Distribution'}
  </h3>
  </div>
@@ -505,7 +504,7 @@ export default function LedgerPage() {
  key={tab.id}
  type="button"
  onClick={() => setDistributionTimeframe(tab.id as any)}
- className={`text-[10px] font-semibold uppercase py-1 px-2 rounded-md transition-all ${
+ className={`text-[11px] font-semibold  py-1 px-2 rounded-md transition-colors ${
  distributionTimeframe === tab.id
  ? 'bg-primary text-white shadow-sm'
  : 'text-muted-foreground hover:text-foreground'
@@ -532,7 +531,7 @@ export default function LedgerPage() {
  type="date"
  value={distributionRefDate}
  onChange={(e) => e.target.value && setDistributionRefDate(e.target.value)}
- className="bg-transparent border-0 text-foreground font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
+ className="bg-transparent border-0 text-foreground font-medium text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
  />
  )}
 
@@ -542,9 +541,9 @@ export default function LedgerPage() {
  type="date"
  value={distributionRefDate}
  onChange={(e) => e.target.value && setDistributionRefDate(e.target.value)}
- className="bg-transparent border-0 text-foreground font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
+ className="bg-transparent border-0 text-foreground font-medium text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
  />
- <span className="text-[9px] text-muted-foreground font-bold">(7 hr)</span>
+ <span className="text-[11px] text-muted-foreground font-medium">(7 hr)</span>
  </div>
  )}
 
@@ -553,7 +552,7 @@ export default function LedgerPage() {
  type="month"
  value={distributionRefDate.slice(0, 7)}
  onChange={(e) => e.target.value && setDistributionRefDate(`${e.target.value}-01`)}
- className="bg-transparent border-0 text-foreground font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
+ className="bg-transparent border-0 text-foreground font-medium text-[11px] focus:ring-0 cursor-pointer p-0 w-24"
  />
  )}
 
@@ -564,7 +563,7 @@ export default function LedgerPage() {
  max="2100"
  value={distributionRefDate.slice(0, 4)}
  onChange={(e) => e.target.value && setDistributionRefDate(`${e.target.value}-01-01`)}
- className="bg-transparent border-0 text-foreground font-bold text-[11px] focus:ring-0 cursor-pointer p-0 w-14"
+ className="bg-transparent border-0 text-foreground font-medium text-[11px] focus:ring-0 cursor-pointer p-0 w-14"
  />
  )}
 
@@ -609,7 +608,7 @@ export default function LedgerPage() {
  <div key={item.category} className="space-y-2 pb-2">
  <div className="flex justify-between items-center text-xs">
  <strong className="text-foreground">{getCategoryLabel(item.category, locale)}</strong>
- <div className="space-x-1.5 font-bold flex items-center">
+ <div className="space-x-1.5 font-medium flex items-center">
  <span className="text-muted-foreground">{formatCurrency(item.amount)}</span>
  <Badge tone="rose">{`${pct}%`}</Badge>
  {(distributionTimeframe === 'month' || distributionTimeframe === 'week' || distributionTimeframe === 'year') && (
@@ -631,7 +630,7 @@ export default function LedgerPage() {
  </div>
  <div className="h-2 w-full bg-muted/30 rounded-full overflow-hidden">
  <div
- className="h-full rounded-full bg-gradient-to-r from-rose-500 to-amber-500 shadow-[0_0_8px_rgba(239,68,68,0.3)]"
+ className="h-full rounded-full bg-rose-500"
  style={{ width: `${pct}%` }}
  />
  </div>
@@ -644,9 +643,9 @@ export default function LedgerPage() {
  style={{ width: `${displayBudgetPct}%` }}
  />
  </div>
- <span className="text-[10px] text-muted-foreground font-mono">
+ <span className="text-[11px] text-muted-foreground font-mono">
  {formatCurrency(budgetLimit)} 
- <span className={overBudget ? 'text-amber-400 ml-1 font-bold' : 'ml-1'}>
+ <span className={overBudget ? 'text-amber-400 ml-1 font-medium' : 'ml-1'}>
  ({overBudget ? (locale === 'id' ? 'Area Perbaikan' : 'Area for Improvement') : `${budgetPct}%`})
  </span>
  </span>
@@ -656,7 +655,7 @@ export default function LedgerPage() {
  );
  })
  ) : (
- <div className="py-6 text-center text-xs text-muted-foreground font-bold uppercase">
+ <div className="py-6 text-center text-xs text-muted-foreground font-medium ">
  {locale === 'id' ? 'Belum ada catatan pengeluaran pada periode ini.' : 'No expense records for this period.'}
  </div>
  )}
@@ -674,7 +673,7 @@ export default function LedgerPage() {
  >
  <form onSubmit={handleBudgetSubmit} className="space-y-4">
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Kategori' : 'Category'}
  </label>
  <input
@@ -686,7 +685,7 @@ export default function LedgerPage() {
  </div>
  
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Periode Budget' : 'Budget Period'}
  </label>
  <input
@@ -698,14 +697,14 @@ export default function LedgerPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label htmlFor="bLimit" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="bLimit" className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Limit Anggaran (Rp)' : 'Budget Limit (Rp)'}
  </label>
  <input
  id="bLimit"
  type="number"
  required
- placeholder="Rp..."
+ placeholder="Rp"
  value={budgetLimit}
  onChange={(e) => setBudgetLimit(e.target.value)}
  className="glass-input text-sm"

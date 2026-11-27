@@ -69,13 +69,12 @@ export default function HabitsManagePage() {
  <div className="space-y-6 max-w-5xl mx-auto pb-24">
  <div className="flex items-center gap-3">
  <Link href="/habits">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-all">
+ <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
  <Icon name="arrowLeft" size={18} />
  </button>
  </Link>
  <div className="flex-1">
- <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
- <Icon name="list" size={24} className="text-cyan-500" />
+ <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
  Kelola Kebiasaan
  </h1>
  <p className="text-zinc-500 text-xs mt-1">
@@ -94,7 +93,7 @@ export default function HabitsManagePage() {
 
  <Surface className="p-6">
  <div className="border-b border-border pb-3 mb-4">
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  Daftar Kebiasaan
  </h3>
  <p className="text-xs text-muted-foreground mt-0.5">
@@ -107,11 +106,11 @@ export default function HabitsManagePage() {
  state.habits.map((habit) => (
  <div 
  key={habit.id}
- className="p-4 rounded-xl bg-muted/20 border border-border flex items-center justify-between group hover:border-cyan-500/30 transition-all"
+ className="p-4 rounded-xl bg-muted/20 border border-border flex items-center justify-between group hover:border-cyan-500/30 transition-colors"
  >
  <div>
- <strong className="text-sm font-bold block text-foreground">{habit.name}</strong>
- <div className="flex gap-2 items-center text-[10px] text-muted-foreground font-bold uppercase mt-1">
+ <strong className="text-sm font-medium block text-foreground">{habit.name}</strong>
+ <div className="flex gap-2 items-center text-[11px] text-muted-foreground font-medium mt-1">
  <span>{habit.area}</span>
  <span className="w-1 h-1 rounded-full bg-border" />
  <span>{habit.frequency === 'daily' ? 'Harian' : 'Mingguan'} ({habit.targetPerWeek}x)</span>
@@ -121,14 +120,14 @@ export default function HabitsManagePage() {
  <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
  <button
  onClick={() => handleEditHabitClick(habit)}
- className="w-8 h-8 rounded bg-muted/30 border border-border hover:bg-muted/50/[0.07] text-muted-foreground hover:text-foreground flex items-center justify-center transition-all"
+ className="w-8 h-8 rounded bg-muted/30 border border-border hover:bg-muted/50/[0.07] text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors"
  title={t('edit')}
  >
  <Icon name="edit" size={14} />
  </button>
  <button
  onClick={() => deleteHabit(habit.id)}
- className="w-8 h-8 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-all"
+ className="w-8 h-8 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors"
  title={t('delete')}
  >
  <Icon name="trash" size={14} />
@@ -152,7 +151,7 @@ export default function HabitsManagePage() {
  >
  <form onSubmit={handleHabitSubmit} className="space-y-4">
  <div className="flex flex-col space-y-1">
- <label htmlFor="hName" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="hName" className="text-xs font-medium text-muted-foreground ">
  {t('habits_name')}
  </label>
  <input
@@ -168,7 +167,7 @@ export default function HabitsManagePage() {
 
  <div className="grid grid-cols-3 gap-3">
  <div className="flex flex-col space-y-1">
- <label htmlFor="hArea" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="hArea" className="text-xs font-medium text-muted-foreground ">
  {t('area')}
  </label>
  <select
@@ -186,7 +185,7 @@ export default function HabitsManagePage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label htmlFor="hFreq" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="hFreq" className="text-xs font-medium text-muted-foreground ">
  {t('habits_frequency')}
  </label>
  <select
@@ -201,7 +200,7 @@ export default function HabitsManagePage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label htmlFor="hTarget" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="hTarget" className="text-xs font-medium text-muted-foreground ">
  Target/minggu
  </label>
  <input

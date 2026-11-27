@@ -260,7 +260,7 @@ export const en: Record<TranslationKey, string> = {
   dictionary_summary_title: 'Language Summary & NotebookLM Export',
   dictionary_notebooklm_btn: 'Copy Data for NotebookLM',
   dictionary_notebooklm_link: 'Open Google NotebookLM',
-  dictionary_copied: 'Dictionary data copied!',
+  dictionary_copied: 'Dictionary data copied',
 
   // Health
   health_title: 'Health & Fitness',
@@ -476,7 +476,7 @@ export const en: Record<TranslationKey, string> = {
   mirror_feedback_priv_req: 'Required (Respondents must enter name)',
   mirror_feedback_link: 'Public Feedback Link',
   mirror_feedback_copy: 'Copy Link',
-  mirror_feedback_copied: 'Link copied!',
+  mirror_feedback_copied: 'Link copied',
   mirror_feedback_status_open: 'Accepting Responses',
   mirror_feedback_status_closed: 'Closed',
   mirror_feedback_responses: 'Responses received',

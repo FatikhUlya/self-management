@@ -19,6 +19,8 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { formatDate, todayISO, cn } from '@/lib/utils';
+import { DateStamp } from '@/components/ui/DateStamp';
+import { CashflowChart } from '@/components/finance/CashflowChart';
 
 const EXPENSE_CATEGORIES = [
   'Makanan & Minuman',
@@ -380,16 +382,11 @@ export default function FinanceDashboard() {
       {/* Header & Page Title */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
+          <DateStamp />
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground flex items-center gap-2.5">
-              <span className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
-                <Icon name="wallet" size={17} />
-              </span>
+            <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
               Keuangan & Kekayaan
             </h1>
-            <Badge tone="green" className="font-mono tabular-nums text-xs">
-              Live Balance
-            </Badge>
           </div>
           <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
             Kendali arus kas harian, alokasi kekayaan bersih, pelunasan utang, dan target tabungan masa depan.
@@ -446,6 +443,8 @@ export default function FinanceDashboard() {
         />
       </div>
 
+      <CashflowChart transactions={state.transactions as any} selectedDate={state.selectedDate} />
+
       {/* Modern Segmented Navigation Tabs */}
       {/* Navigation Tab Bar (Swipe-friendly) */}
       <div className="flex items-center justify-between border-b border-border pb-2 overflow-x-auto no-scrollbar gap-4 px-1">
@@ -453,7 +452,7 @@ export default function FinanceDashboard() {
           <button
             onClick={() => setActiveTab('ledger')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all min-h-[44px] touch-manipulation',
+              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px] touch-manipulation',
               activeTab === 'ledger'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
@@ -461,14 +460,14 @@ export default function FinanceDashboard() {
           >
             <Icon name="receipt" size={14} className={activeTab === 'ledger' ? 'text-emerald-500' : ''} />
             Buku Kas & Transaksi
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[10px]">
+            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
               {state.transactions.length}
             </span>
           </button>
           <button
             onClick={() => setActiveTab('wealth')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all min-h-[44px] touch-manipulation',
+              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px] touch-manipulation',
               activeTab === 'wealth'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
@@ -476,14 +475,14 @@ export default function FinanceDashboard() {
           >
             <Icon name="briefcase" size={14} className={activeTab === 'wealth' ? 'text-emerald-500' : ''} />
             Neraca Aset & Kewajiban
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[10px]">
+            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
               {(state.assets?.length || 0) + (state.debts?.length || 0)}
             </span>
           </button>
           <button
             onClick={() => setActiveTab('goals')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all min-h-[44px] touch-manipulation',
+              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px] touch-manipulation',
               activeTab === 'goals'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
@@ -491,7 +490,7 @@ export default function FinanceDashboard() {
           >
             <Icon name="target" size={14} className={activeTab === 'goals' ? 'text-emerald-500' : ''} />
             Target Tabungan Finansial
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[10px]">
+            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
               {state.financialGoals.length}
             </span>
           </button>
@@ -505,7 +504,7 @@ export default function FinanceDashboard() {
           <Surface className="p-4">
             <form onSubmit={handleQuickAddTransaction} className="flex flex-col gap-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
                   <Icon name="plus" size={13} className="text-emerald-500" />
                   Catat Transaksi Cepat
                 </span>
@@ -519,7 +518,7 @@ export default function FinanceDashboard() {
                       setQuickCategory(EXPENSE_CATEGORIES[0]);
                     }}
                     className={cn(
-                      'px-3 py-1 text-xs rounded-md font-semibold transition-all',
+                      'px-3 py-1 text-xs rounded-md font-semibold transition-colors',
                       quickType === 'expense'
                         ? 'bg-rose-500 text-white shadow-xs'
                         : 'text-muted-foreground hover:text-foreground'
@@ -534,7 +533,7 @@ export default function FinanceDashboard() {
                       setQuickCategory(INCOME_CATEGORIES[0]);
                     }}
                     className={cn(
-                      'px-3 py-1 text-xs rounded-md font-semibold transition-all',
+                      'px-3 py-1 text-xs rounded-md font-semibold transition-colors',
                       quickType === 'income'
                         ? 'bg-emerald-500 text-white shadow-xs'
                         : 'text-muted-foreground hover:text-foreground'
@@ -548,18 +547,18 @@ export default function FinanceDashboard() {
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
                 <input
                   type="text"
-                  placeholder="Keterangan transaksi (cth: Makan Siang, Kopi, Gaji)..."
+                  placeholder="Keterangan transaksi"
                   value={quickTitle}
                   onChange={(e) => setQuickTitle(e.target.value)}
-                  className="sm:col-span-4 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-emerald-500 text-foreground"
-                />
+                  className="sm:col-span-4 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-emerald-500 text-foreground" aria-label="Keterangan transaksi"
+/>
                 <input
                   type="number"
-                  placeholder="Nominal (Rp)..."
+                  placeholder="Nominal (Rp)"
                   value={quickAmount}
                   onChange={(e) => setQuickAmount(e.target.value)}
-                  className="sm:col-span-2 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-emerald-500 text-foreground font-mono"
-                />
+                  className="sm:col-span-2 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-emerald-500 text-foreground font-mono" aria-label="Nominal (Rp)"
+/>
                 <select
                   value={quickCategory}
                   onChange={(e) => setQuickCategory(e.target.value)}
@@ -606,11 +605,11 @@ export default function FinanceDashboard() {
               />
               <input
                 type="text"
-                placeholder="Cari transaksi..."
+                placeholder="Cari transaksi"
                 value={txSearch}
                 onChange={(e) => setTxSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-emerald-500 text-foreground"
-              />
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-emerald-500 text-foreground" aria-label="Cari transaksi"
+/>
             </div>
 
             <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto">
@@ -621,9 +620,9 @@ export default function FinanceDashboard() {
                     key={t}
                     onClick={() => setTxTypeFilter(t)}
                     className={cn(
-                      'px-2.5 py-1 text-xs rounded-md font-medium transition-all capitalize',
+                      'px-2.5 py-1 text-xs rounded-md font-medium transition-colors capitalize',
                       txTypeFilter === t
-                        ? 'bg-background text-foreground font-bold shadow-2xs'
+                        ? 'bg-background text-foreground font-medium shadow-2xs'
                         : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
@@ -695,7 +694,7 @@ export default function FinanceDashboard() {
                           <div className="flex flex-wrap items-center gap-2 mt-0.5 text-[11px] text-muted-foreground">
                             <span>{formatDate(tx.date)}</span>
                             <span>•</span>
-                            <span className="px-1.5 py-0.2 rounded bg-muted/40 border border-border text-[10px]">
+                            <span className="px-1.5 py-0.2 rounded bg-muted/40 border border-border text-[11px]">
                               {tx.category}
                             </span>
                             <span>•</span>
@@ -703,7 +702,7 @@ export default function FinanceDashboard() {
                             {tx.notes && (
                               <>
                                 <span>•</span>
-                                <span className="italic truncate max-w-[150px]">{tx.notes}</span>
+                                <span className=" truncate max-w-[150px]">{tx.notes}</span>
                               </>
                             )}
                           </div>
@@ -713,7 +712,7 @@ export default function FinanceDashboard() {
                       <div className="flex items-center gap-3 shrink-0">
                         <strong
                           className={cn(
-                            'text-sm font-bold font-mono tabular-nums',
+                            'text-sm font-medium font-mono tabular-nums',
                             isExp ? 'text-rose-500' : 'text-emerald-500'
                           )}
                         >
@@ -743,7 +742,7 @@ export default function FinanceDashboard() {
                 message={
                   txSearch || txTypeFilter !== 'all' || txAccountFilter !== 'all' || txCategoryFilter !== 'all'
                     ? 'Tidak ada transaksi yang cocok dengan filter.'
-                    : 'Belum ada transaksi tersimpan. Catat transaksi pertama Anda di atas!'
+                    : 'Belum ada transaksi tersimpan. Catat transaksi pertama Anda di atas'
                 }
               />
             </Surface>
@@ -757,8 +756,8 @@ export default function FinanceDashboard() {
           {/* Account Balances Grid */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                <Icon name="wallet" size={13} className="text-emerald-500" />
+              <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+                <Icon name="wallet" size={13} className="text-muted-foreground" />
                 Saldo Rekening & Dompet Digital
               </h3>
               <Button
@@ -775,19 +774,19 @@ export default function FinanceDashboard() {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {accountBalances.map(([name, bal]) => (
                 <Surface key={name} className="p-4 flex flex-col justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground truncate">
+                  <span className="text-[11px] font-medium text-muted-foreground truncate">
                     {name}
                   </span>
                   <div className="mt-2">
                     <strong
                       className={cn(
-                        'block text-sm font-bold font-mono tabular-nums',
+                        'block text-sm font-medium font-mono tabular-nums',
                         bal >= 0 ? 'text-foreground' : 'text-rose-500'
                       )}
                     >
                       {formatIDR(bal)}
                     </strong>
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-[11px] text-muted-foreground">
                       {bal >= 0 ? 'Saldo Positif' : 'Saldo Minus'}
                     </span>
                   </div>
@@ -802,11 +801,11 @@ export default function FinanceDashboard() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <Icon name="briefcase" size={13} className="text-teal-500" />
+                  <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Icon name="briefcase" size={13} className="text-muted-foreground" />
                     Aset & Kepemilikan Finansial
                   </h3>
-                  <span className="text-xs font-bold font-mono text-emerald-500">
+                  <span className="text-xs font-medium font-mono text-emerald-500">
                     Total: {formatIDR(totalAssets)}
                   </span>
                 </div>
@@ -829,12 +828,12 @@ export default function FinanceDashboard() {
                         <strong className="block text-xs font-semibold text-foreground">
                           {asset.name}
                         </strong>
-                        <span className="px-1.5 py-0.2 rounded bg-muted/40 border border-border text-[10px] text-muted-foreground">
+                        <span className="px-1.5 py-0.2 rounded bg-muted/40 border border-border text-[11px] text-muted-foreground">
                           {asset.category}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <strong className="text-xs font-bold font-mono text-emerald-500">
+                        <strong className="text-xs font-medium font-mono text-emerald-500">
                           {formatIDR(asset.value)}
                         </strong>
                         <button
@@ -864,11 +863,11 @@ export default function FinanceDashboard() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <Icon name="alertCircle" size={13} className="text-rose-500" />
+                  <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Icon name="alertCircle" size={13} className="text-muted-foreground" />
                     Kewajiban & Utang
                   </h3>
-                  <span className="text-xs font-bold font-mono text-rose-500">
+                  <span className="text-xs font-medium font-mono text-rose-500">
                     Sisa Total: {formatIDR(totalDebts)}
                   </span>
                 </div>
@@ -895,7 +894,7 @@ export default function FinanceDashboard() {
                             <strong className="block text-xs font-semibold text-foreground">
                               {debt.name}
                             </strong>
-                            <span className="text-[10px] text-muted-foreground">
+                            <span className="text-[11px] text-muted-foreground">
                               Cicilan: {formatIDR(debt.monthlyInstallment)}/bln • Jatuh Tempo: {debt.nextDueDate || debt.dueDate}
                             </span>
                           </div>
@@ -903,7 +902,7 @@ export default function FinanceDashboard() {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="text-[10px] py-1 px-2 h-auto"
+                              className="text-[11px] py-1 px-2 h-auto"
                               onClick={() => {
                                 setSelectedDebtForPayment(debt);
                                 setDebtPaymentAmount(String(debt.monthlyInstallment || ''));
@@ -929,7 +928,7 @@ export default function FinanceDashboard() {
                             <span className="text-muted-foreground">
                               Terbayar: {formatIDR(paid)} ({pct}%)
                             </span>
-                            <span className="text-rose-500 font-bold">
+                            <span className="text-rose-500 font-medium">
                               Sisa: {formatIDR(debt.remainingAmount)}
                             </span>
                           </div>
@@ -956,7 +955,7 @@ export default function FinanceDashboard() {
         <div className="space-y-4 animate-in fade-in duration-200">
           <Surface className="p-4 flex items-center justify-between">
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              <h3 className="text-xs font-medium text-muted-foreground">
                 Target Tabungan & Rencana Investasi
               </h3>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -984,22 +983,22 @@ export default function FinanceDashboard() {
                     <div className="space-y-2">
                       <div className="flex items-start justify-between">
                         <div>
-                          <strong className="block text-sm font-bold text-foreground">
+                          <strong className="block text-sm font-medium text-foreground">
                             {goal.title}
                           </strong>
                           {goal.linkedAccountName && (
-                            <span className="text-[10px] text-muted-foreground">
+                            <span className="text-[11px] text-muted-foreground">
                               Disimpan di: <span className="font-semibold text-foreground">{goal.linkedAccountName}</span>
                             </span>
                           )}
                         </div>
                         <div className="flex items-center gap-1.5">
                           {isComplete ? (
-                            <Badge tone="green" className="text-[10px]">
+                            <Badge tone="green" className="text-[11px]">
                               Tercapai!
                             </Badge>
                           ) : (
-                            <Badge tone="indigo" className="text-[10px] font-mono">
+                            <Badge tone="indigo" className="text-[11px] font-mono">
                               {pct}%
                             </Badge>
                           )}
@@ -1019,7 +1018,7 @@ export default function FinanceDashboard() {
                       {/* Progress numbers */}
                       <div className="space-y-1.5 pt-1">
                         <div className="flex items-baseline justify-between text-xs font-mono">
-                          <span className="font-bold text-emerald-500">
+                          <span className="font-medium text-emerald-500">
                             {formatIDR(goal.currentAmount)}
                           </span>
                           <span className="text-muted-foreground">
@@ -1064,7 +1063,7 @@ export default function FinanceDashboard() {
         <DialogContent className="max-w-lg">
           <form onSubmit={handleModalAddTransaction}>
             <DialogHeader>
-              <DialogTitle className="text-lg font-bold flex items-center gap-2">
+              <DialogTitle className="text-lg font-medium flex items-center gap-2">
                 <Icon name="wallet" size={18} className="text-emerald-500" />
                 Catat Transaksi
               </DialogTitle>
@@ -1083,7 +1082,7 @@ export default function FinanceDashboard() {
                     setModalTxCategory(EXPENSE_CATEGORIES[0]);
                   }}
                   className={cn(
-                    'py-2 rounded-lg font-bold text-xs transition-all',
+                    'py-2 rounded-lg font-medium text-xs transition-colors',
                     modalTxType === 'expense'
                       ? 'bg-rose-500 text-white shadow-xs'
                       : 'text-muted-foreground hover:text-foreground'
@@ -1098,7 +1097,7 @@ export default function FinanceDashboard() {
                     setModalTxCategory(INCOME_CATEGORIES[0]);
                   }}
                   className={cn(
-                    'py-2 rounded-lg font-bold text-xs transition-all',
+                    'py-2 rounded-lg font-medium text-xs transition-colors',
                     modalTxType === 'income'
                       ? 'bg-emerald-500 text-white shadow-xs'
                       : 'text-muted-foreground hover:text-foreground'
@@ -1109,7 +1108,7 @@ export default function FinanceDashboard() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Keterangan Transaksi
                 </label>
                 <input
@@ -1118,13 +1117,13 @@ export default function FinanceDashboard() {
                   placeholder="Contoh: Belanja Bulanan Supermarket"
                   value={modalTxTitle}
                   onChange={(e) => setModalTxTitle(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-emerald-500"
-                />
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-emerald-500" aria-label="Contoh: Belanja Bulanan Supermarket"
+/>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Nominal (IDR)
                   </label>
                   <input
@@ -1133,11 +1132,11 @@ export default function FinanceDashboard() {
                     placeholder="Contoh: 150000"
                     value={modalTxAmount}
                     onChange={(e) => setModalTxAmount(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-emerald-500"
-                  />
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-emerald-500" aria-label="Contoh: 150000"
+/>
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Tanggal
                   </label>
                   <input
@@ -1151,7 +1150,7 @@ export default function FinanceDashboard() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Kategori
                   </label>
                   <select
@@ -1167,7 +1166,7 @@ export default function FinanceDashboard() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Sumber Rekening
                   </label>
                   <select
@@ -1185,16 +1184,16 @@ export default function FinanceDashboard() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Catatan Tambahan (Opsional)
                 </label>
                 <input
                   type="text"
-                  placeholder="Catatan kecil..."
+                  placeholder="Catatan kecil"
                   value={modalTxNotes}
                   onChange={(e) => setModalTxNotes(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-emerald-500"
-                />
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-emerald-500" aria-label="Catatan kecil"
+/>
               </div>
             </div>
 
@@ -1214,7 +1213,7 @@ export default function FinanceDashboard() {
       <Dialog open={isAccountModalOpen} onOpenChange={setIsAccountModalOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-lg font-bold flex items-center gap-2">
+            <DialogTitle className="text-lg font-medium flex items-center gap-2">
               <Icon name="briefcase" size={18} className="text-emerald-500" />
               Kelola Rekening & Dompet
             </DialogTitle>
@@ -1227,11 +1226,11 @@ export default function FinanceDashboard() {
             <form onSubmit={handleAddAccount} className="flex gap-2">
               <input
                 type="text"
-                placeholder="Nama akun baru (cth: Bank Jago, SeaBank, Bibit)..."
+                placeholder="Nama akun baru"
                 value={newAccountName}
                 onChange={(e) => setNewAccountName(e.target.value)}
-                className="flex-1 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-emerald-500"
-              />
+                className="flex-1 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-emerald-500" aria-label="Nama akun baru"
+/>
               <Button type="submit" variant="primary" size="sm" icon="plus">
                 Tambah
               </Button>
@@ -1278,7 +1277,7 @@ export default function FinanceDashboard() {
         <DialogContent className="max-w-md">
           <form onSubmit={handleAddGoal}>
             <DialogHeader>
-              <DialogTitle className="text-lg font-bold flex items-center gap-2">
+              <DialogTitle className="text-lg font-medium flex items-center gap-2">
                 <Icon name="target" size={18} className="text-emerald-500" />
                 Buat Target Finansial Baru
               </DialogTitle>
@@ -1289,7 +1288,7 @@ export default function FinanceDashboard() {
 
             <div className="space-y-3 py-2 text-xs">
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Nama Target
                 </label>
                 <input
@@ -1298,13 +1297,13 @@ export default function FinanceDashboard() {
                   placeholder="Contoh: Dana Darurat 6 Bulan"
                   value={goalTitle}
                   onChange={(e) => setGoalTitle(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-emerald-500"
-                />
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-emerald-500" aria-label="Contoh: Dana Darurat 6 Bulan"
+/>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Target Nominal (Rp)
                   </label>
                   <input
@@ -1313,11 +1312,11 @@ export default function FinanceDashboard() {
                     placeholder="30000000"
                     value={goalTargetAmount}
                     onChange={(e) => setGoalTargetAmount(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-emerald-500"
-                  />
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-emerald-500" aria-label="30000000"
+/>
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Saldo Awal (Rp)
                   </label>
                   <input
@@ -1325,14 +1324,14 @@ export default function FinanceDashboard() {
                     placeholder="0"
                     value={goalCurrentAmount}
                     onChange={(e) => setGoalCurrentAmount(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-emerald-500"
-                  />
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-emerald-500" aria-label="0"
+/>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Target Tanggal (Opsional)
                   </label>
                   <input
@@ -1343,7 +1342,7 @@ export default function FinanceDashboard() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Simpan di Akun
                   </label>
                   <select
@@ -1378,7 +1377,7 @@ export default function FinanceDashboard() {
         <DialogContent className="max-w-sm">
           <form onSubmit={handleDepositToGoal}>
             <DialogHeader>
-              <DialogTitle className="text-base font-bold flex items-center gap-2">
+              <DialogTitle className="text-base font-medium flex items-center gap-2">
                 <Icon name="plus" size={16} className="text-emerald-500" />
                 Setor Tabungan Target
               </DialogTitle>
@@ -1388,7 +1387,7 @@ export default function FinanceDashboard() {
             </DialogHeader>
 
             <div className="py-2 text-xs">
-              <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+              <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                 Nominal Setoran Tambahan (Rp)
               </label>
               <input
@@ -1398,8 +1397,8 @@ export default function FinanceDashboard() {
                 placeholder="Contoh: 500000"
                 value={depositAmount}
                 onChange={(e) => setDepositAmount(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-emerald-500"
-              />
+                className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-emerald-500" aria-label="Contoh: 500000"
+/>
             </div>
 
             <DialogFooter>
@@ -1419,7 +1418,7 @@ export default function FinanceDashboard() {
         <DialogContent className="max-w-md">
           <form onSubmit={handleAddAsset}>
             <DialogHeader>
-              <DialogTitle className="text-lg font-bold flex items-center gap-2">
+              <DialogTitle className="text-lg font-medium flex items-center gap-2">
                 <Icon name="briefcase" size={18} className="text-teal-500" />
                 Tambah Aset Finansial
               </DialogTitle>
@@ -1430,7 +1429,7 @@ export default function FinanceDashboard() {
 
             <div className="space-y-3 py-2 text-xs">
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Nama Aset
                 </label>
                 <input
@@ -1439,13 +1438,13 @@ export default function FinanceDashboard() {
                   placeholder="Contoh: Portofolio Reksadana Bibit"
                   value={assetName}
                   onChange={(e) => setAssetName(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-emerald-500"
-                />
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-emerald-500" aria-label="Contoh: Portofolio Reksadana Bibit"
+/>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Nilai Pasar (Rp)
                   </label>
                   <input
@@ -1454,11 +1453,11 @@ export default function FinanceDashboard() {
                     placeholder="10000000"
                     value={assetValue}
                     onChange={(e) => setAssetValue(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-emerald-500"
-                  />
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-emerald-500" aria-label="10000000"
+/>
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Kategori Aset
                   </label>
                   <select
@@ -1493,7 +1492,7 @@ export default function FinanceDashboard() {
         <DialogContent className="max-w-md">
           <form onSubmit={handleAddDebt}>
             <DialogHeader>
-              <DialogTitle className="text-lg font-bold flex items-center gap-2">
+              <DialogTitle className="text-lg font-medium flex items-center gap-2">
                 <Icon name="alertCircle" size={18} className="text-rose-500" />
                 Catat Kewajiban / Utang
               </DialogTitle>
@@ -1504,7 +1503,7 @@ export default function FinanceDashboard() {
 
             <div className="space-y-3 py-2 text-xs">
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Nama Pinjaman / Cicilan
                 </label>
                 <input
@@ -1513,13 +1512,13 @@ export default function FinanceDashboard() {
                   placeholder="Contoh: Cicilan Laptop Kerja"
                   value={debtName}
                   onChange={(e) => setDebtName(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-rose-500"
-                />
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-rose-500" aria-label="Contoh: Cicilan Laptop Kerja"
+/>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Total Pinjaman (Rp)
                   </label>
                   <input
@@ -1528,11 +1527,11 @@ export default function FinanceDashboard() {
                     placeholder="12000000"
                     value={debtTotal}
                     onChange={(e) => setDebtTotal(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-rose-500"
-                  />
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-rose-500" aria-label="12000000"
+/>
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Sisa Utang Saat Ini (Rp)
                   </label>
                   <input
@@ -1540,14 +1539,14 @@ export default function FinanceDashboard() {
                     placeholder="Biarkan kosong jika sama"
                     value={debtRemaining}
                     onChange={(e) => setDebtRemaining(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-rose-500"
-                  />
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-rose-500" aria-label="Biarkan kosong jika sama"
+/>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Cicilan per Bulan (Rp)
                   </label>
                   <input
@@ -1555,11 +1554,11 @@ export default function FinanceDashboard() {
                     placeholder="1000000"
                     value={debtInstallment}
                     onChange={(e) => setDebtInstallment(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-rose-500"
-                  />
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-rose-500" aria-label="1000000"
+/>
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Tanggal Jatuh Tempo
                   </label>
                   <input
@@ -1589,7 +1588,7 @@ export default function FinanceDashboard() {
         <DialogContent className="max-w-sm">
           <form onSubmit={handleDebtPayment}>
             <DialogHeader>
-              <DialogTitle className="text-base font-bold flex items-center gap-2">
+              <DialogTitle className="text-base font-medium flex items-center gap-2">
                 <Icon name="checkCircle" size={16} className="text-emerald-500" />
                 Bayar Cicilan Utang
               </DialogTitle>
@@ -1601,10 +1600,10 @@ export default function FinanceDashboard() {
             <div className="py-2 text-xs space-y-2">
               <div className="p-2.5 rounded-lg bg-muted/20 border border-border flex justify-between font-mono">
                 <span className="text-muted-foreground">Sisa Utang Saat Ini:</span>
-                <span className="font-bold text-rose-500">{formatIDR(selectedDebtForPayment?.remainingAmount || 0)}</span>
+                <span className="font-medium text-rose-500">{formatIDR(selectedDebtForPayment?.remainingAmount || 0)}</span>
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Nominal Pembayaran (Rp)
                 </label>
                 <input

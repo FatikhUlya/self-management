@@ -121,7 +121,7 @@ export default function FocusModePage() {
  <h2 className="text-8xl font-semibold tabular-nums tracking-tighter">
  {formatTime(timeLeft)}
  </h2>
- <p className="text-muted-foreground mt-4 font-medium tracking-widest uppercase">
+ <p className="text-muted-foreground mt-4 font-medium ">
  {mode === 'focus' ? 'Fokus Penuh' : 'Waktu Istirahat'}
  </p>
  </div>
@@ -145,7 +145,7 @@ export default function FocusModePage() {
  <Surface className="p-8 space-y-6">
  <div>
  <Badge tone="amber" className="mb-3">Task Focus</Badge>
- <h1 className="text-2xl font-bold leading-tight">{task.title}</h1>
+ <h1 className="text-2xl font-medium leading-tight">{task.title}</h1>
  {task.description && (
  <p className="text-muted-foreground mt-3 text-sm leading-relaxed">{task.description}</p>
  )}
@@ -155,7 +155,7 @@ export default function FocusModePage() {
  <div className="space-y-4 pt-4 border-t border-border">
  {task.definitionOfDone && (
  <div>
- <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+ <h4 className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-2">
  <Icon name="checkSquare" size={14} className="text-teal-400" />
  Definition of Done
  </h4>
@@ -164,7 +164,7 @@ export default function FocusModePage() {
  )}
  {task.expectedOutput && (
  <div>
- <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+ <h4 className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-2">
  <Icon name="package" size={14} className="text-indigo-400" />
  Expected Output
  </h4>
@@ -175,7 +175,7 @@ export default function FocusModePage() {
  )}
 
  <div className="pt-6">
- <Button variant="primary" icon="check" size="lg" className="w-full bg-teal-500 hover:bg-teal-600 text-white border-none shadow-[0_0_20px_rgba(20,184,166,0.3)]" onClick={finishTask}>
+ <Button variant="primary" icon="check" size="lg" className="w-full bg-teal-500 hover:bg-teal-600 text-white border-none " onClick={finishTask}>
  Selesaikan Tugas
  </Button>
  </div>
@@ -183,7 +183,7 @@ export default function FocusModePage() {
  ) : (
  <Surface className="p-8 text-center">
  <Icon name="target" size={32} className="text-muted-foreground mx-auto mb-4" />
- <h3 className="text-lg font-bold">Fokus Bebas</h3>
+ <h3 className="text-lg font-medium">Fokus Bebas</h3>
  <p className="text-muted-foreground mt-2 text-sm">Anda tidak memilih tugas tertentu. Fokuslah pada apa yang penting saat ini.</p>
  </Surface>
  )}

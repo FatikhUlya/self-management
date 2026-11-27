@@ -122,13 +122,12 @@ export default function HealthNutritionPage() {
  <div className="flex items-center justify-between gap-3">
  <div className="flex items-center gap-3">
  <Link href="/health">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-all">
+ <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
  <Icon name="arrowLeft" size={18} />
  </button>
  </Link>
  <div>
- <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
- <Icon name="apple" size={24} className="text-amber-500" />
+ <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
  Nutrition & Meals
  </h1>
  <p className="text-zinc-500 text-xs">
@@ -142,19 +141,19 @@ export default function HealthNutritionPage() {
 
  {/* Macro Summary Cards */}
  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
- <div className="p-3 rounded-xl bg-gradient-to-b from-amber-500/[0.08] to-transparent border border-amber-500/10 relative overflow-hidden">
- <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-500/70">Kalori</p>
+ <div className="p-3 rounded-xl border border-amber-500/10 relative overflow-hidden">
+ <p className="text-[11px] font-semibold text-amber-500/70">Kalori</p>
  <p className="text-lg font-semibold text-amber-400">
- {totalCalories} <span className="text-xs font-bold text-amber-400/50">/ {mealGoalCalories}</span>
+ {totalCalories} <span className="text-xs font-medium text-amber-400/50">/ {mealGoalCalories}</span>
  </p>
  <div className="absolute bottom-0 left-0 h-1 bg-amber-500/20 w-full">
  <div className="h-full bg-amber-500" style={{ width: `${Math.min(100, (totalCalories / mealGoalCalories) * 100)}%` }} />
  </div>
  </div>
- <div className="p-3 rounded-xl bg-gradient-to-b from-blue-500/[0.08] to-transparent border border-blue-500/10 relative overflow-hidden">
- <p className="text-[10px] font-semibold uppercase tracking-wider text-blue-500/70">Karbohidrat</p>
+ <div className="p-3 rounded-xl border border-blue-500/10 relative overflow-hidden">
+ <p className="text-[11px] font-semibold text-blue-500/70">Karbohidrat</p>
  <p className="text-lg font-semibold text-blue-400">
- {totalCarbs} <span className="text-xs font-bold text-blue-400/50">{nutrition ? `/ ${nutrition.carbs_g}g` : 'g'}</span>
+ {totalCarbs} <span className="text-xs font-medium text-blue-400/50">{nutrition ? `/ ${nutrition.carbs_g}g` : 'g'}</span>
  </p>
  {nutrition && (
  <div className="absolute bottom-0 left-0 h-1 bg-blue-500/20 w-full">
@@ -162,10 +161,10 @@ export default function HealthNutritionPage() {
  </div>
  )}
  </div>
- <div className="p-3 rounded-xl bg-gradient-to-b from-rose-500/[0.08] to-transparent border border-rose-500/10 relative overflow-hidden">
- <p className="text-[10px] font-semibold uppercase tracking-wider text-rose-500/70">Protein</p>
+ <div className="p-3 rounded-xl border border-rose-500/10 relative overflow-hidden">
+ <p className="text-[11px] font-semibold text-rose-500/70">Protein</p>
  <p className="text-lg font-semibold text-rose-400">
- {totalProtein} <span className="text-xs font-bold text-rose-400/50">{nutrition ? `/ ${nutrition.protein_g}g` : 'g'}</span>
+ {totalProtein} <span className="text-xs font-medium text-rose-400/50">{nutrition ? `/ ${nutrition.protein_g}g` : 'g'}</span>
  </p>
  {nutrition && (
  <div className="absolute bottom-0 left-0 h-1 bg-rose-500/20 w-full">
@@ -173,10 +172,10 @@ export default function HealthNutritionPage() {
  </div>
  )}
  </div>
- <div className="p-3 rounded-xl bg-gradient-to-b from-yellow-500/[0.08] to-transparent border border-yellow-500/10 relative overflow-hidden">
- <p className="text-[10px] font-semibold uppercase tracking-wider text-yellow-500/70">Lemak</p>
+ <div className="p-3 rounded-xl border border-yellow-500/10 relative overflow-hidden">
+ <p className="text-[11px] font-semibold text-yellow-500/70">Lemak</p>
  <p className="text-lg font-semibold text-yellow-400">
- {totalFat} <span className="text-xs font-bold text-yellow-400/50">{nutrition ? `/ ${nutrition.fat_g}g` : 'g'}</span>
+ {totalFat} <span className="text-xs font-medium text-yellow-400/50">{nutrition ? `/ ${nutrition.fat_g}g` : 'g'}</span>
  </p>
  {nutrition && (
  <div className="absolute bottom-0 left-0 h-1 bg-yellow-500/20 w-full">
@@ -190,7 +189,7 @@ export default function HealthNutritionPage() {
  {/* Meal Tracker */}
  <Surface className="p-6">
  <div className="border-b border-border pb-3 mb-4">
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  {t('health_meal_log')}
  </h3>
  <p className="text-xs text-muted-foreground mt-0.5">
@@ -208,7 +207,7 @@ export default function HealthNutritionPage() {
 
  <div className="grid grid-cols-3 gap-3 pt-2">
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {t('health_meal_type')}
  </label>
  <select
@@ -225,7 +224,7 @@ export default function HealthNutritionPage() {
  </div>
 
  <div className="flex flex-col space-y-1 col-span-2">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {t('health_food')}
  </label>
  <input
@@ -241,7 +240,7 @@ export default function HealthNutritionPage() {
 
  <div className="grid grid-cols-4 gap-3">
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {t('health_calories')}
  </label>
  <input
@@ -256,7 +255,7 @@ export default function HealthNutritionPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  Karbo
  </label>
  <input
@@ -270,7 +269,7 @@ export default function HealthNutritionPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {t('health_protein')}
  </label>
  <input
@@ -285,7 +284,7 @@ export default function HealthNutritionPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  Lemak
  </label>
  <input
@@ -309,7 +308,7 @@ export default function HealthNutritionPage() {
  <Surface className="p-6">
  <div className="border-b border-border pb-3 mb-4 flex items-center justify-between">
  <div>
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  {activeTab === 'today' ? t('health_meals_today') : locale === 'id' ? 'Riwayat Logs' : 'Logs History'}
  </h3>
  <p className="text-xs text-muted-foreground mt-0.5">
@@ -319,13 +318,13 @@ export default function HealthNutritionPage() {
  <div className="flex bg-background p-1 rounded-lg border border-border">
  <button 
  onClick={() => setActiveTab('today')}
- className={`px-3 py-1 rounded text-xs font-bold transition-all ${activeTab === 'today' ? 'bg-card text-foreground shadow' : 'text-muted-foreground hover:text-foreground'}`}
+ className={`px-3 py-1 rounded text-xs font-medium transition-colors ${activeTab === 'today' ? 'bg-card text-foreground shadow' : 'text-muted-foreground hover:text-foreground'}`}
  >
  {locale === 'id' ? 'Hari Ini' : 'Today'}
  </button>
  <button 
  onClick={() => setActiveTab('history')}
- className={`px-3 py-1 rounded text-xs font-bold transition-all ${activeTab === 'history' ? 'bg-card text-foreground shadow' : 'text-muted-foreground hover:text-foreground'}`}
+ className={`px-3 py-1 rounded text-xs font-medium transition-colors ${activeTab === 'history' ? 'bg-card text-foreground shadow' : 'text-muted-foreground hover:text-foreground'}`}
  >
  {locale === 'id' ? 'Riwayat' : 'History'}
  </button>
@@ -356,22 +355,22 @@ export default function HealthNutritionPage() {
  {meal.type}: {meal.food}
  </strong>
  {meal.portion && (
- <span className="text-[10px] text-muted-foreground block">{meal.portion}</span>
+ <span className="text-[11px] text-muted-foreground block">{meal.portion}</span>
  )}
  <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1">
- <span className="text-[10px] font-semibold text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded">
+ <span className="text-[11px] font-semibold text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded">
  {meal.calories} kcal
  </span>
  {(meal.carbs > 0) && (
- <span className="text-[10px] font-semibold text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded">
+ <span className="text-[11px] font-semibold text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded">
  K: {meal.carbs}g
  </span>
  )}
- <span className="text-[10px] font-semibold text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded">
+ <span className="text-[11px] font-semibold text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded">
  P: {meal.protein}g
  </span>
  {(meal.fat > 0) && (
- <span className="text-[10px] font-semibold text-yellow-400 bg-yellow-500/10 px-1.5 py-0.5 rounded">
+ <span className="text-[11px] font-semibold text-yellow-400 bg-yellow-500/10 px-1.5 py-0.5 rounded">
  L: {meal.fat}g
  </span>
  )}
@@ -380,7 +379,7 @@ export default function HealthNutritionPage() {
  </div>
  <button
  onClick={() => deleteMeal(meal.id)}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-all shrink-0"
+ className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors shrink-0"
  title={t('delete')}
  >
  <Icon name="trash" size={12} />

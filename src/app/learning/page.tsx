@@ -20,6 +20,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { formatDate, todayISO, inLastDays, safeUrl, cn } from '@/lib/utils';
+import { DateStamp } from '@/components/ui/DateStamp';
 
 const VOCAB_LANGUAGES = ['English', 'Tech Terms', 'Japanese', 'Arabic', 'Other'];
 
@@ -197,11 +198,9 @@ export default function LearningDashboardPage() {
       {/* Header & Page Title */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
+          <DateStamp />
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground flex items-center gap-2.5">
-              <span className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
-                <Icon name="book" size={17} />
-              </span>
+            <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
               Knowledge & Learning
             </h1>
             <Badge tone="amber" className="font-mono tabular-nums text-xs">
@@ -239,7 +238,7 @@ export default function LearningDashboardPage() {
           icon="activity"
           label="Belajar Hari Ini"
           value={`${todayMinutes} Menit`}
-          detail={todayMinutes >= 30 ? 'Target harian tercapai!' : 'Yuk alokasikan 30 menit'}
+          detail={todayMinutes >= 30 ? 'Target harian tercapai' : 'Yuk alokasikan 30 menit'}
           glow={todayMinutes >= 30}
         />
         <MetricCard
@@ -269,7 +268,7 @@ export default function LearningDashboardPage() {
           <button
             onClick={() => setActiveTab('paths')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all',
+              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-colors',
               activeTab === 'paths'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
@@ -277,14 +276,14 @@ export default function LearningDashboardPage() {
           >
             <Icon name="bookOpen" size={14} className={activeTab === 'paths' ? 'text-amber-500' : ''} />
             Jalur Pembelajaran & Silabus
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[10px]">
+            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
               {state.learningSubjects?.length || 0}
             </span>
           </button>
           <button
             onClick={() => setActiveTab('sessions')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all',
+              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-colors',
               activeTab === 'sessions'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
@@ -292,14 +291,14 @@ export default function LearningDashboardPage() {
           >
             <Icon name="activity" size={14} className={activeTab === 'sessions' ? 'text-amber-500' : ''} />
             Log Sesi & Waktu Studi
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[10px]">
+            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
               {state.learning?.length || 0}
             </span>
           </button>
           <button
             onClick={() => setActiveTab('dictionary')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all',
+              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-colors',
               activeTab === 'dictionary'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
@@ -307,7 +306,7 @@ export default function LearningDashboardPage() {
           >
             <Icon name="globe" size={14} className={activeTab === 'dictionary' ? 'text-amber-500' : ''} />
             Kamus & Flashcards
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[10px]">
+            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
               {totalDictionaryWords}
             </span>
           </button>
@@ -319,7 +318,7 @@ export default function LearningDashboardPage() {
         <div className="space-y-6 animate-in fade-in duration-200">
           <Surface className="p-4 flex items-center justify-between">
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+              <h3 className="text-xs font-medium text-muted-foreground">
                 Kurikulum & Jalur Pembelajaran Aktif
               </h3>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -349,7 +348,7 @@ export default function LearningDashboardPage() {
                       {/* Subject Top Bar */}
                       <div className="flex items-start justify-between">
                         <div>
-                          <strong className="block text-base font-bold text-foreground">
+                          <strong className="block text-base font-medium text-foreground">
                             {subject.title}
                           </strong>
                           {subject.description && (
@@ -379,7 +378,7 @@ export default function LearningDashboardPage() {
                           <span className="text-muted-foreground">
                             Progres: {doneCount}/{modules.length} Modul
                           </span>
-                          <strong className="text-amber-500 font-bold">{progressPct}%</strong>
+                          <strong className="text-amber-500 font-medium">{progressPct}%</strong>
                         </div>
                         <ProgressBar value={doneCount} max={modules.length || 1} />
                       </div>
@@ -387,7 +386,7 @@ export default function LearningDashboardPage() {
                       {/* Modules Checklist Preview */}
                       <div className="pt-2 border-t border-border space-y-1.5">
                         <div className="flex items-center justify-between">
-                          <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                          <span className="text-[11px] font-medium text-muted-foreground">
                             Daftar Modul ({modules.length}):
                           </span>
                           <button
@@ -396,7 +395,7 @@ export default function LearningDashboardPage() {
                               setTargetSubjectForModule(subject);
                               setIsNewModuleModalOpen(true);
                             }}
-                            className="text-[11px] font-bold text-amber-600 dark:text-amber-400 hover:underline"
+                            className="text-[11px] font-medium text-amber-600 dark:text-amber-400 hover:underline"
                           >
                             + Tambah Modul
                           </button>
@@ -447,7 +446,7 @@ export default function LearningDashboardPage() {
                             ))}
                           </div>
                         ) : (
-                          <p className="text-[11px] text-muted-foreground italic py-2 text-center">
+                          <p className="text-[11px] text-muted-foreground py-2 text-center">
                             Belum ada modul. Klik "+ Tambah Modul" untuk menyusun silabus.
                           </p>
                         )}
@@ -483,7 +482,7 @@ export default function LearningDashboardPage() {
           {/* Inline Fast Add Study Session */}
           <Surface className="p-4">
             <form onSubmit={handleQuickAddSession} className="flex flex-col gap-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
                 <Icon name="activity" size={13} className="text-amber-500" />
                 Catat Sesi Waktu Belajar
               </span>
@@ -491,25 +490,25 @@ export default function LearningDashboardPage() {
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
                 <input
                   type="text"
-                  placeholder="Topik materi (cth: Belajar Radix Dialog, Algoritma Graf)..."
+                  placeholder="Topik materi"
                   value={quickTopic}
                   onChange={(e) => setQuickTopic(e.target.value)}
-                  className="sm:col-span-5 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-amber-500 text-foreground"
-                />
+                  className="sm:col-span-5 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-amber-500 text-foreground" aria-label="Topik materi"
+/>
                 <input
                   type="number"
-                  placeholder="Menit..."
+                  placeholder="Menit"
                   value={quickMinutes}
                   onChange={(e) => setQuickMinutes(e.target.value)}
-                  className="sm:col-span-2 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-amber-500 text-foreground font-mono"
-                />
+                  className="sm:col-span-2 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-amber-500 text-foreground font-mono" aria-label="Menit"
+/>
                 <input
                   type="text"
-                  placeholder="Sumber/Buku..."
+                  placeholder="Sumber/Buku"
                   value={quickResource}
                   onChange={(e) => setQuickResource(e.target.value)}
-                  className="sm:col-span-3 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-amber-500 text-foreground"
-                />
+                  className="sm:col-span-3 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-amber-500 text-foreground" aria-label="Sumber/Buku"
+/>
                 <div className="sm:col-span-2">
                   <Button
                     type="submit"
@@ -534,11 +533,11 @@ export default function LearningDashboardPage() {
               />
               <input
                 type="text"
-                placeholder="Cari topik atau sumber materi..."
+                placeholder="Cari topik atau sumber materi"
                 value={sessionSearch}
                 onChange={(e) => setSessionSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-amber-500 text-foreground"
-              />
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-amber-500 text-foreground" aria-label="Cari topik atau sumber materi"
+/>
             </div>
           </Surface>
 
@@ -585,7 +584,7 @@ export default function LearningDashboardPage() {
                     </div>
 
                     <div className="flex items-center gap-3 shrink-0">
-                      <Badge tone="amber" className="font-mono text-xs font-bold">
+                      <Badge tone="amber" className="font-mono text-xs font-medium">
                         {session.minutes} Menit
                       </Badge>
                       <button
@@ -606,7 +605,7 @@ export default function LearningDashboardPage() {
             </Surface>
           ) : (
             <Surface className="p-8">
-              <EmptyState message="Belum ada riwayat sesi belajar. Catat sesi studi Anda di atas!" />
+              <EmptyState message="Belum ada riwayat sesi belajar. Catat sesi studi Anda di atas" />
             </Surface>
           )}
         </div>
@@ -618,7 +617,7 @@ export default function LearningDashboardPage() {
           {/* Inline Fast Add Word */}
           <Surface className="p-4">
             <form onSubmit={handleQuickAddDictionary} className="flex flex-col gap-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
                 <Icon name="globe" size={13} className="text-blue-500" />
                 Tambah Kosakata Baru ke Kamus
               </span>
@@ -626,18 +625,18 @@ export default function LearningDashboardPage() {
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
                 <input
                   type="text"
-                  placeholder="Kata/Istilah asing (cth: Serendipity, Idempotent)..."
+                  placeholder="Kata/Istilah asing"
                   value={quickIndo}
                   onChange={(e) => setQuickIndo(e.target.value)}
-                  className="sm:col-span-5 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-blue-500 text-foreground"
-                />
+                  className="sm:col-span-5 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-blue-500 text-foreground" aria-label="Kata/Istilah asing"
+/>
                 <input
                   type="text"
-                  placeholder="Terjemahan / Arti bahasa Indonesia..."
+                  placeholder="Terjemahan / Arti bahasa Indonesia"
                   value={quickTrans}
                   onChange={(e) => setQuickTrans(e.target.value)}
-                  className="sm:col-span-4 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-blue-500 text-foreground"
-                />
+                  className="sm:col-span-4 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-blue-500 text-foreground" aria-label="Terjemahan / Arti bahasa Indonesia"
+/>
                 <select
                   value={quickLang}
                   onChange={(e) => setQuickLang(e.target.value)}
@@ -673,11 +672,11 @@ export default function LearningDashboardPage() {
               />
               <input
                 type="text"
-                placeholder="Cari kata atau arti..."
+                placeholder="Cari kata atau arti"
                 value={dictSearch}
                 onChange={(e) => setDictSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-blue-500 text-foreground"
-              />
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-blue-500 text-foreground" aria-label="Cari kata atau arti"
+/>
             </div>
 
             <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -719,20 +718,20 @@ export default function LearningDashboardPage() {
                       onClick={() =>
                         setFlashcardFlipped((prev) => ({ ...prev, [entry.id]: !isFlipped }))
                       }
-                      className="p-6 h-40 flex flex-col justify-between items-center text-center cursor-pointer hover:border-blue-500/50 transition-all select-none bg-gradient-to-br from-card to-muted/20"
+                      className="p-6 h-40 flex flex-col justify-between items-center text-center cursor-pointer hover:border-blue-500/50 transition-colors select-none "
                     >
-                      <Badge tone="blue" className="text-[10px]">
+                      <Badge tone="blue" className="text-[11px]">
                         {entry.language} • {isFlipped ? 'Arti' : 'Kata'}
                       </Badge>
                       <div className="space-y-1 my-auto">
-                        <strong className="text-base font-bold text-foreground block">
+                        <strong className="text-base font-medium text-foreground block">
                           {isFlipped ? entry.translation : entry.indonesian}
                         </strong>
-                        <p className="text-[11px] text-muted-foreground italic">
+                        <p className="text-[11px] text-muted-foreground ">
                           (Klik untuk membalik kartu)
                         </p>
                       </div>
-                      <span className="text-[10px] text-muted-foreground">
+                      <span className="text-[11px] text-muted-foreground">
                         {isFlipped ? `Asal: ${entry.indonesian}` : `Arti: ???`}
                       </span>
                     </Surface>
@@ -743,7 +742,7 @@ export default function LearningDashboardPage() {
                   <Surface key={entry.id} className="p-4 flex flex-col justify-between space-y-2">
                     <div className="flex items-start justify-between">
                       <div>
-                        <strong className="text-sm font-bold text-foreground block">
+                        <strong className="text-sm font-medium text-foreground block">
                           {entry.indonesian}
                         </strong>
                         <p className="text-xs text-muted-foreground mt-0.5 font-medium">
@@ -751,7 +750,7 @@ export default function LearningDashboardPage() {
                         </p>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Badge tone="blue" className="text-[10px]">
+                        <Badge tone="blue" className="text-[11px]">
                           {entry.language}
                         </Badge>
                         <button
@@ -772,7 +771,7 @@ export default function LearningDashboardPage() {
             </div>
           ) : (
             <Surface className="p-8">
-              <EmptyState message="Belum ada kosakata tersimpan. Tambahkan kata baru di atas!" />
+              <EmptyState message="Belum ada kosakata tersimpan. Tambahkan kata baru di atas" />
             </Surface>
           )}
         </div>
@@ -783,7 +782,7 @@ export default function LearningDashboardPage() {
         <DialogContent className="max-w-md">
           <form onSubmit={handleCreateSubject}>
             <DialogHeader>
-              <DialogTitle className="text-lg font-bold flex items-center gap-2">
+              <DialogTitle className="text-lg font-medium flex items-center gap-2">
                 <Icon name="book" size={18} className="text-amber-500" />
                 Buat Jalur Pembelajaran Baru
               </DialogTitle>
@@ -794,7 +793,7 @@ export default function LearningDashboardPage() {
 
             <div className="space-y-3 py-3 text-xs">
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Judul Topik Pembelajaran *
                 </label>
                 <input
@@ -803,21 +802,21 @@ export default function LearningDashboardPage() {
                   placeholder="Contoh: Full-Stack Next.js 15 & System Design"
                   value={subjectTitle}
                   onChange={(e) => setSubjectTitle(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-amber-500"
-                />
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-amber-500" aria-label="Contoh: Full-Stack Next.js 15 & System Design"
+/>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Deskripsi / Tujuan Belajar (Opsional)
                 </label>
                 <textarea
                   rows={3}
-                  placeholder="Ringkasan target keahlian dan silabus umum..."
+                  placeholder="Ringkasan target keahlian dan silabus umum"
                   value={subjectDesc}
                   onChange={(e) => setSubjectDesc(e.target.value)}
-                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden resize-none"
-                />
+                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden resize-none" aria-label="Ringkasan target keahlian dan silabus umum"
+/>
               </div>
             </div>
 
@@ -838,7 +837,7 @@ export default function LearningDashboardPage() {
         <DialogContent className="max-w-md">
           <form onSubmit={handleCreateModule}>
             <DialogHeader>
-              <DialogTitle className="text-lg font-bold flex items-center gap-2">
+              <DialogTitle className="text-lg font-medium flex items-center gap-2">
                 <Icon name="plus" size={18} className="text-amber-500" />
                 Tambah Modul Materi
               </DialogTitle>
@@ -849,7 +848,7 @@ export default function LearningDashboardPage() {
 
             <div className="space-y-3 py-3 text-xs">
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Judul Modul / Bab *
                 </label>
                 <input
@@ -858,34 +857,34 @@ export default function LearningDashboardPage() {
                   placeholder="Contoh: Server Actions & Mutasi Database"
                   value={moduleTitle}
                   onChange={(e) => setModuleTitle(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-amber-500"
-                />
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-amber-500" aria-label="Contoh: Server Actions & Mutasi Database"
+/>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Tautan Video Materi / Tutorial (Opsional)
                 </label>
                 <input
                   type="url"
-                  placeholder="https://youtube.com/watch?v=..."
+                  placeholder="https://youtube.com/watch?v="
                   value={moduleVideoLink}
                   onChange={(e) => setModuleVideoLink(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
-                />
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden" aria-label="https://youtube.com/watch?v="
+/>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Catatan Ringkas Materi (Opsional)
                 </label>
                 <textarea
                   rows={3}
-                  placeholder="Poin penting atau ringkasan silabus modul..."
+                  placeholder="Poin penting atau ringkasan silabus modul"
                   value={moduleMaterial}
                   onChange={(e) => setModuleMaterial(e.target.value)}
-                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden resize-none"
-                />
+                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden resize-none" aria-label="Poin penting atau ringkasan silabus modul"
+/>
               </div>
             </div>
 

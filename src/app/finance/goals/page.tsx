@@ -80,8 +80,7 @@ export default function GoalsPage() {
  {/* Header */}
  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
  <div>
- <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-600 flex items-center gap-2">
- <Icon name="target" size={28} className="text-green-500" />
+ <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
  {locale === 'id' ? 'Target Keuangan' : 'Financial Goals'}
  </h1>
  <p className="text-zinc-500 mt-1 text-sm">
@@ -100,7 +99,7 @@ export default function GoalsPage() {
  <Surface className="p-6">
  <div className="border-b border-border pb-3 mb-6 flex justify-between items-center">
  <div>
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  {locale === 'id' ? 'Daftar Target' : 'Goals List'}
  </h3>
  </div>
@@ -123,18 +122,18 @@ export default function GoalsPage() {
  return (
  <div
  key={goal.id}
- className="p-5 rounded-xl bg-muted/20 border border-border hover:border-border-strong hover:bg-muted/50/[0.01] transition-all space-y-4"
+ className="p-5 rounded-xl bg-muted/20 border border-border hover:border-border-strong hover:bg-muted/50/[0.01] transition-colors space-y-4"
  >
  <div className="flex justify-between items-start gap-4">
  <div>
  <strong className="text-base text-foreground block tracking-tight">{goal.title}</strong>
  {goal.targetDate && (
- <span className="text-xs font-bold text-muted-foreground uppercase mt-1 block">
+ <span className="text-xs font-medium text-muted-foreground mt-1 block">
  {locale === 'id' ? 'Target Waktu' : 'Target Date'}: {formatDate(goal.targetDate)}
  </span>
  )}
  {goal.linkedAccountName && (
- <span className="text-[10px] font-bold text-primary uppercase mt-0.5 block">
+ <span className="text-[11px] font-medium text-primary mt-0.5 block">
  {locale === 'id' ? 'Akun' : 'Account'}: {goal.linkedAccountName}
  </span>
  )}
@@ -142,7 +141,7 @@ export default function GoalsPage() {
  const remainingAmount = Math.max(0, goal.targetAmount - goal.currentAmount);
  let projectionText = '';
  if (remainingAmount === 0) {
- projectionText = locale === 'id' ? 'Tercapai! 🎉' : 'Achieved! 🎉';
+ projectionText = locale === 'id' ? 'Tercapai' : 'Achieved';
  } else if (avgMonthlySavings <= 0) {
  projectionText = locale === 'id' ? 'Surplus nol' : 'Zero surplus';
  } else {
@@ -152,7 +151,7 @@ export default function GoalsPage() {
  projectionText = `${locale === 'id' ? 'Estimasi:' : 'Est:'} ${monthLabel(estDate, locale === 'id' ? 'id-ID' : 'en-US')}`;
  }
  return (
- <span className="text-[10px] font-bold text-amber-400 uppercase mt-0.5 block">
+ <span className="text-[11px] font-medium text-amber-400 mt-0.5 block">
  {projectionText}
  </span>
  );
@@ -168,14 +167,14 @@ export default function GoalsPage() {
  setEditingGoalId(isEditing ? null : goal.id);
  setNewCurrentAmount(String(goal.currentAmount));
  }}
- className="w-8 h-8 rounded bg-muted/30 border border-border hover:bg-primary/20 text-muted-foreground hover:text-foreground flex items-center justify-center transition-all"
+ className="w-8 h-8 rounded bg-muted/30 border border-border hover:bg-primary/20 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors"
  title={locale === 'id' ? 'Update Saldo Terkumpul' : 'Update Collected Balance'}
  >
  <Icon name="edit" size={14} />
  </button>
  <button
  onClick={() => deleteFinancialGoal(goal.id)}
- className="w-8 h-8 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-all"
+ className="w-8 h-8 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors"
  title={t('delete')}
  >
  <Icon name="trash" size={14} />
@@ -187,10 +186,10 @@ export default function GoalsPage() {
  {isEditing && (
  <div className="flex items-center gap-2 bg-black/30 p-3 rounded-lg border border-border">
  <div className="flex-1 flex flex-col space-y-1">
- <label className="text-[9px] font-semibold uppercase text-muted-foreground">{locale === 'id' ? 'Saldo Terkumpul Baru' : 'New Collected Balance'}</label>
+ <label className="text-[11px] font-semibold text-muted-foreground">{locale === 'id' ? 'Saldo Terkumpul Baru' : 'New Collected Balance'}</label>
  <input
  type="number"
- className="glass-input py-1 text-sm font-bold"
+ className="glass-input py-1 text-sm font-medium"
  value={newCurrentAmount}
  onChange={(e) => setNewCurrentAmount(e.target.value)}
  placeholder={locale === 'id' ? 'Rp...' : 'Amount...'}
@@ -208,13 +207,13 @@ export default function GoalsPage() {
  )}
 
  <div className="space-y-1.5">
- <div className="flex justify-between text-xs text-muted-foreground font-bold uppercase">
+ <div className="flex justify-between text-xs text-muted-foreground font-medium ">
  <span>{formatCurrency(goal.currentAmount)} {locale === 'id' ? 'terkumpul' : 'collected'}</span>
  <span className="text-foreground">{locale === 'id' ? 'Target' : 'Target'}: {formatCurrency(goal.targetAmount)}</span>
  </div>
  <div className="h-2 w-full bg-muted/30 rounded-full overflow-hidden shadow-inner">
  <div
- className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+ className="h-full rounded-full bg-emerald-500"
  style={{ width: `${Math.min(completionRate, 100)}%` }}
  />
  </div>
@@ -240,7 +239,7 @@ export default function GoalsPage() {
  >
  <form onSubmit={handleGoalSubmit} className="space-y-4">
  <div className="flex flex-col space-y-1">
- <label htmlFor="gTitle" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="gTitle" className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Nama Target' : 'Goal Name'}
  </label>
  <input
@@ -256,27 +255,27 @@ export default function GoalsPage() {
 
  <div className="grid grid-cols-2 gap-4">
  <div className="flex flex-col space-y-1">
- <label htmlFor="gTarget" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="gTarget" className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Target Nominal (Rp)' : 'Target Amount'}
  </label>
  <input
  id="gTarget"
  type="number"
  required
- placeholder="Rp..."
+ placeholder="Rp"
  value={goalTarget}
  onChange={(e) => setGoalTarget(e.target.value)}
- className="glass-input text-sm font-bold text-emerald-400"
+ className="glass-input text-sm font-medium text-emerald-400"
  />
  </div>
  <div className="flex flex-col space-y-1">
- <label htmlFor="gCurrent" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="gCurrent" className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Saldo Saat Ini (Rp)' : 'Current Amount'}
  </label>
  <input
  id="gCurrent"
  type="number"
- placeholder="Rp..."
+ placeholder="Rp"
  value={goalCurrent}
  onChange={(e) => setGoalCurrent(e.target.value)}
  className="glass-input text-sm"
@@ -286,7 +285,7 @@ export default function GoalsPage() {
 
  <div className="grid grid-cols-2 gap-4">
  <div className="flex flex-col space-y-1">
- <label htmlFor="gDate" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="gDate" className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Target Waktu (Opsional)' : 'Target Date'}
  </label>
  <input
@@ -298,7 +297,7 @@ export default function GoalsPage() {
  />
  </div>
  <div className="flex flex-col space-y-1">
- <label htmlFor="gAccount" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="gAccount" className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Tautkan ke Akun' : 'Link to Account'}
  </label>
  <select

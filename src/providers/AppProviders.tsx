@@ -4,6 +4,8 @@ import { ReactNode } from 'react';
 import { I18nProvider } from '@/lib/i18n/context';
 import { LifeOSProvider, useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { Skeleton } from '@/components/ui/skeleton';
+import { usePathname } from 'next/navigation';
+import { LoginPage } from '@/components/auth/LoginPage';
 
 function LoadingSkeleton() {
  return (
@@ -111,10 +113,20 @@ function LoadingSkeleton() {
 }
 
 function AuthGate({ children }: { children: ReactNode }) {
- const { loading } = useLifeOS();
+ const { loading, isDbConnected, user, signIn, signUp } = useLifeOS();
+ const pathname = usePathname();
+ const isPublicRoute = pathname?.startsWith('/f/');
+
+ if (isPublicRoute) {
+ return <>{children}</>;
+ }
 
  if (loading) {
  return <LoadingSkeleton />;
+ }
+
+ if (isDbConnected && !user) {
+ return <LoginPage onLogin={signIn} onRegister={signUp} />;
  }
 
  return <>{children}</>;

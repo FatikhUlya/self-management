@@ -76,8 +76,8 @@ export function PersonalTraitEvaluation() {
     <div className="flex flex-col h-full space-y-4">
       {/* Header */}
       <div className="border-b border-border pb-4">
-        <h3 className="text-sm font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
-          <Icon name="star" size={16} className="text-teal-500" />
+        <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+          <Icon name="star" size={16} className="text-muted-foreground" />
           Evaluasi Karakter & Sifat Pribadi
         </h3>
         <p className="text-xs text-muted-foreground mt-1">
@@ -91,7 +91,7 @@ export function PersonalTraitEvaluation() {
           <button
             key={area}
             onClick={() => setActiveTab(area)}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all border ${
+            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors border ${
               activeTab === area
                 ? 'bg-primary/10 text-primary border-primary/30 shadow-2xs'
                 : 'bg-muted/20 text-muted-foreground border-border hover:bg-muted/40 hover:text-foreground'
@@ -103,8 +103,8 @@ export function PersonalTraitEvaluation() {
       </div>
 
       {/* Active Tab Content */}
-      <div className="flex-1 bg-muted/10 border border-border rounded-xl p-4 flex flex-col transition-all">
-        <h4 className="text-sm font-bold text-foreground mb-4">{activeTab}</h4>
+      <div className="flex-1 bg-muted/10 border border-border rounded-xl p-4 flex flex-col transition-colors">
+        <h4 className="text-sm font-medium text-foreground mb-4">{activeTab}</h4>
 
         {/* Trait List */}
         <div className="space-y-3 flex-1 overflow-y-auto mb-4 pr-1">
@@ -114,7 +114,7 @@ export function PersonalTraitEvaluation() {
             </div>
           ) : (
             activeTraits.map((trait) => (
-              <div key={trait.id} className="bg-card border border-border rounded-lg p-3 transition-all group space-y-2">
+              <div key={trait.id} className="bg-card border border-border rounded-lg p-3 transition-colors group space-y-2">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex-1 flex items-center gap-2">
                     <button
@@ -131,7 +131,7 @@ export function PersonalTraitEvaluation() {
                   <div className="flex items-center gap-2 shrink-0">
                     <button
                       onClick={() => updateTrait(trait.id, { rating: '+' })}
-                      className={`w-7 h-7 rounded-md flex items-center justify-center font-bold text-xs transition-all ${
+                      className={`w-7 h-7 rounded-md flex items-center justify-center font-medium text-xs transition-colors ${
                         trait.rating === '+'
                           ? 'bg-emerald-500 text-white shadow-xs'
                           : 'bg-muted/30 text-muted-foreground hover:bg-emerald-500/20 hover:text-emerald-500 border border-border'
@@ -142,7 +142,7 @@ export function PersonalTraitEvaluation() {
                     </button>
                     <button
                       onClick={() => updateTrait(trait.id, { rating: '-' })}
-                      className={`w-7 h-7 rounded-md flex items-center justify-center font-bold text-xs transition-all ${
+                      className={`w-7 h-7 rounded-md flex items-center justify-center font-medium text-xs transition-colors ${
                         trait.rating === '-'
                           ? 'bg-rose-500 text-white shadow-xs'
                           : 'bg-muted/30 text-muted-foreground hover:bg-rose-500/20 hover:text-rose-500 border border-border'
@@ -156,14 +156,14 @@ export function PersonalTraitEvaluation() {
 
                 {/* Target Goal Input for this Trait */}
                 <div className="pt-2 border-t border-border flex items-center gap-2">
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground shrink-0">Target Ubah:</span>
+                  <span className="text-[11px] font-medium text-muted-foreground shrink-0">Target Ubah:</span>
                   <input
                     type="text"
-                    placeholder="Contoh: Belajar mendengarkan sebelum memotong..."
+                    placeholder="Contoh: Belajar mendengarkan sebelum memotong"
                     value={trait.targetGoal || ''}
                     onChange={(e) => updateTrait(trait.id, { targetGoal: e.target.value })}
-                    className="flex-1 text-xs px-2.5 py-1 rounded bg-muted/20 border border-border text-foreground focus:outline-hidden"
-                  />
+                    className="flex-1 text-xs px-2.5 py-1 rounded bg-muted/20 border border-border text-foreground focus:outline-hidden" aria-label="Contoh: Belajar mendengarkan sebelum memotong"
+/>
                 </div>
               </div>
             ))
@@ -190,7 +190,7 @@ export function PersonalTraitEvaluation() {
             {traits.length} sifat terdaftar di seluruh area.
           </span>
           <Button variant="outline" size="sm" onClick={handleSave} className="text-xs">
-            {isSaved ? 'Tersimpan!' : 'Simpan Evaluasi Sifat'}
+            {isSaved ? 'Tersimpan' : 'Simpan Evaluasi Sifat'}
           </Button>
         </div>
       </div>

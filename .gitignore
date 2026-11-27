@@ -6,3 +6,4 @@ node_modules
 *.tsbuildinfo
 scratch/
 .temp/
+failed_json.txt

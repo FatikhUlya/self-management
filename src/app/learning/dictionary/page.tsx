@@ -78,13 +78,12 @@ export default function DictionaryPage() {
  <div className="space-y-6 max-w-5xl mx-auto pb-24">
  <div className="flex items-center gap-3">
  <Link href="/learning">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-all">
+ <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
  <Icon name="arrowLeft" size={18} />
  </button>
  </Link>
  <div className="flex-1">
- <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
- <Icon name="bookOpen" size={24} className="text-amber-500" />
+ <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
  {t('dictionary_title')}
  </h1>
  <p className="text-zinc-500 text-xs mt-1">
@@ -96,20 +95,20 @@ export default function DictionaryPage() {
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
  <Surface className="p-6 lg:col-span-1 h-fit">
  <div className="border-b border-border pb-3 mb-5">
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  Kosakata Baru
  </h3>
  </div>
  <form onSubmit={handleDictionarySubmit} className="space-y-4">
  <div className="flex flex-col space-y-1">
- <label htmlFor="indonesianWord" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="indonesianWord" className="text-xs font-medium text-muted-foreground ">
  {t('dictionary_indo')}
  </label>
  <input
  id="indonesianWord"
  type="text"
  required
- placeholder="E.g. Mengesampingkan..."
+ placeholder="E.g. Mengesampingkan"
  value={indonesianWord}
  onChange={(e) => setIndonesianWord(e.target.value)}
  className="glass-input text-sm"
@@ -117,14 +116,14 @@ export default function DictionaryPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label htmlFor="translatedWord" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="translatedWord" className="text-xs font-medium text-muted-foreground ">
  {t('dictionary_target')}
  </label>
  <input
  id="translatedWord"
  type="text"
  required
- placeholder="E.g. Set aside..."
+ placeholder="E.g. Set aside"
  value={translatedWord}
  onChange={(e) => setTranslatedWord(e.target.value)}
  className="glass-input text-sm"
@@ -132,7 +131,7 @@ export default function DictionaryPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label htmlFor="vocabLanguage" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="vocabLanguage" className="text-xs font-medium text-muted-foreground ">
  {t('dictionary_lang')}
  </label>
  <select
@@ -151,7 +150,7 @@ export default function DictionaryPage() {
 
  {vocabLanguage === 'Other' && (
  <div className="flex flex-col space-y-1">
- <label htmlFor="customLanguage" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="customLanguage" className="text-xs font-medium text-muted-foreground ">
  Bahasa Lainnya
  </label>
  <input
@@ -186,12 +185,12 @@ export default function DictionaryPage() {
  <div className="flex items-center gap-2">
  <button
  onClick={handleFlipDirectionToggle}
- className="w-8 h-8 flex items-center justify-center rounded-lg bg-muted/30 border border-white/10 text-muted-foreground hover:text-foreground hover:border-primary/25 transition-all"
+ className="w-8 h-8 flex items-center justify-center rounded-lg bg-muted/30 border border-white/10 text-muted-foreground hover:text-foreground hover:border-primary/25 transition-colors"
  title="Tukar urutan (Indo -> Asing / Asing -> Indo)"
  >
  <Icon name="shuffle" size={14} />
  </button>
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  Daftar Kamus Pribadi
  </h3>
  </div>
@@ -199,7 +198,7 @@ export default function DictionaryPage() {
  <div className="flex gap-2 overflow-x-auto max-w-full">
  <button
  onClick={() => setSelectedFilterLang(null)}
- className={`px-3 py-1 text-[10px] font-semibold uppercase rounded-full border transition-all whitespace-nowrap ${
+ className={`px-3 py-1 text-[11px] font-semibold  rounded-full border transition-colors whitespace-nowrap ${
  selectedFilterLang === null
  ? 'bg-amber-500/20 border-amber-500/50 text-amber-300'
  : 'bg-muted/30 border-white/10 text-muted-foreground hover:border-white/20'
@@ -211,7 +210,7 @@ export default function DictionaryPage() {
  <button
  key={lang}
  onClick={() => setSelectedFilterLang(lang)}
- className={`px-3 py-1 text-[10px] font-semibold uppercase rounded-full border transition-all whitespace-nowrap ${
+ className={`px-3 py-1 text-[11px] font-semibold  rounded-full border transition-colors whitespace-nowrap ${
  selectedFilterLang === lang
  ? 'bg-amber-500/20 border-amber-500/50 text-amber-300'
  : 'bg-muted/30 border-white/10 text-muted-foreground hover:border-white/20'
@@ -230,7 +229,7 @@ export default function DictionaryPage() {
  .map((item) => (
  <div key={item.id} className="flex justify-between items-center p-3 rounded-lg bg-muted/20 border border-border hover:border-border-strong transition-colors group">
  <div className="grid grid-cols-2 gap-4 flex-1">
- <span className="text-xs font-bold text-foreground">
+ <span className="text-xs font-medium text-foreground">
  {vocabFlipDirection === 'indo-target' ? item.indonesian : item.translation}
  </span>
  <span className="text-xs font-medium text-amber-300">
@@ -238,7 +237,7 @@ export default function DictionaryPage() {
  </span>
  </div>
  <div className="flex items-center gap-3">
- <span className="text-[10px] text-muted-foreground/50 uppercase font-semibold tracking-widest bg-white/5 px-2 py-0.5 rounded">
+ <span className="text-[11px] text-muted-foreground/50 font-semibold bg-white/5 px-2 py-0.5 rounded">
  {item.language || 'English'}
  </span>
  <button
@@ -310,7 +309,7 @@ export default function DictionaryPage() {
  href="https://notebooklm.google.com/" 
  target="_blank" 
  rel="noreferrer"
- className="text-xs font-bold text-primary hover:text-teal-300 transition-colors flex items-center gap-1"
+ className="text-xs font-medium text-primary hover:text-teal-300 transition-colors flex items-center gap-1"
  >
  {t('dictionary_notebooklm_link')} <Icon name="arrowRight" size={12} />
  </a>

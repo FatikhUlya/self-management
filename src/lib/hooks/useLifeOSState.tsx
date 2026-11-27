@@ -803,51 +803,20 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
  return;
  }
 
- async function autoAuthenticate() {
- const defaultEmail = 'default-user@lifeos.local';
- const defaultPassword = 'DefaultPassword123!';
-
+ // Restore an existing session only. Signing in requires the user's own
+ // credentials via LoginPage (the old shared auto-login exposed all data).
+ async function restoreSession() {
  try {
- // 1. Check if there is an existing session
  const { data: { session } } = await supabaseClient.auth.getSession();
- if (session) {
- setUser(session.user);
- setAuthResolved(true);
- return;
- }
-
- // 2. Not logged in, try signing in with default user
- const { data: signInData, error: signInError } = await supabaseClient.auth.signInWithPassword({
- email: defaultEmail,
- password: defaultPassword
- });
-
- if (!signInError && signInData?.user) {
- setUser(signInData.user);
- setAuthResolved(true);
- return;
- }
-
- // 3. If sign in fails (likely account doesn't exist yet), try signing up the default user
- const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
- email: defaultEmail,
- password: defaultPassword
- });
-
- if (!signUpError && signUpData?.user) {
- setUser(signUpData.user);
- setAuthResolved(true);
- } else {
- console.error('[LifeOS] Silent auto authentication failed:', signUpError || signInError);
- setAuthResolved(true);
- }
+ setUser(session?.user ?? null);
  } catch (err) {
- console.error('[LifeOS] Exception in silent auto auth:', err);
+ console.error('[LifeOS] Failed to restore session:', err);
+ } finally {
  setAuthResolved(true);
  }
  }
 
- autoAuthenticate();
+ restoreSession();
 
  const { data: { subscription } } = supabaseClient.auth.onAuthStateChange((_event, session) => {
  setUser(session?.user || null);
@@ -3166,7 +3135,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
  }, [isDbConnected, updateStateAndPersist, checkError]);
 
  const createFeedbackRequest = useCallback(async (request: Omit<FeedbackRequest, 'id' | 'createdAt' | 'status' | 'token'>) => {
- const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+ const token = Array.from(crypto.getRandomValues(new Uint8Array(18)), b => b.toString(16).padStart(2, '0')).join('');
  const item: FeedbackRequest = {
  ...request,
  id: generateId(),
@@ -3213,35 +3182,27 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
 
  // Special function for unauthenticated users submitting feedback
  const submitPublicFeedback = useCallback(async (token: string, respondentName: string | null, domains: Omit<FeedbackResponseDomain, 'id' | 'responseId'>[]) => {
- // 1. Find request ID by token
- const { data: reqData, error: reqErr } = await supabase.from('feedback_requests').select('id, status').eq('token', token).single();
- if (reqErr || !reqData) throw new Error('Feedback request not found or invalid token');
- if (reqData.status !== 'open') throw new Error('Feedback request is already closed');
- 
- const requestId = reqData.id;
- const responseId = generateId();
-
- // 2. Insert response
- const { error: resErr } = await supabase.from('feedback_responses').insert({
- id: responseId,
- request_id: requestId,
- respondent_name: respondentName,
- status: 'submitted'
- });
- if (resErr) throw resErr;
-
- // 3. Insert response domains
- const domPayload = domains.map(d => ({
- id: generateId(),
- response_id: responseId,
+ // Validated server-side in a single SECURITY DEFINER function (migration 023).
+ const { error } = await (supabase.rpc as any)('submit_public_feedback', {
+ p_token: token,
+ p_respondent_name: respondentName,
+ p_domains: domains.map(d => ({
  domain_key: d.domainKey,
  rating: d.rating,
- strength_observation: d.strengthObservation,
- growth_observation: d.growthObservation
- }));
- 
- const { error: domErr } = await supabase.from('feedback_response_domains').insert(domPayload);
- if (domErr) throw domErr;
+ strength: d.strengthObservation,
+ growth: d.growthObservation,
+ })),
+ });
+ if (error) {
+ const messages: Record<string, string> = {
+ invalid_token: 'Tautan tidak valid.',
+ request_closed: 'Permintaan feedback ini sudah ditutup.',
+ name_required: 'Nama wajib diisi.',
+ name_too_long: 'Nama terlalu panjang.',
+ invalid_payload: 'Isi feedback tidak valid atau terlalu panjang.',
+ };
+ throw new Error(messages[error.message] || 'Gagal mengirim feedback.');
+ }
 
  }, []);
 

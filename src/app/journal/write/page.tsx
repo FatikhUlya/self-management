@@ -80,13 +80,12 @@ export default function ReviewWritePage() {
  <div className="space-y-6 max-w-4xl mx-auto pb-24">
  <div className="flex items-center gap-3">
  <Link href="/journal">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-all">
+ <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
  <Icon name="arrowLeft" size={18} />
  </button>
  </Link>
  <div className="flex-1">
- <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
- <Icon name="activity" size={24} className="text-indigo-500" />
+ <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
  Tulis Evaluasi (Review)
  </h1>
  <p className="text-zinc-500 text-xs mt-1">
@@ -98,7 +97,7 @@ export default function ReviewWritePage() {
  <Surface className="p-6">
  <div className="border-b border-border pb-4 mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
  <div>
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  Formulir Review
  </h3>
  <p className="text-xs text-muted-foreground mt-0.5">
@@ -111,7 +110,7 @@ export default function ReviewWritePage() {
  key={p}
  type="button"
  onClick={() => setPeriod(p)}
- className={`px-3 py-1.5 rounded-md text-[10px] font-semibold uppercase tracking-wider transition-all duration-150 ${
+ className={`px-3 py-1.5 rounded-md text-[11px] font-semibold   transition-colors duration-150 ${
  period === p
  ? 'bg-indigo-500 text-white shadow-md'
  : 'text-muted-foreground hover:text-foreground'
@@ -125,7 +124,7 @@ export default function ReviewWritePage() {
 
  <form onSubmit={handleSubmit} className="space-y-6">
  <div className="space-y-2">
- <label className="text-xs font-bold text-muted-foreground uppercase block">
+ <label className="text-xs font-medium text-muted-foreground block">
  Skor Kinerja ({period})
  </label>
  <div className="flex gap-2">
@@ -134,9 +133,9 @@ export default function ReviewWritePage() {
  key={val}
  type="button"
  onClick={() => setScore(val)}
- className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-all ${
+ className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-colors ${
  score === val 
- ? 'bg-indigo-500/20 border-indigo-500 text-indigo-400 font-bold' 
+ ? 'bg-indigo-500/20 border-indigo-500 text-indigo-400 font-medium' 
  : 'bg-muted/30 border-border text-muted-foreground hover:border-border-strong'
  }`}
  >
@@ -148,7 +147,7 @@ export default function ReviewWritePage() {
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="space-y-2">
- <label className="text-xs font-bold text-muted-foreground uppercase block">
+ <label className="text-xs font-medium text-muted-foreground block">
  Pencapaian (Wins)
  </label>
  <textarea
@@ -161,7 +160,7 @@ export default function ReviewWritePage() {
  </div>
  
  <div className="space-y-2">
- <label className="text-xs font-bold text-muted-foreground uppercase block">
+ <label className="text-xs font-medium text-muted-foreground block">
  Pelajaran (Lessons)
  </label>
  <textarea
@@ -174,7 +173,7 @@ export default function ReviewWritePage() {
  </div>
 
  <div className="space-y-2">
- <label className="text-xs font-bold text-muted-foreground uppercase block">
+ <label className="text-xs font-medium text-muted-foreground block">
  Tantangan / Hambatan
  </label>
  <textarea
@@ -187,7 +186,7 @@ export default function ReviewWritePage() {
  </div>
 
  <div className="space-y-2">
- <label className="text-xs font-bold text-muted-foreground uppercase block">
+ <label className="text-xs font-medium text-muted-foreground block">
  Fokus Berikutnya
  </label>
  <textarea
@@ -201,15 +200,15 @@ export default function ReviewWritePage() {
  </div>
 
  <div className="space-y-2">
- <label className="text-xs font-bold text-muted-foreground uppercase block">
+ <label className="text-xs font-medium text-muted-foreground block">
  Catatan Tambahan (Opsional)
  </label>
  <textarea
  value={evaluationNotes}
  onChange={(e) => setEvaluationNotes(e.target.value)}
- placeholder="Insight tambahan..."
- className="glass-input text-sm resize-none h-20"
- />
+ placeholder="Insight tambahan"
+ className="glass-input text-sm resize-none h-20" aria-label="Insight tambahan"
+/>
  </div>
 
  <Button type="submit" variant="primary" icon="check" className="w-full h-12 bg-indigo-600 hover:bg-indigo-700">
