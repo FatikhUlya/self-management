@@ -125,8 +125,7 @@ export default function WealthPage() {
  {/* Header */}
  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
  <div>
- <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-400 to-emerald-600 flex items-center gap-2">
- <Icon name="trendingUp" size={28} className="text-green-500" />
+ <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
  {locale === 'id' ? 'Aset & Liabilitas' : 'Wealth & Liabilities'}
  </h1>
  <p className="text-zinc-500 mt-1 text-sm">
@@ -147,7 +146,7 @@ export default function WealthPage() {
  <Surface className="p-6">
  <div className="border-b border-border pb-3 mb-4 flex justify-between items-center">
  <div>
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  {locale === 'id' ? 'Daftar Aset & Investasi' : 'Assets & Investments'}
  </h3>
  </div>
@@ -162,7 +161,7 @@ export default function WealthPage() {
  setAssetCategory('Kas & Bank');
  setIsAssetModalOpen(true);
  }}
- className="text-[10px]"
+ className="text-[11px]"
  >
  {locale === 'id' ? 'Tambah Aset' : 'Add Asset'}
  </Button>
@@ -171,7 +170,7 @@ export default function WealthPage() {
  <div className="space-y-3">
  {state.assets && state.assets.length > 0 ? (
  state.assets.map(asset => (
- <div key={asset.id} className="p-4 rounded-xl bg-gradient-to-r from-indigo-500/[0.03] to-purple-500/[0.05] border border-indigo-500/10 flex items-center justify-between gap-3">
+ <div key={asset.id} className="p-4 rounded-xl border border-indigo-500/10 flex items-center justify-between gap-3">
  <div className="flex items-center gap-3">
  <div className="w-10 h-10 rounded-full bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
  <Icon name="briefcase" size={18} />
@@ -179,7 +178,7 @@ export default function WealthPage() {
  <div>
  <p className="text-sm font-semibold text-foreground">{asset.name}</p>
  <div className="flex items-center gap-2 mt-1">
- <Badge tone="gray" className="text-[10px] py-0.5">
+ <Badge tone="gray" className="text-[11px] py-0.5">
  {asset.category}
  </Badge>
  </div>
@@ -192,7 +191,7 @@ export default function WealthPage() {
  <div className="flex gap-2">
  <button
  onClick={() => openEditAssetModal(asset)}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-indigo-500/20 text-muted-foreground hover:text-indigo-400 flex items-center justify-center transition-all"
+ className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-indigo-500/20 text-muted-foreground hover:text-indigo-400 flex items-center justify-center transition-colors"
  title={t('edit')}
  >
  <Icon name="edit2" size={12} />
@@ -203,7 +202,7 @@ export default function WealthPage() {
  deleteAsset(asset.id);
  }
  }}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-all"
+ className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors"
  title={t('delete')}
  >
  <Icon name="trash" size={12} />
@@ -224,7 +223,7 @@ export default function WealthPage() {
  <Surface className="p-6">
  <div className="border-b border-border pb-3 mb-4 flex justify-between items-center">
  <div>
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  {locale === 'id' ? 'Liabilitas & Cicilan' : 'Debts & Installments'}
  </h3>
  </div>
@@ -233,7 +232,7 @@ export default function WealthPage() {
  size="sm"
  icon="plus"
  onClick={() => setIsDebtModalOpen(true)}
- className="text-[10px]"
+ className="text-[11px]"
  >
  {locale === 'id' ? 'Tambah Utang' : 'Add Debt'}
  </Button>
@@ -250,9 +249,9 @@ export default function WealthPage() {
  <div key={debt.id} className="p-4 rounded-xl bg-muted/30 border border-border flex flex-col gap-3">
  <div className="flex justify-between items-start">
  <div>
- <h4 className="text-sm font-bold text-foreground">{debt.name}</h4>
+ <h4 className="text-sm font-medium text-foreground">{debt.name}</h4>
  <div className="flex items-center gap-3 mt-1 text-xs">
- <span className="text-muted-foreground">Sisa: <span className="font-bold text-rose-400">{formatCurrency(debt.remainingAmount)}</span></span>
+ <span className="text-muted-foreground">Sisa: <span className="font-medium text-rose-400">{formatCurrency(debt.remainingAmount)}</span></span>
  {debt.monthlyInstallment > 0 && !isPaidOff && (
  <span className="text-muted-foreground flex items-center gap-1">
  <Icon name="clock" size={12} />
@@ -269,7 +268,7 @@ export default function WealthPage() {
  <Button 
  variant="secondary" 
  size="sm" 
- className="text-[10px] py-1"
+ className="text-[11px] py-1"
  onClick={() => handlePayInstallment(debt)}
  >
  {locale === 'id' ? 'Bayar Cicilan' : 'Pay'}
@@ -278,7 +277,7 @@ export default function WealthPage() {
  )}
  <button
  onClick={() => deleteDebt(debt.id)}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-all"
+ className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors"
  title={t('delete')}
  >
  <Icon name="trash" size={12} />
@@ -288,7 +287,7 @@ export default function WealthPage() {
 
  <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden mt-1 relative">
  <div 
- className={`h-full absolute left-0 top-0 transition-all ${isPaidOff ? 'bg-teal-500' : 'bg-rose-500'}`}
+ className={`h-full absolute left-0 top-0 transition-colors ${isPaidOff ? 'bg-teal-500' : 'bg-rose-500'}`}
  style={{ width: `${pct}%` }}
  />
  </div>
@@ -312,7 +311,7 @@ export default function WealthPage() {
  >
  <form onSubmit={handleDebtSubmit} className="space-y-4">
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Nama Utang/Cicilan' : 'Debt/Installment Name'}
  </label>
  <input
@@ -321,12 +320,12 @@ export default function WealthPage() {
  value={debtName}
  onChange={(e) => setDebtName(e.target.value)}
  className="glass-input text-sm"
- placeholder="Misal: Cicilan Mobil, KPR, dll"
- />
+ placeholder="Misal: Cicilan Mobil, KPR, dll" aria-label="Misal: Cicilan Mobil, KPR, dll"
+/>
  </div>
  <div className="grid grid-cols-2 gap-4">
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Total Utang (Rp)' : 'Total Debt (Rp)'}
  </label>
  <input
@@ -335,11 +334,11 @@ export default function WealthPage() {
  min="0"
  value={debtTotal}
  onChange={(e) => setDebtTotal(e.target.value)}
- className="glass-input text-sm font-bold"
+ className="glass-input text-sm font-medium"
  />
  </div>
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Sisa Utang (Rp)' : 'Remaining (Rp)'}
  </label>
  <input
@@ -347,14 +346,14 @@ export default function WealthPage() {
  min="0"
  value={debtRemaining}
  onChange={(e) => setDebtRemaining(e.target.value)}
- className="glass-input text-sm font-bold"
- placeholder="Kosongkan jika sama dgn Total"
- />
+ className="glass-input text-sm font-medium"
+ placeholder="Kosongkan jika sama dgn Total" aria-label="Kosongkan jika sama dgn Total"
+/>
  </div>
  </div>
  <div className="grid grid-cols-2 gap-4">
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Cicilan per Bulan' : 'Monthly Installment'}
  </label>
  <input
@@ -366,7 +365,7 @@ export default function WealthPage() {
  />
  </div>
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Jatuh Tempo Berikutnya' : 'Next Due Date'}
  </label>
  <input
@@ -397,7 +396,7 @@ export default function WealthPage() {
  >
  <form onSubmit={handleAssetSubmit} className="space-y-4">
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Nama Aset' : 'Asset Name'}
  </label>
  <input
@@ -411,7 +410,7 @@ export default function WealthPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Kategori Aset' : 'Asset Category'}
  </label>
  <select
@@ -426,7 +425,7 @@ export default function WealthPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Nilai Saat Ini (Rp)' : 'Current Value (Rp)'}
  </label>
  <input
@@ -435,9 +434,9 @@ export default function WealthPage() {
  min="0"
  value={assetValue}
  onChange={(e) => setAssetValue(e.target.value)}
- className="glass-input font-bold text-lg text-foreground"
- placeholder="0"
- />
+ className="glass-input font-medium text-lg text-foreground"
+ placeholder="0" aria-label="0"
+/>
  </div>
 
  <div className="pt-4 flex justify-end gap-3">

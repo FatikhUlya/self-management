@@ -106,13 +106,12 @@ export default function HealthMetricsPage() {
  {/* Header */}
  <div className="flex items-center gap-3">
  <Link href="/health">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-all">
+ <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
  <Icon name="arrowLeft" size={18} />
  </button>
  </Link>
  <div>
- <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
- <Icon name="barChart2" size={24} className="text-rose-500" />
+ <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
  Body Metrics
  </h1>
  <p className="text-zinc-500 text-xs">
@@ -125,7 +124,7 @@ export default function HealthMetricsPage() {
  {/* Profile (TDEE) */}
  <Surface className="p-6">
  <div className="border-b border-border pb-3 mb-4">
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  {t('health_tdee_profile')}
  </h3>
  <p className="text-xs text-muted-foreground mt-0.5">
@@ -136,7 +135,7 @@ export default function HealthMetricsPage() {
  <form onSubmit={handleProfileSubmit} className="space-y-3">
  <div className="grid grid-cols-2 gap-3">
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {t('health_height')}
  </label>
  <input
@@ -144,12 +143,12 @@ export default function HealthMetricsPage() {
  placeholder="170"
  value={height}
  onChange={(e) => setHeight(e.target.value === '' ? '' : Number(e.target.value))}
- className="glass-input text-xs"
- />
+ className="glass-input text-xs" aria-label="170"
+/>
  </div>
 
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {t('health_age')}
  </label>
  <input
@@ -157,14 +156,14 @@ export default function HealthMetricsPage() {
  placeholder="25"
  value={age}
  onChange={(e) => setAge(e.target.value === '' ? '' : Number(e.target.value))}
- className="glass-input text-xs"
- />
+ className="glass-input text-xs" aria-label="25"
+/>
  </div>
  </div>
 
  <div className="grid grid-cols-2 gap-3">
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {t('health_activity')}
  </label>
  <select
@@ -181,7 +180,7 @@ export default function HealthMetricsPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  Gender
  </label>
  <select
@@ -197,7 +196,7 @@ export default function HealthMetricsPage() {
 
  <div className="grid grid-cols-2 gap-3">
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  Goal
  </label>
  <select
@@ -212,7 +211,7 @@ export default function HealthMetricsPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {t('health_meal_goal')} (Override)
  </label>
  <input
@@ -234,7 +233,7 @@ export default function HealthMetricsPage() {
  {/* Weight Log Form */}
  <Surface className="p-6">
  <div className="border-b border-border pb-3 mb-4">
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  {t('health_weight_log')}
  </h3>
  <p className="text-xs text-muted-foreground mt-0.5">
@@ -245,7 +244,7 @@ export default function HealthMetricsPage() {
  <form onSubmit={handleWeightSubmit} className="space-y-4">
  <div className="grid grid-cols-2 gap-3">
  <div className="flex flex-col space-y-1 col-span-2 sm:col-span-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {t('health_weight_kg')}
  </label>
  <input
@@ -259,16 +258,16 @@ export default function HealthMetricsPage() {
  </div>
 
  <div className="flex flex-col space-y-1 col-span-2 sm:col-span-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {t('notes')}
  </label>
  <input
  type="text"
- placeholder="Kondisi..."
+ placeholder="Kondisi"
  value={weightNotes}
  onChange={(e) => setWeightNotes(e.target.value)}
- className="glass-input text-xs"
- />
+ className="glass-input text-xs" aria-label="Kondisi"
+/>
  </div>
  </div>
 
@@ -282,7 +281,7 @@ export default function HealthMetricsPage() {
  {/* Weight History Line Chart */}
  <Surface className="p-6">
  <div className="border-b border-border pb-3 mb-6">
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  {t('health_weight_monthly')}
  </h3>
  <p className="text-xs text-muted-foreground mt-0.5">
@@ -302,11 +301,11 @@ export default function HealthMetricsPage() {
  >
  <div>
  <strong className="text-xs text-foreground block">{log.weight} kg</strong>
- <span className="text-[10px] text-muted-foreground font-bold">{formatDate(log.date)} • {log.notes || 'No notes'}</span>
+ <span className="text-[11px] text-muted-foreground font-medium">{formatDate(log.date)} • {log.notes || 'No notes'}</span>
  </div>
  <button
  onClick={() => deleteWeightLog(log.id)}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-all"
+ className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors"
  title={t('delete')}
  >
  <Icon name="trash" size={12} />

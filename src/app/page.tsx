@@ -32,6 +32,7 @@ import {
   cn,
 } from '@/lib/utils';
 import { PRIORITY_OPTIONS, Priority } from '@/lib/constants';
+import { DateStamp } from '@/components/ui/DateStamp';
 
 export default function Dashboard() {
   const {
@@ -156,33 +157,35 @@ export default function Dashboard() {
     setIdeaNotes('');
   };
 
-  const greetingKey = getGreetingKey();
 
   return (
     <StaggerGroup className="space-y-6 max-w-7xl mx-auto">
       {/* ═══════════════ Hero Header & Day Status ═══════════════ */}
       <StaggerItem>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-border/60">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-border">
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground">
-                {t(greetingKey)}, Fatikh!
+            <DateStamp />
+            <div className="flex items-baseline gap-3">
+              <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+                {locale === 'id' ? 'Hari ini' : 'Today'}
               </h1>
               {todayPlan?.dayStatus === 'in_progress' && (
-                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Hari Berjalan
+                <span className="inline-flex items-center gap-2 text-[13px] text-muted-foreground">
+                  <span className="w-1.5 h-1.5 rounded-full bg-success" />
+                  {locale === 'id' ? 'Sedang berjalan' : 'In progress'}
                 </span>
               )}
               {todayPlan?.dayStatus === 'day_closed' && (
-                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-medium bg-muted text-muted-foreground border border-border">
-                  <Icon name="check" size={10} />
-                  Hari Selesai
+                <span className="inline-flex items-center gap-2 text-[13px] text-muted-foreground">
+                  <Icon name="check" size={14} />
+                  {locale === 'id' ? 'Hari ditutup' : 'Day closed'}
                 </span>
               )}
             </div>
-            <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
-              {formatDate(today, { locale: locale === 'id' ? 'id-ID' : 'en-US' })} — Pusat kendali dan fokus eksekusi hari ini.
+            <p className="text-sm text-muted-foreground mt-2 max-w-prose">
+              {locale === 'id'
+                ? `${activeTodaysTasks.length} tugas menunggu, ${habitsDoneCount} dari ${state.habits.length} habit selesai`
+                : `${activeTodaysTasks.length} tasks open, ${habitsDoneCount} of ${state.habits.length} habits done`}
             </p>
           </div>
 
@@ -282,8 +285,8 @@ export default function Dashboard() {
               {/* Header with Filter Pills */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/80 pb-3">
                 <div>
-                  <h3 className="text-xs font-medium tracking-[0.02em] uppercase text-zinc-500 flex items-center gap-2">
-                    <Icon name="checkSquare" size={14} className="text-primary" />
+                  <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Icon name="checkSquare" size={14} className="text-muted-foreground" />
                     Tugas & Prioritas Hari Ini
                   </h3>
                   <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
@@ -296,7 +299,7 @@ export default function Dashboard() {
                   <button
                     onClick={() => setTaskFilter('all')}
                     className={cn(
-                      "px-3 py-1.5 text-xs font-medium rounded-md transition-all min-h-[40px] touch-manipulation shrink-0",
+                      "px-3 py-1.5 text-xs font-medium rounded-md transition-colors min-h-[40px] touch-manipulation shrink-0",
                       taskFilter === 'all'
                         ? "bg-card text-foreground font-semibold shadow-2xs"
                         : "text-muted-foreground hover:text-foreground"
@@ -307,7 +310,7 @@ export default function Dashboard() {
                   <button
                     onClick={() => setTaskFilter('high')}
                     className={cn(
-                      "px-3 py-1.5 text-xs font-medium rounded-md transition-all min-h-[40px] touch-manipulation shrink-0",
+                      "px-3 py-1.5 text-xs font-medium rounded-md transition-colors min-h-[40px] touch-manipulation shrink-0",
                       taskFilter === 'high'
                         ? "bg-card text-foreground font-semibold shadow-2xs"
                         : "text-muted-foreground hover:text-foreground"
@@ -318,7 +321,7 @@ export default function Dashboard() {
                   <button
                     onClick={() => setTaskFilter('done')}
                     className={cn(
-                      "px-3 py-1.5 text-xs font-medium rounded-md transition-all min-h-[40px] touch-manipulation shrink-0",
+                      "px-3 py-1.5 text-xs font-medium rounded-md transition-colors min-h-[40px] touch-manipulation shrink-0",
                       taskFilter === 'done'
                         ? "bg-card text-foreground font-semibold shadow-2xs"
                         : "text-muted-foreground hover:text-foreground"
@@ -333,15 +336,15 @@ export default function Dashboard() {
               <form onSubmit={handleQuickAddTask} className="relative">
                 <input
                   type="text"
-                  placeholder="+ Tambah tugas hari ini lalu tekan Enter..."
+                  placeholder="Tambah tugas hari ini lalu tekan Enter"
                   value={newQuickTask}
                   onChange={(e) => setNewQuickTask(e.target.value)}
-                  className="glass-input text-xs pr-16 bg-muted/20 hover:bg-muted/30 focus:bg-background transition-colors"
-                />
+                  className="glass-input text-xs pr-16 bg-muted/20 hover:bg-muted/30 focus:bg-background transition-colors" aria-label="Tambah tugas hari ini lalu tekan Enter"
+/>
                 <button
                   type="submit"
                   disabled={!newQuickTask.trim()}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded text-[10px] font-semibold bg-primary text-primary-foreground disabled:opacity-30 disabled:pointer-events-none transition-all"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded text-[11px] font-semibold bg-primary text-primary-foreground disabled:opacity-30 disabled:pointer-events-none transition-colors"
                 >
                   Enter ↵
                 </button>
@@ -359,7 +362,7 @@ export default function Dashboard() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.03, duration: 0.2 }}
                         className={cn(
-                          "group flex items-center justify-between p-2.5 rounded-lg border transition-all select-none",
+                          "group flex items-center justify-between p-2.5 rounded-lg border transition-colors select-none",
                           isDone
                             ? "bg-muted/20 border-border/50 text-muted-foreground opacity-75"
                             : "bg-muted/30 border-border/80 hover:border-border hover:bg-muted/50 text-foreground"
@@ -370,7 +373,7 @@ export default function Dashboard() {
                             type="button"
                             onClick={() => updateTaskStatus(task.id, isDone ? 'todo' : 'done')}
                             className={cn(
-                              "w-5 h-5 rounded-md flex items-center justify-center border transition-all shrink-0",
+                              "w-5 h-5 rounded-md flex items-center justify-center border transition-colors shrink-0",
                               isDone
                                 ? "bg-primary border-primary text-primary-foreground"
                                 : "bg-card border-input hover:border-primary text-transparent hover:text-primary/50"
@@ -388,12 +391,12 @@ export default function Dashboard() {
                             </span>
                             <div className="flex items-center gap-2 mt-0.5">
                               {task.due && (
-                                <span className="text-[10px] font-mono text-muted-foreground tabular-nums">
+                                <span className="text-[11px] font-mono text-muted-foreground tabular-nums">
                                   {formatDate(task.due)}
                                 </span>
                               )}
                               {task.context && (
-                                <span className="text-[10px] text-muted-foreground/80 truncate">
+                                <span className="text-[11px] text-muted-foreground/80 truncate">
                                   • {task.context}
                                 </span>
                               )}
@@ -404,7 +407,7 @@ export default function Dashboard() {
                         <div className="flex items-center gap-2 shrink-0">
                           <Badge 
                             tone={task.priority === 'High' || task.priority === 'P1' ? 'rose' : task.priority === 'Medium' || task.priority === 'P2' ? 'amber' : 'gray'}
-                            className="text-[10px]"
+                            className="text-[11px]"
                           >
                             {task.priority}
                           </Badge>
@@ -428,8 +431,8 @@ export default function Dashboard() {
             <Surface className="p-5 md:p-6 space-y-4">
               <div className="flex justify-between items-center border-b border-border/80 pb-3">
                 <div>
-                  <h3 className="text-xs font-medium tracking-[0.02em] uppercase text-zinc-500 flex items-center gap-2">
-                    <Icon name="check" size={14} className="text-primary" />
+                  <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Icon name="check" size={14} className="text-muted-foreground" />
                     Rutinitas & Habit Hari Ini
                   </h3>
                   <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
@@ -458,7 +461,7 @@ export default function Dashboard() {
                         transition={{ delay: index * 0.02, duration: 0.2 }}
                         onClick={() => toggleHabit(habit.id, today)}
                         className={cn(
-                          "group flex items-center justify-between p-2.5 rounded-lg border cursor-pointer select-none transition-all shadow-2xs",
+                          "group flex items-center justify-between p-2.5 rounded-lg border cursor-pointer select-none transition-colors shadow-2xs",
                           isDone
                             ? "bg-emerald-500/10 border-emerald-500/25 text-emerald-800 dark:text-emerald-300"
                             : "bg-muted/30 border-border/80 hover:border-border hover:bg-muted/50 text-foreground"
@@ -466,13 +469,13 @@ export default function Dashboard() {
                       >
                         <div className="min-w-0 pr-2">
                           <span className="text-xs font-medium truncate block leading-tight">{habit.name}</span>
-                          <span className="text-[10px] text-muted-foreground mt-0.5 block truncate">
+                          <span className="text-[11px] text-muted-foreground mt-0.5 block truncate">
                             {habit.area || 'Personal'}
                           </span>
                         </div>
                         <span
                           className={cn(
-                            "w-5 h-5 rounded-md flex items-center justify-center border transition-all shrink-0",
+                            "w-5 h-5 rounded-md flex items-center justify-center border transition-colors shrink-0",
                             isDone 
                               ? "bg-primary border-primary text-primary-foreground scale-100" 
                               : "bg-card border-input text-transparent group-hover:border-primary/50 group-hover:text-primary/40"
@@ -499,8 +502,8 @@ export default function Dashboard() {
             <Surface className="p-5 md:p-6 space-y-4">
               <div className="flex justify-between items-center border-b border-border/80 pb-3">
                 <div>
-                  <h3 className="text-xs font-medium tracking-[0.02em] uppercase text-zinc-500 flex items-center gap-2">
-                    <Icon name="calendar" size={14} className="text-primary" />
+                  <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Icon name="calendar" size={14} className="text-muted-foreground" />
                     Agenda & Timeline
                   </h3>
                   <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">
@@ -526,17 +529,17 @@ export default function Dashboard() {
                         transition={{ delay: index * 0.04, duration: 0.2 }}
                         onClick={() => togglePlan(plan.id)}
                         className={cn(
-                          "p-3 rounded-lg border cursor-pointer select-none transition-all shadow-2xs",
+                          "p-3 rounded-lg border cursor-pointer select-none transition-colors shadow-2xs",
                           isDone
                             ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-800 dark:text-emerald-300 opacity-80"
                             : "bg-muted/30 border-border/80 hover:border-border hover:bg-muted/50 text-foreground"
                         )}
                       >
                         <div className="flex justify-between items-center gap-2 mb-1">
-                          <span className="text-[10px] font-mono tabular-nums text-muted-foreground font-medium">
+                          <span className="text-[11px] font-mono tabular-nums text-muted-foreground font-medium">
                             {plan.startTime} - {plan.endTime}
                           </span>
-                          <Badge tone={plan.kind === 'event' ? 'blue' : 'purple'} className="text-[9px]">
+                          <Badge tone={plan.kind === 'event' ? 'blue' : 'purple'} className="text-[11px]">
                             {plan.kind}
                           </Badge>
                         </div>
@@ -546,7 +549,7 @@ export default function Dashboard() {
                         )}>
                           {plan.title}
                         </strong>
-                        <p className="text-[10px] text-muted-foreground truncate mt-0.5">{plan.area || '-'}</p>
+                        <p className="text-[11px] text-muted-foreground truncate mt-0.5">{plan.area || '-'}</p>
                       </motion.div>
                     );
                   })}
@@ -571,8 +574,8 @@ export default function Dashboard() {
             <Surface className="p-5 md:p-6 space-y-4">
               <div className="flex justify-between items-center border-b border-border/80 pb-3">
                 <div>
-                  <h3 className="text-xs font-medium tracking-[0.02em] uppercase text-zinc-500 flex items-center gap-2">
-                    <Icon name="plus" size={14} className="text-primary" />
+                  <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Icon name="plus" size={14} className="text-muted-foreground" />
                     Tangkap Cepat (Capture)
                   </h3>
                   <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">Simpan ide atau catatan seketika</p>
@@ -582,7 +585,7 @@ export default function Dashboard() {
                     type="button"
                     onClick={() => setCaptureTab('idea')}
                     className={cn(
-                      "px-2 py-0.5 text-[10px] font-medium rounded transition-all",
+                      "px-2 py-0.5 text-[11px] font-medium rounded transition-colors",
                       captureTab === 'idea' ? "bg-card text-foreground font-semibold shadow-2xs" : "text-muted-foreground"
                     )}
                   >
@@ -592,7 +595,7 @@ export default function Dashboard() {
                     type="button"
                     onClick={() => setCaptureTab('note')}
                     className={cn(
-                      "px-2 py-0.5 text-[10px] font-medium rounded transition-all",
+                      "px-2 py-0.5 text-[11px] font-medium rounded transition-colors",
                       captureTab === 'note' ? "bg-card text-foreground font-semibold shadow-2xs" : "text-muted-foreground"
                     )}
                   >
@@ -637,11 +640,11 @@ export default function Dashboard() {
                 </div>
 
                 <textarea
-                  placeholder="Detail tambahan atau konteks singkat..."
+                  placeholder="Detail tambahan atau konteks singkat"
                   value={ideaNotes}
                   onChange={(e) => setIdeaNotes(e.target.value)}
-                  className="glass-input text-xs resize-none h-18"
-                />
+                  className="glass-input text-xs resize-none h-18" aria-label="Detail tambahan atau konteks singkat"
+/>
 
                 <Button type="submit" variant="primary" icon="plus" size="sm" className="w-full font-semibold">
                   Simpan ke Inbox
@@ -655,8 +658,8 @@ export default function Dashboard() {
             <Surface className="p-5 md:p-6 space-y-4">
               <div className="flex justify-between items-center border-b border-border/80 pb-3">
                 <div>
-                  <h3 className="text-xs font-medium tracking-[0.02em] uppercase text-zinc-500 flex items-center gap-2">
-                    <Icon name="activity" size={14} className="text-primary" />
+                  <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Icon name="activity" size={14} className="text-muted-foreground" />
                     Kesehatan & Nutrisi
                   </h3>
                   <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">Ringkasan asupan dan latihan fisik</p>
@@ -678,11 +681,11 @@ export default function Dashboard() {
 
                 <div className="grid grid-cols-2 gap-2 pt-1">
                   <div className="bg-muted/40 border border-border/80 rounded-lg p-2.5 flex flex-col items-center">
-                    <span className="text-[10px] text-muted-foreground uppercase font-semibold tracking-wider">Protein</span>
+                    <span className="text-[11px] text-muted-foreground font-semibold ">Protein</span>
                     <strong className="text-sm font-semibold text-foreground mt-0.5 font-mono tabular-nums">{dailyProtein}g</strong>
                   </div>
                   <div className="bg-muted/40 border border-border/80 rounded-lg p-2.5 flex flex-col items-center">
-                    <span className="text-[10px] text-muted-foreground uppercase font-semibold tracking-wider">Workout</span>
+                    <span className="text-[11px] text-muted-foreground font-semibold ">Workout</span>
                     <strong className="text-sm font-semibold text-foreground mt-0.5 font-mono tabular-nums">{dailyWorkoutMins}m</strong>
                   </div>
                 </div>
@@ -694,8 +697,8 @@ export default function Dashboard() {
           <StaggerItem>
             <Surface className="p-5 md:p-6 space-y-3">
               <div className="flex justify-between items-center border-b border-border/80 pb-2.5">
-                <h3 className="text-xs font-medium tracking-[0.02em] uppercase text-zinc-500 flex items-center gap-2">
-                  <Icon name="compass" size={14} className="text-primary" />
+                <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <Icon name="compass" size={14} className="text-muted-foreground" />
                   Kompas Hidup
                 </h3>
                 <Link href="/rules">
@@ -713,10 +716,10 @@ export default function Dashboard() {
                   const rule = state.selfRules[dayOfYear % state.selfRules.length];
                   return (
                     <div className="p-3 rounded-lg border border-border/80 bg-muted/20 space-y-1">
-                      <p className="text-xs text-foreground font-medium italic leading-relaxed">
+                      <p className="text-xs text-foreground font-medium leading-relaxed">
                         &ldquo;{rule.rule_text}&rdquo;
                       </p>
-                      <span className="text-[10px] text-muted-foreground block font-mono">
+                      <span className="text-[11px] text-muted-foreground block font-mono">
                         Rotasi Prinsip #{rule.id?.slice(0, 4) || '1'}
                       </span>
                     </div>
@@ -737,8 +740,8 @@ export default function Dashboard() {
             <Surface className="p-5 md:p-6 space-y-3">
               <div className="flex justify-between items-center border-b border-border/80 pb-2.5">
                 <div>
-                  <h3 className="text-xs font-semibold text-foreground tracking-tight uppercase flex items-center gap-2">
-                    <Icon name="journal" size={14} className="text-primary" />
+                  <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Icon name="journal" size={14} className="text-muted-foreground" />
                     Jurnal & Refleksi
                   </h3>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -756,13 +759,13 @@ export default function Dashboard() {
                 <div className="space-y-2">
                   {selectedJournal.gratitude_1 && (
                     <div className="p-2.5 rounded-lg bg-muted/20 border border-border/60">
-                      <span className="text-[10px] font-semibold text-primary uppercase tracking-wider block">Gratitude</span>
+                      <span className="text-[11px] font-semibold text-primary block">Gratitude</span>
                       <p className="text-xs text-foreground mt-0.5 leading-relaxed truncate">{selectedJournal.gratitude_1}</p>
                     </div>
                   )}
                   {selectedJournal.win && (
                     <div className="p-2.5 rounded-lg bg-muted/20 border border-border/60">
-                      <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider block">Daily Win</span>
+                      <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 block">Daily Win</span>
                       <p className="text-xs text-foreground mt-0.5 leading-relaxed truncate">{selectedJournal.win}</p>
                     </div>
                   )}

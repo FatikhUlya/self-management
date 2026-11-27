@@ -88,14 +88,14 @@ export async function callGemini(
         await sleep(delayMs);
       }
 
-      const url = `${GEMINI_BASE_URL}/${model}:generateContent?key=${apiKey}`;
+      const url = `${GEMINI_BASE_URL}/${model}:generateContent`;
 
       try {
         console.log(`[${tag}] Calling model=${model} (attempt ${attempt + 1}/${MAX_RETRIES + 1})`);
 
         const response = await fetch(url, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': apiKey },
           body: JSON.stringify(requestBody),
         });
 

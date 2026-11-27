@@ -277,8 +277,8 @@ export default function ProjectTasksPage() {
  return (
  <div className="flex-1 min-w-[280px] bg-muted/20 border border-border rounded-xl p-4 flex flex-col h-[500px]">
  <div className="flex justify-between items-center pb-2 mb-3 border-b border-white/5">
- <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{title}</h4>
- <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-muted/40 text-muted-foreground border border-border">
+ <h4 className="text-xs font-semibold text-muted-foreground ">{title}</h4>
+ <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-muted/40 text-muted-foreground border border-border">
  {columnTasks.length}
  </span>
  </div>
@@ -293,11 +293,11 @@ export default function ProjectTasksPage() {
  return (
  <div 
  key={task.id} 
- className="p-3 rounded-lg bg-muted/20 border border-border hover:border-border-strong hover:bg-muted/50/[0.015] transition-all duration-150 space-y-2"
+ className="p-3 rounded-lg bg-muted/20 border border-border hover:border-border-strong hover:bg-muted/50/[0.015] transition-colors duration-150 space-y-2"
  >
  <div className="min-w-0">
- <strong className="text-xs font-bold text-foreground block leading-tight">{task.title}</strong>
- <div className="flex flex-col gap-0.5 mt-1 text-[10px] text-muted-foreground">
+ <strong className="text-xs font-medium text-foreground block leading-tight">{task.title}</strong>
+ <div className="flex flex-col gap-0.5 mt-1 text-[11px] text-muted-foreground">
  <span className="flex items-center gap-1">
  <Icon name="folder" size={10} className="text-blue-400 mt-0.5 shrink-0" />
  <span>{project ? project.name : 'Inbox'}</span>
@@ -317,7 +317,7 @@ export default function ProjectTasksPage() {
  {isOverdue ? t('tasks_overdue') : task.priority}
  </Badge>
  {task.due && (
- <span className="text-[9px] text-muted-foreground font-bold self-center">
+ <span className="text-[11px] text-muted-foreground font-medium self-center">
  {formatDate(task.due)}
  </span>
  )}
@@ -395,7 +395,7 @@ export default function ProjectTasksPage() {
  <div className="overflow-x-auto">
  <table className="w-full text-left border-collapse min-w-[600px]">
  <thead>
- <tr className="border-b border-border text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+ <tr className="border-b border-border text-[11px] font-semibold text-muted-foreground ">
  <th className="pb-3 pr-4">{t('tasks_title_label')}</th>
  <th className="pb-3 px-4">{t('tasks_project')}</th>
  <th className="pb-3 px-4">Target (Goal)</th>
@@ -412,13 +412,13 @@ export default function ProjectTasksPage() {
  
  return (
  <tr key={task.id} className="text-xs hover:bg-muted/50/[0.005] transition-colors">
- <td className="py-3 pr-4 font-bold text-foreground min-w-[150px]">{task.title}</td>
+ <td className="py-3 pr-4 font-medium text-foreground min-w-[150px]">{task.title}</td>
  <td className="py-3 px-4 text-muted-foreground font-semibold">{project ? project.name : 'Inbox'}</td>
  <td className="py-3 px-4">
  <select
  value={task.goalId || ''}
  onChange={(e) => updateTaskGoal(task.id, e.target.value || null)}
- className="glass-select py-1 px-2 text-[10px]"
+ className="glass-select py-1 px-2 text-[11px]"
  >
  <option value="">-- Tanpa Target --</option>
  {state.goals.map((g) => (
@@ -429,7 +429,7 @@ export default function ProjectTasksPage() {
  </select>
  </td>
  <td className="py-3 px-4">
- <span className={isOverdue ? 'text-destructive font-bold' : 'text-muted-foreground font-bold'}>
+ <span className={isOverdue ? 'text-destructive font-medium' : 'text-muted-foreground font-medium'}>
  {task.due ? formatDate(task.due) : '-'}
  </span>
  </td>
@@ -442,7 +442,7 @@ export default function ProjectTasksPage() {
  <select
  value={task.status}
  onChange={(e) => handleStatusChange(task.id, e.target.value as any)}
- className="glass-select py-1 px-2 text-[10px] uppercase font-semibold"
+ className="glass-select py-1 px-2 text-[11px] font-semibold"
  >
  <option value="todo">{t('tasks_todo')}</option>
  <option value="doing">{t('tasks_doing')}</option>
@@ -452,14 +452,14 @@ export default function ProjectTasksPage() {
  <td className="py-3 pl-4 text-right flex items-center justify-end space-x-1.5">
  <button
  onClick={() => handleOpenEditTask(task)}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-primary/20 text-muted-foreground hover:text-foreground inline-flex items-center justify-center transition-all"
+ className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-primary/20 text-muted-foreground hover:text-foreground inline-flex items-center justify-center transition-colors"
  title="Edit"
  >
  <Icon name="edit" size={12} />
  </button>
  <button
  onClick={() => deleteTask(task.id)}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive inline-flex items-center justify-center transition-all"
+ className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive inline-flex items-center justify-center transition-colors"
  title={t('delete')}
  >
  <Icon name="trash" size={12} />
@@ -478,13 +478,12 @@ export default function ProjectTasksPage() {
  <div className="space-y-6 max-w-6xl mx-auto pb-24">
  <div className="flex items-center gap-3">
  <Link href="/projects">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-all">
+ <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
  <Icon name="arrowLeft" size={18} />
  </button>
  </Link>
  <div className="flex-1">
- <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
- <Icon name="checkSquare" size={24} className="text-cyan-500" />
+ <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
  Kelola Tugas (Tasks)
  </h1>
  <p className="text-zinc-500 text-xs mt-1">
@@ -504,7 +503,7 @@ export default function ProjectTasksPage() {
  <Surface className="p-6">
  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4 mb-6">
  <div>
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  {t('tasks_board')}
  </h3>
  <p className="text-xs text-muted-foreground mt-0.5">
@@ -517,11 +516,11 @@ export default function ProjectTasksPage() {
  <button
  onClick={handleGoogleSync}
  disabled={gcalSyncing}
- className="flex items-center space-x-1.5 px-3 py-1.5 bg-muted/30 hover:bg-primary/20 text-muted-foreground hover:text-foreground border border-border rounded-lg transition-all"
+ className="flex items-center space-x-1.5 px-3 py-1.5 bg-muted/30 hover:bg-primary/20 text-muted-foreground hover:text-foreground border border-border rounded-lg transition-colors"
  title="Sinkronisasi dengan Google Calendar"
  >
  <Icon name="calendar" size={12} className={gcalSyncing ? 'animate-spin' : ''} />
- <span className="text-[10px] font-bold uppercase tracking-wider hidden sm:inline">
+ <span className="text-[11px] font-medium hidden sm:inline">
  {gcalSyncing ? 'Syncing...' : isGCalConnected ? 'Synced' : 'Sync GCal'}
  </span>
  </button>
@@ -531,7 +530,7 @@ export default function ProjectTasksPage() {
  <button
  type="button"
  onClick={() => setViewMode('kanban')}
- className={`px-3 py-1.5 rounded-md text-[10px] font-semibold uppercase tracking-wider transition-all duration-150 ${
+ className={`px-3 py-1.5 rounded-md text-[11px] font-semibold   transition-colors duration-150 ${
  viewMode === 'kanban'
  ? 'bg-primary text-white shadow-md'
  : 'text-muted-foreground hover:text-foreground'
@@ -542,7 +541,7 @@ export default function ProjectTasksPage() {
  <button
  type="button"
  onClick={() => setViewMode('list')}
- className={`px-3 py-1.5 rounded-md text-[10px] font-semibold uppercase tracking-wider transition-all duration-150 ${
+ className={`px-3 py-1.5 rounded-md text-[11px] font-semibold   transition-colors duration-150 ${
  viewMode === 'list'
  ? 'bg-primary text-white shadow-md'
  : 'text-muted-foreground hover:text-foreground'
@@ -574,7 +573,7 @@ export default function ProjectTasksPage() {
  >
  <form onSubmit={handleTaskSubmit} className="space-y-4">
  <div className="flex flex-col space-y-1">
- <label htmlFor="taskTitleInput" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="taskTitleInput" className="text-xs font-medium text-muted-foreground ">
  {t('tasks_title_label')}
  </label>
  <input
@@ -590,7 +589,7 @@ export default function ProjectTasksPage() {
 
  <div className="grid grid-cols-2 gap-4">
  <div className="flex flex-col space-y-1">
- <label htmlFor="taskProjectInput" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="taskProjectInput" className="text-xs font-medium text-muted-foreground ">
  {t('tasks_project')}
  </label>
  <select
@@ -609,7 +608,7 @@ export default function ProjectTasksPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label htmlFor="taskDueInput" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="taskDueInput" className="text-xs font-medium text-muted-foreground ">
  {t('tasks_due')}
  </label>
  <input
@@ -625,7 +624,7 @@ export default function ProjectTasksPage() {
 
  <div className="grid grid-cols-2 gap-4">
  <div className="flex flex-col space-y-1">
- <label htmlFor="taskPriorityInput" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="taskPriorityInput" className="text-xs font-medium text-muted-foreground ">
  {t('priority')}
  </label>
  <select
@@ -641,7 +640,7 @@ export default function ProjectTasksPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label htmlFor="taskGoalInput" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="taskGoalInput" className="text-xs font-medium text-muted-foreground ">
  Hubungkan ke Target (Goal)
  </label>
  <select
@@ -661,49 +660,49 @@ export default function ProjectTasksPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">Deskripsi</label>
+ <label className="text-xs font-medium text-muted-foreground ">Deskripsi</label>
  <textarea
  value={taskDescription}
  onChange={(e) => setTaskDescription(e.target.value)}
  className="glass-input text-xs resize-none h-16"
- placeholder="Deskripsi tugas..."
- />
+ placeholder="Deskripsi tugas" aria-label="Deskripsi tugas"
+/>
  </div>
 
  <div className="grid grid-cols-2 gap-4">
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">Definition of Done</label>
+ <label className="text-xs font-medium text-muted-foreground ">Definition of Done</label>
  <textarea
  value={taskDoD}
  onChange={(e) => setTaskDoD(e.target.value)}
  className="glass-input text-xs resize-none h-16"
- placeholder="Kapan tugas ini dianggap selesai?"
- />
+ placeholder="Kapan tugas ini dianggap selesai?" aria-label="Kapan tugas ini dianggap selesai?"
+/>
  </div>
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">Expected Output</label>
+ <label className="text-xs font-medium text-muted-foreground ">Expected Output</label>
  <textarea
  value={taskExpectedOutput}
  onChange={(e) => setTaskExpectedOutput(e.target.value)}
  className="glass-input text-xs resize-none h-16"
- placeholder="Apa hasil dari tugas ini?"
- />
+ placeholder="Apa hasil dari tugas ini?" aria-label="Apa hasil dari tugas ini?"
+/>
  </div>
  </div>
 
  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">Estimasi (Menit)</label>
+ <label className="text-xs font-medium text-muted-foreground ">Estimasi (Menit)</label>
  <input
  type="number"
  value={taskEstimatedMins}
  onChange={(e) => setTaskEstimatedMins(e.target.value)}
  className="glass-input text-xs"
- placeholder="30"
- />
+ placeholder="30" aria-label="30"
+/>
  </div>
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">Energi</label>
+ <label className="text-xs font-medium text-muted-foreground ">Energi</label>
  <select value={taskEnergy} onChange={(e) => setTaskEnergy(e.target.value)} className="glass-select text-xs">
  <option value="Low">Low</option>
  <option value="Medium">Medium</option>
@@ -711,7 +710,7 @@ export default function ProjectTasksPage() {
  </select>
  </div>
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">Konteks</label>
+ <label className="text-xs font-medium text-muted-foreground ">Konteks</label>
  <select value={taskContext} onChange={(e) => setTaskContext(e.target.value)} className="glass-select text-xs">
  <option value="Deep Work">Deep Work</option>
  <option value="Shallow Work">Shallow Work</option>
@@ -721,7 +720,7 @@ export default function ProjectTasksPage() {
  </select>
  </div>
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">Kategori</label>
+ <label className="text-xs font-medium text-muted-foreground ">Kategori</label>
  <select value={taskWorkCategory} onChange={(e) => setTaskWorkCategory(e.target.value)} className="glass-select text-xs">
  <option value="Feature">Feature</option>
  <option value="Bugfix">Bugfix</option>
@@ -748,7 +747,7 @@ export default function ProjectTasksPage() {
  {editingTask && (
  <form onSubmit={handleSaveEditTask} className="space-y-4">
  <div className="flex flex-col space-y-1">
- <label htmlFor="editTaskTitleInput" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="editTaskTitleInput" className="text-xs font-medium text-muted-foreground ">
  {t('tasks_title_label')}
  </label>
  <input
@@ -763,7 +762,7 @@ export default function ProjectTasksPage() {
 
  <div className="grid grid-cols-2 gap-3">
  <div className="flex flex-col space-y-1">
- <label htmlFor="editTaskProjectInput" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="editTaskProjectInput" className="text-xs font-medium text-muted-foreground ">
  {t('tasks_project')}
  </label>
  <select
@@ -782,7 +781,7 @@ export default function ProjectTasksPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label htmlFor="editTaskStatusInput" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="editTaskStatusInput" className="text-xs font-medium text-muted-foreground ">
  {t('status')}
  </label>
  <select
@@ -800,7 +799,7 @@ export default function ProjectTasksPage() {
 
  <div className="grid grid-cols-2 gap-3">
  <div className="flex flex-col space-y-1">
- <label htmlFor="editTaskPriorityInput" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="editTaskPriorityInput" className="text-xs font-medium text-muted-foreground ">
  {t('priority')}
  </label>
  <select
@@ -816,7 +815,7 @@ export default function ProjectTasksPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label htmlFor="editTaskDueInput" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="editTaskDueInput" className="text-xs font-medium text-muted-foreground ">
  {t('tasks_due')}
  </label>
  <input
@@ -831,7 +830,7 @@ export default function ProjectTasksPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label htmlFor="editTaskGoalInput" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="editTaskGoalInput" className="text-xs font-medium text-muted-foreground ">
  Hubungkan ke Target (Goal)
  </label>
  <select
@@ -850,49 +849,49 @@ export default function ProjectTasksPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">Deskripsi</label>
+ <label className="text-xs font-medium text-muted-foreground ">Deskripsi</label>
  <textarea
  value={editTaskDescription}
  onChange={(e) => setEditTaskDescription(e.target.value)}
  className="glass-input text-xs resize-none h-16"
- placeholder="Deskripsi tugas..."
- />
+ placeholder="Deskripsi tugas" aria-label="Deskripsi tugas"
+/>
  </div>
 
  <div className="grid grid-cols-2 gap-4">
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">Definition of Done</label>
+ <label className="text-xs font-medium text-muted-foreground ">Definition of Done</label>
  <textarea
  value={editTaskDoD}
  onChange={(e) => setEditTaskDoD(e.target.value)}
  className="glass-input text-xs resize-none h-16"
- placeholder="Kapan tugas ini dianggap selesai?"
- />
+ placeholder="Kapan tugas ini dianggap selesai?" aria-label="Kapan tugas ini dianggap selesai?"
+/>
  </div>
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">Expected Output</label>
+ <label className="text-xs font-medium text-muted-foreground ">Expected Output</label>
  <textarea
  value={editTaskExpectedOutput}
  onChange={(e) => setEditTaskExpectedOutput(e.target.value)}
  className="glass-input text-xs resize-none h-16"
- placeholder="Apa hasil dari tugas ini?"
- />
+ placeholder="Apa hasil dari tugas ini?" aria-label="Apa hasil dari tugas ini?"
+/>
  </div>
  </div>
 
  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">Estimasi (Menit)</label>
+ <label className="text-xs font-medium text-muted-foreground ">Estimasi (Menit)</label>
  <input
  type="number"
  value={editTaskEstimatedMins}
  onChange={(e) => setEditTaskEstimatedMins(e.target.value)}
  className="glass-input text-xs"
- placeholder="30"
- />
+ placeholder="30" aria-label="30"
+/>
  </div>
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">Energi</label>
+ <label className="text-xs font-medium text-muted-foreground ">Energi</label>
  <select value={editTaskEnergy} onChange={(e) => setEditTaskEnergy(e.target.value)} className="glass-select text-xs">
  <option value="Low">Low</option>
  <option value="Medium">Medium</option>
@@ -900,7 +899,7 @@ export default function ProjectTasksPage() {
  </select>
  </div>
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">Konteks</label>
+ <label className="text-xs font-medium text-muted-foreground ">Konteks</label>
  <select value={editTaskContext} onChange={(e) => setEditTaskContext(e.target.value)} className="glass-select text-xs">
  <option value="Deep Work">Deep Work</option>
  <option value="Shallow Work">Shallow Work</option>
@@ -910,7 +909,7 @@ export default function ProjectTasksPage() {
  </select>
  </div>
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">Kategori</label>
+ <label className="text-xs font-medium text-muted-foreground ">Kategori</label>
  <select value={editTaskWorkCategory} onChange={(e) => setEditTaskWorkCategory(e.target.value)} className="glass-select text-xs">
  <option value="Feature">Feature</option>
  <option value="Bugfix">Bugfix</option>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { Button } from './Button';
 import { Icon } from './Icon';
+import { authJsonHeaders } from '@/lib/supabase/client';
 import { Surface } from './Surface';
 import { inLastDays, avg } from '@/lib/utils';
 
@@ -20,11 +21,11 @@ const renderMarkdown = (text: string) => {
  });
 
  if (line.startsWith('# ')) {
- return <h1 key={i} className="text-2xl font-bold text-foreground mt-4 mb-2">{renderedLine.slice(1)}</h1>;
+ return <h1 key={i} className="text-2xl font-medium text-foreground mt-4 mb-2">{renderedLine.slice(1)}</h1>;
  } else if (line.startsWith('## ')) {
- return <h2 key={i} className="text-xl font-bold text-foreground mt-4 mb-2">{renderedLine.slice(1)}</h2>;
+ return <h2 key={i} className="text-xl font-medium text-foreground mt-4 mb-2">{renderedLine.slice(1)}</h2>;
  } else if (line.startsWith('### ')) {
- return <h3 key={i} className="text-lg font-bold text-foreground mt-3 mb-1">{renderedLine.slice(1)}</h3>;
+ return <h3 key={i} className="text-lg font-medium text-foreground mt-3 mb-1">{renderedLine.slice(1)}</h3>;
  } else if (line.match(/^[0-9]+\. /)) {
  return <li key={i} className="ml-4 list-decimal my-1 text-muted-foreground">{renderedLine.slice(1)}</li>;
  } else if (line.startsWith('- ') || line.startsWith('* ')) {
@@ -123,7 +124,7 @@ export function AiReviewer() {
  // 2. Call API
  const res = await fetch('/api/ai-review', {
  method: 'POST',
- headers: { 'Content-Type': 'application/json' },
+ headers: await authJsonHeaders(),
  body: JSON.stringify({
  period: period === 7 ? '7 Hari Terakhir' : '30 Hari Terakhir',
  metrics,
@@ -155,7 +156,7 @@ export function AiReviewer() {
  
  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 relative z-10">
  <div>
- <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
+ <h2 className="text-lg font-medium text-foreground flex items-center gap-2">
  <Icon name="sparkles" size={20} className="text-fuchsia-500" />
  AI Reviewer (Beta)
  </h2>
@@ -168,7 +169,7 @@ export function AiReviewer() {
  <select 
  value={period} 
  onChange={(e) => setPeriod(Number(e.target.value) as 7 | 30)}
- className="glass-select text-xs font-bold"
+ className="glass-select text-xs font-medium"
  disabled={loading}
  >
  <option value={7}>7 Hari Terakhir</option>
@@ -179,7 +180,7 @@ export function AiReviewer() {
  onClick={generateReview} 
  disabled={loading}
  icon={loading ? 'loader' : 'zap'}
- className={loading ? 'animate-pulse' : ''}
+ className={loading ? '' : ''}
  >
  {loading ? 'Menganalisis...' : 'Mulai Review'}
  </Button>
@@ -200,7 +201,7 @@ export function AiReviewer() {
  </div>
  
  <div className="mt-6 pt-4 border-t border-border flex items-center justify-between">
- <span className="text-xs text-muted-foreground italic">
+ <span className="text-xs text-muted-foreground ">
  *Evaluasi ini bisa disimpan ke Riwayat Evaluasi (History) Anda.
  </span>
  <Button
@@ -209,7 +210,7 @@ export function AiReviewer() {
  disabled={saving || success}
  icon={success ? "check" : "save"}
  >
- {saving ? "Menyimpan..." : success ? "Tersimpan!" : "Simpan ke History"}
+ {saving ? "Menyimpan..." : success ? "Tersimpan" : "Simpan ke History"}
  </Button>
  </div>
  </div>

@@ -1,47 +1,31 @@
 'use client';
 
 import React from 'react';
-import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
 import { Surface } from './Surface';
-import { Icon } from './Icon';
 
 interface MetricCardProps {
-  icon: string;
+  /** Kept for API compatibility; stat cards show numbers, not icon tiles. */
+  icon?: string;
   label: string;
   value: string | number;
   detail: string;
+  /** Marks the one figure that matters on the screen with the accent. */
   glow?: boolean;
 }
 
-export function MetricCard({ icon, label, value, detail, glow = false }: MetricCardProps) {
+export function MetricCard({ label, value, detail, glow = false }: MetricCardProps) {
   return (
-    <motion.div
-      whileHover={{ y: -2, transition: { duration: 0.15, ease: 'easeOut' } }}
-      className="will-change-transform h-full"
-    >
-      <Surface 
-        glow={glow} 
-        className="p-4 flex flex-col justify-between cursor-default h-full transition-all hover:shadow-xs"
+    <Surface className="p-5 flex flex-col gap-3 h-full">
+      <span className="text-[13px] text-muted-foreground truncate">{label}</span>
+      <strong
+        className={
+          'block text-[28px] leading-none font-medium tabular-nums ' +
+          (glow ? 'text-ink' : 'text-foreground')
+        }
       >
-        <div className="flex items-center justify-between gap-2 mb-2">
-          <span className="text-xs font-medium tracking-[0.02em] uppercase text-zinc-500 truncate">
-            {label}
-          </span>
-          <div className={cn(
-            'shrink-0 w-7 h-7 rounded-lg flex items-center justify-center',
-            'bg-primary/10 text-primary',
-          )}>
-            <Icon name={icon} size={15} />
-          </div>
-        </div>
-        <div>
-          <strong className="block text-2xl sm:text-3xl font-semibold tracking-[-0.025em] tabular-nums text-foreground font-mono">
-            {value}
-          </strong>
-          <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-1 truncate font-medium">{detail}</p>
-        </div>
-      </Surface>
-    </motion.div>
+        {value}
+      </strong>
+      <p className="text-xs text-muted-foreground truncate">{detail}</p>
+    </Surface>
   );
 }

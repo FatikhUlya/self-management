@@ -89,10 +89,10 @@ export function QuickAddTransaction() {
  <>
  <button
  onClick={() => setIsOpen(true)}
- className="fixed bottom-20 right-6 md:bottom-8 md:right-8 w-14 h-14 bg-primary hover:bg-[#4CAF00] text-white rounded-full flex items-center justify-center shadow-[0_4px_0_#46A302] hover:shadow-[0_2px_0_#46A302] active:translate-y-1 active:shadow-none transition-all z-40 focus:outline-none focus:ring-4 focus:ring-[#059669]/30"
- aria-label="Quick Add Transaction"
+ className="fixed bottom-20 right-6 md:bottom-8 md:right-8 w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-[0_8px_24px_rgba(0,0,0,0.12)] hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] z-40"
+ aria-label="Catat transaksi cepat" title="Catat transaksi"
  >
- <Icon name="plus" size={26} />
+ <Icon name="plus" size={20} />
  </button>
 
  <Modal
@@ -123,11 +123,11 @@ export function QuickAddTransaction() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Nominal' : 'Amount'}
  </label>
  <div className="relative">
- <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground font-bold">
+ <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground font-medium">
  Rp
  </span>
  <input
@@ -137,13 +137,13 @@ export function QuickAddTransaction() {
  value={amount}
  onChange={(e) => setAmount(e.target.value)}
  placeholder="0"
- className="glass-input pl-10 text-lg font-bold"
- />
+ className="glass-input pl-10 text-lg font-medium" aria-label="0"
+/>
  </div>
  </div>
 
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Keterangan' : 'Title'}
  </label>
  <input
@@ -152,12 +152,12 @@ export function QuickAddTransaction() {
  value={title}
  onChange={(e) => setTitle(e.target.value)}
  placeholder="..."
- className="glass-input"
- />
+ className="glass-input" aria-label="..."
+/>
  </div>
 
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {t('category')}
  </label>
  <select
@@ -173,7 +173,7 @@ export function QuickAddTransaction() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label className="text-xs font-bold text-muted-foreground uppercase">
+ <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Akun Rekening' : 'Account'}
  </label>
  <select

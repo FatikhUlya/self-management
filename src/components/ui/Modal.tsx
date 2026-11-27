@@ -57,7 +57,7 @@ export function Modal({
       {/* Panel */}
       <section
         className={cn(
-          'relative w-full z-10 overflow-hidden transform transition-all duration-200',
+          'relative w-full z-10 overflow-hidden transform transition-colors duration-200',
           'flex flex-col max-h-[85vh] sm:max-h-[90vh]',
           // Mobile: Bottom Sheet with rounded top
           'rounded-t-3xl sm:rounded-2xl',
@@ -86,7 +86,7 @@ export function Modal({
           </div>
           <button
             onClick={onClose}
-            className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted active:scale-95 transition-all"
+            className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted active:scale-95 transition-colors"
             title="Tutup"
             aria-label="Tutup"
           >

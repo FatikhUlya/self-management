@@ -44,13 +44,12 @@ export default function LearningSchedulePage() {
  <div className="space-y-6 max-w-4xl mx-auto pb-24">
  <div className="flex items-center gap-3">
  <Link href="/learning">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-all">
+ <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
  <Icon name="arrowLeft" size={18} />
  </button>
  </Link>
  <div className="flex-1">
- <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
- <Icon name="clock" size={24} className="text-amber-500" />
+ <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
  Jadwal Belajar
  </h1>
  <p className="text-zinc-500 text-xs mt-1">
@@ -70,8 +69,8 @@ export default function LearningSchedulePage() {
  { key: 'sat', label: locale === 'id' ? 'Sabtu' : 'Sat', isWeekend: true },
  { key: 'sun', label: locale === 'id' ? 'Minggu' : 'Sun', isWeekend: true }
  ].map((day) => (
- <div key={day.key} className={`flex flex-col space-y-2 bg-muted/20 p-4 rounded-xl border transition-all ${day.isWeekend ? 'border-amber-500/30 bg-amber-500/5' : 'border-border hover:border-border-strong'}`}>
- <span className={`text-xs font-semibold uppercase tracking-wider ${day.isWeekend ? 'text-amber-400' : 'text-muted-foreground'}`}>
+ <div key={day.key} className={`flex flex-col space-y-2 bg-muted/20 p-4 rounded-xl border transition-colors ${day.isWeekend ? 'border-amber-500/30 bg-amber-500/5' : 'border-border hover:border-border-strong'}`}>
+ <span className={`text-xs font-semibold ${day.isWeekend ? 'text-amber-400' : 'text-muted-foreground'}`}>
  {day.label}
  </span>
  <textarea

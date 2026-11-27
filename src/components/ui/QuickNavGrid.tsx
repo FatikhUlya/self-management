@@ -39,7 +39,7 @@ export function QuickNavGrid({ items, columns, className }: QuickNavGridProps) {
  >
  <Link href={item.href} className="group block h-full">
  <Surface
- className="p-4 flex items-center gap-3.5 border border-border/80 hover:border-border hover:bg-muted/40 transition-all rounded-xl h-full shadow-2xs hover:shadow-xs"
+ className="p-4 flex items-center gap-3.5 border border-border/80 hover:border-border hover:bg-muted/40 transition-colors rounded-xl h-full shadow-2xs hover:shadow-xs"
  >
  <div
  className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0 group-hover:bg-primary/15 transition-colors"
@@ -54,7 +54,7 @@ export function QuickNavGrid({ items, columns, className }: QuickNavGridProps) {
  Buka navigasi cepat
  </p>
  </div>
- <span className="text-muted-foreground/40 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all text-xs">
+ <span className="text-muted-foreground/40 group-hover:text-muted-foreground transition-colors text-xs">
  →
  </span>
  </Surface>

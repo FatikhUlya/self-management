@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/dialog';
 import { formatDate, cn } from '@/lib/utils';
 import { PRIORITY_OPTIONS, Priority, LIFE_AREAS } from '@/lib/constants';
+import { DateStamp } from '@/components/ui/DateStamp';
 
 export default function CapturePage() {
   const { state, addIdea, archiveIdea, deleteIdea, convertIdeaToTask, convertIdeaToProject } = useLifeOS();
@@ -108,11 +109,9 @@ export default function CapturePage() {
       {/* Header & Page Title */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
+          <DateStamp />
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground flex items-center gap-2.5">
-              <span className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
-                <Icon name="lightbulb" size={17} />
-              </span>
+            <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
               Quick Capture & Idea Inbox
             </h1>
             <Badge tone="indigo" className="font-mono tabular-nums text-xs">
@@ -177,11 +176,11 @@ export default function CapturePage() {
             <input
               type="text"
               required
-              placeholder="Tulis ide atau pemikiran mentah Anda lalu tekan Enter..."
+              placeholder="Tulis ide atau pemikiran mentah Anda lalu tekan Enter"
               value={quickTitle}
               onChange={(e) => setQuickTitle(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-indigo-500 text-foreground"
-            />
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-indigo-500 text-foreground" aria-label="Tulis ide atau pemikiran mentah Anda lalu tekan Enter"
+/>
           </div>
 
           <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -222,7 +221,7 @@ export default function CapturePage() {
           <button
             onClick={() => setActiveTab('inbox')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all',
+              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-colors',
               activeTab === 'inbox'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
@@ -230,14 +229,14 @@ export default function CapturePage() {
           >
             <Icon name="lightbulb" size={14} className={activeTab === 'inbox' ? 'text-indigo-500' : ''} />
             Kotak Masuk Ide (Inbox)
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[10px]">
+            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
               {activeIdeas.length}
             </span>
           </button>
           <button
             onClick={() => setActiveTab('archived')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all',
+              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-colors',
               activeTab === 'archived'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
@@ -245,7 +244,7 @@ export default function CapturePage() {
           >
             <Icon name="checkCircle" size={14} className={activeTab === 'archived' ? 'text-indigo-500' : ''} />
             Ide Terarsipkan
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[10px]">
+            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
               {archivedIdeas.length}
             </span>
           </button>
@@ -261,11 +260,11 @@ export default function CapturePage() {
             />
             <input
               type="text"
-              placeholder="Cari ide..."
+              placeholder="Cari ide"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-2.5 py-1 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
-            />
+              className="w-full pl-8 pr-2.5 py-1 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden" aria-label="Cari ide"
+/>
           </div>
 
           <select
@@ -291,17 +290,17 @@ export default function CapturePage() {
             return (
               <Surface
                 key={idea.id}
-                className="p-5 flex flex-col justify-between hover:border-indigo-500/40 transition-all space-y-3 group"
+                className="p-5 flex flex-col justify-between hover:border-indigo-500/40 transition-colors space-y-3 group"
               >
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
-                    <strong className="text-sm font-bold text-foreground leading-snug">
+                    <strong className="text-sm font-medium text-foreground leading-snug">
                       {idea.title}
                     </strong>
                     <div className="flex items-center gap-1.5 shrink-0">
                       <Badge
                         tone={isHigh ? 'rose' : idea.priority === 'Medium' ? 'amber' : 'gray'}
-                        className="text-[10px]"
+                        className="text-[11px]"
                       >
                         {idea.priority}
                       </Badge>
@@ -332,8 +331,8 @@ export default function CapturePage() {
                     </p>
                   )}
 
-                  <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                    <Badge tone="indigo" className="text-[10px] py-0">
+                  <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                    <Badge tone="indigo" className="text-[11px] py-0">
                       {idea.area || 'General'}
                     </Badge>
                     <span>•</span>
@@ -343,14 +342,14 @@ export default function CapturePage() {
 
                 {/* Pipeline Conversion Actions */}
                 <div className="pt-3 border-t border-border flex items-center justify-between text-xs">
-                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+                  <span className="text-[11px] font-medium text-muted-foreground ">
                     Konversi ke:
                   </span>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => convertIdeaToTask(idea.id)}
-                      className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-[10px] transition-colors border border-emerald-500/20"
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-medium text-[11px] transition-colors border border-emerald-500/20"
                     >
                       <Icon name="checkSquare" size={12} />
                       Tugas (Task)
@@ -358,7 +357,7 @@ export default function CapturePage() {
                     <button
                       type="button"
                       onClick={() => convertIdeaToProject(idea.id)}
-                      className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 font-bold text-[10px] transition-colors border border-blue-500/20"
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 font-medium text-[11px] transition-colors border border-blue-500/20"
                     >
                       <Icon name="folder" size={12} />
                       Proyek (Project)
@@ -388,7 +387,7 @@ export default function CapturePage() {
         <DialogContent className="max-w-md">
           <form onSubmit={handleModalSubmit}>
             <DialogHeader>
-              <DialogTitle className="text-lg font-bold flex items-center gap-2">
+              <DialogTitle className="text-lg font-medium flex items-center gap-2">
                 <Icon name="lightbulb" size={18} className="text-indigo-500" />
                 Tambah Ide Lengkap
               </DialogTitle>
@@ -399,7 +398,7 @@ export default function CapturePage() {
 
             <div className="space-y-3 py-3 text-xs">
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Judul Ide *
                 </label>
                 <input
@@ -408,13 +407,13 @@ export default function CapturePage() {
                   placeholder="Contoh: Bikin fitur offline sync dengan IndexedDB"
                   value={modalTitle}
                   onChange={(e) => setModalTitle(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-indigo-500"
-                />
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-indigo-500" aria-label="Contoh: Bikin fitur offline sync dengan IndexedDB"
+/>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Area Kehidupan
                   </label>
                   <select
@@ -431,7 +430,7 @@ export default function CapturePage() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                     Prioritas
                   </label>
                   <select
@@ -449,16 +448,16 @@ export default function CapturePage() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Catatan / Konteks Tambahan
                 </label>
                 <textarea
                   rows={4}
-                  placeholder="Tuliskan latar belakang ide, potensi manfaat, atau langkah berikutnya..."
+                  placeholder="Tuliskan latar belakang ide, potensi manfaat, atau langkah berikutnya"
                   value={modalNotes}
                   onChange={(e) => setModalNotes(e.target.value)}
-                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed focus:outline-hidden resize-none"
-                />
+                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed focus:outline-hidden resize-none" aria-label="Tuliskan latar belakang ide, potensi manfaat, atau langkah berikutnya"
+/>
               </div>
             </div>
 

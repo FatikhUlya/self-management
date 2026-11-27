@@ -107,8 +107,8 @@ export default function LearningSessionsPage() {
  return (
  <div className="flex-1 min-w-[300px] bg-muted/20 border border-border rounded-xl p-4 flex flex-col h-[500px]">
  <div className="flex justify-between items-center pb-2 mb-3 border-b border-white/5">
- <h4 className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">{t(titleKey as any)}</h4>
- <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-muted/40 text-muted-foreground border border-border">
+ <h4 className="text-xs font-semibold text-muted-foreground ">{t(titleKey as any)}</h4>
+ <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-muted/40 text-muted-foreground border border-border">
  {laneItems.length}
  </span>
  </div>
@@ -118,10 +118,10 @@ export default function LearningSessionsPage() {
  laneItems.map((item) => (
  <div 
  key={item.id} 
- className="p-4 rounded-xl bg-muted/20 border border-border hover:border-border-strong hover:bg-muted/50/[0.015] transition-all duration-150 space-y-3 relative group"
+ className="p-4 rounded-xl bg-muted/20 border border-border hover:border-border-strong hover:bg-muted/50/[0.015] transition-colors duration-150 space-y-3 relative group"
  >
  <div className="min-w-0">
- <strong className="text-sm font-bold text-foreground block leading-tight tracking-tight">
+ <strong className="text-sm font-medium text-foreground block leading-tight tracking-tight">
  {item.topic}
  </strong>
  <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed line-clamp-2">
@@ -131,8 +131,8 @@ export default function LearningSessionsPage() {
 
  <div className="flex justify-between items-center pt-2 border-t border-white/5">
  <div className="flex flex-wrap gap-2 items-center">
- <Badge tone="indigo" className="text-[10px]">{`${item.minutes}m`}</Badge>
- <span className="text-[10px] text-muted-foreground font-bold">
+ <Badge tone="indigo" className="text-[11px]">{`${item.minutes}m`}</Badge>
+ <span className="text-[11px] text-muted-foreground font-medium">
  {formatDate(item.date)}
  </span>
  </div>
@@ -182,13 +182,12 @@ export default function LearningSessionsPage() {
  <div className="space-y-6 max-w-6xl mx-auto pb-24">
  <div className="flex items-center gap-3">
  <Link href="/learning">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-all">
+ <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
  <Icon name="arrowLeft" size={18} />
  </button>
  </Link>
  <div className="flex-1">
- <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
- <Icon name="playCircle" size={24} className="text-amber-500" />
+ <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
  Sesi Pembelajaran
  </h1>
  <p className="text-zinc-500 text-xs mt-1">
@@ -200,20 +199,20 @@ export default function LearningSessionsPage() {
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
  <Surface className="p-6 lg:col-span-1 h-fit">
  <div className="border-b border-border pb-3 mb-5">
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  {locale === 'id' ? 'Sesi Baru' : 'New Session'}
  </h3>
  </div>
  <form onSubmit={handleSubmit} className="space-y-4">
  <div className="flex flex-col space-y-1">
- <label htmlFor="topic" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="topic" className="text-xs font-medium text-muted-foreground ">
  {t('learning_topic')}
  </label>
  <input
  id="topic"
  type="text"
  required
- placeholder="E.g. React Hooks, UX Design..."
+ placeholder="E.g. React Hooks, UX Design"
  value={topic}
  onChange={(e) => setTopic(e.target.value)}
  className="glass-input text-sm"
@@ -221,7 +220,7 @@ export default function LearningSessionsPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label htmlFor="resource" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="resource" className="text-xs font-medium text-muted-foreground ">
  {t('learning_resource')}
  </label>
  <input
@@ -235,7 +234,7 @@ export default function LearningSessionsPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label htmlFor="link" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="link" className="text-xs font-medium text-muted-foreground ">
  {t('learning_link')}
  </label>
  <input
@@ -250,7 +249,7 @@ export default function LearningSessionsPage() {
 
  <div className="grid grid-cols-2 gap-3">
  <div className="flex flex-col space-y-1">
- <label htmlFor="status" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="status" className="text-xs font-medium text-muted-foreground ">
  {t('learning_status')}
  </label>
  <select
@@ -266,7 +265,7 @@ export default function LearningSessionsPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label htmlFor="minutes" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="minutes" className="text-xs font-medium text-muted-foreground ">
  {t('learning_minutes')}
  </label>
  <input
@@ -282,7 +281,7 @@ export default function LearningSessionsPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label htmlFor="date" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="date" className="text-xs font-medium text-muted-foreground ">
  {t('learning_date')}
  </label>
  <input
@@ -296,7 +295,7 @@ export default function LearningSessionsPage() {
  </div>
 
  <div className="flex flex-col space-y-1">
- <label htmlFor="notes" className="text-xs font-bold text-muted-foreground uppercase">
+ <label htmlFor="notes" className="text-xs font-medium text-muted-foreground ">
  {t('learning_notes')}
  </label>
  <textarea
@@ -316,7 +315,7 @@ export default function LearningSessionsPage() {
 
  <div className="lg:col-span-2 space-y-4">
  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  {t('learning_log')} (Kanban Board)
  </h3>
  <div className="relative w-full sm:w-64">
@@ -357,7 +356,7 @@ export default function LearningSessionsPage() {
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
  {/* Cues Column */}
  <div className="md:col-span-1 space-y-1">
- <label className="text-[10px] font-semibold uppercase text-muted-foreground tracking-wider">
+ <label className="text-[11px] font-semibold text-muted-foreground ">
  {locale === 'id' ? 'Kata Kunci / Pertanyaan (Cues)' : 'Cues / Keywords'}
  </label>
  <textarea
@@ -370,7 +369,7 @@ export default function LearningSessionsPage() {
  
  {/* Notes Column */}
  <div className="md:col-span-2 space-y-1">
- <label className="text-[10px] font-semibold uppercase text-muted-foreground tracking-wider">
+ <label className="text-[11px] font-semibold text-muted-foreground ">
  {locale === 'id' ? 'Catatan (Notes)' : 'Notes'}
  </label>
  <textarea
@@ -384,7 +383,7 @@ export default function LearningSessionsPage() {
 
  {/* Summary Row */}
  <div className="space-y-1">
- <label className="text-[10px] font-semibold uppercase text-muted-foreground tracking-wider">
+ <label className="text-[11px] font-semibold text-muted-foreground ">
  {locale === 'id' ? 'Ringkasan (Summary)' : 'Summary'}
  </label>
  <textarea

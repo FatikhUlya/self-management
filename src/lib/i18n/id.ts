@@ -258,7 +258,7 @@ export const id = {
   dictionary_summary_title: 'Ringkasan Bahasa & Ekspor NotebookLM',
   dictionary_notebooklm_btn: 'Salin Data untuk NotebookLM',
   dictionary_notebooklm_link: 'Buka Google NotebookLM',
-  dictionary_copied: 'Data kamus disalin!',
+  dictionary_copied: 'Data kamus disalin',
 
   // Health
   health_title: 'Health & Fitness',
@@ -474,7 +474,7 @@ export const id = {
   mirror_feedback_priv_req: 'Wajib (Responden harus mengisi nama)',
   mirror_feedback_link: 'Link Feedback Publik',
   mirror_feedback_copy: 'Salin Link',
-  mirror_feedback_copied: 'Link disalin!',
+  mirror_feedback_copied: 'Link disalin',
   mirror_feedback_status_open: 'Menerima Respon',
   mirror_feedback_status_closed: 'Ditutup',
   mirror_feedback_responses: 'Respon diterima',

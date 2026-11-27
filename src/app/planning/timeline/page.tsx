@@ -344,13 +344,12 @@ export default function PlanningTimelinePage() {
  <div className="space-y-6 max-w-5xl mx-auto pb-24">
  <div className="flex items-center gap-3">
  <Link href="/planning">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-all">
+ <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
  <Icon name="arrowLeft" size={18} />
  </button>
  </Link>
  <div className="flex-1">
- <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
- <Icon name="calendar" size={24} className="text-pink-500" />
+ <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
  Timeline Agenda
  </h1>
  <p className="text-zinc-500 text-xs mt-1">
@@ -369,7 +368,7 @@ export default function PlanningTimelinePage() {
  >
  {""}
  </Button>
- <h2 className="text-sm sm:text-lg font-bold text-foreground min-w-[140px] sm:min-w-[200px] text-center capitalize truncate">
+ <h2 className="text-sm sm:text-lg font-medium text-foreground min-w-[140px] sm:min-w-[200px] text-center capitalize truncate">
  {formatDate(planDate, { locale })}
  </h2>
  <Button
@@ -383,7 +382,7 @@ export default function PlanningTimelinePage() {
  </div>
  <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
  <div className="flex items-center gap-2 w-full sm:w-auto">
- <span className="text-[11px] font-bold text-muted-foreground uppercase whitespace-nowrap">Lompat ke:</span>
+ <span className="text-[11px] font-medium text-muted-foreground whitespace-nowrap">Lompat ke:</span>
  <input
  type="date"
  value={planDate}
@@ -411,7 +410,7 @@ export default function PlanningTimelinePage() {
  <Surface className="p-6">
  <div className="border-b border-border pb-3 mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
  <div>
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  {t('planning_timeline')} (24 Jam)
  </h3>
  <p className="text-xs text-muted-foreground mt-0.5">
@@ -450,7 +449,7 @@ export default function PlanningTimelinePage() {
  <div className="mb-6 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
  <div className="flex items-center gap-2 mb-3">
  <Icon name="zap" size={14} className="text-amber-400" />
- <span className="text-xs font-semibold text-amber-400 uppercase tracking-wider">
+ <span className="text-xs font-semibold text-amber-400 ">
  Tasks Due Tanggal Ini ({dueTasks.length})
  </span>
  </div>
@@ -458,20 +457,20 @@ export default function PlanningTimelinePage() {
  {dueTasks.map(task => (
  <div
  key={`task-${task.id}`}
- className="flex items-center justify-between p-3 rounded-lg bg-amber-500/5 border border-amber-500/10 hover:border-amber-500/30 transition-all"
+ className="flex items-center justify-between p-3 rounded-lg bg-amber-500/5 border border-amber-500/10 hover:border-amber-500/30 transition-colors"
  >
  <div className="flex items-center gap-3 min-w-0">
- <Badge tone="amber" className="text-[9px] py-0 px-1.5 uppercase font-semibold tracking-widest shrink-0">
+ <Badge tone="amber" className="text-[11px] py-0 px-1.5 font-semibold shrink-0">
  Auto-Task
  </Badge>
- <span className="text-sm font-bold text-foreground truncate">{task.title}</span>
- <Badge tone={task.priority === 'High' ? 'rose' : task.priority === 'Medium' ? 'amber' : 'gray'} className="text-[10px] shrink-0">
+ <span className="text-sm font-medium text-foreground truncate">{task.title}</span>
+ <Badge tone={task.priority === 'High' ? 'rose' : task.priority === 'Medium' ? 'amber' : 'gray'} className="text-[11px] shrink-0">
  {task.priority}
  </Badge>
  </div>
  <button
  onClick={() => updateTaskStatus(task.id, 'done')}
- className="w-7 h-7 rounded-md border border-amber-500/20 bg-black/40 hover:border-primary/25 hover:bg-primary/20 hover:text-primary text-muted-foreground transition-all flex items-center justify-center shrink-0"
+ className="w-7 h-7 rounded-md border border-amber-500/20 bg-black/40 hover:border-primary/25 hover:bg-primary/20 hover:text-primary text-muted-foreground transition-colors flex items-center justify-center shrink-0"
  title="Selesaikan Task"
  >
  <Icon name="check" size={12} />
@@ -489,11 +488,11 @@ export default function PlanningTimelinePage() {
  if (hourPlans.length === 0) {
  return (
  <div key={hour} className="relative group py-2">
- <div className="absolute -left-12 sm:-left-16 top-1/2 -translate-y-1/2 text-[10px] sm:text-xs font-semibold uppercase text-muted-foreground w-10 sm:w-12 text-right">
+ <div className="absolute -left-12 sm:-left-16 top-1/2 -translate-y-1/2 text-[11px] sm:text-xs font-semibold text-muted-foreground w-10 sm:w-12 text-right">
  {String(hour).padStart(2, '0')}:00
  </div>
  <div className="absolute -left-[5px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white/10 border border-[#121212]"></div>
- <div className="border-b border-border/60 h-full w-full opacity-50 pl-4 py-2 text-[10px] text-muted-foreground/30 italic group-hover:text-muted-foreground/60 transition-colors">
+ <div className="border-b border-border/60 h-full w-full opacity-50 pl-4 py-2 text-[11px] text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors">
  ...
  </div>
  </div>
@@ -502,17 +501,17 @@ export default function PlanningTimelinePage() {
 
  return (
  <div key={hour} className="relative py-4">
- <div className="absolute -left-12 sm:-left-16 top-4 text-[10px] sm:text-xs font-semibold uppercase text-foreground w-10 sm:w-12 text-right">
+ <div className="absolute -left-12 sm:-left-16 top-4 text-[11px] sm:text-xs font-semibold text-foreground w-10 sm:w-12 text-right">
  {String(hour).padStart(2, '0')}:00
  </div>
- <div className="absolute -left-[5px] top-5 w-2 h-2 rounded-full bg-primary border border-[#121212] shadow-[0_0_8px_rgba(20,184,166,0.6)]"></div>
+ <div className="absolute -left-[5px] top-5 w-2 h-2 rounded-full bg-primary border border-[#121212] "></div>
 
  <div className="pl-6 space-y-3">
  {hourPlans.map((plan) => (
  <div 
  key={plan.id}
  className={`
- group relative rounded-xl border p-4 transition-all duration-300
+ group relative rounded-xl border p-4 transition-colors duration-300
  ${plan.status === 'done' 
  ? 'bg-muted/20 border-white/5 opacity-50' 
  : plan.kind === 'event' 
@@ -524,19 +523,19 @@ export default function PlanningTimelinePage() {
  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
  <div className="flex-1 min-w-0 pr-4">
  <div className="flex items-center gap-2 mb-1 flex-wrap">
- <span className="text-xs font-semibold text-foreground uppercase tracking-wider">
+ <span className="text-xs font-semibold text-foreground ">
  {plan.startTime} — {plan.endTime}
  </span>
- <Badge tone={plan.kind === 'event' ? 'indigo' : 'teal'} className="text-[9px] py-0 px-1.5 uppercase font-semibold tracking-widest">
+ <Badge tone={plan.kind === 'event' ? 'indigo' : 'teal'} className="text-[11px] py-0 px-1.5 font-semibold ">
  {plan.kind}
  </Badge>
  {plan.googleEventId && (
- <Badge tone="gray" className="text-[9px] py-0 px-1.5 flex items-center gap-1">
+ <Badge tone="gray" className="text-[11px] py-0 px-1.5 flex items-center gap-1">
  <Icon name="calendar" size={8} /> GCal
  </Badge>
  )}
  </div>
- <h4 className={`text-base font-bold text-foreground tracking-tight ${plan.status === 'done' ? 'line-through text-muted-foreground' : ''}`}>
+ <h4 className={`text-base font-medium text-foreground tracking-tight ${plan.status === 'done' ? 'line-through text-muted-foreground' : ''}`}>
  {plan.title}
  </h4>
  {(plan.area || plan.notes) && (
@@ -558,12 +557,12 @@ export default function PlanningTimelinePage() {
  </div>
 
  <div className="flex items-center gap-2 shrink-0">
- <Badge tone={plan.priority === 'High' ? 'rose' : plan.priority === 'Medium' ? 'amber' : 'gray'} className="text-[10px]">
+ <Badge tone={plan.priority === 'High' ? 'rose' : plan.priority === 'Medium' ? 'amber' : 'gray'} className="text-[11px]">
  {plan.priority}
  </Badge>
  <button
  onClick={() => togglePlan(plan.id)}
- className={`w-7 h-7 rounded-md border flex items-center justify-center transition-all ${
+ className={`w-7 h-7 rounded-md border flex items-center justify-center transition-colors ${
  plan.status === 'done'
  ? 'bg-primary/20 border-primary/25 text-primary'
  : 'bg-black/40 border-white/10 hover:border-primary/25 hover:text-primary text-muted-foreground'
@@ -574,7 +573,7 @@ export default function PlanningTimelinePage() {
  </button>
  <button
  onClick={() => deletePlan(plan.id)}
- className="w-7 h-7 rounded-md border border-transparent bg-black/40 hover:border-destructive/25/30 hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all flex items-center justify-center"
+ className="w-7 h-7 rounded-md border border-transparent bg-black/40 hover:border-destructive/25/30 hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors flex items-center justify-center"
  title={t('delete')}
  >
  <Icon name="trash" size={12} />

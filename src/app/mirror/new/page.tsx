@@ -116,18 +116,18 @@ export default function NewReflectionWizard() {
  </button>
  </Link>
  <div>
- <h1 className="text-2xl font-bold text-white">Refleksi Diri Baru</h1>
+ <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">Refleksi Diri Baru</h1>
  <p className="text-zinc-400 text-sm mt-1">Pilih periode dan area yang ingin dievaluasi.</p>
  </div>
  </div>
 
  <Surface className="p-6">
- <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 border-b border-white/10 pb-2">
+ <h3 className="text-sm font-medium text-foreground mb-4 border-b border-border pb-2">
  1. Informasi Refleksi
  </h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
  <div className="space-y-2">
- <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Periode</label>
+ <label className="text-xs font-medium text-zinc-400 ">Periode</label>
  <select 
  value={periodType} 
  onChange={e => setPeriodType(e.target.value as any)}
@@ -139,18 +139,18 @@ export default function NewReflectionWizard() {
  </select>
  </div>
  <div className="space-y-2">
- <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Label Refleksi</label>
+ <label className="text-xs font-medium text-zinc-400 ">Label Refleksi</label>
  <input 
  type="text" 
  placeholder="Mis. Refleksi Agustus 2026"
  value={periodLabel}
  onChange={e => setPeriodLabel(e.target.value)}
- className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-teal-500/50"
- />
+ className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-teal-500/50" aria-label="Mis. Refleksi Agustus 2026"
+/>
  </div>
  </div>
 
- <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-4 border-b border-white/10 pb-2">
+ <h3 className="text-sm font-medium text-foreground mb-4 border-b border-border pb-2">
  2. Pilih Area Evaluasi
  </h3>
  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -160,7 +160,7 @@ export default function NewReflectionWizard() {
  <div 
  key={domain.key}
  onClick={() => toggleDomain(domain.key)}
- className={`p-3 rounded-lg border cursor-pointer flex items-center gap-3 transition-all ${
+ className={`p-3 rounded-lg border cursor-pointer flex items-center gap-3 transition-colors ${
  isSelected 
  ? 'bg-teal-500/10 border-teal-500/30 text-teal-300' 
  : 'bg-white/5 border-white/10 text-zinc-400 hover:border-white/20'
@@ -201,7 +201,7 @@ export default function NewReflectionWizard() {
  return (
  <div className="max-w-3xl mx-auto space-y-6 pb-24">
  <div className="flex justify-between items-center mb-6">
- <h1 className="text-xl font-bold text-white flex items-center gap-2">
+ <h1 className="text-xl font-medium text-white flex items-center gap-2">
  <Icon name={currentDomain.icon as any} size={24} className="text-teal-400" />
  Evaluasi: {currentDomain.label}
  </h1>
@@ -212,67 +212,67 @@ export default function NewReflectionWizard() {
  
  <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 mb-6">
  <p className="text-xs text-amber-400/80 leading-relaxed font-medium">
- 💡 <strong>Panduan:</strong> Pisahkan antara <em>observasi (fakta)</em> dan <em>penilaian (interpretasi)</em>. Tuliskan terlebih dahulu kejadian konkret yang Anda alami secara objektif tanpa bias mood, baru kemudian tuliskan apa yang bisa dipelajari darinya.
+ <strong className="font-medium">Panduan</strong> Pisahkan antara <em>observasi (fakta)</em> dan <em>penilaian (interpretasi)</em>. Tuliskan terlebih dahulu kejadian konkret yang Anda alami secara objektif tanpa bias mood, baru kemudian tuliskan apa yang bisa dipelajari darinya.
  </p>
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  {/* Hal yang Sudah Baik */}
  <Surface className="p-6 border-t-2 border-t-teal-500">
- <h3 className="text-sm font-bold text-teal-400 uppercase tracking-wider mb-4">
+ <h3 className="text-sm font-medium text-teal-400 mb-4">
  Hal yang Sudah Baik
  </h3>
  
  <div className="space-y-4">
  <div className="space-y-2">
- <label className="text-xs font-bold text-zinc-400">1. Fakta/Observasi</label>
- <p className="text-[10px] text-zinc-500">Kejadian spesifik apa yang terjadi?</p>
+ <label className="text-xs font-medium text-zinc-400">1. Fakta/Observasi</label>
+ <p className="text-[11px] text-zinc-500">Kejadian spesifik apa yang terjadi?</p>
  <textarea
  value={curRes.strengthObservation}
  onChange={e => updateRes({ strengthObservation: e.target.value })}
- placeholder="Contoh: Saya berhasil memimpin rapat mingguan tanpa ada agenda yang terlewat..."
- className="w-full h-24 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white resize-none"
- />
+ placeholder="Contoh: Saya berhasil memimpin rapat mingguan tanpa ada agenda yang terlewat"
+ className="w-full h-24 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white resize-none" aria-label="Contoh: Saya berhasil memimpin rapat mingguan tanpa ada agenda yang terlewat"
+/>
  </div>
  <div className="space-y-2">
- <label className="text-xs font-bold text-zinc-400">2. Makna/Penilaian</label>
- <p className="text-[10px] text-zinc-500">Mengapa ini hal yang baik? Apa dampaknya?</p>
+ <label className="text-xs font-medium text-zinc-400">2. Makna/Penilaian</label>
+ <p className="text-[11px] text-zinc-500">Mengapa ini hal yang baik? Apa dampaknya?</p>
  <textarea
  value={curRes.strengthReasoning}
  onChange={e => updateRes({ strengthReasoning: e.target.value })}
- placeholder="Ini menunjukkan saya sudah lebih siap dan menghargai waktu anggota tim..."
- className="w-full h-24 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white resize-none"
- />
+ placeholder="Ini menunjukkan saya sudah lebih siap dan menghargai waktu anggota tim"
+ className="w-full h-24 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white resize-none" aria-label="Ini menunjukkan saya sudah lebih siap dan menghargai waktu anggota tim"
+/>
  </div>
  </div>
  </Surface>
 
  {/* Area untuk Dikembangkan */}
  <Surface className="p-6 border-t-2 border-t-rose-500">
- <h3 className="text-sm font-bold text-rose-400 uppercase tracking-wider mb-4">
+ <h3 className="text-sm font-medium text-rose-400 mb-4">
  Area untuk Dikembangkan
  </h3>
  
  <div className="space-y-4">
  <div className="space-y-2">
- <label className="text-xs font-bold text-zinc-400">1. Fakta/Observasi</label>
- <p className="text-[10px] text-zinc-500">Kejadian spesifik apa yang kurang optimal?</p>
+ <label className="text-xs font-medium text-zinc-400">1. Fakta/Observasi</label>
+ <p className="text-[11px] text-zinc-500">Kejadian spesifik apa yang kurang optimal?</p>
  <textarea
  value={curRes.growthObservation}
  onChange={e => updateRes({ growthObservation: e.target.value })}
- placeholder="Contoh: Saat diskusi ide baru, saya memotong pembicaraan rekan dua kali..."
- className="w-full h-24 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white resize-none"
- />
+ placeholder="Contoh: Saat diskusi ide baru, saya memotong pembicaraan rekan dua kali"
+ className="w-full h-24 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white resize-none" aria-label="Contoh: Saat diskusi ide baru, saya memotong pembicaraan rekan dua kali"
+/>
  </div>
  <div className="space-y-2">
- <label className="text-xs font-bold text-zinc-400">2. Pembelajaran/Tujuan</label>
- <p className="text-[10px] text-zinc-500">Apa versi yang lebih baik dari kejadian ini?</p>
+ <label className="text-xs font-medium text-zinc-400">2. Pembelajaran/Tujuan</label>
+ <p className="text-[11px] text-zinc-500">Apa versi yang lebih baik dari kejadian ini?</p>
  <textarea
  value={curRes.growthReasoning}
  onChange={e => updateRes({ growthReasoning: e.target.value })}
- placeholder="Ke depannya, saya harus lebih sabar dan membiarkan mereka selesai bicara..."
- className="w-full h-24 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white resize-none"
- />
+ placeholder="Ke depannya, saya harus lebih sabar dan membiarkan mereka selesai bicara"
+ className="w-full h-24 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white resize-none" aria-label="Ke depannya, saya harus lebih sabar dan membiarkan mereka selesai bicara"
+/>
  </div>
  </div>
  </Surface>
@@ -281,7 +281,7 @@ export default function NewReflectionWizard() {
  <Surface className="p-6">
  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
  <div>
- <h3 className="text-sm font-bold text-white uppercase tracking-wider mb-1">
+ <h3 className="text-sm font-medium text-white mb-1">
  Rating Kepuasan Anda
  </h3>
  <p className="text-xs text-zinc-400">Seberapa puas Anda dengan area ini secara keseluruhan? (1-5)</p>
@@ -293,9 +293,9 @@ export default function NewReflectionWizard() {
  key={rating}
  type="button"
  onClick={() => updateRes({ rating })}
- className={`w-10 h-10 rounded-lg text-sm font-bold transition-all ${
+ className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
  curRes.rating === rating
- ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/25'
+ ? 'bg-teal-500 text-white shadow-lg '
  : 'bg-white/5 text-zinc-400 hover:bg-muted/50/10 border border-white/5'
  }`}
  >
@@ -323,11 +323,11 @@ export default function NewReflectionWizard() {
  return (
  <div className="max-w-3xl mx-auto space-y-6 pb-24">
  <div className="flex justify-between items-center mb-6">
- <h1 className="text-2xl font-bold text-white">Kesimpulan</h1>
+ <h1 className="text-2xl font-medium text-white">Kesimpulan</h1>
  </div>
 
  <Surface className="p-6 space-y-6">
- <h3 className="text-sm font-bold text-white uppercase tracking-wider border-b border-white/10 pb-2">
+ <h3 className="text-sm font-medium text-white border-b border-white/10 pb-2">
  Ringkasan Refleksi (Opsional)
  </h3>
  <p className="text-xs text-zinc-400 leading-relaxed">
@@ -336,9 +336,9 @@ export default function NewReflectionWizard() {
  <textarea
  value={overallReflection}
  onChange={e => setOverallReflection(e.target.value)}
- placeholder="Insight utama: Saya sudah baik dalam komunikasi tertulis, tapi masih perlu belajar meredam emosi saat diskusi langsung..."
- className="w-full h-32 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white resize-none"
- />
+ placeholder="Insight utama: Saya sudah baik dalam komunikasi tertulis, tapi masih perlu belajar meredam emosi saat diskusi langsung"
+ className="w-full h-32 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white resize-none" aria-label="Insight utama: Saya sudah baik dalam komunikasi tertulis, tapi masih perlu belajar meredam emosi saat diskusi langsung"
+/>
  </Surface>
 
  <div className="flex justify-between items-center mt-6">

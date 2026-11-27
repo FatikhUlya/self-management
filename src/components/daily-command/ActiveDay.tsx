@@ -30,7 +30,7 @@ export function ActiveDay({
  {/* Header */}
  <div className="flex flex-col md:flex-row justify-between md:items-end gap-4">
  <div>
- <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
+ <h1 className="text-3xl font-medium text-foreground flex items-center gap-2">
  <Icon name="sun" size={28} className="text-amber-500" />
  Eksekusi Harian
  </h1>
@@ -91,7 +91,7 @@ export function ActiveDay({
 
  {secondaryTasks.length > 0 && (
  <Surface className="p-6 border border-border rounded-xl shadow-sm bg-white">
- <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
+ <h3 className="text-xs font-medium text-muted-foreground mb-4 flex items-center gap-2">
  <Icon name="checkSquare" size={16} className="text-primary" />
  Secondary Tasks
  </h3>
@@ -103,7 +103,7 @@ export function ActiveDay({
  </span>
  <button
  onClick={() => updateTaskStatus(t.id, t.status === 'done' ? 'todo' : 'done')}
- className={`w-7 h-7 rounded-xl flex items-center justify-center border transition-all ${
+ className={`w-7 h-7 rounded-xl flex items-center justify-center border transition-colors ${
  t.status === 'done' 
  ? 'bg-primary border-primary text-white shadow-xs' 
  : 'border-border text-transparent hover:border-primary hover:text-primary bg-white'
@@ -122,18 +122,18 @@ export function ActiveDay({
  <div className="space-y-6">
  {todayPlan.morningCheckin?.intention && (
  <Surface className="p-6 border border-border rounded-xl shadow-sm bg-white">
- <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-2">
+ <h3 className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-2">
  <Icon name="compass" size={16} className="text-sky-500" />
  Intensi Hari Ini
  </h3>
- <p className="text-sm font-semibold text-foreground italic bg-[#EBF7FD] p-4 rounded-xl border border-sky-500/25/30">
+ <p className="text-sm font-semibold text-foreground bg-[#EBF7FD] p-4 rounded-xl border border-sky-500/25/30">
  "{todayPlan.morningCheckin.intention}"
  </p>
  </Surface>
  )}
 
  <Surface className="p-6">
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
+ <h3 className="text-sm font-medium text-foreground mb-4 flex items-center gap-2">
  <Icon name="shield" size={16} className="text-amber-400" />
  Sistem Pengingat
  </h3>

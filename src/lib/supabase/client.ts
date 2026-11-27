@@ -10,3 +10,13 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
 export function isSupabaseConfigured(): boolean {
   return Boolean(supabaseUrl && supabaseAnonKey);
 }
+
+/** Headers for calling this app's own /api routes as the signed-in user. */
+export async function authJsonHeaders(): Promise<Record<string, string>> {
+  const { data } = await supabase.auth.getSession();
+  const token = data.session?.access_token;
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+}

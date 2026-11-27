@@ -125,7 +125,7 @@ export type LearningStatus = (typeof LEARNING_STATUSES)[number];
 export const REVIEW_PERIODS = ['daily', 'weekly', 'monthly', 'yearly'] as const;
 export type ReviewPeriod = (typeof REVIEW_PERIODS)[number];
 
-export const MOOD_EMOJIS = ['😞', '😐', '🙂', '😊', '😍'] as const;
+export const MOOD_EMOJIS = ['1', '2', '3', '4', '5'] as const;
 
 export const NAV_ITEMS = [
   // Core & Productivity

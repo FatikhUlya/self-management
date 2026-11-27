@@ -31,8 +31,8 @@ export function LoginPage({ onLogin, onRegister }: LoginPageProps) {
  return;
  }
 
- if (password.length < 6) {
- setError('Password minimal 6 karakter.');
+ if (password.length < 8) {
+ setError('Password minimal 8 karakter.');
  return;
  }
 
@@ -43,7 +43,7 @@ export function LoginPage({ onLogin, onRegister }: LoginPageProps) {
  if (err) {
  setError(err.message || 'Pendaftaran gagal.');
  } else {
- setSuccess('Akun berhasil dibuat! Mengalihkan...');
+ setSuccess('Akun dibuat. Cek email untuk konfirmasi jika diminta.');
  }
  } else {
  const { error: err } = await onLogin(email, password);
@@ -61,138 +61,83 @@ export function LoginPage({ onLogin, onRegister }: LoginPageProps) {
  setLoading(false);
  };
 
+ const today = new Date().toLocaleDateString('id-ID', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
+ const input = 'w-full h-10 px-3 rounded-lg bg-card border border-input text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-ring focus:ring-2 focus:ring-ring/20';
+ const modules = ['Tugas & rencana', 'Habit harian', 'Kesehatan & nutrisi', 'Keuangan', 'Jurnal', 'Belajar', 'Review mingguan'];
+
  return (
- <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center p-4 relative overflow-hidden">
- {/* Animated background orbs */}
- <div className="absolute inset-0 overflow-hidden pointer-events-none">
- <div className="absolute -top-40 -left-40 w-80 h-80 bg-teal-500/10 rounded-full blur-3xl animate-pulse" />
- <div className="absolute top-1/2 -right-20 w-96 h-96 bg-indigo-500/8 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
- <div className="absolute -bottom-20 left-1/3 w-72 h-72 bg-amber-500/6 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+ <div className="min-h-screen bg-background grid lg:grid-cols-2">
+ <main className="flex items-center justify-center px-6 py-16">
+ <div className="w-full max-w-sm">
+ <div className="flex items-center gap-2 mb-12">
+ <span aria-hidden="true" className="flex items-center justify-center w-6 h-6 rounded-md bg-foreground text-background font-mono text-[11px] font-medium">L</span>
+ <span className="text-[15px] font-medium text-foreground">Life OS</span>
  </div>
 
- {/* Grid pattern overlay */}
- <div 
- className="absolute inset-0 opacity-[0.03]"
- style={{
- backgroundImage: 'linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)',
- backgroundSize: '60px 60px'
- }}
- />
-
- <div className="w-full max-w-md relative z-10">
- {/* Logo & Title */}
- <div className="text-center mb-8">
- <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-br from-teal-500/20 to-indigo-500/20 border border-white/10 mb-4 shadow-lg shadow-teal-500/10">
- <span className="text-3xl">🧠</span>
- </div>
- <h1 className="text-2xl font-semibold text-white tracking-tight">
- Life OS
+ <h1 className="text-[28px] font-medium leading-tight text-foreground">
+ {isRegister ? 'Buat akun' : 'Masuk'}
  </h1>
- <p className="text-xs text-white/40 mt-1 uppercase tracking-[0.2em] font-bold">
- Personal Command Center
+ <p className="text-sm text-muted-foreground mt-2 mb-8">
+ Catatan harian, habit, kesehatan dan keuangan dalam satu buku kerja pribadi
  </p>
- </div>
 
- {/* Login Card */}
- <div className="rounded-xl border border-border bg-muted/30 backdrop-blur-xl p-8 shadow-2xl shadow-black/40">
- <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider mb-6">
- {isRegister ? 'Buat Akun Baru' : 'Masuk ke Akun'}
- </h2>
-
- <form onSubmit={handleSubmit} className="space-y-4">
+ <form onSubmit={handleSubmit} className="space-y-4" noValidate>
  {error && (
- <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-bold">
- {error}
- </div>
+ <p role="alert" className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-[13px]">{error}</p>
  )}
  {success && (
- <div className="p-3 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-bold">
- {success}
- </div>
+ <p role="status" className="p-3 rounded-lg bg-success/10 border border-success/20 text-success text-[13px]">{success}</p>
  )}
 
- <div className="space-y-1.5">
- <label className="text-[10px] font-bold text-white/40 uppercase tracking-wider">
- Email
- </label>
- <input
- type="email"
- required
- value={email}
- onChange={(e) => setEmail(e.target.value)}
- placeholder="nama@email.com"
- className="w-full px-4 py-3 rounded-xl bg-muted/40 border border-border text-white text-sm placeholder:text-muted-foreground focus:outline-none focus:border-teal-500/40 focus:ring-1 focus:ring-teal-500/20 transition-all"
- autoComplete="email"
- />
+ <div className="space-y-2">
+ <label htmlFor="login-email" className="block text-[13px] text-foreground">Email</label>
+ <input id="login-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nama@email.com" className={input} autoComplete="email" />
  </div>
 
- <div className="space-y-1.5">
- <label className="text-[10px] font-bold text-white/40 uppercase tracking-wider">
- Password
- </label>
- <input
- type="password"
- required
- value={password}
- onChange={(e) => setPassword(e.target.value)}
- placeholder="••••••••"
- className="w-full px-4 py-3 rounded-xl bg-muted/40 border border-border text-white text-sm placeholder:text-muted-foreground focus:outline-none focus:border-teal-500/40 focus:ring-1 focus:ring-teal-500/20 transition-all"
- autoComplete={isRegister ? 'new-password' : 'current-password'}
- />
+ <div className="space-y-2">
+ <label htmlFor="login-password" className="block text-[13px] text-foreground">Password</label>
+ <input id="login-password" type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className={input} autoComplete={isRegister ? 'new-password' : 'current-password'} minLength={8} />
  </div>
 
  {isRegister && (
- <div className="space-y-1.5">
- <label className="text-[10px] font-bold text-white/40 uppercase tracking-wider">
- Konfirmasi Password
- </label>
- <input
- type="password"
- required
- value={confirmPassword}
- onChange={(e) => setConfirmPassword(e.target.value)}
- placeholder="••••••••"
- className="w-full px-4 py-3 rounded-xl bg-muted/40 border border-border text-white text-sm placeholder:text-muted-foreground focus:outline-none focus:border-teal-500/40 focus:ring-1 focus:ring-teal-500/20 transition-all"
- autoComplete="new-password"
- />
+ <div className="space-y-2">
+ <label htmlFor="login-confirm" className="block text-[13px] text-foreground">Ulangi password</label>
+ <input id="login-confirm" type="password" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className={input} autoComplete="new-password" minLength={8} />
  </div>
  )}
 
- <button
- type="submit"
- disabled={loading}
- className="w-full py-3.5 rounded-xl bg-gradient-to-r from-teal-600 to-teal-500 text-white text-sm font-semibold uppercase tracking-wider hover:from-teal-500 hover:to-teal-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-teal-500/20 hover:shadow-teal-500/30"
- >
- {loading
- ? 'Memproses...'
- : isRegister
- ? 'Daftar Sekarang'
- : 'Masuk'}
+ <button type="submit" disabled={loading} className="w-full h-10 rounded-lg bg-primary text-primary-foreground text-sm font-medium transition-[opacity,transform] hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
+ {loading ? 'Memproses' : isRegister ? 'Buat akun' : 'Masuk'}
  </button>
  </form>
 
- <div className="mt-6 pt-4 border-t border-white/[0.06] text-center">
- <button
- onClick={() => {
- setIsRegister(!isRegister);
- setError('');
- setSuccess('');
- setConfirmPassword('');
- }}
- className="text-xs text-white/40 hover:text-teal-400 transition-colors font-bold"
- >
- {isRegister
- ? 'Sudah punya akun? Masuk di sini'
- : 'Belum punya akun? Daftar sekarang'}
+ <p className="mt-6 text-[13px] text-muted-foreground">
+ {isRegister ? 'Sudah punya akun?' : 'Belum punya akun?'}{' '}
+ <button type="button" onClick={() => { setIsRegister(!isRegister); setError(''); setSuccess(''); }} className="text-foreground underline underline-offset-4 decoration-border hover:decoration-foreground transition-colors">
+ {isRegister ? 'Masuk' : 'Buat akun'}
  </button>
- </div>
- </div>
-
- {/* Footer */}
- <p className="text-center text-[10px] text-muted-foreground mt-6 font-bold">
- Data tersimpan aman di Supabase Cloud
  </p>
  </div>
+ </main>
+
+ {/* A ledger page: ruled lines and the index of what the book holds */}
+ <aside aria-hidden="true" className="hidden lg:flex items-center justify-center bg-secondary border-l border-border p-12">
+ <div className="w-full max-w-md rounded-2xl bg-card border border-border shadow-[0_8px_24px_rgba(0,0,0,0.06)] overflow-hidden">
+ <div className="flex items-center justify-between h-12 px-6 border-b border-border">
+ <span className="text-[13px] text-muted-foreground">Daftar isi</span>
+ <span className="font-mono text-xs text-muted-foreground tabular-nums">{today}</span>
+ </div>
+ <ol className="px-6 py-2">
+ {modules.map((m, i) => (
+ <li key={m} className="flex items-baseline gap-4 h-11 border-b border-border last:border-0">
+ <span className="w-6 font-mono text-xs text-muted-foreground tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+ <span className="flex-1 text-sm text-foreground">{m}</span>
+ <span className="w-3 h-px bg-border self-center" />
+ </li>
+ ))}
+ </ol>
+ </div>
+ </aside>
  </div>
  );
 }

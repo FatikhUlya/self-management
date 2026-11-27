@@ -21,6 +21,7 @@ import {
 import { StaggerGroup, StaggerItem } from '@/lib/animations';
 import { formatDate, todayISO, percent, cn } from '@/lib/utils';
 import { ACTIVITY_LEVELS, MEAL_TYPES, WORKOUT_PROGRAM_NAMES } from '@/lib/constants';
+import { DateStamp } from '@/components/ui/DateStamp';
 
 export default function HealthPage() {
   const { 
@@ -172,10 +173,8 @@ export default function HealthPage() {
       <StaggerItem>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border/60">
           <div>
-            <h1 className="text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground flex items-center gap-2.5">
-              <span className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center text-red-600 dark:text-red-400 shrink-0">
-                <Icon name="activity" size={17} />
-              </span>
+            <DateStamp />
+            <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
               Kesehatan & Vitalitas (Health)
             </h1>
             <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
@@ -254,7 +253,7 @@ export default function HealthPage() {
             <button
               onClick={() => setActiveTab('nutrition')}
               className={cn(
-                "flex items-center gap-2 px-3.5 py-2 md:py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 min-h-[40px] md:min-h-0",
+                "flex items-center gap-2 px-3.5 py-2 md:py-1.5 rounded-lg text-xs font-medium transition-colors shrink-0 min-h-[40px] md:min-h-0",
                 activeTab === 'nutrition'
                   ? "bg-card text-foreground font-semibold shadow-2xs border border-border/60"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -266,7 +265,7 @@ export default function HealthPage() {
             <button
               onClick={() => setActiveTab('workout')}
               className={cn(
-                "flex items-center gap-2 px-3.5 py-2 md:py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 min-h-[40px] md:min-h-0",
+                "flex items-center gap-2 px-3.5 py-2 md:py-1.5 rounded-lg text-xs font-medium transition-colors shrink-0 min-h-[40px] md:min-h-0",
                 activeTab === 'workout'
                   ? "bg-card text-foreground font-semibold shadow-2xs border border-border/60"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -278,7 +277,7 @@ export default function HealthPage() {
             <button
               onClick={() => setActiveTab('metrics')}
               className={cn(
-                "flex items-center gap-2 px-3.5 py-2 md:py-1.5 rounded-lg text-xs font-medium transition-all shrink-0 min-h-[40px] md:min-h-0",
+                "flex items-center gap-2 px-3.5 py-2 md:py-1.5 rounded-lg text-xs font-medium transition-colors shrink-0 min-h-[40px] md:min-h-0",
                 activeTab === 'metrics'
                   ? "bg-card text-foreground font-semibold shadow-2xs border border-border/60"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -303,8 +302,8 @@ export default function HealthPage() {
             <Surface className="p-5 md:p-6 space-y-4">
               <div className="flex items-center justify-between border-b border-border/80 pb-3">
                 <div>
-                  <h3 className="text-xs font-semibold text-foreground tracking-tight uppercase flex items-center gap-2">
-                    <Icon name="apple" size={14} className="text-primary" />
+                  <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Icon name="apple" size={14} className="text-muted-foreground" />
                     Catatan Makanan Hari Ini
                   </h3>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -322,25 +321,25 @@ export default function HealthPage() {
               <form onSubmit={handleQuickAddMeal} className="flex items-center gap-2 bg-muted/20 p-2 rounded-lg border border-border/70 flex-wrap sm:flex-nowrap">
                 <input
                   type="text"
-                  placeholder="+ Catat makanan..."
+                  placeholder="Catat makanan"
                   value={quickMealFood}
                   onChange={(e) => setQuickMealFood(e.target.value)}
-                  className="glass-input py-1 text-xs flex-1 bg-background min-w-[120px]"
-                />
+                  className="glass-input py-1 text-xs flex-1 bg-background min-w-[120px]" aria-label="Catat makanan"
+/>
                 <input
                   type="number"
                   placeholder="kcal"
                   value={quickMealCalories}
                   onChange={(e) => setQuickMealCalories(e.target.value)}
-                  className="glass-input py-1 px-2 text-xs w-20 font-mono text-center bg-background"
-                />
+                  className="glass-input py-1 px-2 text-xs w-20 font-mono text-center bg-background" aria-label="kcal"
+/>
                 <input
                   type="number"
                   placeholder="protein (g)"
                   value={quickMealProtein}
                   onChange={(e) => setQuickMealProtein(e.target.value)}
-                  className="glass-input py-1 px-2 text-xs w-20 font-mono text-center bg-background"
-                />
+                  className="glass-input py-1 px-2 text-xs w-20 font-mono text-center bg-background" aria-label="protein (g)"
+/>
                 <select
                   value={quickMealType}
                   onChange={(e) => setQuickMealType(e.target.value as any)}
@@ -372,20 +371,20 @@ export default function HealthPage() {
                         </Badge>
                         <div className="min-w-0">
                           <strong className="text-xs font-medium text-foreground block truncate">{meal.food}</strong>
-                          <span className="text-[10px] text-muted-foreground">{meal.portion || '1 porsi'}</span>
+                          <span className="text-[11px] text-muted-foreground">{meal.portion || '1 porsi'}</span>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2.5 shrink-0">
                         <div className="text-right">
-                          <span className="text-xs font-bold text-foreground font-mono tabular-nums block">{meal.calories} kcal</span>
+                          <span className="text-xs font-medium text-foreground font-mono tabular-nums block">{meal.calories} kcal</span>
                           {meal.protein > 0 && (
-                            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono block">{meal.protein}g protein</span>
+                            <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono block">{meal.protein}g protein</span>
                           )}
                         </div>
                         <button
                           onClick={() => deleteMeal(meal.id)}
-                          className="opacity-100 md:opacity-0 md:group-hover:opacity-100 p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center text-muted-foreground hover:text-destructive transition-all rounded-md"
+                          className="opacity-100 md:opacity-0 md:group-hover:opacity-100 p-1.5 min-h-[36px] min-w-[36px] flex items-center justify-center text-muted-foreground hover:text-destructive transition-colors rounded-md"
                           title="Hapus"
                         >
                           <Icon name="trash" size={12} />
@@ -408,8 +407,8 @@ export default function HealthPage() {
           <div className="lg:col-span-5 space-y-4">
             <Surface className="p-5 md:p-6 space-y-4">
               <div className="border-b border-border/80 pb-3">
-                <h3 className="text-xs font-semibold text-foreground tracking-tight uppercase flex items-center gap-2">
-                  <Icon name="activity" size={14} className="text-primary" />
+                <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <Icon name="activity" size={14} className="text-muted-foreground" />
                   Target Kalori & Makronutrisi
                 </h3>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -427,21 +426,21 @@ export default function HealthPage() {
 
                 <div className="grid grid-cols-3 gap-2 pt-2 border-t border-border/60">
                   <div className="bg-muted/40 p-2.5 rounded-lg border border-border/70 text-center">
-                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">Protein</span>
-                    <strong className="text-sm font-bold text-foreground font-mono mt-0.5 block">{totalProtein}g</strong>
+                    <span className="text-[11px] font-semibold text-muted-foreground block">Protein</span>
+                    <strong className="text-sm font-medium text-foreground font-mono mt-0.5 block">{totalProtein}g</strong>
                   </div>
                   <div className="bg-muted/40 p-2.5 rounded-lg border border-border/70 text-center">
-                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">Carbs</span>
-                    <strong className="text-sm font-bold text-foreground font-mono mt-0.5 block">{totalCarbs}g</strong>
+                    <span className="text-[11px] font-semibold text-muted-foreground block">Carbs</span>
+                    <strong className="text-sm font-medium text-foreground font-mono mt-0.5 block">{totalCarbs}g</strong>
                   </div>
                   <div className="bg-muted/40 p-2.5 rounded-lg border border-border/70 text-center">
-                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider block">Fat</span>
-                    <strong className="text-sm font-bold text-foreground font-mono mt-0.5 block">{totalFat}g</strong>
+                    <span className="text-[11px] font-semibold text-muted-foreground block">Fat</span>
+                    <strong className="text-sm font-medium text-foreground font-mono mt-0.5 block">{totalFat}g</strong>
                   </div>
                 </div>
 
                 <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-xs text-muted-foreground leading-relaxed">
-                  💡 <span className="font-semibold text-foreground">Tips:</span> Pertahankan rasio protein minimal 1.6g per kg berat badan untuk memelihara massa otot selama periode defisit atau maintenance.
+                  <span className="font-medium text-foreground">Tips</span> Pertahankan rasio protein minimal 1.6g per kg berat badan untuk memelihara massa otot selama periode defisit atau maintenance.
                 </div>
               </div>
             </Surface>
@@ -455,8 +454,8 @@ export default function HealthPage() {
           <Surface className="p-5 md:p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-border/80 pb-3">
               <div>
-                <h3 className="text-xs font-semibold text-foreground tracking-tight uppercase flex items-center gap-2">
-                  <Icon name="dumbbell" size={14} className="text-primary" />
+                <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <Icon name="dumbbell" size={14} className="text-muted-foreground" />
                   Sesi Latihan Hari Ini ({formatDate(today)})
                 </h3>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -487,7 +486,7 @@ export default function HealthPage() {
                 {dailyWorkouts.map((workout) => (
                   <div
                     key={workout.id}
-                    className="p-4 rounded-xl border border-border/80 bg-muted/20 hover:bg-muted/40 transition-all flex flex-col justify-between space-y-3"
+                    className="p-4 rounded-xl border border-border/80 bg-muted/20 hover:bg-muted/40 transition-colors flex flex-col justify-between space-y-3"
                   >
                     <div>
                       <div className="flex items-center justify-between gap-2">
@@ -495,9 +494,9 @@ export default function HealthPage() {
                           <span className="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                             <Icon name="dumbbell" size={14} />
                           </span>
-                          <strong className="text-xs font-bold text-foreground truncate">{workout.program}</strong>
+                          <strong className="text-xs font-medium text-foreground truncate">{workout.program}</strong>
                         </div>
-                        <Badge tone="teal" className="text-[10px]">
+                        <Badge tone="teal" className="text-[11px]">
                           {workout.minutes}m
                         </Badge>
                       </div>
@@ -510,7 +509,7 @@ export default function HealthPage() {
                     </div>
 
                     <div className="flex items-center justify-between pt-2 border-t border-border/60 text-xs">
-                      <span className="text-[10px] text-muted-foreground uppercase font-semibold font-mono">
+                      <span className="text-[11px] text-muted-foreground font-semibold font-mono">
                         {workout.category}
                       </span>
                       <button
@@ -546,8 +545,8 @@ export default function HealthPage() {
             <Surface className="p-5 md:p-6 space-y-4">
               <div className="flex items-center justify-between border-b border-border/80 pb-3">
                 <div>
-                  <h3 className="text-xs font-semibold text-foreground tracking-tight uppercase flex items-center gap-2">
-                    <Icon name="activity" size={14} className="text-primary" />
+                  <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Icon name="activity" size={14} className="text-muted-foreground" />
                     Riwayat Berat Badan
                   </h3>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -581,10 +580,10 @@ export default function HealthPage() {
                           )}
                         </div>
                         <div className="flex items-center gap-2">
-                          <strong className="font-mono text-foreground font-bold tabular-nums">{log.weight} kg</strong>
+                          <strong className="font-mono text-foreground font-medium tabular-nums">{log.weight} kg</strong>
                           <button
                             onClick={() => deleteWeightLog(log.id)}
-                            className="opacity-0 group-hover:opacity-100 p-1 text-muted-foreground hover:text-destructive transition-all"
+                            className="opacity-0 group-hover:opacity-100 p-1 text-muted-foreground hover:text-destructive transition-colors"
                             title="Hapus"
                           >
                             <Icon name="trash" size={12} />
@@ -611,8 +610,8 @@ export default function HealthPage() {
           <div className="lg:col-span-5 space-y-4">
             <Surface className="p-5 md:p-6 space-y-4">
               <div className="border-b border-border/80 pb-3">
-                <h3 className="text-xs font-semibold text-foreground tracking-tight uppercase flex items-center gap-2">
-                  <Icon name="heart" size={14} className="text-primary" />
+                <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <Icon name="heart" size={14} className="text-muted-foreground" />
                   Kalkulator TDEE & Profil
                 </h3>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -623,14 +622,14 @@ export default function HealthPage() {
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="bg-muted/40 p-2.5 rounded-lg border border-border/70">
-                    <span className="text-[10px] text-muted-foreground font-semibold uppercase">Tinggi Badan</span>
-                    <strong className="block text-sm font-bold text-foreground font-mono mt-0.5">
+                    <span className="text-[11px] text-muted-foreground font-semibold ">Tinggi Badan</span>
+                    <strong className="block text-sm font-medium text-foreground font-mono mt-0.5">
                       {state.healthProfile.height ? `${state.healthProfile.height} cm` : '—'}
                     </strong>
                   </div>
                   <div className="bg-muted/40 p-2.5 rounded-lg border border-border/70">
-                    <span className="text-[10px] text-muted-foreground font-semibold uppercase">Usia</span>
-                    <strong className="block text-sm font-bold text-foreground font-mono mt-0.5">
+                    <span className="text-[11px] text-muted-foreground font-semibold ">Usia</span>
+                    <strong className="block text-sm font-medium text-foreground font-mono mt-0.5">
                       {state.healthProfile.age ? `${state.healthProfile.age} th` : '—'}
                     </strong>
                   </div>
@@ -639,7 +638,7 @@ export default function HealthPage() {
                 <div className="p-3.5 rounded-xl border border-border/80 bg-muted/20 space-y-2">
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-muted-foreground font-medium">Estimasi TDEE Harian:</span>
-                    <strong className="text-base font-bold text-foreground font-mono tabular-nums">{tdee} kcal</strong>
+                    <strong className="text-base font-medium text-foreground font-mono tabular-nums">{tdee} kcal</strong>
                   </div>
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-muted-foreground font-medium">Target Kalori Disetel:</span>
@@ -667,20 +666,20 @@ export default function HealthPage() {
 
           <form onSubmit={handleMealSubmit} className="space-y-4 mt-2">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Nama Makanan</label>
+              <label className="text-xs font-semibold text-muted-foreground ">Nama Makanan</label>
               <input
                 type="text"
                 required
                 placeholder="Contoh: Dada ayam bakar + nasi merah"
                 value={mealFood}
                 onChange={(e) => setMealFood(e.target.value)}
-                className="glass-input text-xs"
-              />
+                className="glass-input text-xs" aria-label="Contoh: Dada ayam bakar + nasi merah"
+/>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Waktu Makan</label>
+                <label className="text-xs font-semibold text-muted-foreground ">Waktu Makan</label>
                 <select
                   value={mealType}
                   onChange={(e) => setMealType(e.target.value as any)}
@@ -693,20 +692,20 @@ export default function HealthPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Porsi</label>
+                <label className="text-xs font-semibold text-muted-foreground ">Porsi</label>
                 <input
                   type="text"
                   placeholder="1 porsi / 200g"
                   value={mealPortion}
                   onChange={(e) => setMealPortion(e.target.value)}
-                  className="glass-input text-xs"
-                />
+                  className="glass-input text-xs" aria-label="1 porsi / 200g"
+/>
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-2">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Kalori (kcal)</label>
+                <label className="text-xs font-semibold text-muted-foreground ">Kalori (kcal)</label>
                 <input
                   type="number"
                   required
@@ -716,7 +715,7 @@ export default function HealthPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Protein (g)</label>
+                <label className="text-xs font-semibold text-muted-foreground ">Protein (g)</label>
                 <input
                   type="number"
                   value={mealProtein}
@@ -725,7 +724,7 @@ export default function HealthPage() {
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Karbo (g)</label>
+                <label className="text-xs font-semibold text-muted-foreground ">Karbo (g)</label>
                 <input
                   type="number"
                   value={mealCarbs}
@@ -751,7 +750,7 @@ export default function HealthPage() {
 
           <form onSubmit={handleWorkoutSubmit} className="space-y-4 mt-2">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Program / Aktivitas</label>
+              <label className="text-xs font-semibold text-muted-foreground ">Program / Aktivitas</label>
               <select
                 value={workoutProgram}
                 onChange={(e) => setWorkoutProgram(e.target.value)}
@@ -765,7 +764,7 @@ export default function HealthPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Durasi (Menit)</label>
+                <label className="text-xs font-semibold text-muted-foreground ">Durasi (Menit)</label>
                 <input
                   type="number"
                   required
@@ -777,7 +776,7 @@ export default function HealthPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Kategori</label>
+                <label className="text-xs font-semibold text-muted-foreground ">Kategori</label>
                 <select
                   value={workoutCategory}
                   onChange={(e) => setWorkoutCategory(e.target.value as any)}
@@ -790,13 +789,13 @@ export default function HealthPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Catatan Sesi</label>
+              <label className="text-xs font-semibold text-muted-foreground ">Catatan Sesi</label>
               <textarea
-                placeholder="RPE, intensitas, beban tertinggi, atau sensasi otot..."
+                placeholder="RPE, intensitas, beban tertinggi, atau sensasi otot"
                 value={workoutNotes}
                 onChange={(e) => setWorkoutNotes(e.target.value)}
-                className="glass-input text-xs resize-none h-16"
-              />
+                className="glass-input text-xs resize-none h-16" aria-label="RPE, intensitas, beban tertinggi, atau sensasi otot"
+/>
             </div>
 
             <Button type="submit" variant="primary" size="sm" className="w-full mt-2 font-semibold">
@@ -815,26 +814,26 @@ export default function HealthPage() {
 
           <form onSubmit={handleWeightSubmit} className="space-y-4 mt-2">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Berat Badan (kg)</label>
+              <label className="text-xs font-semibold text-muted-foreground ">Berat Badan (kg)</label>
               <input
                 type="number"
                 step="0.1"
                 required
                 value={newWeight}
                 onChange={(e) => setNewWeight(Number(e.target.value))}
-                className="glass-input text-xs font-mono font-bold text-base"
+                className="glass-input text-xs font-mono font-medium text-base"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Catatan / Kondisi (Opsional)</label>
+              <label className="text-xs font-semibold text-muted-foreground ">Catatan / Kondisi (Opsional)</label>
               <input
                 type="text"
                 placeholder="Contoh: Pagi hari sebelum sarapan"
                 value={weightNotes}
                 onChange={(e) => setWeightNotes(e.target.value)}
-                className="glass-input text-xs"
-              />
+                className="glass-input text-xs" aria-label="Contoh: Pagi hari sebelum sarapan"
+/>
             </div>
 
             <Button type="submit" variant="primary" size="sm" className="w-full mt-2 font-semibold">

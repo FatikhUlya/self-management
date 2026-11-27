@@ -22,6 +22,7 @@ import {
 import { StaggerGroup, StaggerItem } from '@/lib/animations';
 import { percent, formatDate, cn } from '@/lib/utils';
 import { PRIORITY_OPTIONS, Priority } from '@/lib/constants';
+import { DateStamp } from '@/components/ui/DateStamp';
 
 export default function ProjectsDashboardPage() {
   const { 
@@ -207,10 +208,8 @@ export default function ProjectsDashboardPage() {
       <StaggerItem>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border/60">
           <div>
-            <h1 className="text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground flex items-center gap-2.5">
-              <span className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                <Icon name="checkSquare" size={17} />
-              </span>
+            <DateStamp />
+            <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
               Proyek & Tugas
             </h1>
             <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
@@ -281,7 +280,7 @@ export default function ProjectsDashboardPage() {
             <button
               onClick={() => setActiveTab('tasks')}
               className={cn(
-                "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-all min-h-[44px] touch-manipulation shrink-0",
+                "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-colors min-h-[44px] touch-manipulation shrink-0",
                 activeTab === 'tasks'
                   ? "bg-card text-foreground font-semibold shadow-2xs border border-border/60"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -293,7 +292,7 @@ export default function ProjectsDashboardPage() {
             <button
               onClick={() => setActiveTab('projects')}
               className={cn(
-                "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-all min-h-[44px] touch-manipulation shrink-0",
+                "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-colors min-h-[44px] touch-manipulation shrink-0",
                 activeTab === 'projects'
                   ? "bg-card text-foreground font-semibold shadow-2xs border border-border/60"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
@@ -311,7 +310,7 @@ export default function ProjectsDashboardPage() {
                 <button
                   onClick={() => setTaskViewMode('kanban')}
                   className={cn(
-                    "px-3 py-1.5 rounded text-[11px] font-medium transition-all flex items-center gap-1.5 min-h-[40px] touch-manipulation",
+                    "px-3 py-1.5 rounded text-[11px] font-medium transition-colors flex items-center gap-1.5 min-h-[40px] touch-manipulation",
                     taskViewMode === 'kanban'
                       ? "bg-primary/10 text-primary font-semibold"
                       : "text-muted-foreground hover:text-foreground"
@@ -324,7 +323,7 @@ export default function ProjectsDashboardPage() {
                 <button
                   onClick={() => setTaskViewMode('list')}
                   className={cn(
-                    "px-3 py-1.5 rounded text-[11px] font-medium transition-all flex items-center gap-1.5 min-h-[40px] touch-manipulation",
+                    "px-3 py-1.5 rounded text-[11px] font-medium transition-colors flex items-center gap-1.5 min-h-[40px] touch-manipulation",
                     taskViewMode === 'list'
                       ? "bg-primary/10 text-primary font-semibold"
                       : "text-muted-foreground hover:text-foreground"
@@ -353,11 +352,11 @@ export default function ProjectsDashboardPage() {
                   <Icon name="search" size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <input
                     type="text"
-                    placeholder="Cari tugas..."
+                    placeholder="Cari tugas"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="glass-input pl-8 py-1.5 text-xs w-full"
-                  />
+                    className="glass-input pl-8 py-1.5 text-xs w-full" aria-label="Cari tugas"
+/>
                 </div>
 
                 {/* Project Filter */}
@@ -392,15 +391,15 @@ export default function ProjectsDashboardPage() {
               <form onSubmit={handleQuickAddTask} className="relative w-full md:w-80">
                 <input
                   type="text"
-                  placeholder="+ Tambah tugas cepat lalu tekan Enter..."
+                  placeholder="Tambah tugas cepat lalu tekan Enter"
                   value={quickTaskTitle}
                   onChange={(e) => setQuickTaskTitle(e.target.value)}
-                  className="glass-input py-1.5 pr-14 text-xs bg-muted/20 hover:bg-muted/30 focus:bg-background transition-colors"
-                />
+                  className="glass-input py-1.5 pr-14 text-xs bg-muted/20 hover:bg-muted/30 focus:bg-background transition-colors" aria-label="Tambah tugas cepat lalu tekan Enter"
+/>
                 <button
                   type="submit"
                   disabled={!quickTaskTitle.trim()}
-                  className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded text-[10px] font-semibold bg-primary text-primary-foreground disabled:opacity-30 transition-all"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded text-[11px] font-semibold bg-primary text-primary-foreground disabled:opacity-30 transition-colors"
                 >
                   Enter ↵
                 </button>
@@ -443,11 +442,11 @@ export default function ProjectsDashboardPage() {
                           "w-2 h-2 rounded-full",
                           columnStatus === 'todo' ? "bg-muted-foreground" : columnStatus === 'doing' ? "bg-amber-500" : "bg-emerald-500"
                         )} />
-                        <h3 className="text-xs font-semibold uppercase tracking-wider text-foreground">
+                        <h3 className="text-xs font-semibold text-foreground">
                           {columnTitle}
                         </h3>
                       </div>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono tabular-nums font-semibold bg-muted text-muted-foreground border border-border">
+                      <span className="px-2 py-0.5 rounded-full text-[11px] font-mono tabular-nums font-semibold bg-muted text-muted-foreground border border-border">
                         {columnTasks.length}
                       </span>
                     </div>
@@ -465,7 +464,7 @@ export default function ProjectsDashboardPage() {
                               initial={{ opacity: 0, y: 4 }}
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ delay: index * 0.02, duration: 0.2 }}
-                              className="group p-3 rounded-lg bg-card border border-border/80 hover:border-border hover:shadow-xs transition-all space-y-2 select-none"
+                              className="group p-3 rounded-lg bg-card border border-border/80 hover:border-border hover:shadow-xs transition-colors space-y-2 select-none"
                             >
                               <div className="flex items-start justify-between gap-2">
                                 <span className={cn(
@@ -484,7 +483,7 @@ export default function ProjectsDashboardPage() {
                               </div>
 
                               {/* Project & Goal Tags */}
-                              <div className="flex items-center gap-1.5 flex-wrap text-[10px]">
+                              <div className="flex items-center gap-1.5 flex-wrap text-[11px]">
                                 <span className="inline-flex items-center gap-1 text-muted-foreground font-medium">
                                   <Icon name="folder" size={10} className="text-primary" />
                                   {project ? project.name : 'Inbox'}
@@ -507,12 +506,12 @@ export default function ProjectsDashboardPage() {
                                         ? 'amber'
                                         : 'gray'
                                     }
-                                    className="text-[9px]"
+                                    className="text-[11px]"
                                   >
                                     {isOverdue ? 'Overdue' : task.priority}
                                   </Badge>
                                   {task.due && (
-                                    <span className="text-[10px] font-mono text-muted-foreground tabular-nums">
+                                    <span className="text-[11px] font-mono text-muted-foreground tabular-nums">
                                       {formatDate(task.due)}
                                     </span>
                                   )}
@@ -573,7 +572,7 @@ export default function ProjectsDashboardPage() {
                             type="button"
                             onClick={() => updateTaskStatus(task.id, isDone ? 'todo' : 'done')}
                             className={cn(
-                              "w-5 h-5 rounded-md flex items-center justify-center border transition-all shrink-0",
+                              "w-5 h-5 rounded-md flex items-center justify-center border transition-colors shrink-0",
                               isDone
                                 ? "bg-primary border-primary text-primary-foreground"
                                 : "bg-card border-input hover:border-primary text-transparent hover:text-primary/50"
@@ -598,7 +597,7 @@ export default function ProjectsDashboardPage() {
                         <div className="flex items-center gap-2 shrink-0">
                           <Badge
                             tone={task.priority === 'High' ? 'rose' : task.priority === 'Medium' ? 'amber' : 'gray'}
-                            className="text-[10px]"
+                            className="text-[11px]"
                           >
                             {task.priority}
                           </Badge>
@@ -644,7 +643,7 @@ export default function ProjectsDashboardPage() {
                 return (
                   <Surface
                     key={proj.id}
-                    className="p-5 flex flex-col justify-between space-y-4 hover:shadow-xs transition-all"
+                    className="p-5 flex flex-col justify-between space-y-4 hover:shadow-xs transition-colors"
                   >
                     <div>
                       {/* Top Header */}
@@ -654,10 +653,10 @@ export default function ProjectsDashboardPage() {
                             <Icon name="folder" size={15} />
                           </span>
                           <div className="min-w-0">
-                            <h3 className="text-xs font-bold text-foreground tracking-tight truncate leading-tight">
+                            <h3 className="text-xs font-medium text-foreground tracking-tight truncate leading-tight">
                               {proj.name}
                             </h3>
-                            <span className="text-[10px] text-muted-foreground block truncate">{proj.area || 'Karir'}</span>
+                            <span className="text-[11px] text-muted-foreground block truncate">{proj.area || 'Karir'}</span>
                           </div>
                         </div>
 
@@ -739,20 +738,20 @@ export default function ProjectsDashboardPage() {
 
           <form onSubmit={handleProjectSubmit} className="space-y-4 mt-2">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Nama Proyek</label>
+              <label className="text-xs font-semibold text-muted-foreground ">Nama Proyek</label>
               <input
                 type="text"
                 required
                 placeholder="Contoh: Life OS v2 Redesign, Skripsi, dll"
                 value={projectName}
                 onChange={(e) => setProjectName(e.target.value)}
-                className="glass-input text-xs"
-              />
+                className="glass-input text-xs" aria-label="Contoh: Life OS v2 Redesign, Skripsi, dll"
+/>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Area</label>
+                <label className="text-xs font-semibold text-muted-foreground ">Area</label>
                 <select
                   value={projectArea}
                   onChange={(e) => setProjectArea(e.target.value)}
@@ -767,7 +766,7 @@ export default function ProjectsDashboardPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Kaitkan ke Goal</label>
+                <label className="text-xs font-semibold text-muted-foreground ">Kaitkan ke Goal</label>
                 <select
                   value={projectGoalId}
                   onChange={(e) => setProjectGoalId(e.target.value)}
@@ -797,7 +796,7 @@ export default function ProjectsDashboardPage() {
 
           <form onSubmit={handleSaveEditProject} className="space-y-4 mt-2">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Nama Proyek</label>
+              <label className="text-xs font-semibold text-muted-foreground ">Nama Proyek</label>
               <input
                 type="text"
                 required
@@ -809,7 +808,7 @@ export default function ProjectsDashboardPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</label>
+                <label className="text-xs font-semibold text-muted-foreground ">Status</label>
                 <select
                   value={editProjectStatus}
                   onChange={(e) => setEditProjectStatus(e.target.value as any)}
@@ -822,7 +821,7 @@ export default function ProjectsDashboardPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Area</label>
+                <label className="text-xs font-semibold text-muted-foreground ">Area</label>
                 <select
                   value={editProjectArea}
                   onChange={(e) => setEditProjectArea(e.target.value)}
@@ -853,20 +852,20 @@ export default function ProjectsDashboardPage() {
 
           <form onSubmit={handleTaskSubmit} className="space-y-4 mt-2">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Judul Tugas</label>
+              <label className="text-xs font-semibold text-muted-foreground ">Judul Tugas</label>
               <input
                 type="text"
                 required
                 placeholder="Apa yang perlu diselesaikan?"
                 value={taskTitle}
                 onChange={(e) => setTaskTitle(e.target.value)}
-                className="glass-input text-xs"
-              />
+                className="glass-input text-xs" aria-label="Apa yang perlu diselesaikan?"
+/>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Proyek</label>
+                <label className="text-xs font-semibold text-muted-foreground ">Proyek</label>
                 <select
                   value={taskProjectId}
                   onChange={(e) => setTaskProjectId(e.target.value)}
@@ -880,7 +879,7 @@ export default function ProjectsDashboardPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Jatuh Tempo</label>
+                <label className="text-xs font-semibold text-muted-foreground ">Jatuh Tempo</label>
                 <input
                   type="date"
                   required
@@ -893,7 +892,7 @@ export default function ProjectsDashboardPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Prioritas</label>
+                <label className="text-xs font-semibold text-muted-foreground ">Prioritas</label>
                 <select
                   value={taskPriority}
                   onChange={(e) => setTaskPriority(e.target.value as any)}
@@ -906,7 +905,7 @@ export default function ProjectsDashboardPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Konteks Kerja</label>
+                <label className="text-xs font-semibold text-muted-foreground ">Konteks Kerja</label>
                 <select
                   value={taskContext}
                   onChange={(e) => setTaskContext(e.target.value)}
@@ -936,7 +935,7 @@ export default function ProjectsDashboardPage() {
 
           <form onSubmit={handleSaveEditTask} className="space-y-4 mt-2">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Judul Tugas</label>
+              <label className="text-xs font-semibold text-muted-foreground ">Judul Tugas</label>
               <input
                 type="text"
                 required
@@ -948,7 +947,7 @@ export default function ProjectsDashboardPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Status</label>
+                <label className="text-xs font-semibold text-muted-foreground ">Status</label>
                 <select
                   value={editTaskStatus}
                   onChange={(e) => setEditTaskStatus(e.target.value as any)}
@@ -961,7 +960,7 @@ export default function ProjectsDashboardPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Prioritas</label>
+                <label className="text-xs font-semibold text-muted-foreground ">Prioritas</label>
                 <select
                   value={editTaskPriority}
                   onChange={(e) => setEditTaskPriority(e.target.value as any)}
@@ -976,7 +975,7 @@ export default function ProjectsDashboardPage() {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Proyek</label>
+                <label className="text-xs font-semibold text-muted-foreground ">Proyek</label>
                 <select
                   value={editTaskProjectId}
                   onChange={(e) => setEditTaskProjectId(e.target.value)}
@@ -990,7 +989,7 @@ export default function ProjectsDashboardPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Jatuh Tempo</label>
+                <label className="text-xs font-semibold text-muted-foreground ">Jatuh Tempo</label>
                 <input
                   type="date"
                   value={editTaskDue}

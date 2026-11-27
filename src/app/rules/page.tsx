@@ -19,6 +19,7 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { formatDate, todayISO, cn } from '@/lib/utils';
+import { DateStamp } from '@/components/ui/DateStamp';
 
 const DEFAULT_SECTIONS = [
   'Fokus & Deep Work',
@@ -228,11 +229,9 @@ export default function RulesPage() {
       {/* Header & Page Title */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
+          <DateStamp />
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground flex items-center gap-2.5">
-              <span className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400 shrink-0">
-                <Icon name="shield" size={17} />
-              </span>
+            <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
               Personal Rules & Daily Compass
             </h1>
             <Badge tone="amber" className="font-mono tabular-nums text-xs">
@@ -307,7 +306,7 @@ export default function RulesPage() {
           <button
             onClick={() => setActiveTab('compliance')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all',
+              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-colors',
               activeTab === 'compliance'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
@@ -315,14 +314,14 @@ export default function RulesPage() {
           >
             <Icon name="checkCircle" size={14} className={activeTab === 'compliance' ? 'text-amber-500' : ''} />
             Check-In Kepatuhan Hari Ini
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[10px]">
+            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
               {formatDate(selectedDate)}
             </span>
           </button>
           <button
             onClick={() => setActiveTab('rules')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all',
+              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-colors',
               activeTab === 'rules'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
@@ -330,14 +329,14 @@ export default function RulesPage() {
           >
             <Icon name="shield" size={14} className={activeTab === 'rules' ? 'text-amber-500' : ''} />
             Katalog & Manajemen Aturan
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[10px]">
+            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
               {rules.length}
             </span>
           </button>
           <button
             onClick={() => setActiveTab('creed')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all',
+              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-colors',
               activeTab === 'creed'
                 ? 'bg-background text-foreground shadow-xs border border-border/80'
                 : 'text-muted-foreground hover:text-foreground'
@@ -354,8 +353,8 @@ export default function RulesPage() {
         <div className="space-y-6 animate-in fade-in duration-200">
           <Surface className="p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
             <div>
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                <Icon name="shield" size={13} className="text-amber-500" />
+              <h3 className="text-sm font-medium text-foreground flex items-center gap-2">
+                <Icon name="shield" size={13} className="text-muted-foreground" />
                 Audit Disiplin & Kepatuhan Prinsip ({formatDate(selectedDate)})
               </h3>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -364,7 +363,7 @@ export default function RulesPage() {
             </div>
 
             <div className="flex items-center gap-3 shrink-0">
-              <span className="text-xs font-mono font-bold text-foreground">
+              <span className="text-xs font-mono font-medium text-foreground">
                 Skor Disiplin: {complianceRate}%
               </span>
               <div className="w-24">
@@ -384,24 +383,24 @@ export default function RulesPage() {
                   <Surface
                     key={rule.id}
                     className={cn(
-                      'p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all',
+                      'p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-colors',
                       isFollowed && 'border-emerald-500/30 bg-emerald-500/5',
                       isMissed && 'border-rose-500/30 bg-rose-500/5'
                     )}
                   >
                     <div className="flex items-start gap-3 min-w-0">
-                      <span className="text-xs font-mono font-bold text-muted-foreground mt-0.5">
+                      <span className="text-xs font-mono font-medium text-muted-foreground mt-0.5">
                         {idx + 1}.
                       </span>
                       <div className="space-y-1 min-w-0">
                         <p className="text-sm font-semibold text-foreground leading-relaxed">
                           {rule.rule_text}
                         </p>
-                        <span className="inline-block px-2 py-0.2 rounded bg-muted/40 border border-border text-[10px] text-muted-foreground">
+                        <span className="inline-block px-2 py-0.2 rounded bg-muted/40 border border-border text-[11px] text-muted-foreground">
                           {rule.section || 'General'}
                         </span>
                         {isMissed && log?.reason && (
-                          <p className="text-[11px] text-rose-500 font-medium italic pt-1">
+                          <p className="text-[11px] text-rose-500 font-medium pt-1">
                             Alasan terlanggar: "{log.reason}"
                           </p>
                         )}
@@ -413,7 +412,7 @@ export default function RulesPage() {
                         type="button"
                         onClick={() => handleMarkCompliance(rule.id, 'followed')}
                         className={cn(
-                          'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 border min-h-[44px]',
+                          'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 border min-h-[44px]',
                           isFollowed
                             ? 'bg-emerald-500 text-white border-emerald-600 shadow-xs'
                             : 'bg-muted/30 text-muted-foreground border-border hover:bg-emerald-500/10 hover:text-emerald-500 hover:border-emerald-500/30'
@@ -427,7 +426,7 @@ export default function RulesPage() {
                         type="button"
                         onClick={() => handleMarkCompliance(rule.id, 'missed')}
                         className={cn(
-                          'px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 border min-h-[44px]',
+                          'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 border min-h-[44px]',
                           isMissed
                             ? 'bg-rose-500 text-white border-rose-600 shadow-xs'
                             : 'bg-muted/30 text-muted-foreground border-border hover:bg-rose-500/10 hover:text-rose-500 hover:border-rose-500/30'
@@ -463,7 +462,7 @@ export default function RulesPage() {
           {/* Inline Quick Add Rule */}
           <Surface className="p-4">
             <form onSubmit={handleQuickAddRule} className="flex flex-col gap-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+              <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
                 <Icon name="plus" size={13} className="text-amber-500" />
                 Tambah Prinsip Cepat
               </span>
@@ -471,11 +470,11 @@ export default function RulesPage() {
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
                 <input
                   type="text"
-                  placeholder="Tuliskan prinsip atau aturan hidup Anda..."
+                  placeholder="Tuliskan prinsip atau aturan hidup Anda"
                   value={quickRuleText}
                   onChange={(e) => setQuickRuleText(e.target.value)}
-                  className="sm:col-span-8 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-amber-500 text-foreground"
-                />
+                  className="sm:col-span-8 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-amber-500 text-foreground" aria-label="Tuliskan prinsip atau aturan hidup Anda"
+/>
                 <select
                   value={quickSection}
                   onChange={(e) => setQuickSection(e.target.value)}
@@ -511,11 +510,11 @@ export default function RulesPage() {
               />
               <input
                 type="text"
-                placeholder="Cari prinsip atau kata kunci..."
+                placeholder="Cari prinsip atau kata kunci"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-amber-500 text-foreground"
-              />
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-amber-500 text-foreground" aria-label="Cari prinsip atau kata kunci"
+/>
             </div>
 
             <select
@@ -539,10 +538,10 @@ export default function RulesPage() {
                 <div key={sectionName} className="space-y-3">
                   <div className="flex items-center gap-2 pb-1 border-b border-border">
                     <span className="w-2 h-2 rounded-full bg-amber-500" />
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-foreground">
+                    <h3 className="text-xs font-medium text-foreground">
                       {sectionName}
                     </h3>
-                    <span className="text-[10px] font-mono text-muted-foreground">
+                    <span className="text-[11px] font-mono text-muted-foreground">
                       ({sectionRules.length})
                     </span>
                   </div>
@@ -551,10 +550,10 @@ export default function RulesPage() {
                     {sectionRules.map((r, idx) => (
                       <Surface
                         key={r.id}
-                        className="p-4 flex items-center justify-between hover:border-amber-500/40 transition-all gap-4 group"
+                        className="p-4 flex items-center justify-between hover:border-amber-500/40 transition-colors gap-4 group"
                       >
                         <div className="flex items-start gap-3 min-w-0">
-                          <span className="text-xs font-mono font-bold text-muted-foreground mt-0.5">
+                          <span className="text-xs font-mono font-medium text-muted-foreground mt-0.5">
                             {idx + 1}.
                           </span>
                           <p className="text-sm font-semibold text-foreground leading-relaxed">
@@ -606,8 +605,8 @@ export default function RulesPage() {
       {/* TAB 3: ETOS KERJA SOLO OPERATOR */}
       {activeTab === 'creed' && (
         <div className="space-y-6 animate-in fade-in duration-200">
-          <Surface className="p-6 border-l-4 border-l-amber-500 bg-gradient-to-br from-amber-500/5 to-transparent">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-amber-500 mb-1 flex items-center gap-2">
+          <Surface className="p-6 border-l-4 border-l-amber-500 ">
+            <h3 className="text-sm font-medium text-amber-500 mb-1 flex items-center gap-2">
               <Icon name="shield" size={16} />
               Operating Creed: Filosofi Eksekusi Solo Operator
             </h3>
@@ -625,7 +624,7 @@ export default function RulesPage() {
                     <div className="w-7 h-7 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center">
                       <Icon name={item.icon} size={15} />
                     </div>
-                    <strong className="text-sm font-bold text-foreground">
+                    <strong className="text-sm font-medium text-foreground">
                       {item.title}
                     </strong>
                   </div>
@@ -639,7 +638,7 @@ export default function RulesPage() {
                     onClick={async () => {
                       await addSelfRule(item.title.replace(/^[0-9]+\.\s*/, ''), 'Etos Solo Operator');
                     }}
-                    className="text-[11px] font-bold text-amber-600 dark:text-amber-400 hover:underline"
+                    className="text-[11px] font-medium text-amber-600 dark:text-amber-400 hover:underline"
                   >
                     + Masukkan ke Aturan Saya
                   </button>
@@ -655,7 +654,7 @@ export default function RulesPage() {
         <DialogContent className="max-w-md">
           <form onSubmit={handleSubmitModalRule}>
             <DialogHeader>
-              <DialogTitle className="text-lg font-bold flex items-center gap-2">
+              <DialogTitle className="text-lg font-medium flex items-center gap-2">
                 <Icon name="shield" size={18} className="text-amber-500" />
                 {editingRule ? 'Edit Prinsip Hidup' : 'Tambah Prinsip Baru'}
               </DialogTitle>
@@ -666,21 +665,21 @@ export default function RulesPage() {
 
             <div className="space-y-3 py-3 text-xs">
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Teks Prinsip / Aturan *
                 </label>
                 <textarea
                   rows={3}
                   required
-                  placeholder="Contoh: Tidak ada scrolling media sosial sebelum 1 sesi Deep Work selesai..."
+                  placeholder="Contoh: Tidak ada scrolling media sosial sebelum 1 sesi Deep Work selesai"
                   value={modalRuleText}
                   onChange={(e) => setModalRuleText(e.target.value)}
-                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed focus:outline-hidden focus:border-amber-500 resize-none"
-                />
+                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed focus:outline-hidden focus:border-amber-500 resize-none" aria-label="Contoh: Tidak ada scrolling media sosial sebelum 1 sesi Deep Work selesai"
+/>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Kategori / Dimensi Aturan
                 </label>
                 <select
@@ -714,7 +713,7 @@ export default function RulesPage() {
         <DialogContent className="max-w-md">
           <form onSubmit={handleSubmitMissedLog}>
             <DialogHeader>
-              <DialogTitle className="text-base font-bold flex items-center gap-2 text-rose-500">
+              <DialogTitle className="text-base font-medium flex items-center gap-2 text-rose-500">
                 <Icon name="alertCircle" size={18} />
                 Catat Evaluasi Pelanggaran Aturan
               </DialogTitle>
@@ -725,30 +724,30 @@ export default function RulesPage() {
 
             <div className="space-y-3 py-2 text-xs">
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Apa yang memicu pelanggaran ini?
                 </label>
                 <textarea
                   rows={2}
                   required
-                  placeholder="Contoh: Merasa lelah setelah meeting panjang lalu membuka Instagram tanpa sadar..."
+                  placeholder="Contoh: Merasa lelah setelah meeting panjang lalu membuka Instagram tanpa sadar"
                   value={missedReason}
                   onChange={(e) => setMissedReason(e.target.value)}
-                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed focus:outline-hidden focus:border-rose-500 resize-none"
-                />
+                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed focus:outline-hidden focus:border-rose-500 resize-none" aria-label="Contoh: Merasa lelah setelah meeting panjang lalu membuka Instagram tanpa sadar"
+/>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground uppercase mb-1">
+                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
                   Sistem perbaikan untuk mencegahnya terulang:
                 </label>
                 <input
                   type="text"
-                  placeholder="Contoh: Pasang app blocker mulai jam 21:00..."
+                  placeholder="Contoh: Pasang app blocker mulai jam 21:00"
                   value={missedImprovement}
                   onChange={(e) => setMissedImprovement(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-rose-500"
-                />
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-rose-500" aria-label="Contoh: Pasang app blocker mulai jam 21:00"
+/>
               </div>
             </div>
 

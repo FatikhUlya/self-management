@@ -8,19 +8,19 @@ const sansFont = Plus_Jakarta_Sans({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-sans',
-  weight: ['400', '500', '600', '700', '800'],
+  weight: ['400', '500', '600'],
 });
 
 const monoFont = JetBrains_Mono({
   subsets: ['latin'],
   display: 'swap',
   variable: '--font-mono',
-  weight: ['400', '500', '600', '700'],
+  weight: ['400', '500'],
 });
 
 export const metadata: Metadata = {
-  title: 'Life OS — Personal Command Center',
-  description: 'Your modern personal operating system for life management.',
+  title: 'Life OS',
+  description: 'Buku kerja pribadi untuk tugas, habit, kesehatan, keuangan dan jurnal.',
 };
 
 export default function RootLayout({

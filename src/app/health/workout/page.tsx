@@ -133,7 +133,7 @@ export default function HealthWorkoutPage() {
  notes: 'Pencatatan cepat aktivitas cardio.'
  });
  setQuickCardioMins('30');
- alert('Cardio berhasil dicatat!');
+ alert('Cardio berhasil dicatat');
  };
 
  // Hevy active session helpers
@@ -290,7 +290,7 @@ export default function HealthWorkoutPage() {
  setActiveWorkout(null);
  setIsRestTimerActive(false);
  setRestSecondsLeft(0);
- alert('Latihan berhasil disimpan! Kerja bagus! 💪');
+ alert('Latihan tersimpan');
  };
 
  const formatRestTime = (secs: number) => {
@@ -321,13 +321,12 @@ export default function HealthWorkoutPage() {
  {/* Header */}
  <div className="flex items-center gap-3">
  <Link href="/health">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-all">
+ <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
  <Icon name="arrowLeft" size={18} />
  </button>
  </Link>
  <div>
- <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
- <Icon name="dumbbell" size={24} className="text-emerald-500" />
+ <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
  Workout
  </h1>
  <p className="text-zinc-500 text-xs">
@@ -340,7 +339,7 @@ export default function HealthWorkoutPage() {
  {!activeWorkout ? (
  <Surface className="p-6">
  <div className="border-b border-border pb-3 mb-6">
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  {t('health_workout_log')}
  </h3>
  <p className="text-xs text-muted-foreground mt-0.5">
@@ -360,13 +359,13 @@ export default function HealthWorkoutPage() {
  }}
  variant="primary"
  icon="plus"
- className="w-full font-bold"
+ className="w-full font-medium"
  >
  Mulai Latihan Kosong
  </Button>
 
  <div className="border-t border-border pt-4 space-y-3">
- <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider block">Mulai Rutinitas Program</span>
+ <span className="text-[11px] text-muted-foreground font-semibold block">Mulai Rutinitas Program</span>
  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
  {strengthPrograms.map((progName) => (
  <button
@@ -387,10 +386,10 @@ export default function HealthWorkoutPage() {
  exercises: initialExercises
  });
  }}
- className="p-3 text-left rounded-xl border border-border bg-muted/20 hover:bg-muted/50/[0.04] transition-all hover:border-border-strong text-xs font-bold space-y-1"
+ className="p-3 text-left rounded-xl border border-border bg-muted/20 hover:bg-muted/50/[0.04] transition-colors hover:border-border-strong text-xs font-medium space-y-1"
  >
- <span className="text-foreground block uppercase tracking-tight">{progName}</span>
- <span className="text-[9px] text-muted-foreground font-bold block">{workoutPrograms[progName].length} Gerakan</span>
+ <span className="text-foreground block tracking-tight">{progName}</span>
+ <span className="text-[11px] text-muted-foreground font-medium block">{workoutPrograms[progName].length} Gerakan</span>
  </button>
  ))}
  </div>
@@ -398,17 +397,17 @@ export default function HealthWorkoutPage() {
 
  {/* Quick Cardio Quick Log form */}
  <div className="border-t border-border pt-4">
- <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider block mb-3">Log Cepat Cardio / Aktivitas Lain</span>
+ <span className="text-[11px] text-muted-foreground font-semibold block mb-3">Log Cepat Cardio / Aktivitas Lain</span>
  <form onSubmit={handleQuickCardioSubmit} className="grid grid-cols-1 sm:grid-cols-3 gap-3">
  <select
  value={quickCardioType}
  onChange={(e) => setQuickCardioType(e.target.value)}
  className="glass-select text-xs py-2 px-3"
  >
- <option value="Lari">🏃 Lari</option>
- <option value="Renang">🏊 Renang</option>
- <option value="Cardio">🚴 Cardio</option>
- <option value="Other">💪 Lainnya</option>
+ <option value="Lari">Lari</option>
+ <option value="Renang">Renang</option>
+ <option value="Cardio">Cardio</option>
+ <option value="Other">Lainnya</option>
  </select>
  <input
  type="number"
@@ -416,8 +415,8 @@ export default function HealthWorkoutPage() {
  required
  value={quickCardioMins}
  onChange={(e) => setQuickCardioMins(e.target.value)}
- className="glass-input text-xs"
- />
+ className="glass-input text-xs" aria-label="Menit"
+/>
  <Button type="submit" variant="secondary" icon="plus" size="sm">
  Log Cepat
  </Button>
@@ -431,16 +430,16 @@ export default function HealthWorkoutPage() {
  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-border pb-4 gap-3">
  <div>
  <div className="flex items-center gap-2">
- <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+ <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0" />
  <input
  type="text"
  value={activeWorkout.title}
  onChange={(e) => setActiveWorkout({ ...activeWorkout, title: e.target.value })}
- className="bg-transparent border-none p-0 outline-none text-sm font-semibold text-foreground uppercase tracking-tight focus:ring-0 w-44"
- placeholder="Nama Latihan"
- />
+ className="bg-transparent border-none p-0 outline-none text-sm font-semibold text-foreground tracking-tight focus:ring-0 w-44"
+ placeholder="Nama Latihan" aria-label="Nama Latihan"
+/>
  </div>
- <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mt-1 flex items-center gap-1.5">
+ <p className="text-[11px] text-muted-foreground font-semibold mt-1 flex items-center gap-1.5">
  <Icon name="calendar" size={10} />
  <span>Durasi: {durationString}</span>
  </p>
@@ -475,20 +474,20 @@ export default function HealthWorkoutPage() {
  {/* Active Rest Timer Bar */}
  {isRestTimerActive && restSecondsLeft > 0 && (
  <div className="flex items-center justify-between p-2.5 rounded-xl bg-primary/10/10 border border-primary/25/30 text-xs">
- <div className="flex items-center gap-2 font-bold text-teal-400">
- <Icon name="zap" size={14} className="animate-bounce" />
+ <div className="flex items-center gap-2 font-medium text-teal-400">
+ <Icon name="zap" size={14} className="" />
  <span>Rest Timer: {formatRestTime(restSecondsLeft)}</span>
  </div>
  <div className="flex items-center gap-1.5">
  <button
  onClick={() => setRestSecondsLeft(prev => prev + 15)}
- className="px-2 py-0.5 rounded bg-muted/40 hover:bg-muted/50/[0.08] text-[9px] font-bold text-foreground border border-border"
+ className="px-2 py-0.5 rounded bg-muted/40 hover:bg-muted/50/[0.08] text-[11px] font-medium text-foreground border border-border"
  >
  +15s
  </button>
  <button
  onClick={() => setRestSecondsLeft(prev => Math.max(0, prev - 15))}
- className="px-2 py-0.5 rounded bg-muted/40 hover:bg-muted/50/[0.08] text-[9px] font-bold text-foreground border border-border"
+ className="px-2 py-0.5 rounded bg-muted/40 hover:bg-muted/50/[0.08] text-[11px] font-medium text-foreground border border-border"
  >
  -15s
  </button>
@@ -497,7 +496,7 @@ export default function HealthWorkoutPage() {
  setIsRestTimerActive(false);
  setRestSecondsLeft(0);
  }}
- className="px-2 py-0.5 rounded bg-destructive/10/20 border border-destructive/25/30 text-[9px] font-bold text-rose-300"
+ className="px-2 py-0.5 rounded bg-destructive/10/20 border border-destructive/25/30 text-[11px] font-medium text-rose-300"
  >
  Lewati
  </button>
@@ -510,9 +509,9 @@ export default function HealthWorkoutPage() {
  <textarea
  value={activeWorkout.notes}
  onChange={(e) => setActiveWorkout({ ...activeWorkout, notes: e.target.value })}
- placeholder="Catatan latihan umum (kondisi fisik, cuaca, dll)..."
- className="glass-input text-xs h-12 resize-none py-1.5 leading-relaxed"
- />
+ placeholder="Catatan latihan umum (kondisi fisik, cuaca, dll)"
+ className="glass-input text-xs h-12 resize-none py-1.5 leading-relaxed" aria-label="Catatan latihan umum (kondisi fisik, cuaca, dll)"
+/>
  </div>
 
  {/* Active Exercises List */}
@@ -521,7 +520,7 @@ export default function HealthWorkoutPage() {
  activeWorkout.exercises.map((ex, exIdx) => (
  <div key={exIdx} className="p-3.5 bg-muted/20 border border-border rounded-xl space-y-3 relative group">
  <div className="flex justify-between items-center">
- <strong className="text-xs text-foreground font-semibold uppercase tracking-tight">{ex.name}</strong>
+ <strong className="text-xs text-foreground font-semibold tracking-tight">{ex.name}</strong>
  <button
  onClick={() => deleteActiveExercise(exIdx)}
  className="text-muted-foreground hover:text-destructive p-1 transition-colors"
@@ -533,7 +532,7 @@ export default function HealthWorkoutPage() {
 
  {/* Sets List Table */}
  <div className="space-y-2">
- <div className="grid grid-cols-5 text-[9px] font-semibold text-muted-foreground uppercase tracking-wider text-center border-b border-white/5 pb-1 select-none">
+ <div className="grid grid-cols-5 text-[11px] font-semibold text-muted-foreground text-center border-b border-white/5 pb-1 select-none">
  <span>SET</span>
  <span>PREVIOUS</span>
  <span>KG</span>
@@ -544,9 +543,9 @@ export default function HealthWorkoutPage() {
  {ex.sets.map((set, setIdx) => (
  <div 
  key={setIdx} 
- className={`grid grid-cols-5 items-center gap-1.5 p-1 rounded-lg border text-center transition-all ${
+ className={`grid grid-cols-5 items-center gap-1.5 p-1 rounded-lg border text-center transition-colors ${
  set.isDone 
- ? 'bg-primary/10/10 border-primary/25/30 text-teal-200 font-bold' 
+ ? 'bg-primary/10/10 border-primary/25/30 text-teal-200 font-medium' 
  : 'bg-muted/20 border-white/5 text-foreground'
  }`}
  >
@@ -555,7 +554,7 @@ export default function HealthWorkoutPage() {
  <button
  type="button"
  onClick={() => cycleSetType(exIdx, setIdx)}
- className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-semibold mx-auto transition-all ${
+ className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-semibold mx-auto transition-colors ${
  set.setType === 'W' 
  ? 'bg-amber-500 text-white' 
  : set.setType === 'D' 
@@ -571,7 +570,7 @@ export default function HealthWorkoutPage() {
  </div>
 
  {/* Previous performance Column */}
- <div className="text-[10px] font-bold text-muted-foreground tracking-tight truncate">
+ <div className="text-[11px] font-medium text-muted-foreground tracking-tight truncate">
  {getPreviousPerformance(ex.name, setIdx)}
  </div>
 
@@ -583,8 +582,8 @@ export default function HealthWorkoutPage() {
  onChange={(e) => updateActiveSetVal(exIdx, setIdx, 'weight', e.target.value)}
  disabled={set.isDone}
  placeholder="0"
- className="bg-transparent border-none p-0 outline-none text-[11px] font-semibold text-center w-full focus:ring-0 disabled:opacity-50"
- />
+ className="bg-transparent border-none p-0 outline-none text-[11px] font-semibold text-center w-full focus:ring-0 disabled:opacity-50" aria-label="0"
+/>
  </div>
 
  {/* Reps input */}
@@ -595,8 +594,8 @@ export default function HealthWorkoutPage() {
  onChange={(e) => updateActiveSetVal(exIdx, setIdx, 'reps', e.target.value)}
  disabled={set.isDone}
  placeholder="0"
- className="bg-transparent border-none p-0 outline-none text-[11px] font-semibold text-center w-full focus:ring-0 disabled:opacity-50"
- />
+ className="bg-transparent border-none p-0 outline-none text-[11px] font-semibold text-center w-full focus:ring-0 disabled:opacity-50" aria-label="0"
+/>
  </div>
 
  {/* Done Checkmark button */}
@@ -604,9 +603,9 @@ export default function HealthWorkoutPage() {
  <button
  type="button"
  onClick={() => toggleActiveSetDone(exIdx, setIdx)}
- className={`w-5 h-5 rounded flex items-center justify-center border transition-all ${
+ className={`w-5 h-5 rounded flex items-center justify-center border transition-colors ${
  set.isDone 
- ? 'bg-primary border-primary/25 text-white shadow-[0_0_8px_rgba(15,118,110,0.5)]' 
+ ? 'bg-primary border-primary/25 text-white ' 
  : 'bg-black/30 border-white/10 text-transparent hover:border-border-strong'
  }`}
  >
@@ -621,14 +620,14 @@ export default function HealthWorkoutPage() {
  <button
  type="button"
  onClick={() => deleteActiveSet(exIdx, ex.sets.length - 1)}
- className="text-[10px] font-semibold uppercase text-destructive hover:underline"
+ className="text-[11px] font-semibold text-destructive hover:underline"
  >
  {locale === 'id' ? 'Hapus Set' : 'Delete Set'}
  </button>
  <button
  type="button"
  onClick={() => addActiveSet(exIdx)}
- className="text-[10px] font-semibold uppercase text-primary hover:underline"
+ className="text-[11px] font-semibold text-primary hover:underline"
  >
  {locale === 'id' ? 'Tambah Set' : 'Add Set'}
  </button>
@@ -636,7 +635,7 @@ export default function HealthWorkoutPage() {
  </div>
  ))
  ) : (
- <p className="text-xs text-muted-foreground italic py-6 text-center">{locale === 'id' ? 'Belum ada gerakan latihan. Klik tombol di bawah.' : 'No exercises added yet. Click the button below.'}</p>
+ <p className="text-xs text-muted-foreground py-6 text-center">{locale === 'id' ? 'Belum ada gerakan latihan. Klik tombol di bawah.' : 'No exercises added yet. Click the button below.'}</p>
  )}
  </div>
 
@@ -648,7 +647,7 @@ export default function HealthWorkoutPage() {
  }}
  variant="secondary"
  icon="plus"
- className="w-full text-xs font-bold"
+ className="w-full text-xs font-medium"
  >
  {locale === 'id' ? 'Tambah Gerakan Latihan' : 'Add Exercise'}
  </Button>
@@ -658,7 +657,7 @@ export default function HealthWorkoutPage() {
  {/* Workouts History Today */}
  <Surface className="p-6">
  <div className="border-b border-border pb-3 mb-4">
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  {t('health_workouts_today')}
  </h3>
  <p className="text-xs text-muted-foreground mt-0.5">
@@ -675,14 +674,14 @@ export default function HealthWorkoutPage() {
  >
  <div className="flex justify-between items-start">
  <div>
- <strong className="text-xs text-foreground block font-bold">{w.program}</strong>
- <span className="text-[10px] text-muted-foreground font-bold block mt-0.5">
+ <strong className="text-xs text-foreground block font-medium">{w.program}</strong>
+ <span className="text-[11px] text-muted-foreground font-medium block mt-0.5">
  {w.category === 'strength' ? 'Latihan Kekuatan' : w.activity} • {w.minutes}m
  </span>
  </div>
  <button
  onClick={() => deleteWorkout(w.id)}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-all shrink-0"
+ className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors shrink-0"
  title={t('delete')}
  >
  <Icon name="trash" size={12} />
@@ -690,7 +689,7 @@ export default function HealthWorkoutPage() {
  </div>
 
  {w.notes && (
- <p className="text-[10px] text-muted-foreground italic leading-relaxed">
+ <p className="text-[11px] text-muted-foreground leading-relaxed">
  &ldquo;{w.notes}&rdquo;
  </p>
  )}
@@ -699,14 +698,14 @@ export default function HealthWorkoutPage() {
  <div className="space-y-2 mt-2 pt-2 border-t border-white/5">
  {w.exercises.map((e, eIdx) => (
  <div key={eIdx} className="text-xs space-y-1">
- <span className="font-semibold text-[10px] text-teal-400 block uppercase tracking-wider">{e.name}</span>
+ <span className="font-semibold text-[11px] text-teal-400 block ">{e.name}</span>
  <div className="flex flex-wrap gap-1.5 pl-2">
  {e.sets.map((s, sIdx) => {
  const typeStr = s.setType && s.setType !== 'N' ? s.setType : '';
  return (
  <span 
  key={sIdx} 
- className="inline-flex items-center gap-1.5 text-[9px] font-semibold tracking-normal bg-muted/30 border border-border px-1.5 py-0.5 rounded text-foreground"
+ className="inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-normal bg-muted/30 border border-border px-1.5 py-0.5 rounded text-foreground"
  >
  {typeStr && (
  <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] text-white shrink-0 font-semibold ${
@@ -736,7 +735,7 @@ export default function HealthWorkoutPage() {
  <Surface className="p-6">
  <div className="border-b border-border pb-3 mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
  <div>
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  {t('health_exercise_history')}
  </h3>
  <p className="text-xs text-muted-foreground mt-0.5">
@@ -761,7 +760,7 @@ export default function HealthWorkoutPage() {
  {exerciseRows.length > 0 ? (
  <table className="w-full text-left text-xs border-collapse">
  <thead>
- <tr className="border-b border-border text-muted-foreground font-semibold uppercase text-[10px]">
+ <tr className="border-b border-border text-muted-foreground font-semibold text-[11px]">
  <th className="py-2.5 px-3">Tanggal</th>
  <th className="py-2.5 px-3">Program</th>
  <th className="py-2.5 px-3">Set</th>
@@ -777,9 +776,9 @@ export default function HealthWorkoutPage() {
  <td className="py-2 px-3">{row.setIndex}</td>
  <td className="py-2 px-3">
  {row.setType === 'N' ? (
- <span className="text-[9px] font-semibold uppercase text-muted-foreground">Normal</span>
+ <span className="text-[11px] font-semibold text-muted-foreground">Normal</span>
  ) : (
- <Badge tone={row.setType === 'W' ? 'amber' : row.setType === 'D' ? 'indigo' : 'rose'} className="text-[8px] px-1 py-0 shrink-0">
+ <Badge tone={row.setType === 'W' ? 'amber' : row.setType === 'D' ? 'indigo' : 'rose'} className="text-[11px] px-1 py-0 shrink-0">
  {row.setType === 'W' ? 'Warmup' : row.setType === 'D' ? 'Drop' : 'Failure'}
  </Badge>
  )}
@@ -806,10 +805,10 @@ export default function HealthWorkoutPage() {
  <input
  type="text"
  className="glass-input text-xs w-full"
- placeholder="Cari gerakan (misal: Bench Press, Squat, Lat Pulldown)..."
+ placeholder="Cari gerakan"
  value={exerciseSearchQuery}
- onChange={(e) => setExerciseSearchQuery(e.target.value)}
- />
+ onChange={(e) => setExerciseSearchQuery(e.target.value)} aria-label="Cari gerakan"
+/>
 
  <div className="space-y-1.5 max-h-[250px] overflow-y-auto pr-1">
  {allWorkoutExercises
@@ -818,14 +817,14 @@ export default function HealthWorkoutPage() {
  <button
  key={exName}
  onClick={() => handleAddExerciseToWorkout(exName)}
- className="w-full p-2.5 text-left rounded-lg border border-border bg-muted/20 hover:bg-muted/50/[0.04] transition-all text-xs font-bold text-foreground flex justify-between items-center"
+ className="w-full p-2.5 text-left rounded-lg border border-border bg-muted/20 hover:bg-muted/50/[0.04] transition-colors text-xs font-medium text-foreground flex justify-between items-center"
  >
  <span>{exName}</span>
  <Icon name="arrowRight" size={12} className="text-muted-foreground" />
  </button>
  ))}
  {allWorkoutExercises.filter(ex => ex.toLowerCase().includes(exerciseSearchQuery.toLowerCase())).length === 0 && (
- <p className="text-xs text-muted-foreground italic text-center py-4">Gerakan tidak ditemukan.</p>
+ <p className="text-xs text-muted-foreground text-center py-4">Gerakan tidak ditemukan.</p>
  )}
  </div>
  </div>

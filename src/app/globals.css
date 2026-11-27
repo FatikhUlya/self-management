@@ -3,100 +3,100 @@
 @tailwind utilities;
 
 /* ============================================================
-   DESIGN SYSTEM TOKENS — Option 1: Executive Monolith (Linear & Apple Aesthetic)
-   Slate/Zinc neutral scale · Teal & Amber accents · Precision borders
+   DESIGN TOKENS — Life OS · "planner & ledger"
+   Direction (unslop): steady, exact, a little warm.
+   Graphite neutrals with a faint paper warmth, one ink-blue accent,
+   moss / brick / ochre only for meaning. Depth from surface steps and
+   hairlines, not shadows.
+   unslop by Damir Sokolovsky (@heydamir), CC BY 4.0
    ============================================================ */
 @layer base {
   :root {
-    /* ── Surfaces — Modern Canvas with subtle depth ── */
-    --background: 210 40% 98%;          /* #F8FAFC — refined soft slate canvas */
-    --foreground: 222 47% 11%;          /* #0F172A — executive slate-900 */
-    --card: 0 0% 100%;                  /* #FFFFFF — clean elevated white */
-    --card-foreground: 222 47% 11%;
+    /* Surfaces */
+    --background: 60 11% 96.5%;          /* #f7f7f5 page, like a planner page */
+    --foreground: 40 6% 10.4%;           /* #1c1b19 primary text, ink black */
+    --card: 0 0% 100%;                   /* #ffffff */
+    --card-foreground: 40 6% 10.4%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 40 6% 10.4%;
 
-    /* ── Primary: Executive Slate with crisp contrast ── */
-    --primary: 222 47% 11%;             /* #0F172A — authoritative slate */
-    --primary-foreground: 210 40% 98%;  /* #F8FAFC — slate-50 */
+    --primary: 40 6% 10.4%;              /* filled primary button = ink black */
+    --primary-foreground: 60 11% 96.5%;
 
-    /* ── Secondary ── */
-    --secondary: 210 40% 96.1%;         /* #F1F5F9 */
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 60 10% 93.9%;           /* #f1f1ee raised */
+    --secondary-foreground: 40 6% 10.4%;
 
-    /* ── Muted ── */
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215 16% 47%;    /* #64748B — slate-500 */
+    --muted: 60 10% 93.9%;
+    --muted-foreground: 50 3% 42.4%;     /* #6f6e69 muted, 4.9:1 on white */
 
-    /* ── Accent (hover states) ── */
-    --accent: 210 40% 94%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 60 10% 93.9%;              /* shadcn "accent" = hover surface */
+    --accent-foreground: 40 6% 10.4%;
 
-    /* ── Destructive ── */
-    --destructive: 0 84% 60%;           /* #DC2626 */
+    --destructive: 7 45% 49.6%;          /* brick */
     --destructive-foreground: 0 0% 100%;
 
-    /* ── Borders & inputs ── */
-    --border: 214 32% 91%;              /* #E2E8F0 — slate-200 crisp border */
-    --input: 214 32% 91%;
-    --ring: 222 47% 11%;
+    --border: 48 9% 89.2%;               /* #e6e5e1 hairline */
+    --input: 48 9% 89.2%;
+    --ring: 221 38% 46.5%;               /* ink focus ring */
 
-    /* ── Radius ── */
-    --radius: 0.625rem;
+    --radius: 0.625rem;                  /* 10px controls; cards use rounded-xl */
 
-    /* ── Status colors (Executive Palette) ── */
-    --success: 173 80% 32%;             /* #0D9488 — Teal-600 */
+    --ink: 221 38% 46.5%;                /* #4a66a3 the one accent */
+    --ink-foreground: 0 0% 100%;
+    --success: 141 40% 38.6%;            /* moss */
     --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;              /* #D97706 — Amber-600 */
-    --warning-foreground: 38 92% 14%;
-    --info: 217 91% 60%;                /* #3B82F6 — Blue-500 */
+    --warning: 37 62% 44.9%;             /* ochre */
+    --warning-foreground: 0 0% 100%;
+    --info: 221 38% 46.5%;
     --info-foreground: 0 0% 100%;
 
-    /* ── Legacy compatibility vars ── */
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
     --life-bg: hsl(var(--background));
     --life-text: hsl(var(--foreground));
     --life-panel: hsl(var(--card));
     --life-panel-hover: hsl(var(--accent));
     --life-panel-active: hsl(var(--accent));
     --life-line: hsl(var(--border));
-    --life-line-strong: hsl(214 32% 82%);
+    --life-line-strong: hsl(48 6% 82%);
     --life-muted: hsl(var(--muted-foreground));
   }
 
   .dark {
-    /* ── Executive Monolith Dark — Deep Obsidian Canvas ── */
-    --background: 240 10% 3.9%;         /* #09090B — deep obsidian canvas */
-    --foreground: 210 40% 98%;          /* #F8FAFC — slate-50 */
-    --card: 240 7% 7.5%;                /* #121215 — elevated executive surface */
-    --card-foreground: 210 40% 98%;
-    --popover: 240 7% 7.5%;
-    --popover-foreground: 210 40% 98%;
+    --background: 60 2% 9.6%;            /* #191918 page */
+    --foreground: 60 5% 92.5%;           /* #ededeb */
+    --card: 60 3% 11.8%;                 /* #1f1f1d */
+    --card-foreground: 60 5% 92.5%;
+    --popover: 60 3% 11.8%;
+    --popover-foreground: 60 5% 92.5%;
 
-    --primary: 210 40% 98%;             /* #F8FAFC — high contrast white/slate */
-    --primary-foreground: 222 47% 11%;  /* #0F172A */
+    --primary: 60 5% 92.5%;              /* off-white primary button, dark text */
+    --primary-foreground: 40 6% 10.4%;
 
-    --secondary: 240 4% 15%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 60 3% 14.5%;            /* #262624 raised */
+    --secondary-foreground: 60 5% 92.5%;
 
-    --muted: 240 4% 14%;
-    --muted-foreground: 240 5% 65%;     /* #A1A1AA — zinc-400 */
+    --muted: 60 3% 14.5%;
+    --muted-foreground: 50 2.5% 58%;     /* muted text */
 
-    --accent: 240 4% 14%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 60 3% 14.5%;
+    --accent-foreground: 60 5% 92.5%;
 
-    --destructive: 0 63% 58%;           /* #F87171 */
+    --destructive: 7 52% 61.8%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 4% 16%;               /* #27272A — zinc-800 */
-    --input: 240 4% 16%;
-    --ring: 210 40% 98%;
+    --border: 40 3.5% 16.7%;             /* #2c2b29 hairline */
+    --input: 40 3% 19%;
+    --ring: 220 44% 69.6%;
 
-    --success: 173 70% 40%;             /* #14B8A6 — Teal-400 */
-    --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%;              /* #F59E0B — Amber-400 */
-    --warning-foreground: 0 0% 100%;
-    --info: 217 91% 60%;                /* Blue-500 */
-    --info-foreground: 0 0% 100%;
+    --ink: 220 44% 69.6%;                /* #8fa6d4 ink on dark */
+    --ink-foreground: 40 6% 10.4%;
+    --success: 140 33% 52.7%;
+    --success-foreground: 40 6% 10.4%;
+    --warning: 38 59% 54.1%;
+    --warning-foreground: 40 6% 10.4%;
+    --info: 220 44% 69.6%;
+    --info-foreground: 40 6% 10.4%;
 
     --life-bg: hsl(var(--background));
     --life-text: hsl(var(--foreground));
@@ -104,13 +104,13 @@
     --life-panel-hover: hsl(var(--accent));
     --life-panel-active: hsl(var(--accent));
     --life-line: hsl(var(--border));
-    --life-line-strong: hsl(240 4% 24%);
+    --life-line-strong: hsl(40 3% 22%);
     --life-muted: hsl(var(--muted-foreground));
   }
 }
 
 /* ============================================================
-   BASE LAYER — Modern & Timeless Swiss Grid Typography (Apple / Notion)
+   BASE LAYER
    ============================================================ */
 @layer base {
   * {
@@ -134,23 +134,23 @@
   /* ── Heading Utama (h1): Swiss / Apple authority ── */
   h1, .h1 {
     font-family: var(--font-heading, var(--font-sans)), 'Plus Jakarta Sans', system-ui, sans-serif;
-    @apply text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground;
+    @apply text-2xl sm:text-[32px] font-medium tracking-[-0.015em] leading-[1.15] text-foreground;
   }
 
   /* ── Sub-heading (h2, h3): Balanced rhythm & contrast ── */
   h2, .h2 {
     font-family: var(--font-heading, var(--font-sans)), 'Plus Jakarta Sans', system-ui, sans-serif;
-    @apply text-lg sm:text-xl font-medium tracking-[-0.015em] leading-[1.3] text-foreground;
+    @apply text-lg sm:text-xl font-medium leading-[1.3] text-foreground;
   }
 
   h3, .h3 {
     font-family: var(--font-heading, var(--font-sans)), 'Plus Jakarta Sans', system-ui, sans-serif;
-    @apply text-base sm:text-lg font-medium tracking-[-0.015em] leading-[1.3] text-foreground;
+    @apply text-base font-medium leading-[1.4] text-foreground;
   }
 
   h4, h5, h6 {
     font-family: var(--font-sans), 'Plus Jakarta Sans', system-ui, sans-serif;
-    @apply font-semibold tracking-[-0.01em] text-foreground;
+    @apply font-medium text-foreground;
   }
 
   /* ── Body Text: High readability without harsh pitch-black #000 ── */
@@ -170,11 +170,11 @@
   .micro-copy,
   .micro-label,
   th {
-    @apply text-xs font-medium tracking-[0.02em] uppercase text-zinc-500;
+    @apply text-xs font-medium text-muted-foreground;
   }
 
   /* ── Tabular numbers for numeric data, codes, & timestamps ── */
-  .tabular-nums,
+  /* tabular figures stay in the interface family; mono only where asked */
   [data-numeric],
   td:has(> [data-numeric]),
   .font-mono {
@@ -235,13 +235,13 @@
   .glass {
     @apply bg-card text-card-foreground rounded-xl;
     border: 1px solid hsl(var(--border));
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04);
-    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
+    transition: border-color 0.15s var(--ease), background-color 0.15s var(--ease);
   }
   .glass-hover:hover {
-    border-color: hsl(var(--border));
-    box-shadow: 0 4px 12px 0 rgb(0 0 0 / 0.05), 0 1px 3px 0 rgb(0 0 0 / 0.05);
+    border-color: var(--life-line-strong);
   }
+  .dark .glass { box-shadow: none; }
 
   /* ── Input ── */
   .glass-input {
@@ -249,7 +249,7 @@
     @apply rounded-lg outline-none;
     border: 1px solid hsl(var(--input));
     padding: 8px 12px;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    transition: border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
   }
   .glass-input::placeholder {
     @apply text-muted-foreground/70;
@@ -264,7 +264,7 @@
     @apply rounded-lg outline-none;
     border: 1px solid hsl(var(--input));
     padding: 8px 12px;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    transition: border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
   }
   .glass-select:focus {
     border-color: hsl(var(--ring));
@@ -274,13 +274,13 @@
   /* ── Primary Button — Flat, professional ── */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2;
-    @apply text-sm font-semibold;
+    @apply text-sm font-medium;
     @apply bg-primary text-primary-foreground;
     @apply rounded-md;
     padding: 10px 20px;
     border: none;
     cursor: pointer;
-    transition: opacity 0.15s ease, transform 0.1s ease;
+    transition: opacity 0.15s var(--ease), transform 0.1s var(--ease);
     text-decoration: none;
     user-select: none;
   }
@@ -304,7 +304,7 @@
     padding: 10px 20px;
     border: 1px solid hsl(var(--border));
     cursor: pointer;
-    transition: background 0.15s ease, border-color 0.15s ease;
+    transition: background 0.15s var(--ease), border-color 0.15s var(--ease);
     user-select: none;
   }
   .btn-secondary:hover {
@@ -317,13 +317,13 @@
   /* ── Danger Button ── */
   .btn-danger {
     @apply inline-flex items-center justify-center gap-2;
-    @apply text-sm font-semibold;
+    @apply text-sm font-medium;
     @apply bg-destructive text-destructive-foreground;
     @apply rounded-md;
     padding: 10px 20px;
     border: none;
     cursor: pointer;
-    transition: opacity 0.15s ease, transform 0.1s ease;
+    transition: opacity 0.15s var(--ease), transform 0.1s var(--ease);
     user-select: none;
   }
   .btn-danger:hover {
@@ -343,11 +343,11 @@
   .has-deadline { @apply bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800; }
 
   /* ── SVG Chart ── */
-  .chart-grid { stroke: hsl(var(--border)); stroke-width: 1; stroke-dasharray: 4 4; }
+  .chart-grid { stroke: hsl(var(--border)); stroke-width: 1; }
   .chart-axis { stroke: hsl(var(--border)); stroke-width: 1; }
-  .chart-line { fill: none; stroke: hsl(var(--primary)); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-  .chart-area { fill: hsl(var(--primary)); opacity: 0.06; }
-  .chart-point { fill: hsl(var(--card)); stroke: hsl(var(--primary)); stroke-width: 2; transition: all 0.2s; }
+  .chart-line { fill: none; stroke: hsl(var(--ink)); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .chart-area { fill: hsl(var(--ink)); opacity: 0.08; }
+  .chart-point { fill: hsl(var(--card)); stroke: hsl(var(--ink)); stroke-width: 2; transition: r 0.15s var(--ease); }
   .chart-point:hover { r: 5; stroke-width: 2.5; }
 
   /* ── Badge ── */
@@ -368,7 +368,7 @@
   }
   .duo-progress-fill {
     @apply h-full bg-primary rounded-full;
-    transition: width 0.5s ease;
+    transition: width 0.5s var(--ease);
   }
 }
 
@@ -400,21 +400,66 @@
    ============================================================ */
 @layer utilities {
   .text-h1 {
-    @apply text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground;
+    @apply text-2xl sm:text-[32px] font-medium tracking-[-0.015em] leading-[1.15] text-foreground;
   }
   .text-h2 {
-    @apply text-lg sm:text-xl font-medium tracking-[-0.015em] leading-[1.3] text-foreground;
+    @apply text-lg sm:text-xl font-medium leading-[1.3] text-foreground;
   }
   .text-h3 {
-    @apply text-base sm:text-lg font-medium tracking-[-0.015em] leading-[1.3] text-foreground;
+    @apply text-base font-medium leading-[1.4] text-foreground;
   }
   .text-body {
     @apply text-sm sm:text-base leading-[1.6] text-zinc-700 dark:text-zinc-300;
   }
   .text-micro {
-    @apply text-xs font-medium tracking-[0.02em] uppercase text-zinc-500;
+    @apply text-xs font-medium text-muted-foreground;
   }
   .max-prose {
     max-width: 65ch;
+  }
+}
+
+/* ============================================================
+   UNSLOP ADDITIONS — focus, motion, signature
+   ============================================================ */
+@layer base {
+  /* Visible keyboard focus everywhere, in the accent */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /* One easing curve and short durations for every transition */
+  *, *::before, *::after {
+    transition-timing-function: var(--ease);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Figures: tabular everywhere numbers are compared */
+  .figure {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+}
+
+@layer components {
+  /* Signature: the planner date stamp. Mono, hairline box, like a dated
+     tab in a paper planner. Used once per page header, nowhere else. */
+  .date-stamp {
+    @apply inline-flex items-center gap-2 h-7 px-2 mb-3 rounded-md border border-border bg-card;
+    @apply font-mono text-xs text-muted-foreground;
+    font-variant-numeric: tabular-nums;
+  }
+  .date-stamp b {
+    @apply font-medium text-foreground;
   }
 }

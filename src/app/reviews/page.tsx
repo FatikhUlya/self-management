@@ -11,6 +11,7 @@ import { MiniChart } from '@/components/ui/MiniChart';
 import { AiReviewer } from '@/components/ui/AiReviewer';
 import { lastSevenDays, dayName, inLastDays, avg } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { DateStamp } from '@/components/ui/DateStamp';
 
 export default function ReviewsDashboardPage() {
  const { state } = useLifeOS();
@@ -43,10 +44,8 @@ export default function ReviewsDashboardPage() {
  {/* Header */}
  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
  <div>
- <h1 className="text-2xl sm:text-4xl font-semibold tracking-[-0.025em] leading-[1.15] text-foreground flex items-center gap-2.5">
- <span className="w-8 h-8 rounded-lg bg-fuchsia-500/10 flex items-center justify-center text-fuchsia-600 dark:text-fuchsia-400 shrink-0">
- <Icon name="review" size={17} />
- </span>
+ <DateStamp />
+ <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
  {t('reviews_title')}
  </h1>
  <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
@@ -81,7 +80,7 @@ export default function ReviewsDashboardPage() {
  detail="Dari semua evaluasi tersimpan"
  >
  <div className="h-12 mt-2">
- <MiniChart points={reviewChartPoints} colorClass="bg-gradient-to-t from-fuchsia-500/40 to-fuchsia-500" />
+ <MiniChart points={reviewChartPoints} colorClass=" " />
  </div>
  </DashboardCard>
 
@@ -101,7 +100,7 @@ export default function ReviewsDashboardPage() {
  {/* Quick Recent Overview */}
  <Surface className="p-6">
  <div className="border-b border-border pb-3 mb-4">
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  Evaluasi Terbaru
  </h3>
  </div>
@@ -111,7 +110,7 @@ export default function ReviewsDashboardPage() {
  <div key={review.id} className="p-3 bg-muted/20 border border-border rounded-lg flex justify-between items-center">
  <div>
  <strong className="text-xs text-foreground block">{review.date}</strong>
- <span className="text-[10px] text-muted-foreground uppercase font-bold">{review.period}</span>
+ <span className="text-[11px] text-muted-foreground font-medium">{review.period}</span>
  </div>
  <div className="text-xs font-semibold text-amber-500 bg-amber-500/10 px-2 py-1 rounded">
  {review.score}/10

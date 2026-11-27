@@ -5,6 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { Icon } from '@/components/ui/Icon';
 import Link from 'next/link';
+import DOMPurify from 'dompurify';
+import { safeExternalUrl } from '@/lib/utils';
 
 export default function LearningModuleDetailPage() {
  const params = useParams();
@@ -18,7 +20,7 @@ export default function LearningModuleDetailPage() {
  if (!module && !loading) {
  return (
  <div className="text-center py-20 space-y-4">
- <h1 className="text-2xl font-bold text-zinc-800 dark:text-zinc-200">Modul tidak ditemukan</h1>
+ <h1 className="text-2xl font-medium text-zinc-800 dark:text-zinc-200">Modul tidak ditemukan</h1>
  <Link href={`/learning/paths/${id}`} className="px-4 py-2 bg-zinc-200 dark:bg-zinc-800 rounded-lg inline-block">Kembali</Link>
  </div>
  );
@@ -35,59 +37,59 @@ export default function LearningModuleDetailPage() {
  </Link>
  </div>
 
- <div className="bg-white/80 dark:bg-black/40 backdrop-blur-md rounded-xl p-6 md:p-10 border border-zinc-200 dark:border-zinc-800 shadow-xl shadow-amber-900/5">
+ <div className="bg-white/80 dark:bg-black/40 backdrop-blur-md rounded-xl p-6 md:p-10 border border-zinc-200 dark:border-zinc-800 shadow-xl ">
  <div className="flex items-center gap-4 mb-8 pb-6 border-b border-zinc-100 dark:border-zinc-800/50">
  <button 
  onClick={() => toggleLearningModuleCompletion(module.id)}
  className={`flex-shrink-0 w-8 h-8 rounded-lg border flex items-center justify-center transition-colors ${
  module.isCompleted 
- ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20' 
+ ? 'bg-emerald-500 border-emerald-500 text-white shadow-lg ' 
  : 'border-zinc-300 dark:border-zinc-600 hover:border-amber-500'
  }`}
  >
  {module.isCompleted && <Icon name="check" size={20} />}
  </button>
- <h1 className={`text-3xl font-bold ${module.isCompleted ? 'text-zinc-500 line-through' : 'text-zinc-900 dark:text-zinc-50'}`}>
+ <h1 className={`text-3xl font-medium ${module.isCompleted ? 'text-zinc-500 line-through' : 'text-zinc-900 dark:text-zinc-50'}`}>
  {module.title}
  </h1>
  </div>
 
  {module.contentMaterial && (
  <div className="mb-10">
- <h3 className="text-lg font-bold text-zinc-800 dark:text-zinc-200 mb-4 flex items-center gap-2">
+ <h3 className="text-lg font-medium text-zinc-800 dark:text-zinc-200 mb-4 flex items-center gap-2">
  <Icon name="fileText" size={20} className="text-amber-500" />
  Materi
  </h3>
  <div 
  className={`prose prose-zinc sm:prose-base dark:prose-invert max-w-none prose-a:text-amber-600 dark:prose-a:text-amber-400 quill-content-override`}
- dangerouslySetInnerHTML={{ __html: module.contentMaterial }}
+ dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(module.contentMaterial) }}
  />
  </div>
  )}
 
  {(module.contentVideoLink || module.contentImageUrl) && (
  <div className="pt-6 border-t border-zinc-100 dark:border-zinc-800/50">
- <h3 className="text-lg font-bold text-zinc-800 dark:text-zinc-200 mb-4 flex items-center gap-2">
+ <h3 className="text-lg font-medium text-zinc-800 dark:text-zinc-200 mb-4 flex items-center gap-2">
  <Icon name="link" size={20} className="text-amber-500" />
  Referensi Ekstra
  </h3>
  <div className="flex flex-wrap gap-3">
- {module.contentVideoLink && (
+ {safeExternalUrl(module.contentVideoLink) && (
  <a 
- href={module.contentVideoLink} 
+ href={safeExternalUrl(module.contentVideoLink)} 
  target="_blank" 
- rel="noreferrer"
- className="inline-flex items-center gap-2 px-4 py-2.5 font-medium bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400 rounded-xl hover:bg-red-100 dark:hover:bg-red-500/20 transition-all border border-red-100 dark:border-red-500/20"
+ rel="noopener noreferrer"
+ className="inline-flex items-center gap-2 px-4 py-2.5 font-medium bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400 rounded-xl hover:bg-red-100 dark:hover:bg-red-500/20 transition-colors border border-red-100 dark:border-red-500/20"
  >
  <Icon name="play" size={18} /> Tonton Video
  </a>
  )}
- {module.contentImageUrl && (
+ {safeExternalUrl(module.contentImageUrl) && (
  <a 
- href={module.contentImageUrl} 
+ href={safeExternalUrl(module.contentImageUrl)} 
  target="_blank" 
- rel="noreferrer"
- className="inline-flex items-center gap-2 px-4 py-2.5 font-medium bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-all border border-blue-100 dark:border-blue-500/20"
+ rel="noopener noreferrer"
+ className="inline-flex items-center gap-2 px-4 py-2.5 font-medium bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400 rounded-xl hover:bg-blue-100 dark:hover:bg-blue-500/20 transition-colors border border-blue-100 dark:border-blue-500/20"
  >
  <Icon name="image" size={18} /> Lihat Gambar
  </a>

@@ -86,7 +86,7 @@ export function NotificationBanner() {
         return (
           <div
             key={alert.id}
-            className={`relative flex items-center justify-between gap-3 px-3.5 py-2 rounded-lg border ${theme.border} ${theme.bg} text-foreground shadow-2xs transition-all`}
+            className={`relative flex items-center justify-between gap-3 px-3.5 py-2 rounded-lg border ${theme.border} ${theme.bg} text-foreground shadow-2xs transition-colors`}
           >
             <div className="flex items-center gap-2.5 min-w-0">
               <div className={`w-6 h-6 rounded-md ${theme.iconBg} flex items-center justify-center shrink-0`}>

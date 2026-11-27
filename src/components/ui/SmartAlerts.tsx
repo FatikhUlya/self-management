@@ -118,7 +118,7 @@ export function SmartAlerts() {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between text-xs font-medium text-muted-foreground px-1">
-        <span className="flex items-center gap-1.5 font-semibold text-foreground text-[11px] uppercase tracking-wider">
+        <span className="flex items-center gap-1.5 font-semibold text-foreground text-[11px] ">
           <Icon name="bell" size={13} className="text-amber-500" />
           Pemberitahuan Cerdas ({alerts.length})
         </span>
@@ -139,7 +139,7 @@ export function SmartAlerts() {
             <div
               key={alert.id}
               className={cn(
-                "flex items-center gap-2.5 p-3 rounded-lg border transition-all text-xs shadow-2xs",
+                "flex items-center gap-2.5 p-3 rounded-lg border transition-colors text-xs shadow-2xs",
                 config.container
               )}
             >

@@ -75,7 +75,7 @@ export function MobileNav() {
               >
                 <Icon name={item.icon} size={18} />
               </div>
-              <span className="text-[10px] tracking-tight mt-0.5 truncate max-w-[64px]">
+              <span className="text-[11px] tracking-tight mt-0.5 truncate max-w-[64px]">
                 {t(item.labelKey)}
               </span>
             </Link>
@@ -104,7 +104,7 @@ export function MobileNav() {
           >
             <Icon name={isOpen ? 'x' : 'menu'} size={18} />
           </div>
-          <span className="text-[10px] tracking-tight mt-0.5">
+          <span className="text-[11px] tracking-tight mt-0.5">
             {isOpen ? 'Tutup' : 'Lainnya'}
           </span>
         </button>
@@ -162,7 +162,7 @@ export function MobileNav() {
 
                   return (
                     <div key={sectionKey} className="space-y-2">
-                      <span className="text-[11px] font-medium tracking-[0.02em] uppercase text-zinc-500 block px-1">
+                      <span className="text-[11px] font-medium text-zinc-500 block px-1">
                         {label}
                       </span>
                       <div className="grid grid-cols-2 gap-2">
@@ -177,7 +177,7 @@ export function MobileNav() {
                               href={item.path}
                               onClick={() => setIsOpen(false)}
                               className={cn(
-                                'flex items-center gap-3 p-3 rounded-xl border transition-all min-h-[48px] touch-manipulation active:scale-[0.98]',
+                                'flex items-center gap-3 p-3 rounded-xl border transition-colors min-h-[48px] touch-manipulation active:scale-[0.98]',
                                 isActive
                                   ? 'bg-primary/10 border-primary/25 text-primary font-semibold shadow-xs'
                                   : 'bg-muted/30 border-border text-foreground hover:bg-muted/60'

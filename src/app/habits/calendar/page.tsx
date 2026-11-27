@@ -107,13 +107,12 @@ export default function HabitsCalendarPage() {
  {/* Header */}
  <div className="flex items-center gap-3">
  <Link href="/habits">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-all">
+ <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
  <Icon name="arrowLeft" size={18} />
  </button>
  </Link>
  <div>
- <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
- <Icon name="calendar" size={24} className="text-cyan-500" />
+ <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
  {t('habits_calendar')}
  </h1>
  <p className="text-zinc-500 text-xs mt-1">
@@ -125,7 +124,7 @@ export default function HabitsCalendarPage() {
  <Surface className="p-6">
  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4 mb-6">
  <div>
- <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
+ <h3 className="text-sm font-medium text-foreground ">
  {t('habits_calendar')}
  </h3>
  <p className="text-xs text-muted-foreground mt-0.5">
@@ -137,7 +136,7 @@ export default function HabitsCalendarPage() {
  <button
  type="button"
  onClick={() => navigateCalendarMonth('prev')}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-muted/50/[0.07] text-muted-foreground hover:text-foreground flex items-center justify-center transition-all"
+ className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-muted/50/[0.07] text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors"
  title={locale === 'id' ? 'Bulan Sebelumnya' : 'Previous Month'}
  >
  <Icon name="chevronLeft" size={12} />
@@ -175,7 +174,7 @@ export default function HabitsCalendarPage() {
  <button
  type="button"
  onClick={() => navigateCalendarMonth('next')}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-muted/50/[0.07] text-muted-foreground hover:text-foreground flex items-center justify-center transition-all"
+ className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-muted/50/[0.07] text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors"
  title={locale === 'id' ? 'Bulan Berikutnya' : 'Next Month'}
  >
  <Icon name="chevronRight" size={12} />
@@ -187,7 +186,7 @@ export default function HabitsCalendarPage() {
  <div className="grid grid-cols-7 gap-2 max-w-xl mx-auto">
  {/* Weekday headers */}
  {['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'].map((day) => (
- <div key={day} className="text-center text-[10px] font-semibold text-muted-foreground uppercase py-1">
+ <div key={day} className="text-center text-[11px] font-semibold text-muted-foreground py-1">
  {day}
  </div>
  ))}
@@ -203,12 +202,12 @@ export default function HabitsCalendarPage() {
  <button
  key={day}
  onClick={() => setSelectedCalendarDate(day)}
- className={`aspect-square rounded-lg flex flex-col items-center justify-between p-1.5 relative border transition-all duration-150 select-none ${tone} ${
- isToday ? 'border-primary scale-[1.05] ring-2 ring-life-teal/30 z-10' : ''
+ className={`aspect-square rounded-lg flex flex-col items-center justify-between p-1.5 relative border transition-colors duration-150 select-none ${tone} ${
+ isToday ? 'border-primary ring-2 ring-life-teal/30 z-10' : ''
  }`}
  title={`${formatDate(day)}: ${pct}% habit done`}
  >
- <span className="text-[10px] font-bold self-start">{Number(day.slice(-2))}</span>
+ <span className="text-[11px] font-medium self-start">{Number(day.slice(-2))}</span>
  <strong className="text-xs font-semibold">{pct}%</strong>
  </button>
  );
@@ -216,7 +215,7 @@ export default function HabitsCalendarPage() {
  </div>
 
  {/* Legend */}
- <div className="flex justify-center items-center gap-4 mt-6 text-[10px] font-semibold text-muted-foreground uppercase">
+ <div className="flex justify-center items-center gap-4 mt-6 text-[11px] font-semibold text-muted-foreground ">
  <span className="flex items-center gap-1.5">
  <i className="w-3.5 h-3.5 rounded bg-muted/30 border border-border inline-block" /> 0%
  </span>
@@ -230,7 +229,7 @@ export default function HabitsCalendarPage() {
  <i className="w-3.5 h-3.5 rounded bg-primary/60 border border-primary/25/70 inline-block" /> 51-75%
  </span>
  <span className="flex items-center gap-1.5">
- <i className="w-3.5 h-3.5 rounded bg-primary border border-primary/30 inline-block shadow-[0_0_8px_rgba(15,118,110,0.3)]" /> 76-100%
+ <i className="w-3.5 h-3.5 rounded bg-primary border border-primary/30 inline-block " /> 76-100%
  </span>
  </div>
  </Surface>
@@ -253,20 +252,20 @@ export default function HabitsCalendarPage() {
  <div
  key={habit.id}
  onClick={() => toggleHabit(habit.id, selectedCalendarDate)}
- className={`flex items-center justify-between p-3.5 rounded-xl border cursor-pointer select-none transition-all duration-150 ${
+ className={`flex items-center justify-between p-3.5 rounded-xl border cursor-pointer select-none transition-colors duration-150 ${
  isDone
  ? 'bg-primary/10/10 border-primary/25/30 text-teal-300'
  : 'bg-muted/20 border-border hover:border-border-strong text-muted-foreground'
  }`}
  >
  <div>
- <strong className="text-sm font-bold block">{habit.name}</strong>
- <p className="text-[10px] text-muted-foreground font-bold uppercase mt-0.5">
+ <strong className="text-sm font-medium block">{habit.name}</strong>
+ <p className="text-[11px] text-muted-foreground font-medium mt-0.5">
  Area: {habit.area} / Streak: {getHabitStreak(habit.id, selectedCalendarDate)} {t('days')}
  </p>
  </div>
 
- <span className={`w-6 h-6 rounded-full flex items-center justify-center border transition-all shrink-0 ${
+ <span className={`w-6 h-6 rounded-full flex items-center justify-center border transition-colors shrink-0 ${
  isDone ? 'bg-primary border-primary text-white' : 'border-border text-transparent'
  }`}>
  <Icon name="check" size={12} />
