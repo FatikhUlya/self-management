@@ -1,5 +1,6 @@
 'use client';
 
+import { Linkify } from '@/components/ui/Linkify';
 import React, { useState, useMemo } from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { useI18n } from '@/lib/i18n/context';
@@ -316,7 +317,7 @@ export default function CapturePage() {
 
                   {idea.notes && (
                     <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
-                      {idea.notes}
+                      <Linkify text={idea.notes} />
                     </p>
                   )}
 

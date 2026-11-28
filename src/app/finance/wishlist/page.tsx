@@ -1,5 +1,7 @@
 'use client';
 
+import { Linkify } from '@/components/ui/Linkify';
+import { MoneyInput } from '@/components/ui/MoneyInput';
 import React, { useMemo, useState } from 'react';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { Surface } from '@/components/ui/Surface';
@@ -176,8 +178,8 @@ export default function WishlistPage() {
                   </div>
                   {(w.benefit || w.alternative) && (
                     <dl className="well grid grid-cols-1 sm:grid-cols-2 gap-3 text-[13px]">
-                      {w.benefit && <div><dt className="text-xs text-muted-foreground">{id ? 'Manfaat' : 'Benefit'}</dt><dd>{w.benefit}</dd></div>}
-                      {w.alternative && <div><dt className="text-xs text-muted-foreground">{id ? 'Alternatif' : 'Alternative'}</dt><dd>{w.alternative}</dd></div>}
+                      {w.benefit && <div><dt className="text-xs text-muted-foreground">{id ? 'Manfaat' : 'Benefit'}</dt><dd><Linkify text={w.benefit} /></dd></div>}
+                      {w.alternative && <div><dt className="text-xs text-muted-foreground">{id ? 'Alternatif' : 'Alternative'}</dt><dd><Linkify text={w.alternative} /></dd></div>}
                     </dl>
                   )}
                   <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">
@@ -208,7 +210,7 @@ export default function WishlistPage() {
         <form onSubmit={confirmBuy} className="space-y-4">
           <label className="block space-y-1.5">
             <span className="label">{id ? 'Harga yang dibayar (Rp)' : 'Price paid'}</span>
-            <input className="glass-input tabular-nums" type="number" min={0} inputMode="numeric" value={buy.amount || ''} onChange={(e) => setBuy((b) => ({ ...b, amount: Number(e.target.value) }))} />
+            <MoneyInput className="glass-input tabular-nums" min={0} value={buy.amount || ''} onChange={(e) => setBuy((b) => ({ ...b, amount: Number(e.target.value) }))} />
           </label>
           <label className="flex items-start gap-3 well cursor-pointer">
             <input type="checkbox" className="mt-0.5 w-5 h-5 accent-[hsl(var(--primary))]" checked={buy.log} onChange={(e) => setBuy((b) => ({ ...b, log: e.target.checked }))} />
@@ -243,7 +245,7 @@ export default function WishlistPage() {
           </Field>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label={id ? 'Harga (Rp)' : 'Price (IDR)'}>
-              <input className="glass-input tabular-nums" type="number" min={0} inputMode="numeric" value={form.price || ''} onChange={(e) => set('price', Number(e.target.value))} />
+              <MoneyInput className="glass-input tabular-nums" min={0} value={form.price || ''} onChange={(e) => set('price', Number(e.target.value))} />
             </Field>
             <Field label={id ? 'Target beli' : 'Target date'}>
               <input className="glass-input" type="date" value={form.targetDate || ''} onChange={(e) => set('targetDate', e.target.value)} />

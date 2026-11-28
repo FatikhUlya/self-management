@@ -1,5 +1,6 @@
 'use client';
 
+import { Linkify } from '@/components/ui/Linkify';
 import React, { useEffect, useState, useMemo } from 'react';
 import { useLifeOS, WorkApplication } from '@/lib/hooks/useLifeOSState';
 import { useI18n } from '@/lib/i18n/context';
@@ -420,7 +421,7 @@ export default function CareerAndWorkPage() {
                             {/* Next Action */}
                             {app.nextAction && (
                               <p className="text-xs text-sky-600 dark:text-sky-400 font-medium truncate pt-1 border-t border-border">
-                                ➔ {app.nextAction}
+                                ➔ <Linkify text={app.nextAction} />
                               </p>
                             )}
 
@@ -453,7 +454,7 @@ export default function CareerAndWorkPage() {
                               </div>
 
                               <div className="flex items-center gap-1">
-                                {app.link && (
+                                {safeUrl(app.link) && (
                                   <a
                                     href={safeUrl(app.link)}
                                     target="_blank"
@@ -601,7 +602,7 @@ export default function CareerAndWorkPage() {
                       {app.nextAction && (
                         <div className="text-xs text-foreground bg-muted/30 p-2.5 rounded-lg border border-border">
                           <span className="font-semibold text-primary block text-xs ">Aksi Berikutnya:</span>
-                          <p className="mt-0.5 line-clamp-2">{app.nextAction}</p>
+                          <p className="mt-0.5 line-clamp-2"><Linkify text={app.nextAction} /></p>
                         </div>
                       )}
 
@@ -630,7 +631,7 @@ export default function CareerAndWorkPage() {
                         </div>
 
                         <div className="flex items-center gap-1">
-                          {app.link && (
+                          {safeUrl(app.link) && (
                             <a
                               href={safeUrl(app.link)}
                               target="_blank"
@@ -718,7 +719,7 @@ export default function CareerAndWorkPage() {
                           </td>
                           <td className="p-3 text-right" onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center justify-end gap-1">
-                              {app.link && (
+                              {safeUrl(app.link) && (
                                 <a
                                   href={safeUrl(app.link)}
                                   target="_blank"
@@ -933,7 +934,7 @@ export default function CareerAndWorkPage() {
                           <p className="text-xs text-muted-foreground">{app.role}</p>
                           {app.nextAction && (
                             <p className="text-xs text-sky-500 font-medium">
-                              ➔ {app.nextAction}
+                              ➔ <Linkify text={app.nextAction} />
                             </p>
                           )}
                         </div>
@@ -1166,7 +1167,7 @@ export default function CareerAndWorkPage() {
                       <strong className="text-foreground">Tanggal Kirim:</strong> {formatDate(viewingApp.appliedDate)}
                     </p>
                   )}
-                  {viewingApp.link && (
+                  {safeUrl(viewingApp.link) && (
                     <p className="truncate">
                       <strong className="text-foreground">Link Lowongan: </strong>
                       <a
@@ -1187,7 +1188,7 @@ export default function CareerAndWorkPage() {
                       Aksi Selanjutnya:
                     </span>
                     <p className="text-foreground font-medium mt-0.5">
-                      {viewingApp.nextAction}
+                      <Linkify text={viewingApp.nextAction} />
                     </p>
                   </div>
                 )}
@@ -1198,7 +1199,7 @@ export default function CareerAndWorkPage() {
                       Catatan:
                     </span>
                     <p className="p-3 rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed whitespace-pre-wrap">
-                      {viewingApp.notes}
+                      <Linkify text={viewingApp.notes} />
                     </p>
                   </div>
                 )}

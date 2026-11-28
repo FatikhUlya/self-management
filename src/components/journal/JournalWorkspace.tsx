@@ -1,5 +1,6 @@
 'use client';
 
+import { Linkify } from '@/components/ui/Linkify';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect, useMemo } from 'react';
@@ -663,7 +664,7 @@ export function JournalWorkspace({ variant = 'hub' }: { variant?: 'hub' | 'today
                         Win Kemarin:
                       </span>
                       <p className="text-foreground font-medium mt-0.5 line-clamp-2">
-                        {yesterdayJournal.win}
+                        <Linkify text={yesterdayJournal.win} />
                       </p>
                     </div>
                   )}
@@ -809,7 +810,7 @@ export function JournalWorkspace({ variant = 'hub' }: { variant?: 'hub' | 'today
                             <span className="text-xs font-medium text-emerald-500 block">
                               Daily Win
                             </span>
-                            <p className="text-foreground font-medium line-clamp-1">{entry.win}</p>
+                            <p className="text-foreground font-medium line-clamp-1"><Linkify text={entry.win} /></p>
                           </div>
                         </div>
                       )}
@@ -843,7 +844,7 @@ export function JournalWorkspace({ variant = 'hub' }: { variant?: 'hub' | 'today
                       {/* Reflection Excerpt */}
                       {entry.reflection && (
                         <div className="text-xs text-muted-foreground line-clamp-3 pt-1 leading-relaxed">
-                          {entry.reflection}
+                          <Linkify text={entry.reflection} />
                         </div>
                       )}
                     </div>
@@ -950,7 +951,7 @@ export function JournalWorkspace({ variant = 'hub' }: { variant?: 'hub' | 'today
                         <Icon name="trophy" size={14} className="text-amber-500 mt-0.5 shrink-0" />
                         <div>
                           <span className="font-medium text-foreground">Wins: </span>
-                          <span className="text-muted-foreground">{r.wins}</span>
+                          <span className="text-muted-foreground"><Linkify text={r.wins} /></span>
                         </div>
                       </div>
                     )}
@@ -959,7 +960,7 @@ export function JournalWorkspace({ variant = 'hub' }: { variant?: 'hub' | 'today
                         <Icon name="lightbulb" size={14} className="text-yellow-500 mt-0.5 shrink-0" />
                         <div>
                           <span className="font-medium text-foreground">Pelajaran: </span>
-                          <span className="text-muted-foreground">{r.lessons}</span>
+                          <span className="text-muted-foreground"><Linkify text={r.lessons} /></span>
                         </div>
                       </div>
                     )}
@@ -968,7 +969,7 @@ export function JournalWorkspace({ variant = 'hub' }: { variant?: 'hub' | 'today
                         <Icon name="alertCircle" size={14} className="text-rose-500 mt-0.5 shrink-0" />
                         <div>
                           <span className="font-medium text-foreground">Tantangan: </span>
-                          <span className="text-muted-foreground">{r.challenges}</span>
+                          <span className="text-muted-foreground"><Linkify text={r.challenges} /></span>
                         </div>
                       </div>
                     )}
@@ -977,7 +978,7 @@ export function JournalWorkspace({ variant = 'hub' }: { variant?: 'hub' | 'today
                         <Icon name="target" size={14} className="text-indigo-500 mt-0.5 shrink-0" />
                         <div>
                           <span className="font-medium text-indigo-500">Fokus Berikutnya: </span>
-                          <span className="text-foreground font-medium">{r.focus}</span>
+                          <span className="text-foreground font-medium"><Linkify text={r.focus} /></span>
                         </div>
                       </div>
                     )}
@@ -1045,7 +1046,7 @@ export function JournalWorkspace({ variant = 'hub' }: { variant?: 'hub' | 'today
                     <h4 className="font-medium text-emerald-500 text-xs mb-1 flex items-center gap-1">
                       <Icon name="trophy" size={13} /> Kemenangan Hari Ini
                     </h4>
-                    <p className="text-foreground font-medium">{viewingJournal.win}</p>
+                    <p className="text-foreground font-medium"><Linkify text={viewingJournal.win} /></p>
                   </div>
                 )}
 
@@ -1056,7 +1057,7 @@ export function JournalWorkspace({ variant = 'hub' }: { variant?: 'hub' | 'today
                       Refleksi & Catatan
                     </h4>
                     <div className="p-3 rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed whitespace-pre-wrap">
-                      {viewingJournal.reflection}
+                      <Linkify text={viewingJournal.reflection} />
                     </div>
                   </div>
                 )}

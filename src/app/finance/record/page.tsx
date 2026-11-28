@@ -1,5 +1,6 @@
 'use client';
 
+import { MoneyInput } from '@/components/ui/MoneyInput';
 import React from 'react';
 import Link from 'next/link';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
@@ -216,9 +217,9 @@ export default function RecordTransactionPage() {
  <label htmlFor="txAmount" className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Jumlah (Nominal)' : 'Amount'}
  </label>
- <input
+ <MoneyInput
  id="txAmount"
- type="number"
+
  required
  placeholder="Rp"
  value={txAmount}
@@ -328,9 +329,9 @@ export default function RecordTransactionPage() {
  <label htmlFor="txAdminFee" className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Biaya Admin (Opsional)' : 'Admin Fee (Optional)'}
  </label>
- <input
+ <MoneyInput
  id="txAdminFee"
- type="number"
+
  placeholder="Rp"
  value={txAdminFee}
  onChange={(e) => setTxAdminFee(e.target.value)}

@@ -1,5 +1,6 @@
 'use client';
 
+import { MoneyInput } from '@/components/ui/MoneyInput';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
@@ -326,8 +327,8 @@ export default function WealthPage() {
  <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Total Utang (Rp)' : 'Total Debt (Rp)'}
  </label>
- <input
- type="number"
+ <MoneyInput
+
  required
  min="0"
  value={debtTotal}
@@ -339,8 +340,8 @@ export default function WealthPage() {
  <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Sisa Utang (Rp)' : 'Remaining (Rp)'}
  </label>
- <input
- type="number"
+ <MoneyInput
+
  min="0"
  value={debtRemaining}
  onChange={(e) => setDebtRemaining(e.target.value)}
@@ -354,8 +355,8 @@ export default function WealthPage() {
  <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Cicilan per Bulan' : 'Monthly Installment'}
  </label>
- <input
- type="number"
+ <MoneyInput
+
  min="0"
  value={debtInstallment}
  onChange={(e) => setDebtInstallment(e.target.value)}
@@ -426,8 +427,8 @@ export default function WealthPage() {
  <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Nilai Saat Ini (Rp)' : 'Current Value (Rp)'}
  </label>
- <input
- type="number"
+ <MoneyInput
+
  required
  min="0"
  value={assetValue}

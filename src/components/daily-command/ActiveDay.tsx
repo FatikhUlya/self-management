@@ -1,4 +1,5 @@
 ﻿'use client';
+import { Linkify } from '@/components/ui/Linkify';
 import React from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { Surface } from '@/components/ui/Surface';
@@ -65,7 +66,7 @@ export function ActiveDay({
  {mit.title}
  </h2>
  {mit.description && (
- <p className="text-sm text-muted-foreground mt-2 leading-relaxed">{mit.description}</p>
+ <p className="text-sm text-muted-foreground mt-2 leading-relaxed"><Linkify text={mit.description} /></p>
  )}
  
  <div className="mt-6 flex gap-3">

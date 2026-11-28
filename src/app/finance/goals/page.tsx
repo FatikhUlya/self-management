@@ -1,5 +1,6 @@
 ﻿'use client';
 
+import { MoneyInput } from '@/components/ui/MoneyInput';
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
@@ -185,8 +186,8 @@ export default function GoalsPage() {
  <div className="flex items-center gap-2 bg-black/30 p-3 rounded-lg border border-border">
  <div className="flex-1 flex flex-col space-y-1">
  <label className="text-xs font-semibold text-muted-foreground">{locale === 'id' ? 'Saldo Terkumpul Baru' : 'New Collected Balance'}</label>
- <input
- type="number"
+ <MoneyInput
+
  className="glass-input py-1 text-sm font-medium"
  value={newCurrentAmount}
  onChange={(e) => setNewCurrentAmount(e.target.value)}
@@ -256,9 +257,9 @@ export default function GoalsPage() {
  <label htmlFor="gTarget" className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Target Nominal (Rp)' : 'Target Amount'}
  </label>
- <input
+ <MoneyInput
  id="gTarget"
- type="number"
+
  required
  placeholder="Rp"
  value={goalTarget}
@@ -270,9 +271,9 @@ export default function GoalsPage() {
  <label htmlFor="gCurrent" className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Saldo Saat Ini (Rp)' : 'Current Amount'}
  </label>
- <input
+ <MoneyInput
  id="gCurrent"
- type="number"
+
  placeholder="Rp"
  value={goalCurrent}
  onChange={(e) => setGoalCurrent(e.target.value)}

@@ -1,5 +1,6 @@
 ﻿'use client';
 
+import { MoneyInput } from '@/components/ui/MoneyInput';
 import React, { useState } from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { useI18n } from '@/lib/i18n/context';
@@ -130,8 +131,8 @@ export function QuickAddTransaction() {
  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground font-medium">
  Rp
  </span>
- <input
- type="number"
+ <MoneyInput
+
  required
  min="0"
  value={amount}

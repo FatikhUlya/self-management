@@ -1,5 +1,7 @@
 'use client';
 
+import { Linkify } from '@/components/ui/Linkify';
+import { MoneyInput } from '@/components/ui/MoneyInput';
 import React, { useState, useMemo } from 'react';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { useI18n } from '@/lib/i18n/context';
@@ -585,8 +587,8 @@ export default function FinanceDashboard() {
                   onChange={(e) => setQuickTitle(e.target.value)}
                   className="sm:col-span-4 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-none focus:border-emerald-500 text-foreground" aria-label="Keterangan transaksi"
 />
-                <input
-                  type="number"
+                <MoneyInput
+                 
                   placeholder="Nominal (Rp)"
                   value={quickAmount}
                   onChange={(e) => setQuickAmount(e.target.value)}
@@ -735,7 +737,7 @@ export default function FinanceDashboard() {
                             {tx.notes && (
                               <>
                                 <span>•</span>
-                                <span className=" truncate max-w-[150px]">{tx.notes}</span>
+                                <span className=" truncate max-w-[150px]"><Linkify text={tx.notes} /></span>
                               </>
                             )}
                           </div>
@@ -1160,8 +1162,8 @@ export default function FinanceDashboard() {
                   <label className="label mb-1.5">
                     Nominal (IDR)
                   </label>
-                  <input
-                    type="number"
+                  <MoneyInput
+                   
                     required
                     placeholder="Contoh: 150000"
                     value={modalTxAmount}
@@ -1340,8 +1342,8 @@ export default function FinanceDashboard() {
                   <label className="label mb-1.5">
                     Target Nominal (Rp)
                   </label>
-                  <input
-                    type="number"
+                  <MoneyInput
+                   
                     required
                     placeholder="30000000"
                     value={goalTargetAmount}
@@ -1353,8 +1355,8 @@ export default function FinanceDashboard() {
                   <label className="label mb-1.5">
                     Saldo Awal (Rp)
                   </label>
-                  <input
-                    type="number"
+                  <MoneyInput
+                   
                     placeholder="0"
                     value={goalCurrentAmount}
                     onChange={(e) => setGoalCurrentAmount(e.target.value)}
@@ -1424,8 +1426,8 @@ export default function FinanceDashboard() {
               <label className="label mb-1.5">
                 Nominal Setoran Tambahan (Rp)
               </label>
-              <input
-                type="number"
+              <MoneyInput
+               
                 required
                 autoFocus
                 placeholder="Contoh: 500000"
@@ -1481,8 +1483,8 @@ export default function FinanceDashboard() {
                   <label className="label mb-1.5">
                     Nilai Pasar (Rp)
                   </label>
-                  <input
-                    type="number"
+                  <MoneyInput
+                   
                     required
                     placeholder="10000000"
                     value={assetValue}
@@ -1555,8 +1557,8 @@ export default function FinanceDashboard() {
                   <label className="label mb-1.5">
                     Total Pinjaman (Rp)
                   </label>
-                  <input
-                    type="number"
+                  <MoneyInput
+                   
                     required
                     placeholder="12000000"
                     value={debtTotal}
@@ -1568,8 +1570,8 @@ export default function FinanceDashboard() {
                   <label className="label mb-1.5">
                     Sisa Utang Saat Ini (Rp)
                   </label>
-                  <input
-                    type="number"
+                  <MoneyInput
+                   
                     placeholder="Biarkan kosong jika sama"
                     value={debtRemaining}
                     onChange={(e) => setDebtRemaining(e.target.value)}
@@ -1583,8 +1585,8 @@ export default function FinanceDashboard() {
                   <label className="label mb-1.5">
                     Cicilan per Bulan (Rp)
                   </label>
-                  <input
-                    type="number"
+                  <MoneyInput
+                   
                     placeholder="1000000"
                     value={debtInstallment}
                     onChange={(e) => setDebtInstallment(e.target.value)}
@@ -1640,8 +1642,8 @@ export default function FinanceDashboard() {
                 <label className="label mb-1.5">
                   Nominal Pembayaran (Rp)
                 </label>
-                <input
-                  type="number"
+                <MoneyInput
+                 
                   required
                   autoFocus
                   value={debtPaymentAmount}

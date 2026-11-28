@@ -238,10 +238,8 @@ export function priorityWeight(priority: string): number {
 
 /** Safe URL (prefix https:// if missing) */
 export function safeUrl(url: string | undefined | null): string {
-  const value = String(url || '').trim();
-  if (!value) return '';
-  if (/^https?:\/\//i.test(value)) return value;
-  return `https://${value.replace(/^\/+/, '')}`;
+  // Same rules as safeExternalUrl (http/https only, bare domains get https://); '' when it isn't a link
+  return safeExternalUrl(url) || '';
 }
 
 /** Year options for calendar controls */
@@ -289,9 +287,15 @@ export function shiftYearStr(dateStr: string, years: number): string {
 
 /** Returns the URL only if it is http(s); blocks javascript:, data: and similar schemes. */
 export function safeExternalUrl(url: string | null | undefined): string | undefined {
-  if (!url) return undefined;
+  let v = String(url ?? '').trim();
+  if (!v) return undefined;
+  // "Tokopedia https://…" → take the URL part
+  const inner = v.match(/https?:\/\/\S+/i);
+  if (inner) v = inner[0];
+  // Bare domains like "tokopedia.com/x" or "www.x.com" get https://
+  else if (/^(www\.)?[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/i.test(v)) v = `https://${v}`;
   try {
-    const parsed = new URL(url.trim());
+    const parsed = new URL(v);
     return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? parsed.href : undefined;
   } catch {
     return undefined;

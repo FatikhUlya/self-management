@@ -1,5 +1,6 @@
 'use client';
 
+import { Linkify } from '@/components/ui/Linkify';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -501,7 +502,7 @@ export default function HealthPage() {
 
                       {workout.notes && (
                         <p className="text-xs text-muted-foreground mt-2 line-clamp-2 leading-relaxed">
-                          {workout.notes}
+                          <Linkify text={workout.notes} />
                         </p>
                       )}
                     </div>
@@ -574,7 +575,7 @@ export default function HealthPage() {
                             {formatDate(log.date)}
                           </span>
                           {log.notes && (
-                            <span className="text-muted-foreground/80 truncate max-w-xs">• {log.notes}</span>
+                            <span className="text-muted-foreground/80 truncate max-w-xs">• <Linkify text={log.notes} /></span>
                           )}
                         </div>
                         <div className="flex items-center gap-2">
