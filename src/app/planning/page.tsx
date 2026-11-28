@@ -222,16 +222,16 @@ export default function PlanningHubPage() {
   };
 
   return (
-    <StaggerGroup className="space-y-6 max-w-7xl mx-auto pb-16">
+    <StaggerGroup className="space-y-6 max-w-7xl mx-auto">
       {/* ═══════════════ Header ═══════════════ */}
       <StaggerItem>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border/60">
+        <div className="page-header">
           <div>
             <DateStamp />
-            <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+            <h1 className="page-title">
               Perencanaan & Timeline (Planning)
             </h1>
-            <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
+            <p className="page-subtitle">
               Alokasikan waktu harian, blok agenda terstruktur, dan sinkronisasi kalender.
             </p>
           </div>
@@ -244,7 +244,7 @@ export default function PlanningHubPage() {
                 className={cn(
                   "px-3 py-2 text-xs font-medium rounded-md transition-colors min-h-[44px] touch-manipulation flex items-center",
                   selectedDate === today
-                    ? "bg-card text-foreground font-semibold shadow-2xs"
+                    ? "bg-card text-foreground font-semibold shadow-card"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
@@ -255,7 +255,7 @@ export default function PlanningHubPage() {
                 className={cn(
                   "px-3 py-2 text-xs font-medium rounded-md transition-colors min-h-[44px] touch-manipulation flex items-center",
                   selectedDate === addDays(today, 1)
-                    ? "bg-card text-foreground font-semibold shadow-2xs"
+                    ? "bg-card text-foreground font-semibold shadow-card"
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
@@ -267,11 +267,12 @@ export default function PlanningHubPage() {
                   type="date"
                   value={selectedDate}
                   onChange={(e) => e.target.value && setSelectedDate(e.target.value)}
-                  className="bg-transparent border-0 p-0 text-xs font-mono tabular-nums outline-none cursor-pointer text-foreground"
+                  className="bg-transparent border-0 p-0 text-xs tabular-nums outline-none cursor-pointer text-foreground"
                 />
               </label>
             </div>
 
+            <Button href="/planning/month" variant="secondary" size="sm" icon="calendar">Planner Bulanan</Button>
             {isGCalConfigured && (
               <Button
                 variant="outline"
@@ -290,7 +291,7 @@ export default function PlanningHubPage() {
               size="sm"
               icon="plus"
               onClick={() => setIsAddModalOpen(true)}
-              className="text-xs font-semibold shadow-2xs"
+              className="text-xs font-semibold shadow-card"
             >
               Tambah Agenda
             </Button>
@@ -301,19 +302,17 @@ export default function PlanningHubPage() {
       {/* ═══════════════ Planning Metrics ═══════════════ */}
       <StaggerItem>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-          <MetricCard
+          <MetricCard glow
             icon="calendar"
             label="Total Blok Agenda"
             value={totalPlansCount}
             detail={`${eventsCount} event • ${tasksCount} tugas`}
-            glow={totalPlansCount > 0}
           />
           <MetricCard
             icon="check"
             label="Agenda Selesai"
             value={donePlansCount}
             detail={`${planCompletionRate}% dari total blok`}
-            glow={planCompletionRate >= 70}
           />
           <MetricCard
             icon="clock"
@@ -346,43 +345,28 @@ export default function PlanningHubPage() {
                   <Icon name="clock" size={14} className="text-muted-foreground" />
                   Jadwal & Kronologi ({formatDate(selectedDate, { locale: locale === 'id' ? 'id-ID' : 'en-US' })})
                 </h3>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   {totalPlansCount} sesi waktu • {donePlansCount} selesai
                 </p>
               </div>
 
               {/* Filter Pills */}
-              <div className="flex items-center gap-1 bg-muted/50 p-0.5 rounded-lg border border-border/60">
+              <div role="tablist" className="seg">
                 <button
                   onClick={() => setFilterKind('all')}
-                  className={cn(
-                    "px-2.5 py-1 text-[11px] font-medium rounded-md transition-colors",
-                    filterKind === 'all'
-                      ? "bg-card text-foreground font-semibold shadow-2xs"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
+                  role="tab" aria-selected={filterKind === 'all'} className="seg-item"
                 >
                   Semua ({totalPlansCount})
                 </button>
                 <button
                   onClick={() => setFilterKind('task')}
-                  className={cn(
-                    "px-2.5 py-1 text-[11px] font-medium rounded-md transition-colors",
-                    filterKind === 'task'
-                      ? "bg-card text-foreground font-semibold shadow-2xs"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
+                  role="tab" aria-selected={filterKind === 'task'} className="seg-item"
                 >
                   Tugas ({tasksCount})
                 </button>
                 <button
                   onClick={() => setFilterKind('event')}
-                  className={cn(
-                    "px-2.5 py-1 text-[11px] font-medium rounded-md transition-colors",
-                    filterKind === 'event'
-                      ? "bg-card text-foreground font-semibold shadow-2xs"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
+                  role="tab" aria-selected={filterKind === 'event'} className="seg-item"
                 >
                   Acara ({eventsCount})
                 </button>
@@ -402,14 +386,14 @@ export default function PlanningHubPage() {
                 type="time"
                 value={quickStart}
                 onChange={(e) => setQuickStart(e.target.value)}
-                className="glass-input py-1 px-2 text-xs w-20 font-mono text-center bg-background"
+                className="glass-input py-1 px-2 text-xs w-20 tabular-nums text-center bg-background"
               />
               <span className="text-xs text-muted-foreground">-</span>
               <input
                 type="time"
                 value={quickEnd}
                 onChange={(e) => setQuickEnd(e.target.value)}
-                className="glass-input py-1 px-2 text-xs w-20 font-mono text-center bg-background"
+                className="glass-input py-1 px-2 text-xs w-20 tabular-nums text-center bg-background"
               />
               <Button type="submit" variant="primary" size="sm" disabled={!quickTitle.trim()} className="text-xs shrink-0 py-1">
                 Jadwalkan
@@ -432,7 +416,7 @@ export default function PlanningHubPage() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.02, duration: 0.2 }}
                       className={cn(
-                        "group flex items-center justify-between p-3 rounded-lg border transition-colors select-none shadow-2xs",
+                        "group flex items-center justify-between p-3 rounded-lg border transition-colors select-none shadow-card",
                         isDone
                           ? "bg-muted/20 border-border/50 text-muted-foreground opacity-80"
                           : "bg-muted/30 border-border/80 hover:border-border hover:bg-muted/50 text-foreground"
@@ -456,17 +440,17 @@ export default function PlanningHubPage() {
 
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="text-[11px] font-mono font-semibold text-foreground tabular-nums">
+                            <span className="text-xs tabular-nums font-semibold text-foreground tabular-nums">
                               {plan.startTime} - {plan.endTime}
                             </span>
-                            <span className="text-[11px] text-muted-foreground/70 font-mono">
+                            <span className="text-xs text-muted-foreground/70 tabular-nums">
                               ({formatDuration(duration)})
                             </span>
-                            <Badge tone={plan.kind === 'event' ? 'blue' : 'purple'} className="text-[11px]">
+                            <Badge tone={plan.kind === 'event' ? 'blue' : 'purple'} className="text-xs">
                               {plan.kind}
                             </Badge>
                             {plan.googleEventId && (
-                              <span className="text-[11px] px-1.5 py-0.2 rounded font-mono bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium">
+                              <span className="text-xs px-1.5 py-0.2 rounded tabular-nums bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium">
                                 GCal
                               </span>
                             )}
@@ -480,7 +464,7 @@ export default function PlanningHubPage() {
                           </strong>
 
                           {plan.notes && (
-                            <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                            <p className="text-xs text-muted-foreground truncate mt-0.5">
                               {plan.notes}
                             </p>
                           )}
@@ -490,14 +474,14 @@ export default function PlanningHubPage() {
                       {/* Right: Area Tag & Actions */}
                       <div className="flex items-center gap-2 shrink-0">
                         {plan.area && (
-                          <span className="hidden sm:inline text-[11px] px-2 py-0.5 rounded-md bg-muted/60 text-muted-foreground font-medium">
+                          <span className="hidden sm:inline text-xs px-2 py-0.5 rounded-md bg-muted/60 text-muted-foreground font-medium">
                             {plan.area}
                           </span>
                         )}
 
                         <button
                           onClick={() => deletePlan(plan.id)}
-                          className="opacity-0 group-hover:opacity-100 p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                          className="md:opacity-0 md:group-hover:opacity-100 p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                           title="Hapus Agenda"
                         >
                           <Icon name="trash" size={13} />
@@ -534,15 +518,13 @@ export default function PlanningHubPage() {
                     <Icon name="checkSquare" size={14} className="text-muted-foreground" />
                     Tugas Siap Dijadwalkan
                   </h3>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     Tarik tugas aktif ke dalam timeline hari ini
                   </p>
                 </div>
-                <Link href="/projects">
-                  <Button size="sm" variant="ghost" icon="arrowRight" className="text-xs">
+                <Button href="/projects" size="sm" variant="ghost" icon="arrowRight" className="text-xs">
                     Semua Tugas
                   </Button>
-                </Link>
               </div>
 
               {unscheduledTasks.length > 0 ? (
@@ -555,11 +537,11 @@ export default function PlanningHubPage() {
                       <div className="min-w-0 pr-2">
                         <span className="text-xs font-medium text-foreground block truncate">{task.title}</span>
                         <div className="flex items-center gap-1.5 mt-0.5">
-                          <Badge tone={task.priority === 'High' ? 'rose' : 'gray'} className="text-[11px]">
+                          <Badge tone={task.priority === 'High' ? 'rose' : 'gray'} className="text-xs">
                             {task.priority}
                           </Badge>
                           {task.due && (
-                            <span className="text-[11px] text-muted-foreground font-mono">
+                            <span className="text-xs text-muted-foreground tabular-nums">
                               {formatDate(task.due)}
                             </span>
                           )}
@@ -570,7 +552,7 @@ export default function PlanningHubPage() {
                         size="sm"
                         variant="secondary"
                         onClick={() => handleScheduleTaskDirectly(task)}
-                        className="text-[11px] py-1 px-2.5 shrink-0"
+                        className="text-xs py-1 px-2.5 shrink-0"
                       >
                         + Jadwalkan
                       </Button>
@@ -595,7 +577,7 @@ export default function PlanningHubPage() {
                   <Icon name="activity" size={14} className="text-muted-foreground" />
                   Alokasi Waktu Hari Ini
                 </h3>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Distribusi jam kerja berdasarkan area kehidupan
                 </p>
               </div>
@@ -627,7 +609,7 @@ export default function PlanningHubPage() {
                     return entries.map(([area, mins]) => (
                       <div key={area} className="flex items-center justify-between text-xs">
                         <span className="text-muted-foreground font-medium">{area}</span>
-                        <span className="font-mono text-foreground font-semibold tabular-nums">{formatDuration(mins)}</span>
+                        <span className="tabular-nums text-foreground font-semibold tabular-nums">{formatDuration(mins)}</span>
                       </div>
                     ));
                   })()}
@@ -668,7 +650,7 @@ export default function PlanningHubPage() {
                   required
                   value={planStartTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  className="glass-input text-xs font-mono"
+                  className="glass-input text-xs tabular-nums"
                 />
               </div>
 
@@ -679,7 +661,7 @@ export default function PlanningHubPage() {
                   required
                   value={planEndTime}
                   onChange={(e) => setEndTime(e.target.value)}
-                  className="glass-input text-xs font-mono"
+                  className="glass-input text-xs tabular-nums"
                 />
               </div>
             </div>

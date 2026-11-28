@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { SubpageLinks } from '@/components/ui/SubpageLinks';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
@@ -40,6 +41,8 @@ export default function ProjectsDashboardPage() {
   // Active Main Tab
   const [activeTab, setActiveTab] = useState<'tasks' | 'projects'>('tasks');
   const [taskViewMode, setTaskViewMode] = useState<'kanban' | 'list'>('kanban');
+  // Phones: a list reads better than a sideways kanban
+  useEffect(() => { if (window.innerWidth < 768) setTaskViewMode('list'); }, []);
 
   // Filters
   const [selectedProjectId, setSelectedProjectId] = useState<string>('all');
@@ -203,27 +206,28 @@ export default function ProjectsDashboardPage() {
   };
 
   return (
-    <StaggerGroup className="space-y-6 max-w-7xl mx-auto pb-16">
+    <StaggerGroup className="space-y-6 max-w-7xl mx-auto">
       {/* ═══════════════ Header ═══════════════ */}
       <StaggerItem>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border/60">
+        <div className="page-header">
           <div>
             <DateStamp />
-            <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+            <h1 className="page-title">
               Proyek & Tugas
             </h1>
-            <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
+            <p className="page-subtitle">
               Pusat manajemen ruang lingkup kerja, papan tugas, dan penyelesaian sasaran.
             </p>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            <Button href="/projects/milestones" variant="secondary" icon="target" className="hidden md:inline-flex">Milestone</Button>
             <Button
               variant="secondary"
               size="sm"
               icon="plus"
               onClick={() => setIsNewProjectModalOpen(true)}
-              className="text-xs font-semibold shadow-2xs"
+              className="text-xs font-semibold shadow-card hidden md:inline-flex"
             >
               Proyek Baru
             </Button>
@@ -232,7 +236,7 @@ export default function ProjectsDashboardPage() {
               size="sm"
               icon="plus"
               onClick={() => setIsNewTaskModalOpen(true)}
-              className="text-xs font-semibold shadow-2xs"
+              className="text-xs font-semibold shadow-card"
             >
               Tugas Baru
             </Button>
@@ -243,12 +247,11 @@ export default function ProjectsDashboardPage() {
       {/* ═══════════════ Metrics Row ═══════════════ */}
       <StaggerItem>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-          <MetricCard
+          <MetricCard glow
             icon="folder"
             label="Proyek Aktif"
             value={activeProjects.length}
             detail={`${state.projects.length} total proyek`}
-            glow={activeProjects.length > 0}
           />
           <MetricCard
             icon="checkSquare"
@@ -261,7 +264,6 @@ export default function ProjectsDashboardPage() {
             label="Tugas Selesai"
             value={completedTasks.length}
             detail={`${completionRate}% tingkat penyelesaian`}
-            glow={completionRate >= 70}
           />
           <MetricCard
             icon="target"
@@ -272,31 +274,32 @@ export default function ProjectsDashboardPage() {
         </div>
       </StaggerItem>
 
+      <StaggerItem className="md:hidden">
+        <SubpageLinks
+          stacked
+          label="Menu proyek"
+          links={[
+            { href: '/projects/manage', icon: 'folder', title: 'Daftar Proyek', detail: `${activeProjects.length} aktif · ${state.projects.length} total` },
+            { href: '/projects/milestones', icon: 'target', title: 'Milestone Proyek', detail: 'Tahapan besar & langkahnya' },
+          ]}
+        />
+      </StaggerItem>
+
       {/* ═══════════════ Main Hub Tabs (Tugas vs Proyek) ═══════════════ */}
       <StaggerItem>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-muted/40 p-1.5 rounded-xl border border-border/80">
-          {/* Main Tabs */}
-          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar w-full sm:w-auto px-0.5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-w-0">
+          {/* Main Tabs (desktop; phones use the menu above) */}
+          <div role="tablist" className="seg hidden md:flex">
             <button
               onClick={() => setActiveTab('tasks')}
-              className={cn(
-                "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-colors min-h-[44px] touch-manipulation shrink-0",
-                activeTab === 'tasks'
-                  ? "bg-card text-foreground font-semibold shadow-2xs border border-border/60"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-              )}
+              role="tab" aria-selected={activeTab === 'tasks'} className="seg-item"
             >
               <Icon name="checkSquare" size={13} className={activeTab === 'tasks' ? "text-primary" : "text-muted-foreground"} />
               Papan Tugas ({filteredTasks.length})
             </button>
             <button
               onClick={() => setActiveTab('projects')}
-              className={cn(
-                "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-colors min-h-[44px] touch-manipulation shrink-0",
-                activeTab === 'projects'
-                  ? "bg-card text-foreground font-semibold shadow-2xs border border-border/60"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-              )}
+              role="tab" aria-selected={activeTab === 'projects'} className="seg-item"
             >
               <Icon name="folder" size={13} className={activeTab === 'projects' ? "text-primary" : "text-muted-foreground"} />
               Daftar Proyek ({state.projects.length})
@@ -306,15 +309,10 @@ export default function ProjectsDashboardPage() {
           {/* Sub Navigation Shortcut */}
           <div className="flex items-center gap-2">
             {activeTab === 'tasks' && (
-              <div className="flex items-center bg-card border border-border/80 rounded-lg p-0.5 shadow-2xs">
+              <div role="tablist" className="seg">
                 <button
                   onClick={() => setTaskViewMode('kanban')}
-                  className={cn(
-                    "px-3 py-1.5 rounded text-[11px] font-medium transition-colors flex items-center gap-1.5 min-h-[40px] touch-manipulation",
-                    taskViewMode === 'kanban'
-                      ? "bg-primary/10 text-primary font-semibold"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
+                  role="tab" aria-selected={taskViewMode === 'kanban'} className="seg-item"
                   title="Tampilan Kanban"
                 >
                   <Icon name="layout" size={12} />
@@ -322,12 +320,7 @@ export default function ProjectsDashboardPage() {
                 </button>
                 <button
                   onClick={() => setTaskViewMode('list')}
-                  className={cn(
-                    "px-3 py-1.5 rounded text-[11px] font-medium transition-colors flex items-center gap-1.5 min-h-[40px] touch-manipulation",
-                    taskViewMode === 'list'
-                      ? "bg-primary/10 text-primary font-semibold"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
+                  role="tab" aria-selected={taskViewMode === 'list'} className="seg-item"
                   title="Tampilan List"
                 >
                   <Icon name="journal" size={12} />
@@ -340,8 +333,8 @@ export default function ProjectsDashboardPage() {
       </StaggerItem>
 
       {/* ═══════════════ TAB 1: PAPAN TUGAS (KANBAN & LIST) ═══════════════ */}
-      {activeTab === 'tasks' && (
-        <div className="space-y-4">
+      {(
+        <div className={cn('space-y-4', activeTab !== 'tasks' && 'md:hidden')}>
           {/* Filter Bar & Quick Add Task */}
           <Surface className="p-4 space-y-3">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
@@ -399,7 +392,7 @@ export default function ProjectsDashboardPage() {
                 <button
                   type="submit"
                   disabled={!quickTaskTitle.trim()}
-                  className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded text-[11px] font-semibold bg-primary text-primary-foreground disabled:opacity-30 transition-colors"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded text-xs font-semibold bg-primary text-primary-foreground disabled:opacity-30 transition-colors"
                 >
                   Enter ↵
                 </button>
@@ -431,7 +424,7 @@ export default function ProjectsDashboardPage() {
                   <div
                     key={columnStatus}
                     className={cn(
-                      "flex flex-col bg-card/60 backdrop-blur-xs rounded-xl border p-3.5 shadow-2xs min-h-[480px]",
+                      "flex flex-col bg-card/60 backdrop-blur-xs rounded-xl border p-3.5 shadow-card min-h-[480px]",
                       columnBorder
                     )}
                   >
@@ -446,7 +439,7 @@ export default function ProjectsDashboardPage() {
                           {columnTitle}
                         </h3>
                       </div>
-                      <span className="px-2 py-0.5 rounded-full text-[11px] font-mono tabular-nums font-semibold bg-muted text-muted-foreground border border-border">
+                      <span className="px-2 py-0.5 rounded-full text-xs tabular-nums font-semibold bg-muted text-muted-foreground border border-border">
                         {columnTasks.length}
                       </span>
                     </div>
@@ -464,7 +457,7 @@ export default function ProjectsDashboardPage() {
                               initial={{ opacity: 0, y: 4 }}
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ delay: index * 0.02, duration: 0.2 }}
-                              className="group p-3 rounded-lg bg-card border border-border/80 hover:border-border hover:shadow-xs transition-colors space-y-2 select-none"
+                              className="group p-3 rounded-lg bg-card border border-border/80 hover:border-border hover:shadow-card transition-colors space-y-2 select-none"
                             >
                               <div className="flex items-start justify-between gap-2">
                                 <span className={cn(
@@ -475,7 +468,7 @@ export default function ProjectsDashboardPage() {
                                 </span>
                                 <button
                                   onClick={() => handleOpenEditTask(task)}
-                                  className="opacity-0 group-hover:opacity-100 p-1 text-muted-foreground hover:text-foreground rounded transition-opacity"
+                                  className="md:opacity-0 md:group-hover:opacity-100 p-1 text-muted-foreground hover:text-foreground rounded transition-opacity"
                                   title="Edit tugas"
                                 >
                                   <Icon name="edit" size={11} />
@@ -483,7 +476,7 @@ export default function ProjectsDashboardPage() {
                               </div>
 
                               {/* Project & Goal Tags */}
-                              <div className="flex items-center gap-1.5 flex-wrap text-[11px]">
+                              <div className="flex items-center gap-1.5 flex-wrap text-xs">
                                 <span className="inline-flex items-center gap-1 text-muted-foreground font-medium">
                                   <Icon name="folder" size={10} className="text-primary" />
                                   {project ? project.name : 'Inbox'}
@@ -506,12 +499,12 @@ export default function ProjectsDashboardPage() {
                                         ? 'amber'
                                         : 'gray'
                                     }
-                                    className="text-[11px]"
+                                    className="text-xs"
                                   >
                                     {isOverdue ? 'Overdue' : task.priority}
                                   </Badge>
                                   {task.due && (
-                                    <span className="text-[11px] font-mono text-muted-foreground tabular-nums">
+                                    <span className="text-xs tabular-nums text-muted-foreground tabular-nums">
                                       {formatDate(task.due)}
                                     </span>
                                   )}
@@ -587,7 +580,7 @@ export default function ProjectsDashboardPage() {
                             )}>
                               {task.title}
                             </span>
-                            <div className="flex items-center gap-2 mt-0.5 text-[11px] text-muted-foreground">
+                            <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
                               <span>{project ? project.name : 'Inbox'}</span>
                               {task.due && <span>• {formatDate(task.due)}</span>}
                             </div>
@@ -597,7 +590,7 @@ export default function ProjectsDashboardPage() {
                         <div className="flex items-center gap-2 shrink-0">
                           <Badge
                             tone={task.priority === 'High' ? 'rose' : task.priority === 'Medium' ? 'amber' : 'gray'}
-                            className="text-[11px]"
+                            className="text-xs"
                           >
                             {task.priority}
                           </Badge>
@@ -631,7 +624,7 @@ export default function ProjectsDashboardPage() {
 
       {/* ═══════════════ TAB 2: DAFTAR PROYEK ═══════════════ */}
       {activeTab === 'projects' && (
-        <div className="space-y-4">
+        <div className="hidden md:block space-y-4">
           {state.projects.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {state.projects.map((proj) => {
@@ -643,7 +636,7 @@ export default function ProjectsDashboardPage() {
                 return (
                   <Surface
                     key={proj.id}
-                    className="p-5 flex flex-col justify-between space-y-4 hover:shadow-xs transition-colors"
+                    className="p-5 flex flex-col justify-between space-y-4 hover:shadow-card transition-colors"
                   >
                     <div>
                       {/* Top Header */}
@@ -656,7 +649,7 @@ export default function ProjectsDashboardPage() {
                             <h3 className="text-xs font-medium text-foreground tracking-tight truncate leading-tight">
                               {proj.name}
                             </h3>
-                            <span className="text-[11px] text-muted-foreground block truncate">{proj.area || 'Karir'}</span>
+                            <span className="text-xs text-muted-foreground block truncate">{proj.area || 'Karir'}</span>
                           </div>
                         </div>
 
@@ -667,7 +660,7 @@ export default function ProjectsDashboardPage() {
 
                       {/* Goal Link */}
                       {goal && (
-                        <div className="mt-3 p-2 rounded-lg bg-muted/30 border border-border/60 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                        <div className="mt-3 p-2 rounded-lg bg-muted/30 border border-border/60 flex items-center gap-1.5 text-xs text-muted-foreground">
                           <Icon name="target" size={12} className="text-primary shrink-0" />
                           <span className="truncate">{goal.title}</span>
                         </div>
@@ -675,9 +668,9 @@ export default function ProjectsDashboardPage() {
 
                       {/* Progress Bar */}
                       <div className="mt-4 space-y-1.5">
-                        <div className="flex justify-between text-[11px] font-medium text-muted-foreground">
+                        <div className="flex justify-between text-xs font-medium text-muted-foreground">
                           <span>Progress ({doneCount}/{projTasks.length} tugas)</span>
-                          <span className="font-mono tabular-nums">{projProgress}%</span>
+                          <span className="tabular-nums">{projProgress}%</span>
                         </div>
                         <ProgressBar value={doneCount} max={projTasks.length || 1} />
                       </div>
@@ -690,7 +683,7 @@ export default function ProjectsDashboardPage() {
                           setSelectedProjectId(proj.id);
                           setActiveTab('tasks');
                         }}
-                        className="text-primary hover:underline font-semibold flex items-center gap-1 text-[11px]"
+                        className="text-primary hover:underline font-semibold flex items-center gap-1 text-xs"
                       >
                         Buka Tugas Papan →
                       </button>
@@ -885,7 +878,7 @@ export default function ProjectsDashboardPage() {
                   required
                   value={taskDue}
                   onChange={(e) => setTaskDue(e.target.value)}
-                  className="glass-input text-xs font-mono tabular-nums"
+                  className="glass-input text-xs tabular-nums"
                 />
               </div>
             </div>
@@ -994,7 +987,7 @@ export default function ProjectsDashboardPage() {
                   type="date"
                   value={editTaskDue}
                   onChange={(e) => setEditTaskDue(e.target.value)}
-                  className="glass-input text-xs font-mono tabular-nums"
+                  className="glass-input text-xs tabular-nums"
                 />
               </div>
             </div>

@@ -276,9 +276,9 @@ export default function ProjectTasksPage() {
 
  return (
  <div className="flex-1 min-w-[280px] bg-muted/20 border border-border rounded-xl p-4 flex flex-col h-[500px]">
- <div className="flex justify-between items-center pb-2 mb-3 border-b border-white/5">
+ <div className="flex justify-between items-center pb-2 mb-3 border-b border-border">
  <h4 className="text-xs font-semibold text-muted-foreground ">{title}</h4>
- <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-muted/40 text-muted-foreground border border-border">
+ <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-muted/40 text-muted-foreground border border-border">
  {columnTasks.length}
  </span>
  </div>
@@ -297,14 +297,14 @@ export default function ProjectTasksPage() {
  >
  <div className="min-w-0">
  <strong className="text-xs font-medium text-foreground block leading-tight">{task.title}</strong>
- <div className="flex flex-col gap-0.5 mt-1 text-[11px] text-muted-foreground">
+ <div className="flex flex-col gap-0.5 mt-1 text-xs text-muted-foreground">
  <span className="flex items-center gap-1">
- <Icon name="folder" size={10} className="text-blue-400 mt-0.5 shrink-0" />
+ <Icon name="folder" size={10} className="text-blue-600 dark:text-blue-300 mt-0.5 shrink-0" />
  <span>{project ? project.name : 'Inbox'}</span>
  </span>
  {goal && (
- <span className="text-teal-400 font-semibold flex items-center gap-1 mt-0.5">
- <Icon name="target" size={10} className="text-teal-400 mt-0.5 shrink-0" />
+ <span className="text-teal-700 dark:text-teal-300 font-semibold flex items-center gap-1 mt-0.5">
+ <Icon name="target" size={10} className="text-teal-700 dark:text-teal-300 mt-0.5 shrink-0" />
  <span>{goal.title}</span>
  </span>
  )}
@@ -317,7 +317,7 @@ export default function ProjectTasksPage() {
  {isOverdue ? t('tasks_overdue') : task.priority}
  </Badge>
  {task.due && (
- <span className="text-[11px] text-muted-foreground font-medium self-center">
+ <span className="text-xs text-muted-foreground font-medium self-center">
  {formatDate(task.due)}
  </span>
  )}
@@ -345,7 +345,7 @@ export default function ProjectTasksPage() {
  {columnStatus === 'doing' && (
  <button
  onClick={() => handleStatusChange(task.id, 'done')}
- className="w-5 h-5 rounded bg-muted/30 border border-border hover:bg-primary/20 text-muted-foreground hover:text-foreground flex items-center justify-center text-teal-400"
+ className="w-5 h-5 rounded bg-muted/30 border border-border hover:bg-primary/20 text-muted-foreground hover:text-foreground flex items-center justify-center text-teal-700 dark:text-teal-300"
  title="Complete Task"
  >
  <Icon name="check" size={10} />
@@ -395,7 +395,7 @@ export default function ProjectTasksPage() {
  <div className="overflow-x-auto">
  <table className="w-full text-left border-collapse min-w-[600px]">
  <thead>
- <tr className="border-b border-border text-[11px] font-semibold text-muted-foreground ">
+ <tr className="border-b border-border text-xs font-semibold text-muted-foreground ">
  <th className="pb-3 pr-4">{t('tasks_title_label')}</th>
  <th className="pb-3 px-4">{t('tasks_project')}</th>
  <th className="pb-3 px-4">Target (Goal)</th>
@@ -418,7 +418,7 @@ export default function ProjectTasksPage() {
  <select
  value={task.goalId || ''}
  onChange={(e) => updateTaskGoal(task.id, e.target.value || null)}
- className="glass-select py-1 px-2 text-[11px]"
+ className="glass-select py-1 px-2 text-xs"
  >
  <option value="">-- Tanpa Target --</option>
  {state.goals.map((g) => (
@@ -442,7 +442,7 @@ export default function ProjectTasksPage() {
  <select
  value={task.status}
  onChange={(e) => handleStatusChange(task.id, e.target.value as any)}
- className="glass-select py-1 px-2 text-[11px] font-semibold"
+ className="glass-select py-1 px-2 text-xs font-semibold"
  >
  <option value="todo">{t('tasks_todo')}</option>
  <option value="doing">{t('tasks_doing')}</option>
@@ -452,14 +452,14 @@ export default function ProjectTasksPage() {
  <td className="py-3 pl-4 text-right flex items-center justify-end space-x-1.5">
  <button
  onClick={() => handleOpenEditTask(task)}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-primary/20 text-muted-foreground hover:text-foreground inline-flex items-center justify-center transition-colors"
+ className="icon-btn"
  title="Edit"
  >
  <Icon name="edit" size={12} />
  </button>
  <button
  onClick={() => deleteTask(task.id)}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive inline-flex items-center justify-center transition-colors"
+ className="icon-btn hover:text-destructive"
  title={t('delete')}
  >
  <Icon name="trash" size={12} />
@@ -475,18 +475,14 @@ export default function ProjectTasksPage() {
  };
 
  return (
- <div className="space-y-6 max-w-6xl mx-auto pb-24">
- <div className="flex items-center gap-3">
- <Link href="/projects">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
- <Icon name="arrowLeft" size={18} />
- </button>
- </Link>
+ <div className="space-y-6 max-w-6xl mx-auto">
+ <div className="page-header-title">
+ <Link href="/projects" className="icon-btn" aria-label="Kembali"><Icon name="arrowLeft" size={18} /></Link>
  <div className="flex-1">
- <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+ <h1 className="page-title">
  Kelola Tugas (Tasks)
  </h1>
- <p className="text-zinc-500 text-xs mt-1">
+ <p className="page-subtitle">
  Lihat semua tugas Anda dalam Kanban Board atau List.
  </p>
  </div>
@@ -520,32 +516,24 @@ export default function ProjectTasksPage() {
  title="Sinkronisasi dengan Google Calendar"
  >
  <Icon name="calendar" size={12} className={gcalSyncing ? 'animate-spin' : ''} />
- <span className="text-[11px] font-medium hidden sm:inline">
+ <span className="text-xs font-medium hidden sm:inline">
  {gcalSyncing ? 'Syncing...' : isGCalConnected ? 'Synced' : 'Sync GCal'}
  </span>
  </button>
  )}
 
- <div className="flex bg-muted/30 border border-border rounded-lg p-0.5 shrink-0">
+ <div role="tablist" className="seg">
  <button
  type="button"
  onClick={() => setViewMode('kanban')}
- className={`px-3 py-1.5 rounded-md text-[11px] font-semibold   transition-colors duration-150 ${
- viewMode === 'kanban'
- ? 'bg-primary text-white shadow-md'
- : 'text-muted-foreground hover:text-foreground'
- }`}
+ role="tab" aria-selected={viewMode === 'kanban'} className="seg-item"
  >
  Kanban
  </button>
  <button
  type="button"
  onClick={() => setViewMode('list')}
- className={`px-3 py-1.5 rounded-md text-[11px] font-semibold   transition-colors duration-150 ${
- viewMode === 'list'
- ? 'bg-primary text-white shadow-md'
- : 'text-muted-foreground hover:text-foreground'
- }`}
+ role="tab" aria-selected={viewMode === 'list'} className="seg-item"
  >
  Daftar
  </button>
@@ -920,7 +908,7 @@ export default function ProjectTasksPage() {
  </div>
  </div>
 
- <div className="flex justify-end gap-2 pt-2 border-t border-white/5">
+ <div className="flex justify-end gap-2 pt-2 border-t border-border">
  <Button type="button" variant="secondary" onClick={() => setEditingTask(null)}>
  Batal
  </Button>

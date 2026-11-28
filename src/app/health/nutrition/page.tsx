@@ -119,18 +119,14 @@ export default function HealthNutritionPage() {
  return (
  <div className="space-y-6 max-w-5xl mx-auto">
  {/* Header */}
- <div className="flex items-center justify-between gap-3">
- <div className="flex items-center gap-3">
- <Link href="/health">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
- <Icon name="arrowLeft" size={18} />
- </button>
- </Link>
+ <div className="page-header">
+ <div className="page-header-title">
+ <Link href="/health" className="icon-btn" aria-label="Kembali"><Icon name="arrowLeft" size={18} /></Link>
  <div>
- <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
- Nutrition & Meals
+ <h1 className="page-title">
+ {locale === 'id' ? 'Nutrisi & Makanan' : 'Nutrition & Meals'}
  </h1>
- <p className="text-zinc-500 text-xs">
+ <p className="page-subtitle">
  {locale === 'id' ? 'Catat kalori, protein, dan asupan harian.' : 'Log your daily calories, protein, and meals.'}
  </p>
  </div>
@@ -139,57 +135,42 @@ export default function HealthNutritionPage() {
  <AiFoodScanner onSave={handleAiSave} />
  </div>
 
- {/* Macro Summary Cards */}
- <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
- <div className="p-3 rounded-xl border border-amber-500/10 relative overflow-hidden">
- <p className="text-[11px] font-semibold text-amber-500/70">Kalori</p>
- <p className="text-lg font-semibold text-amber-400">
- {totalCalories} <span className="text-xs font-medium text-amber-400/50">/ {mealGoalCalories}</span>
+ {/* Macro Summary Cards (STYLE_GUIDE §4.4: one hero, the rest white) */}
+ <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+ {[
+ { label: 'Kalori', value: totalCalories, target: mealGoalCalories, unit: 'kkal', hero: true },
+ { label: 'Karbohidrat', value: totalCarbs, target: nutrition?.carbs_g, unit: 'g' },
+ { label: 'Protein', value: totalProtein, target: nutrition?.protein_g, unit: 'g' },
+ { label: 'Lemak', value: totalFat, target: nutrition?.fat_g, unit: 'g' },
+ ].map((m) => {
+ const pct = m.target ? Math.min(100, (m.value / m.target) * 100) : 0;
+ return (
+ <Surface key={m.label} variant={m.hero ? 'hero' : 'default'} className="p-4 md:p-5 flex flex-col gap-3">
+ <span className="text-[13px] text-muted-foreground">{m.label}</span>
+ <p className="figure-lg text-current">
+ {Math.round(m.value)}
+ <span className="unit">{m.target ? `/ ${Math.round(m.target)} ${m.unit}` : m.unit}</span>
  </p>
- <div className="absolute bottom-0 left-0 h-1 bg-amber-500/20 w-full">
- <div className="h-full bg-amber-500" style={{ width: `${Math.min(100, (totalCalories / mealGoalCalories) * 100)}%` }} />
+ {m.target ? (
+ <div
+ className={m.hero ? 'h-1.5 rounded-full bg-white/30 overflow-hidden' : 'duo-progress-track'}
+ role="progressbar" aria-label={m.label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)}
+ >
+ <div className={m.hero ? 'h-full rounded-full bg-white' : 'duo-progress-fill'} style={{ width: `${pct}%` }} />
  </div>
- </div>
- <div className="p-3 rounded-xl border border-blue-500/10 relative overflow-hidden">
- <p className="text-[11px] font-semibold text-blue-500/70">Karbohidrat</p>
- <p className="text-lg font-semibold text-blue-400">
- {totalCarbs} <span className="text-xs font-medium text-blue-400/50">{nutrition ? `/ ${nutrition.carbs_g}g` : 'g'}</span>
- </p>
- {nutrition && (
- <div className="absolute bottom-0 left-0 h-1 bg-blue-500/20 w-full">
- <div className="h-full bg-blue-500" style={{ width: `${Math.min(100, (totalCarbs / nutrition.carbs_g) * 100)}%` }} />
- </div>
+ ) : (
+ <span className="text-xs text-muted-foreground">Lengkapi profil untuk target</span>
  )}
- </div>
- <div className="p-3 rounded-xl border border-rose-500/10 relative overflow-hidden">
- <p className="text-[11px] font-semibold text-rose-500/70">Protein</p>
- <p className="text-lg font-semibold text-rose-400">
- {totalProtein} <span className="text-xs font-medium text-rose-400/50">{nutrition ? `/ ${nutrition.protein_g}g` : 'g'}</span>
- </p>
- {nutrition && (
- <div className="absolute bottom-0 left-0 h-1 bg-rose-500/20 w-full">
- <div className="h-full bg-rose-500" style={{ width: `${Math.min(100, (totalProtein / nutrition.protein_g) * 100)}%` }} />
- </div>
- )}
- </div>
- <div className="p-3 rounded-xl border border-yellow-500/10 relative overflow-hidden">
- <p className="text-[11px] font-semibold text-yellow-500/70">Lemak</p>
- <p className="text-lg font-semibold text-yellow-400">
- {totalFat} <span className="text-xs font-medium text-yellow-400/50">{nutrition ? `/ ${nutrition.fat_g}g` : 'g'}</span>
- </p>
- {nutrition && (
- <div className="absolute bottom-0 left-0 h-1 bg-yellow-500/20 w-full">
- <div className="h-full bg-yellow-500" style={{ width: `${Math.min(100, (totalFat / nutrition.fat_g) * 100)}%` }} />
- </div>
- )}
- </div>
+ </Surface>
+ );
+ })}
  </div>
 
- <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+ <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-5">
  {/* Meal Tracker */}
- <Surface className="p-6">
+ <Surface className="p-4 md:p-6">
  <div className="border-b border-border pb-3 mb-4">
- <h3 className="text-sm font-medium text-foreground ">
+ <h3 className="section-title">
  {t('health_meal_log')}
  </h3>
  <p className="text-xs text-muted-foreground mt-0.5">
@@ -205,7 +186,7 @@ export default function HealthNutritionPage() {
  detail={`${totalCalories} / ${mealGoalCalories} kcal`}
  />
 
- <div className="grid grid-cols-3 gap-3 pt-2">
+ <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
  <div className="flex flex-col space-y-1">
  <label className="text-xs font-medium text-muted-foreground ">
  {t('health_meal_type')}
@@ -213,7 +194,7 @@ export default function HealthNutritionPage() {
  <select
  value={mealType}
  onChange={(e) => setMealType(e.target.value as any)}
- className="glass-select text-xs"
+ className="glass-select"
  >
  {MEAL_TYPES.map((m) => (
  <option key={m} value={m}>
@@ -223,7 +204,7 @@ export default function HealthNutritionPage() {
  </select>
  </div>
 
- <div className="flex flex-col space-y-1 col-span-2">
+ <div className="flex flex-col space-y-1 sm:col-span-2">
  <label className="text-xs font-medium text-muted-foreground ">
  {t('health_food')}
  </label>
@@ -233,12 +214,12 @@ export default function HealthNutritionPage() {
  placeholder={t('health_food_placeholder')}
  value={mealFood}
  onChange={(e) => setMealFood(e.target.value)}
- className="glass-input text-xs"
+ className="glass-input"
  />
  </div>
  </div>
 
- <div className="grid grid-cols-4 gap-3">
+ <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
  <div className="flex flex-col space-y-1">
  <label className="text-xs font-medium text-muted-foreground ">
  {t('health_calories')}
@@ -250,7 +231,7 @@ export default function HealthNutritionPage() {
  required
  value={mealCalories}
  onChange={(e) => setMealCalories(Number(e.target.value))}
- className="glass-input text-xs"
+ className="glass-input"
  />
  </div>
 
@@ -264,7 +245,7 @@ export default function HealthNutritionPage() {
  step="any"
  value={mealCarbs}
  onChange={(e) => setMealCarbs(Number(e.target.value))}
- className="glass-input text-xs"
+ className="glass-input"
  />
  </div>
 
@@ -279,7 +260,7 @@ export default function HealthNutritionPage() {
  required
  value={mealProtein}
  onChange={(e) => setMealProtein(Number(e.target.value))}
- className="glass-input text-xs"
+ className="glass-input"
  />
  </div>
 
@@ -293,7 +274,7 @@ export default function HealthNutritionPage() {
  step="any"
  value={mealFat}
  onChange={(e) => setMealFat(Number(e.target.value))}
- className="glass-input text-xs"
+ className="glass-input"
  />
  </div>
  </div>
@@ -305,26 +286,26 @@ export default function HealthNutritionPage() {
  </Surface>
 
  {/* Daily Logs List (Meals today) */}
- <Surface className="p-6">
+ <Surface className="p-4 md:p-6">
  <div className="border-b border-border pb-3 mb-4 flex items-center justify-between">
  <div>
- <h3 className="text-sm font-medium text-foreground ">
+ <h3 className="section-title">
  {activeTab === 'today' ? t('health_meals_today') : locale === 'id' ? 'Riwayat Logs' : 'Logs History'}
  </h3>
  <p className="text-xs text-muted-foreground mt-0.5">
  {displayMeals.length} logs saved
  </p>
  </div>
- <div className="flex bg-background p-1 rounded-lg border border-border">
+ <div role="tablist" className="seg">
  <button 
  onClick={() => setActiveTab('today')}
- className={`px-3 py-1 rounded text-xs font-medium transition-colors ${activeTab === 'today' ? 'bg-card text-foreground shadow' : 'text-muted-foreground hover:text-foreground'}`}
+ role="tab" aria-selected={activeTab === 'today'} className="seg-item"
  >
  {locale === 'id' ? 'Hari Ini' : 'Today'}
  </button>
  <button 
  onClick={() => setActiveTab('history')}
- className={`px-3 py-1 rounded text-xs font-medium transition-colors ${activeTab === 'history' ? 'bg-card text-foreground shadow' : 'text-muted-foreground hover:text-foreground'}`}
+ role="tab" aria-selected={activeTab === 'history'} className="seg-item"
  >
  {locale === 'id' ? 'Riwayat' : 'History'}
  </button>
@@ -336,7 +317,7 @@ export default function HealthNutritionPage() {
  displayMeals.map((meal) => (
  <div 
  key={meal.id} 
- className="p-3 rounded-lg bg-muted/20 border border-border flex justify-between items-start gap-3"
+ className="p-3 rounded-lg bg-muted flex justify-between items-start gap-3"
  >
  <div className="flex gap-3 min-w-0 flex-1">
  {/* Thumbnail if available */}
@@ -351,26 +332,26 @@ export default function HealthNutritionPage() {
  )}
  <div className="min-w-0">
  <strong className="text-xs text-foreground block truncate">
- {activeTab === 'history' && <span className="text-amber-500 mr-1">{formatDate(meal.date, { short: true, locale })} &bull;</span>}
+ {activeTab === 'history' && <span className="text-muted-foreground mr-1">{formatDate(meal.date, { short: true, locale })} &bull;</span>}
  {meal.type}: {meal.food}
  </strong>
  {meal.portion && (
- <span className="text-[11px] text-muted-foreground block">{meal.portion}</span>
+ <span className="text-xs text-muted-foreground block">{meal.portion}</span>
  )}
  <div className="flex flex-wrap gap-x-2 gap-y-0.5 mt-1">
- <span className="text-[11px] font-semibold text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded">
+ <span className="text-xs font-semibold text-amber-700 dark:text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-full">
  {meal.calories} kcal
  </span>
  {(meal.carbs > 0) && (
- <span className="text-[11px] font-semibold text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded">
+ <span className="text-xs font-semibold text-blue-600 dark:text-blue-300 bg-blue-500/10 px-2 py-0.5 rounded-full">
  K: {meal.carbs}g
  </span>
  )}
- <span className="text-[11px] font-semibold text-rose-400 bg-rose-500/10 px-1.5 py-0.5 rounded">
+ <span className="text-xs font-semibold text-rose-700 dark:text-rose-300 bg-rose-500/10 px-2 py-0.5 rounded-full">
  P: {meal.protein}g
  </span>
  {(meal.fat > 0) && (
- <span className="text-[11px] font-semibold text-yellow-400 bg-yellow-500/10 px-1.5 py-0.5 rounded">
+ <span className="text-xs font-semibold text-yellow-700 dark:text-yellow-300 bg-yellow-500/10 px-2 py-0.5 rounded-full">
  L: {meal.fat}g
  </span>
  )}
@@ -379,7 +360,7 @@ export default function HealthNutritionPage() {
  </div>
  <button
  onClick={() => deleteMeal(meal.id)}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors shrink-0"
+ className="icon-btn hover:text-destructive"
  title={t('delete')}
  >
  <Icon name="trash" size={12} />

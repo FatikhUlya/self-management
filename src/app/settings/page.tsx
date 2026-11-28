@@ -56,16 +56,13 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6 max-w-4xl mx-auto pb-12">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="page-header">
         <div>
           <DateStamp />
-          <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
-            <div className="p-2 rounded-xl bg-zinc-500/10 text-muted-foreground border border-zinc-500/20">
-              <Icon name="settings" size={22} />
-            </div>
+          <h1 className="page-title">
             {t('settings_title')}
           </h1>
-          <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
+          <p className="page-subtitle">
             Konfigurasi preferensi tampilan, bahasa sistem, status integrasi cloud, dan pencadangan data lokal.
           </p>
         </div>
@@ -94,7 +91,7 @@ export default function SettingsPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Surface className="p-4 flex items-center gap-3">
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-            isDbConnected ? 'bg-teal-500/10 text-teal-400' : 'bg-muted/40 text-muted-foreground'
+            isDbConnected ? 'bg-teal-500/10 text-teal-700 dark:text-teal-300' : 'bg-muted/40 text-muted-foreground'
           }`}>
             <Icon name="briefcase" size={20} />
           </div>
@@ -109,7 +106,7 @@ export default function SettingsPage() {
 
         <Surface className="p-4 flex items-center gap-3">
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-            isGoogleCalendarConfigured() ? 'bg-amber-500/10 text-amber-400' : 'bg-muted/40 text-muted-foreground'
+            isGoogleCalendarConfigured() ? 'bg-amber-500/10 text-amber-700 dark:text-amber-300' : 'bg-muted/40 text-muted-foreground'
           }`}>
             <Icon name="calendar" size={20} />
           </div>
@@ -134,7 +131,7 @@ export default function SettingsPage() {
         </Surface>
 
         <Surface className="p-4 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-300 flex items-center justify-center shrink-0">
             <Icon name="globe" size={20} />
           </div>
           <div>
@@ -296,7 +293,7 @@ export default function SettingsPage() {
           {/* Supabase status */}
           <div className="p-4 rounded-xl bg-card border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-start gap-3">
-              <div className="p-2 rounded-lg bg-teal-500/10 text-teal-400 mt-0.5 shrink-0">
+              <div className="p-2 rounded-lg bg-teal-500/10 text-teal-700 dark:text-teal-300 mt-0.5 shrink-0">
                 <Icon name="briefcase" size={18} />
               </div>
               <div>
@@ -314,7 +311,7 @@ export default function SettingsPage() {
           {/* Google Calendar status */}
           <div className="p-4 rounded-xl bg-card border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-start gap-3">
-              <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400 mt-0.5 shrink-0">
+              <div className="p-2 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-300 mt-0.5 shrink-0">
                 <Icon name="calendar" size={18} />
               </div>
               <div>
@@ -346,19 +343,19 @@ export default function SettingsPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
           <div className="p-3 rounded-lg bg-muted/20 border border-border">
             <span className="text-lg font-medium text-foreground block">{state.tasks.length}</span>
-            <span className="text-[11px] text-muted-foreground font-medium ">Tasks</span>
+            <span className="text-xs text-muted-foreground font-medium ">Tasks</span>
           </div>
           <div className="p-3 rounded-lg bg-muted/20 border border-border">
             <span className="text-lg font-medium text-foreground block">{state.projects.length}</span>
-            <span className="text-[11px] text-muted-foreground font-medium ">Projects</span>
+            <span className="text-xs text-muted-foreground font-medium ">Projects</span>
           </div>
           <div className="p-3 rounded-lg bg-muted/20 border border-border">
             <span className="text-lg font-medium text-foreground block">{state.habits.length}</span>
-            <span className="text-[11px] text-muted-foreground font-medium ">Habits</span>
+            <span className="text-xs text-muted-foreground font-medium ">Habits</span>
           </div>
           <div className="p-3 rounded-lg bg-muted/20 border border-border">
             <span className="text-lg font-medium text-foreground block">{state.journals.length}</span>
-            <span className="text-[11px] text-muted-foreground font-medium ">Journals</span>
+            <span className="text-xs text-muted-foreground font-medium ">Journals</span>
           </div>
         </div>
 

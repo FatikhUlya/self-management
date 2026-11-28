@@ -225,25 +225,26 @@ export default function RulesPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-24">
+    <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header & Page Title */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="page-header">
         <div>
           <DateStamp />
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+            <h1 className="page-title">
               Personal Rules & Daily Compass
             </h1>
-            <Badge tone="amber" className="font-mono tabular-nums text-xs">
+            <Badge tone="amber" className="tabular-nums text-xs">
               {rules.length} Aturan Aktif
             </Badge>
           </div>
-          <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
+          <p className="page-subtitle">
             Prinsip integritas, etos kerja solo operator, dan audit kepatuhan aturan hidup harian Anda.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
+          <Button href="/rules/decisions" variant="secondary" icon="compass">Log Keputusan</Button>
           {rules.length === 0 && (
             <Button
               variant="outline"
@@ -272,19 +273,17 @@ export default function RulesPage() {
 
       {/* Top Strategic Metric Strip */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard
+        <MetricCard glow
           icon="shield"
           label="Kepatuhan Hari Ini"
           value={`${complianceRate}%`}
           detail={`${followedCount} dari ${rules.length} aturan ditaati`}
-          glow={complianceRate >= 80}
         />
         <MetricCard
           icon="checkCircle"
           label="Aturan Ditaati"
           value={followedCount}
           detail={followedCount > 0 ? 'Disiplin terjaga dengan baik' : 'Lakukan check-in hari ini'}
-          glow={followedCount > 0}
         />
         <MetricCard
           icon="alertCircle"
@@ -301,46 +300,31 @@ export default function RulesPage() {
       </div>
 
       {/* Modern Segmented Navigation Tabs */}
-      <div className="flex items-center justify-between border-b border-border pb-2 overflow-x-auto no-scrollbar gap-4 px-1">
-        <div className="flex p-1 bg-muted/30 rounded-xl border border-border shrink-0">
+      <div className="flex items-center justify-between gap-4 min-w-0">
+        <div role="tablist" className="seg">
           <button
             onClick={() => setActiveTab('compliance')}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-colors',
-              activeTab === 'compliance'
-                ? 'bg-background text-foreground shadow-xs border border-border/80'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
+            role="tab" aria-selected={activeTab === 'compliance'} className="seg-item"
           >
             <Icon name="checkCircle" size={14} className={activeTab === 'compliance' ? 'text-amber-500' : ''} />
             Check-In Kepatuhan Hari Ini
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
+            <span className="seg-count">
               {formatDate(selectedDate)}
             </span>
           </button>
           <button
             onClick={() => setActiveTab('rules')}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-colors',
-              activeTab === 'rules'
-                ? 'bg-background text-foreground shadow-xs border border-border/80'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
+            role="tab" aria-selected={activeTab === 'rules'} className="seg-item"
           >
             <Icon name="shield" size={14} className={activeTab === 'rules' ? 'text-amber-500' : ''} />
             Katalog & Manajemen Aturan
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
+            <span className="seg-count">
               {rules.length}
             </span>
           </button>
           <button
             onClick={() => setActiveTab('creed')}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-colors',
-              activeTab === 'creed'
-                ? 'bg-background text-foreground shadow-xs border border-border/80'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
+            role="tab" aria-selected={activeTab === 'creed'} className="seg-item"
           >
             <Icon name="star" size={14} className={activeTab === 'creed' ? 'text-amber-500' : ''} />
             Etos Kerja Solo Operator
@@ -363,7 +347,7 @@ export default function RulesPage() {
             </div>
 
             <div className="flex items-center gap-3 shrink-0">
-              <span className="text-xs font-mono font-medium text-foreground">
+              <span className="text-xs tabular-nums font-medium text-foreground">
                 Skor Disiplin: {complianceRate}%
               </span>
               <div className="w-24">
@@ -389,18 +373,18 @@ export default function RulesPage() {
                     )}
                   >
                     <div className="flex items-start gap-3 min-w-0">
-                      <span className="text-xs font-mono font-medium text-muted-foreground mt-0.5">
+                      <span className="text-xs tabular-nums font-medium text-muted-foreground mt-0.5">
                         {idx + 1}.
                       </span>
                       <div className="space-y-1 min-w-0">
                         <p className="text-sm font-semibold text-foreground leading-relaxed">
                           {rule.rule_text}
                         </p>
-                        <span className="inline-block px-2 py-0.2 rounded bg-muted/40 border border-border text-[11px] text-muted-foreground">
+                        <span className="inline-block px-2 py-0.2 rounded bg-muted/40 border border-border text-xs text-muted-foreground">
                           {rule.section || 'General'}
                         </span>
                         {isMissed && log?.reason && (
-                          <p className="text-[11px] text-rose-500 font-medium pt-1">
+                          <p className="text-xs text-rose-500 font-medium pt-1">
                             Alasan terlanggar: "{log.reason}"
                           </p>
                         )}
@@ -414,7 +398,7 @@ export default function RulesPage() {
                         className={cn(
                           'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 border min-h-[44px]',
                           isFollowed
-                            ? 'bg-emerald-500 text-white border-emerald-600 shadow-xs'
+                            ? 'bg-emerald-500 text-white border-emerald-600 shadow-card'
                             : 'bg-muted/30 text-muted-foreground border-border hover:bg-emerald-500/10 hover:text-emerald-500 hover:border-emerald-500/30'
                         )}
                       >
@@ -428,7 +412,7 @@ export default function RulesPage() {
                         className={cn(
                           'px-3 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5 border min-h-[44px]',
                           isMissed
-                            ? 'bg-rose-500 text-white border-rose-600 shadow-xs'
+                            ? 'bg-rose-500 text-white border-rose-600 shadow-card'
                             : 'bg-muted/30 text-muted-foreground border-border hover:bg-rose-500/10 hover:text-rose-500 hover:border-rose-500/30'
                         )}
                       >
@@ -473,12 +457,12 @@ export default function RulesPage() {
                   placeholder="Tuliskan prinsip atau aturan hidup Anda"
                   value={quickRuleText}
                   onChange={(e) => setQuickRuleText(e.target.value)}
-                  className="sm:col-span-8 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-amber-500 text-foreground" aria-label="Tuliskan prinsip atau aturan hidup Anda"
+                  className="sm:col-span-8 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-none focus:border-amber-500 text-foreground" aria-label="Tuliskan prinsip atau aturan hidup Anda"
 />
                 <select
                   value={quickSection}
                   onChange={(e) => setQuickSection(e.target.value)}
-                  className="sm:col-span-3 px-2.5 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden text-foreground"
+                  className="sm:col-span-3 px-2.5 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-none text-foreground"
                 >
                   {availableSections.map((sec) => (
                     <option key={sec} value={sec}>
@@ -513,14 +497,14 @@ export default function RulesPage() {
                 placeholder="Cari prinsip atau kata kunci"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-amber-500 text-foreground" aria-label="Cari prinsip atau kata kunci"
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-none focus:border-amber-500 text-foreground" aria-label="Cari prinsip atau kata kunci"
 />
             </div>
 
             <select
               value={sectionFilter}
               onChange={(e) => setSectionFilter(e.target.value)}
-              className="px-2.5 py-1.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden w-full sm:w-auto"
+              className="px-2.5 py-1.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none w-full sm:w-auto"
             >
               <option value="all">Semua Kategori</option>
               {availableSections.map((sec) => (
@@ -541,7 +525,7 @@ export default function RulesPage() {
                     <h3 className="text-xs font-medium text-foreground">
                       {sectionName}
                     </h3>
-                    <span className="text-[11px] font-mono text-muted-foreground">
+                    <span className="text-xs tabular-nums text-muted-foreground">
                       ({sectionRules.length})
                     </span>
                   </div>
@@ -553,7 +537,7 @@ export default function RulesPage() {
                         className="p-4 flex items-center justify-between hover:border-amber-500/40 transition-colors gap-4 group"
                       >
                         <div className="flex items-start gap-3 min-w-0">
-                          <span className="text-xs font-mono font-medium text-muted-foreground mt-0.5">
+                          <span className="text-xs tabular-nums font-medium text-muted-foreground mt-0.5">
                             {idx + 1}.
                           </span>
                           <p className="text-sm font-semibold text-foreground leading-relaxed">
@@ -638,7 +622,7 @@ export default function RulesPage() {
                     onClick={async () => {
                       await addSelfRule(item.title.replace(/^[0-9]+\.\s*/, ''), 'Etos Solo Operator');
                     }}
-                    className="text-[11px] font-medium text-amber-600 dark:text-amber-400 hover:underline"
+                    className="text-xs font-medium text-amber-600 dark:text-amber-400 hover:underline"
                   >
                     + Masukkan ke Aturan Saya
                   </button>
@@ -665,7 +649,7 @@ export default function RulesPage() {
 
             <div className="space-y-3 py-3 text-xs">
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Teks Prinsip / Aturan *
                 </label>
                 <textarea
@@ -674,18 +658,18 @@ export default function RulesPage() {
                   placeholder="Contoh: Tidak ada scrolling media sosial sebelum 1 sesi Deep Work selesai"
                   value={modalRuleText}
                   onChange={(e) => setModalRuleText(e.target.value)}
-                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed focus:outline-hidden focus:border-amber-500 resize-none" aria-label="Contoh: Tidak ada scrolling media sosial sebelum 1 sesi Deep Work selesai"
+                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed focus:outline-none focus:border-amber-500 resize-none" aria-label="Contoh: Tidak ada scrolling media sosial sebelum 1 sesi Deep Work selesai"
 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Kategori / Dimensi Aturan
                 </label>
                 <select
                   value={modalSection}
                   onChange={(e) => setModalSection(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+                  className="glass-input"
                 >
                   {availableSections.map((sec) => (
                     <option key={sec} value={sec}>
@@ -724,7 +708,7 @@ export default function RulesPage() {
 
             <div className="space-y-3 py-2 text-xs">
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Apa yang memicu pelanggaran ini?
                 </label>
                 <textarea
@@ -733,12 +717,12 @@ export default function RulesPage() {
                   placeholder="Contoh: Merasa lelah setelah meeting panjang lalu membuka Instagram tanpa sadar"
                   value={missedReason}
                   onChange={(e) => setMissedReason(e.target.value)}
-                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed focus:outline-hidden focus:border-rose-500 resize-none" aria-label="Contoh: Merasa lelah setelah meeting panjang lalu membuka Instagram tanpa sadar"
+                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed focus:outline-none focus:border-rose-500 resize-none" aria-label="Contoh: Merasa lelah setelah meeting panjang lalu membuka Instagram tanpa sadar"
 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Sistem perbaikan untuk mencegahnya terulang:
                 </label>
                 <input
@@ -746,7 +730,7 @@ export default function RulesPage() {
                   placeholder="Contoh: Pasang app blocker mulai jam 21:00"
                   value={missedImprovement}
                   onChange={(e) => setMissedImprovement(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-rose-500" aria-label="Contoh: Pasang app blocker mulai jam 21:00"
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none focus:border-rose-500" aria-label="Contoh: Pasang app blocker mulai jam 21:00"
 />
               </div>
             </div>

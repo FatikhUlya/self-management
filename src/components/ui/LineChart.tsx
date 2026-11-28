@@ -76,12 +76,12 @@ export function LineChart({
  <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto" role="img" aria-label={title}>
  <defs>
  <linearGradient id="chart-teal-gradient" x1="0" y1="0" x2="0" y2="1">
- <stop offset="0%" stopColor="#0f766e" stopOpacity="0.8" />
- <stop offset="100%" stopColor="#14b8a6" stopOpacity="0.3" />
+ <stop offset="0%" stopColor="#2f83ff" stopOpacity="0.8" />
+ <stop offset="100%" stopColor="#8cbeff" stopOpacity="0.3" />
  </linearGradient>
  <linearGradient id="chart-area-gradient" x1="0" y1="0" x2="0" y2="1">
- <stop offset="0%" stopColor="#0f766e" stopOpacity="0.25" />
- <stop offset="100%" stopColor="#0f766e" stopOpacity="0.0" />
+ <stop offset="0%" stopColor="#2f83ff" stopOpacity="0.18" />
+ <stop offset="100%" stopColor="#2f83ff" stopOpacity="0.0" />
  </linearGradient>
  </defs>
 
@@ -136,12 +136,12 @@ export function LineChart({
  {coordinatePoints && (
  <polyline
  fill="none"
- stroke="#14b8a6"
+ stroke="#2f83ff"
  strokeWidth={3}
  strokeLinecap="round"
  strokeLinejoin="round"
  points={coordinatePoints}
- className="drop-shadow-[0_2px_8px_rgba(20,184,166,0.3)]"
+ 
  />
  )}
 
@@ -151,11 +151,11 @@ export function LineChart({
  return (
  <circle
  key={index}
- className="chart-point stroke-teal-400"
+ className="chart-point"
  cx={xFor(index)}
  cy={yFor(p.value)}
  r={4}
- fill="var(--life-bg)"
+ fill="hsl(var(--card))"
  strokeWidth={2}
  >
  <title>
@@ -166,13 +166,13 @@ export function LineChart({
  })}
 
  {/* Y Axis Labels */}
- <text className="fill-life-muted text-[11px] font-medium" x={10} y={yFor(calculatedMax) + 4}>
+ <text className="fill-life-muted text-xs" x={10} y={yFor(calculatedMax) + 4}>
  {calculatedMax.toFixed(1)}
  </text>
- <text className="fill-life-muted text-[11px] font-medium" x={10} y={yFor((calculatedMax + calculatedMin) / 2) + 4}>
+ <text className="fill-life-muted text-xs" x={10} y={yFor((calculatedMax + calculatedMin) / 2) + 4}>
  {((calculatedMax + calculatedMin) / 2).toFixed(1)}
  </text>
- <text className="fill-life-muted text-[11px] font-medium" x={10} y={yFor(calculatedMin) + 4}>
+ <text className="fill-life-muted text-xs" x={10} y={yFor(calculatedMin) + 4}>
  {calculatedMin.toFixed(1)}
  </text>
 
@@ -183,7 +183,7 @@ export function LineChart({
  return (
  <text
  key={index}
- className="fill-life-muted text-[11px] font-medium"
+ className="fill-life-muted text-xs"
  x={xFor(index)}
  y={height - 15}
  textAnchor="middle"

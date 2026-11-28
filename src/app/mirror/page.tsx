@@ -79,36 +79,27 @@ export default function MirrorDashboard() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
       {/* Executive Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="page-header">
         <div>
           <DateStamp />
-          <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
-            <div className="p-2 rounded-xl bg-purple-500/10 text-purple-500 border border-purple-500/20">
-              <Icon name="lightbulb" size={22} />
-            </div>
+          <h1 className="page-title">
             Self-Awareness Mirror
           </h1>
-          <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
+          <p className="page-subtitle">
             Eksplorasi diri melalui evaluasi sifat, refleksi berkala, feedback rekan 360°, dan target pertumbuhan karakter.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Link href="/mirror/new">
-            <Button variant="primary" icon="plus" size="sm">
+          <Button href="/mirror/new" variant="primary" icon="plus" size="sm">
               Refleksi Baru
             </Button>
-          </Link>
-          <Link href="/mirror/feedback">
-            <Button variant="secondary" icon="mail" size="sm">
+          <Button href="/mirror/feedback" variant="secondary" icon="mail" size="sm">
               Minta Feedback
             </Button>
-          </Link>
-          <Link href="/mirror/goals">
-            <Button variant="secondary" icon="target" size="sm">
+          <Button href="/mirror/goals" variant="secondary" icon="target" size="sm">
               Kelola Goals
             </Button>
-          </Link>
         </div>
       </div>
 
@@ -170,14 +161,10 @@ export default function MirrorDashboard() {
       </div>
 
       {/* Tab Bar */}
-      <div className="flex border-b border-border gap-2 overflow-x-auto no-scrollbar">
+      <div role="tablist" className="seg">
         <button
           onClick={() => setActiveTab('traits')}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors shrink-0 ${
-            activeTab === 'traits'
-              ? 'border-primary text-foreground'
-              : 'border-transparent text-muted-foreground hover:text-foreground'
-          }`}
+          role="tab" aria-selected={activeTab === 'traits'} className="seg-item"
         >
           <Icon name="star" size={16} />
           Evaluasi Sifat & Blindspots
@@ -185,11 +172,7 @@ export default function MirrorDashboard() {
 
         <button
           onClick={() => setActiveTab('snapshots')}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors shrink-0 ${
-            activeTab === 'snapshots'
-              ? 'border-primary text-foreground'
-              : 'border-transparent text-muted-foreground hover:text-foreground'
-          }`}
+          role="tab" aria-selected={activeTab === 'snapshots'} className="seg-item"
         >
           <Icon name="journal" size={16} />
           Snapshot Diri ({state.selfAssessmentSnapshots.length})
@@ -197,11 +180,7 @@ export default function MirrorDashboard() {
 
         <button
           onClick={() => setActiveTab('feedback')}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors shrink-0 ${
-            activeTab === 'feedback'
-              ? 'border-primary text-foreground'
-              : 'border-transparent text-muted-foreground hover:text-foreground'
-          }`}
+          role="tab" aria-selected={activeTab === 'feedback'} className="seg-item"
         >
           <Icon name="mail" size={16} />
           Feedback Rekan ({state.feedbackRequests.length})
@@ -209,11 +188,7 @@ export default function MirrorDashboard() {
 
         <button
           onClick={() => setActiveTab('goals')}
-          className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-colors shrink-0 ${
-            activeTab === 'goals'
-              ? 'border-primary text-foreground'
-              : 'border-transparent text-muted-foreground hover:text-foreground'
-          }`}
+          role="tab" aria-selected={activeTab === 'goals'} className="seg-item"
         >
           <Icon name="target" size={16} />
           Target Pertumbuhan ({state.growthGoals.length})
@@ -246,11 +221,9 @@ export default function MirrorDashboard() {
                       {formatDate(latestSnapshot.periodStart)} — {formatDate(latestSnapshot.periodEnd)}
                     </p>
                   </div>
-                  <Link href="/mirror/new">
-                    <Button variant="secondary" size="sm" icon="edit">
+                  <Button href="/mirror/new" variant="secondary" size="sm" icon="edit">
                       Edit / Baru
                     </Button>
-                  </Link>
                 </div>
 
                 <div>
@@ -277,18 +250,18 @@ export default function MirrorDashboard() {
                               <span className="text-xs font-medium text-foreground">
                                 {domainDef?.label || d.domainLabel}
                               </span>
-                              <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                              <span className="text-xs font-medium px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 border border-indigo-500/20">
                                 {d.rating} / 5
                               </span>
                             </div>
                             {d.strengthObservation && (
                               <p className="text-xs text-muted-foreground line-clamp-2">
-                                <span className="text-teal-400 font-medium">Kekuatan:</span> {d.strengthObservation}
+                                <span className="text-teal-700 dark:text-teal-300 font-medium">Kekuatan:</span> {d.strengthObservation}
                               </p>
                             )}
                             {d.growthObservation && (
                               <p className="text-xs text-muted-foreground line-clamp-2">
-                                <span className="text-amber-400 font-medium">Area Tumbuh:</span> {d.growthObservation}
+                                <span className="text-amber-700 dark:text-amber-300 font-medium">Area Tumbuh:</span> {d.growthObservation}
                               </p>
                             )}
                           </div>
@@ -318,12 +291,12 @@ export default function MirrorDashboard() {
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-medium text-foreground">{snap.periodLabel}</span>
-                        <span className="text-[11px] text-muted-foreground">{snap.periodType}</span>
+                        <span className="text-xs text-muted-foreground">{snap.periodType}</span>
                       </div>
-                      <p className="text-[11px] text-muted-foreground mt-1 line-clamp-2">
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                         {snap.overallReflection || 'Tidak ada catatan kesimpulan.'}
                       </p>
-                      <div className="text-[11px] text-muted-foreground mt-2">
+                      <div className="text-xs text-muted-foreground mt-2">
                         {formatDate(snap.createdAt)}
                       </div>
                     </div>
@@ -333,7 +306,7 @@ export default function MirrorDashboard() {
             </div>
           ) : (
             <Surface className="p-12 text-center space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 flex items-center justify-center mx-auto">
                 <Icon name="journal" size={24} />
               </div>
               <h3 className="text-base font-medium text-foreground">Belum Ada Snapshot Refleksi Diri</h3>
@@ -341,11 +314,9 @@ export default function MirrorDashboard() {
                 Lakukan refleksi berkala mingguan atau bulanan untuk menilai pertumbuhan domain kepemimpinan, komunikasi, dan kesehatan mental Anda.
               </p>
               <div className="pt-2">
-                <Link href="/mirror/new">
-                  <Button variant="primary" icon="plus" size="sm">
+                <Button href="/mirror/new" variant="primary" icon="plus" size="sm">
                     Mulai Refleksi Pertama
                   </Button>
-                </Link>
               </div>
             </Surface>
           )}
@@ -362,11 +333,9 @@ export default function MirrorDashboard() {
                 Bagikan tautan anonim kepada rekan atau mentor untuk mendapatkan penilaian yang jujur.
               </p>
             </div>
-            <Link href="/mirror/feedback">
-              <Button variant="primary" icon="plus" size="sm">
+            <Button href="/mirror/feedback" variant="primary" icon="plus" size="sm">
                 Buat Permintaan Baru
               </Button>
-            </Link>
           </div>
 
           {state.feedbackRequests.length > 0 ? (
@@ -410,7 +379,7 @@ export default function MirrorDashboard() {
                         return (
                           <span 
                             key={domKey} 
-                            className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-muted/40 text-muted-foreground border border-border"
+                            className="px-2 py-0.5 rounded-md text-xs font-medium bg-muted/40 text-muted-foreground border border-border"
                           >
                             {dom?.label || domKey}
                           </span>
@@ -421,7 +390,7 @@ export default function MirrorDashboard() {
                     {/* Shareable Link row */}
                     {req.status === 'open' && (
                       <div className="p-2.5 rounded-lg bg-muted/30 border border-border flex items-center justify-between gap-2">
-                        <span className="text-xs font-mono text-muted-foreground truncate">
+                        <span className="text-xs tabular-nums text-muted-foreground truncate">
                           /f/{req.token}
                         </span>
                         <Button
@@ -440,7 +409,7 @@ export default function MirrorDashboard() {
                     <div className="flex items-center justify-between pt-2 border-t border-border text-xs text-muted-foreground">
                       <span>{responses.length} respons masuk</span>
                       {responses.length < FEEDBACK_MIN_RESPONSES && (
-                        <span className="text-amber-400 text-[11px]">
+                        <span className="text-amber-700 dark:text-amber-300 text-xs">
                           Min. {FEEDBACK_MIN_RESPONSES} untuk sintesis AI
                         </span>
                       )}
@@ -451,7 +420,7 @@ export default function MirrorDashboard() {
             </div>
           ) : (
             <Surface className="p-12 text-center space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-400 flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-600 dark:text-blue-300 flex items-center justify-center mx-auto">
                 <Icon name="mail" size={24} />
               </div>
               <h3 className="text-base font-medium text-foreground">Belum Ada Permintaan Feedback</h3>
@@ -459,11 +428,9 @@ export default function MirrorDashboard() {
                 Buat formulir feedback dan bagikan link rahasia kepada rekan kerja atau teman Anda untuk mendengar perspektif objektif.
               </p>
               <div className="pt-2">
-                <Link href="/mirror/feedback">
-                  <Button variant="primary" icon="plus" size="sm">
+                <Button href="/mirror/feedback" variant="primary" icon="plus" size="sm">
                     Buat Permintaan Sekarang
                   </Button>
-                </Link>
               </div>
             </Surface>
           )}
@@ -474,44 +441,30 @@ export default function MirrorDashboard() {
       {activeTab === 'goals' && (
         <div className="space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-1.5 p-1 bg-muted/20 border border-border rounded-xl">
+            <div role="tablist" className="seg">
               <button
                 onClick={() => setGoalFilter('all')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                  goalFilter === 'all'
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
+                role="tab" aria-selected={goalFilter === 'all'} className="seg-item"
               >
                 Semua ({state.growthGoals.length})
               </button>
               <button
                 onClick={() => setGoalFilter('in_progress')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                  goalFilter === 'in_progress'
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
+                role="tab" aria-selected={goalFilter === 'in_progress'} className="seg-item"
               >
                 Berjalan ({activeGoals.length})
               </button>
               <button
                 onClick={() => setGoalFilter('achieved')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                  goalFilter === 'achieved'
-                    ? 'bg-primary text-primary-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
+                role="tab" aria-selected={goalFilter === 'achieved'} className="seg-item"
               >
                 Tercapai ({state.growthGoals.filter(g => g.status === 'achieved').length})
               </button>
             </div>
 
-            <Link href="/mirror/goals">
-              <Button variant="primary" icon="plus" size="sm">
+            <Button href="/mirror/goals" variant="primary" icon="plus" size="sm">
                 Buat Goal Baru
               </Button>
-            </Link>
           </div>
 
           {filteredGoals.length > 0 ? (
@@ -554,11 +507,11 @@ export default function MirrorDashboard() {
                     {/* States */}
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div className="p-2.5 rounded-lg bg-muted/20 border border-border">
-                        <span className="text-[11px] text-muted-foreground font-medium block">Kondisi Sekarang</span>
+                        <span className="text-xs text-muted-foreground font-medium block">Kondisi Sekarang</span>
                         <p className="text-foreground mt-0.5 line-clamp-2">{goal.currentState}</p>
                       </div>
                       <div className="p-2.5 rounded-lg bg-teal-500/5 border border-teal-500/20">
-                        <span className="text-[11px] text-teal-400 font-medium block">Kondisi Target</span>
+                        <span className="text-xs text-teal-700 dark:text-teal-300 font-medium block">Kondisi Target</span>
                         <p className="text-foreground mt-0.5 line-clamp-2">{goal.targetState}</p>
                       </div>
                     </div>
@@ -573,7 +526,7 @@ export default function MirrorDashboard() {
                     {/* Milestones checklist */}
                     {milestones.length > 0 && (
                       <div className="space-y-1.5 pt-2 border-t border-border">
-                        <span className="text-[11px] font-medium text-muted-foreground block">
+                        <span className="text-xs font-medium text-muted-foreground block">
                           Milestones ({milestones.filter(m => m.isCompleted).length}/{milestones.length})
                         </span>
                         <div className="space-y-1">
@@ -585,7 +538,7 @@ export default function MirrorDashboard() {
                             >
                               <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
                                 m.isCompleted
-                                  ? 'bg-teal-500 border-teal-500 text-white'
+                                  ? 'bg-primary border-primary text-primary-foreground'
                                   : 'border-border bg-card'
                               }`}>
                                 {m.isCompleted && <Icon name="check" size={12} />}
@@ -608,7 +561,7 @@ export default function MirrorDashboard() {
             </div>
           ) : (
             <Surface className="p-12 text-center space-y-3">
-              <div className="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-400 flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-700 dark:text-teal-300 flex items-center justify-center mx-auto">
                 <Icon name="target" size={24} />
               </div>
               <h3 className="text-base font-medium text-foreground">Belum Ada Target Pertumbuhan</h3>
@@ -616,11 +569,9 @@ export default function MirrorDashboard() {
                 Buat SMART Growth Goal berdasarkan evaluasi sifat atau feedback rekan untuk memandu progres Anda.
               </p>
               <div className="pt-2">
-                <Link href="/mirror/goals">
-                  <Button variant="primary" icon="plus" size="sm">
+                <Button href="/mirror/goals" variant="primary" icon="plus" size="sm">
                     Buat Goal Baru
                   </Button>
-                </Link>
               </div>
             </Surface>
           )}

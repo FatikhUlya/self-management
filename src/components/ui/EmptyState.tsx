@@ -36,23 +36,23 @@ export function EmptyState({ icon, title, description, message, action, classNam
  return (
  <div
  className={cn(
- 'flex flex-col items-center justify-center rounded-lg',
- 'border border-dashed border-border/80 bg-muted/30',
+ 'flex flex-col items-center justify-center text-center rounded-xl',
+ 'border border-dashed border-border bg-card/60',
  compact ? 'p-4 py-5' : 'p-8 py-10',
  className,
  )}
  >
  <div className={cn(
- 'rounded-lg flex items-center justify-center bg-muted/80 text-muted-foreground select-none',
- compact ? 'w-8 h-8 mb-2' : 'w-11 h-11 mb-3',
+ 'rounded-full flex items-center justify-center bg-muted text-muted-foreground select-none',
+ compact ? 'w-9 h-9 mb-2' : 'w-12 h-12 mb-3',
  )}>
  {icon || defaultIcon}
  </div>
 
  {title && (
  <h4 className={cn(
- 'font-semibold text-foreground tracking-tight text-center',
- compact ? 'text-xs' : 'text-sm',
+ 'font-display font-medium text-foreground text-center',
+ compact ? 'text-sm' : 'text-[15px]',
  )}>
  {title}
  </h4>
@@ -60,7 +60,7 @@ export function EmptyState({ icon, title, description, message, action, classNam
 
  <p className={cn(
  'text-muted-foreground text-center max-w-xs',
- compact ? 'text-[11px] mt-0.5' : 'text-xs mt-1',
+ compact ? 'text-xs mt-0.5' : 'text-[13px] mt-1',
  title ? '' : 'mt-0',
  )}>
  {description || message || t('no_data')}

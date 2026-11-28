@@ -51,6 +51,7 @@ export const id = {
   nav_reviews: 'Reviews',
   nav_finance: 'Keuangan',
   nav_settings: 'Settings',
+  nav_reports: 'Laporan',
 
   // Dashboard
   dash_title: 'Pusat Kendali Hari Ini',

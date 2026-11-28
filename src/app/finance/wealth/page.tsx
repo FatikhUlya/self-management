@@ -123,22 +123,20 @@ export default function WealthPage() {
  return (
  <div className="space-y-6">
  {/* Header */}
- <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+ <div className="page-header">
+ <div className="page-header-title">
+ <Link href="/finance" className="icon-btn" aria-label={locale === 'id' ? 'Kembali' : 'Back'}><Icon name="arrowLeft" size={18} /></Link>
  <div>
- <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+ <h1 className="page-title">
  {locale === 'id' ? 'Aset & Liabilitas' : 'Wealth & Liabilities'}
  </h1>
- <p className="text-zinc-500 mt-1 text-sm">
+ <p className="page-subtitle">
  {locale === 'id' 
  ? 'Kelola harta kekayaan bersih dan pantau kewajiban cicilan Anda.'
  : 'Manage net worth and monitor your liabilities.'}
  </p>
  </div>
- <Link href="/finance">
- <Button variant="secondary" icon="arrowLeft" className="text-xs">
- {locale === 'id' ? 'Kembali ke Dashboard' : 'Back to Dashboard'}
- </Button>
- </Link>
+ </div>
  </div>
 
  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -161,7 +159,7 @@ export default function WealthPage() {
  setAssetCategory('Kas & Bank');
  setIsAssetModalOpen(true);
  }}
- className="text-[11px]"
+ className="text-xs"
  >
  {locale === 'id' ? 'Tambah Aset' : 'Add Asset'}
  </Button>
@@ -178,20 +176,20 @@ export default function WealthPage() {
  <div>
  <p className="text-sm font-semibold text-foreground">{asset.name}</p>
  <div className="flex items-center gap-2 mt-1">
- <Badge tone="gray" className="text-[11px] py-0.5">
+ <Badge tone="gray" className="text-xs py-0.5">
  {asset.category}
  </Badge>
  </div>
  </div>
  </div>
  <div className="text-right flex flex-col items-end">
- <p className="font-semibold text-emerald-400 tracking-tight mb-1">
+ <p className="font-semibold text-emerald-700 dark:text-emerald-300 tracking-tight mb-1">
  {formatCurrency(asset.value)}
  </p>
  <div className="flex gap-2">
  <button
  onClick={() => openEditAssetModal(asset)}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-indigo-500/20 text-muted-foreground hover:text-indigo-400 flex items-center justify-center transition-colors"
+ className="icon-btn"
  title={t('edit')}
  >
  <Icon name="edit2" size={12} />
@@ -202,7 +200,7 @@ export default function WealthPage() {
  deleteAsset(asset.id);
  }
  }}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors"
+ className="icon-btn hover:text-destructive"
  title={t('delete')}
  >
  <Icon name="trash" size={12} />
@@ -232,7 +230,7 @@ export default function WealthPage() {
  size="sm"
  icon="plus"
  onClick={() => setIsDebtModalOpen(true)}
- className="text-[11px]"
+ className="text-xs"
  >
  {locale === 'id' ? 'Tambah Utang' : 'Add Debt'}
  </Button>
@@ -251,7 +249,7 @@ export default function WealthPage() {
  <div>
  <h4 className="text-sm font-medium text-foreground">{debt.name}</h4>
  <div className="flex items-center gap-3 mt-1 text-xs">
- <span className="text-muted-foreground">Sisa: <span className="font-medium text-rose-400">{formatCurrency(debt.remainingAmount)}</span></span>
+ <span className="text-muted-foreground">Sisa: <span className="font-medium text-rose-700 dark:text-rose-300">{formatCurrency(debt.remainingAmount)}</span></span>
  {debt.monthlyInstallment > 0 && !isPaidOff && (
  <span className="text-muted-foreground flex items-center gap-1">
  <Icon name="clock" size={12} />
@@ -268,7 +266,7 @@ export default function WealthPage() {
  <Button 
  variant="secondary" 
  size="sm" 
- className="text-[11px] py-1"
+ className="text-xs py-1"
  onClick={() => handlePayInstallment(debt)}
  >
  {locale === 'id' ? 'Bayar Cicilan' : 'Pay'}
@@ -277,7 +275,7 @@ export default function WealthPage() {
  )}
  <button
  onClick={() => deleteDebt(debt.id)}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors"
+ className="icon-btn hover:text-destructive"
  title={t('delete')}
  >
  <Icon name="trash" size={12} />
@@ -285,7 +283,7 @@ export default function WealthPage() {
  </div>
  </div>
 
- <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden mt-1 relative">
+ <div className="w-full bg-muted h-1.5 rounded-full overflow-hidden mt-1 relative">
  <div 
  className={`h-full absolute left-0 top-0 transition-colors ${isPaidOff ? 'bg-teal-500' : 'bg-rose-500'}`}
  style={{ width: `${pct}%` }}

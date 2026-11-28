@@ -5,6 +5,7 @@ import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { Surface } from '@/components/ui/Surface';
 import { Button } from '@/components/ui/Button';
 import { Icon } from '@/components/ui/Icon';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { Badge } from '@/components/ui/Badge';
 import { DailyPlan } from '@/lib/hooks/useLifeOSState';
 
@@ -98,30 +99,28 @@ export default function FocusModePage() {
  };
 
  return (
- <div className="min-h-screen bg-background text-foreground flex flex-col items-center pt-20 px-4">
- {/* Top Navigation */}
- <div className="w-full max-w-3xl flex justify-between items-center mb-12">
- <Button variant="secondary" icon="arrowLeft" onClick={() => router.back()}>
- Kembali
- </Button>
- <div className="flex gap-2">
- <Badge tone={mode === 'focus' ? 'rose' : 'teal'} className="text-sm px-3 py-1">
- {mode === 'focus' ? 'Deep Work' : 'Break'}
+ <div className="space-y-6 max-w-5xl mx-auto">
+ <PageHeader
+ back="/"
+ title="Mode Fokus"
+ subtitle="Satu tugas, satu sesi. Tutup yang lain."
+ actions={
+ <Badge tone={mode === 'focus' ? 'rose' : 'teal'}>
+ {mode === 'focus' ? 'Deep Work' : 'Istirahat'}
  </Badge>
- </div>
- </div>
+ }
+ />
 
- <div className="w-full max-w-3xl grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+ <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-5 items-start">
  {/* Left: Timer */}
- <Surface className="p-10 flex flex-col items-center justify-center space-y-8 aspect-square relative overflow-hidden">
+ <Surface variant={mode === 'focus' ? 'hero' : 'soft'} className="p-8 md:p-10 flex flex-col items-center justify-center space-y-8 aspect-square">
  {/* subtle background glow based on mode */}
- <div className={`absolute inset-0 opacity-10 transition-colors duration-1000 ${mode === 'focus' ? 'bg-rose-500' : 'bg-teal-500'}`} />
  
  <div className="relative z-10 text-center">
- <h2 className="text-8xl font-semibold tabular-nums tracking-tighter">
+ <h2 className="font-display font-light text-[72px] leading-none md:text-8xl tabular-nums tracking-[-0.04em] text-current">
  {formatTime(timeLeft)}
  </h2>
- <p className="text-muted-foreground mt-4 font-medium ">
+ <p className="mt-4 font-medium opacity-80">
  {mode === 'focus' ? 'Fokus Penuh' : 'Waktu Istirahat'}
  </p>
  </div>
@@ -142,10 +141,10 @@ export default function FocusModePage() {
  {/* Right: Task Details */}
  <div className="space-y-6">
  {task ? (
- <Surface className="p-8 space-y-6">
+ <Surface className="p-6 md:p-8 space-y-6">
  <div>
  <Badge tone="amber" className="mb-3">Task Focus</Badge>
- <h1 className="text-2xl font-medium leading-tight">{task.title}</h1>
+ <h2 className="font-display text-2xl font-normal leading-tight">{task.title}</h2>
  {task.description && (
  <p className="text-muted-foreground mt-3 text-sm leading-relaxed">{task.description}</p>
  )}
@@ -156,7 +155,7 @@ export default function FocusModePage() {
  {task.definitionOfDone && (
  <div>
  <h4 className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-2">
- <Icon name="checkSquare" size={14} className="text-teal-400" />
+ <Icon name="checkSquare" size={14} className="text-teal-700 dark:text-teal-300" />
  Definition of Done
  </h4>
  <p className="text-sm font-medium">{task.definitionOfDone}</p>
@@ -165,7 +164,7 @@ export default function FocusModePage() {
  {task.expectedOutput && (
  <div>
  <h4 className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-2">
- <Icon name="package" size={14} className="text-indigo-400" />
+ <Icon name="package" size={14} className="text-indigo-600 dark:text-indigo-300" />
  Expected Output
  </h4>
  <p className="text-sm font-medium">{task.expectedOutput}</p>
@@ -175,7 +174,7 @@ export default function FocusModePage() {
  )}
 
  <div className="pt-6">
- <Button variant="primary" icon="check" size="lg" className="w-full bg-teal-500 hover:bg-teal-600 text-white border-none " onClick={finishTask}>
+ <Button variant="primary" icon="check" size="lg" className="w-full" onClick={finishTask}>
  Selesaikan Tugas
  </Button>
  </div>

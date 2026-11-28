@@ -105,20 +105,20 @@ export default function CapturePage() {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-24">
+    <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header & Page Title */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="page-header">
         <div>
           <DateStamp />
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+            <h1 className="page-title">
               Quick Capture & Idea Inbox
             </h1>
-            <Badge tone="indigo" className="font-mono tabular-nums text-xs">
+            <Badge tone="indigo" className="tabular-nums text-xs">
               {activeIdeas.length} Ide di Inbox
             </Badge>
           </div>
-          <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
+          <p className="page-subtitle">
             Tampung seluruh ide mentah, inspirasi mendadak, dan konversikan ke tugas atau proyek terstruktur.
           </p>
         </div>
@@ -137,12 +137,11 @@ export default function CapturePage() {
 
       {/* Top Strategic Metric Strip */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard
+        <MetricCard glow
           icon="lightbulb"
           label="Ide Aktif di Inbox"
           value={activeIdeas.length}
           detail="Siap diproses atau dieksekusi"
-          glow={activeIdeas.length > 0}
         />
         <MetricCard
           icon="checkSquare"
@@ -179,7 +178,7 @@ export default function CapturePage() {
               placeholder="Tulis ide atau pemikiran mentah Anda lalu tekan Enter"
               value={quickTitle}
               onChange={(e) => setQuickTitle(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-indigo-500 text-foreground" aria-label="Tulis ide atau pemikiran mentah Anda lalu tekan Enter"
+              className="w-full pl-9 pr-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-none focus:border-indigo-500 text-foreground" aria-label="Tulis ide atau pemikiran mentah Anda lalu tekan Enter"
 />
           </div>
 
@@ -187,7 +186,7 @@ export default function CapturePage() {
             <select
               value={quickArea}
               onChange={(e) => setQuickArea(e.target.value)}
-              className="px-2.5 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+              className="px-2.5 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none"
             >
               {LIFE_AREAS.map((a) => (
                 <option key={a} value={a}>
@@ -199,7 +198,7 @@ export default function CapturePage() {
             <select
               value={quickPriority}
               onChange={(e: any) => setQuickPriority(e.target.value)}
-              className="px-2.5 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+              className="px-2.5 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none"
             >
               {PRIORITY_OPTIONS.map((opt) => (
                 <option key={opt} value={opt}>
@@ -216,35 +215,25 @@ export default function CapturePage() {
       </Surface>
 
       {/* Modern Segmented Navigation Tabs */}
-      <div className="flex items-center justify-between border-b border-border pb-2 overflow-x-auto no-scrollbar gap-4 px-1">
-        <div className="flex p-1 bg-muted/30 rounded-xl border border-border shrink-0">
+      <div className="flex items-center justify-between gap-4 min-w-0">
+        <div role="tablist" className="seg">
           <button
             onClick={() => setActiveTab('inbox')}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-colors',
-              activeTab === 'inbox'
-                ? 'bg-background text-foreground shadow-xs border border-border/80'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
+            role="tab" aria-selected={activeTab === 'inbox'} className="seg-item"
           >
             <Icon name="lightbulb" size={14} className={activeTab === 'inbox' ? 'text-indigo-500' : ''} />
             Kotak Masuk Ide (Inbox)
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
+            <span className="seg-count">
               {activeIdeas.length}
             </span>
           </button>
           <button
             onClick={() => setActiveTab('archived')}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-colors',
-              activeTab === 'archived'
-                ? 'bg-background text-foreground shadow-xs border border-border/80'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
+            role="tab" aria-selected={activeTab === 'archived'} className="seg-item"
           >
             <Icon name="checkCircle" size={14} className={activeTab === 'archived' ? 'text-indigo-500' : ''} />
             Ide Terarsipkan
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
+            <span className="seg-count">
               {archivedIdeas.length}
             </span>
           </button>
@@ -263,14 +252,14 @@ export default function CapturePage() {
               placeholder="Cari ide"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-2.5 py-1 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden" aria-label="Cari ide"
+              className="w-full pl-8 pr-2.5 py-1 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none" aria-label="Cari ide"
 />
           </div>
 
           <select
             value={areaFilter}
             onChange={(e) => setAreaFilter(e.target.value)}
-            className="px-2 py-1 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden max-w-[120px] truncate"
+            className="px-2 py-1 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none max-w-[120px] truncate"
           >
             <option value="all">Semua Area</option>
             {LIFE_AREAS.map((a) => (
@@ -300,7 +289,7 @@ export default function CapturePage() {
                     <div className="flex items-center gap-1.5 shrink-0">
                       <Badge
                         tone={isHigh ? 'rose' : idea.priority === 'Medium' ? 'amber' : 'gray'}
-                        className="text-[11px]"
+                        className="text-xs"
                       >
                         {idea.priority}
                       </Badge>
@@ -331,8 +320,8 @@ export default function CapturePage() {
                     </p>
                   )}
 
-                  <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                    <Badge tone="indigo" className="text-[11px] py-0">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <Badge tone="indigo" className="text-xs py-0">
                       {idea.area || 'General'}
                     </Badge>
                     <span>•</span>
@@ -342,14 +331,14 @@ export default function CapturePage() {
 
                 {/* Pipeline Conversion Actions */}
                 <div className="pt-3 border-t border-border flex items-center justify-between text-xs">
-                  <span className="text-[11px] font-medium text-muted-foreground ">
+                  <span className="text-xs font-medium text-muted-foreground ">
                     Konversi ke:
                   </span>
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => convertIdeaToTask(idea.id)}
-                      className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-medium text-[11px] transition-colors border border-emerald-500/20"
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-medium text-xs transition-colors border border-emerald-500/20"
                     >
                       <Icon name="checkSquare" size={12} />
                       Tugas (Task)
@@ -357,7 +346,7 @@ export default function CapturePage() {
                     <button
                       type="button"
                       onClick={() => convertIdeaToProject(idea.id)}
-                      className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 font-medium text-[11px] transition-colors border border-blue-500/20"
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 dark:text-blue-400 font-medium text-xs transition-colors border border-blue-500/20"
                     >
                       <Icon name="folder" size={12} />
                       Proyek (Project)
@@ -398,7 +387,7 @@ export default function CapturePage() {
 
             <div className="space-y-3 py-3 text-xs">
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Judul Ide *
                 </label>
                 <input
@@ -407,19 +396,19 @@ export default function CapturePage() {
                   placeholder="Contoh: Bikin fitur offline sync dengan IndexedDB"
                   value={modalTitle}
                   onChange={(e) => setModalTitle(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-indigo-500" aria-label="Contoh: Bikin fitur offline sync dengan IndexedDB"
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none focus:border-indigo-500" aria-label="Contoh: Bikin fitur offline sync dengan IndexedDB"
 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Area Kehidupan
                   </label>
                   <select
                     value={modalArea}
                     onChange={(e) => setModalArea(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+                    className="glass-input"
                   >
                     {LIFE_AREAS.map((a) => (
                       <option key={a} value={a}>
@@ -430,13 +419,13 @@ export default function CapturePage() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Prioritas
                   </label>
                   <select
                     value={modalPriority}
                     onChange={(e: any) => setModalPriority(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+                    className="glass-input"
                   >
                     {PRIORITY_OPTIONS.map((opt) => (
                       <option key={opt} value={opt}>
@@ -448,7 +437,7 @@ export default function CapturePage() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Catatan / Konteks Tambahan
                 </label>
                 <textarea
@@ -456,7 +445,7 @@ export default function CapturePage() {
                   placeholder="Tuliskan latar belakang ide, potensi manfaat, atau langkah berikutnya"
                   value={modalNotes}
                   onChange={(e) => setModalNotes(e.target.value)}
-                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed focus:outline-hidden resize-none" aria-label="Tuliskan latar belakang ide, potensi manfaat, atau langkah berikutnya"
+                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed focus:outline-none resize-none" aria-label="Tuliskan latar belakang ide, potensi manfaat, atau langkah berikutnya"
 />
               </div>
             </div>

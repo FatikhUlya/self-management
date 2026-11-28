@@ -106,18 +106,14 @@ export default function GrowthGoalsPage() {
 
  return (
  <div className="space-y-6">
- <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
- <div className="flex items-center gap-3">
- <Link href="/mirror">
- <button className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-muted/50/10 transition-colors">
- <Icon name="arrowLeft" size={16} />
- </button>
- </Link>
+ <div className="page-header">
+ <div className="page-header-title">
+ <Link href="/mirror" className="icon-btn" aria-label="Kembali"><Icon name="arrowLeft" size={16} /></Link>
  <div>
- <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+ <h1 className="page-title">
  Growth Goals
  </h1>
- <p className="text-zinc-400 mt-1 text-sm">
+ <p className="text-muted-foreground mt-1 text-sm">
  Ubah area untuk dikembangkan menjadi target yang terukur.
  </p>
  </div>
@@ -142,58 +138,58 @@ export default function GrowthGoalsPage() {
  const isSelected = selectedGoalId === goal.id;
  
  return (
- <div key={goal.id} className="bg-white/5 border border-white/10 rounded-xl overflow-hidden">
+ <div key={goal.id} className="bg-muted border border-border rounded-xl overflow-hidden">
  <div 
  className="p-4 cursor-pointer hover:bg-muted/50/5 transition-colors flex justify-between items-center"
  onClick={() => setSelectedGoalId(isSelected ? null : goal.id)}
  >
  <div className="flex items-center gap-3">
- <div className="w-10 h-10 rounded-lg bg-teal-500/10 text-teal-400 flex items-center justify-center">
+ <div className="w-10 h-10 rounded-lg bg-teal-500/10 text-teal-700 dark:text-teal-300 flex items-center justify-center">
  <Icon name={domain?.icon as any || 'target'} size={20} />
  </div>
  <div>
- <strong className="text-sm text-white block">{domain?.label}</strong>
- <p className="text-xs text-zinc-400 line-clamp-1">{goal.targetState}</p>
+ <strong className="text-sm text-foreground block">{domain?.label}</strong>
+ <p className="text-xs text-muted-foreground line-clamp-1">{goal.targetState}</p>
  </div>
  </div>
  <div className="flex items-center gap-3">
  <div className="text-right hidden sm:block">
- <span className="text-xs font-medium text-teal-400">{goal.progress}%</span>
+ <span className="text-xs font-medium text-teal-700 dark:text-teal-300">{goal.progress}%</span>
  </div>
  <Icon name={isSelected ? "chevronDown" : "chevronRight"} size={16} className="text-zinc-500" />
  </div>
  </div>
  
  {isSelected && (
- <div className="p-4 border-t border-white/10 bg-black/20 space-y-4">
+ <div className="p-4 border-t border-border bg-black/20 space-y-4">
  <div className="grid grid-cols-2 gap-4">
  <div className="bg-rose-500/10 p-3 rounded-lg border border-rose-500/20">
- <span className="text-[11px] font-medium text-rose-400 ">Saat Ini</span>
- <p className="text-xs text-rose-200 mt-1">{goal.currentState}</p>
+ <span className="text-xs font-medium text-rose-700 dark:text-rose-300 ">Saat Ini</span>
+ <p className="text-xs text-rose-700 dark:text-rose-300 mt-1">{goal.currentState}</p>
  </div>
  <div className="bg-teal-500/10 p-3 rounded-lg border border-teal-500/20">
- <span className="text-[11px] font-medium text-teal-400 ">Target</span>
- <p className="text-xs text-teal-200 mt-1">{goal.targetState}</p>
+ <span className="text-xs font-medium text-teal-700 dark:text-teal-300 ">Target</span>
+ <p className="text-xs text-teal-700 dark:text-teal-300 mt-1">{goal.targetState}</p>
  </div>
  </div>
  
- <div className="bg-white/5 p-3 rounded-lg border border-white/10">
- <span className="text-[11px] font-medium text-zinc-400 ">Aksi Spesifik (SMART)</span>
+ <div className="bg-muted p-3 rounded-lg border border-border">
+ <span className="text-xs font-medium text-muted-foreground ">Aksi Spesifik (SMART)</span>
  <p className="text-xs text-zinc-300 mt-1">{goal.smartSpecific}</p>
  </div>
 
  <div className="space-y-2">
- <h4 className="text-xs font-medium text-zinc-400 ">Milestones ({milestones.filter(m => m.isCompleted).length}/{milestones.length})</h4>
+ <h4 className="text-xs font-medium text-muted-foreground ">Milestones ({milestones.filter(m => m.isCompleted).length}/{milestones.length})</h4>
  
  {milestones.map(m => (
- <div key={m.id} className="flex items-center gap-3 p-2 bg-white/5 rounded-lg border border-white/10">
+ <div key={m.id} className="flex items-center gap-3 p-2 bg-muted rounded-lg border border-border">
  <input 
  type="checkbox"
  checked={m.isCompleted}
  onChange={() => handleToggleMilestone(m.id, goal.id)}
  className="w-4 h-4 rounded border-white/20 bg-black/50 text-teal-500 focus:ring-0 cursor-pointer"
  />
- <span className={`text-xs ${m.isCompleted ? 'text-zinc-500 line-through' : 'text-white'}`}>
+ <span className={`text-xs ${m.isCompleted ? 'text-muted-foreground line-through' : 'text-foreground'}`}>
  {m.title}
  </span>
  </div>
@@ -205,7 +201,7 @@ export default function GrowthGoalsPage() {
  value={newMilestoneTitle}
  onChange={e => setNewMilestoneTitle(e.target.value)}
  placeholder="Tambah langkah konkret"
- className="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white"
+ className="glass-input flex-1"
  onKeyDown={e => {
  if (e.key === 'Enter') handleAddMilestone(goal.id);
  }} aria-label="Tambah langkah konkret"
@@ -220,7 +216,7 @@ export default function GrowthGoalsPage() {
  })}
  </div>
  ) : (
- <div className="text-center py-8 text-zinc-400 text-sm">
+ <div className="text-center py-8 text-muted-foreground text-sm">
  Belum ada Growth Goal yang aktif.
  </div>
  )}
@@ -238,15 +234,15 @@ export default function GrowthGoalsPage() {
  {completedGoals.map(goal => {
  const domain = SELF_AWARENESS_DOMAINS.find(d => d.key === goal.domainKey);
  return (
- <div key={goal.id} className="p-3 bg-white/5 border border-white/10 rounded-lg opacity-60">
+ <div key={goal.id} className="p-3 bg-muted border border-border rounded-lg opacity-60">
  <div className="flex justify-between items-center">
  <div className="flex items-center gap-3">
  <Icon name={domain?.icon as any || 'target'} size={16} className="text-zinc-500" />
- <strong className="text-sm text-white">{domain?.label}</strong>
+ <strong className="text-sm text-foreground">{domain?.label}</strong>
  </div>
  <Badge tone="green">Tercapai</Badge>
  </div>
- <p className="text-xs text-zinc-400 mt-2 line-clamp-1">{goal.targetState}</p>
+ <p className="text-xs text-muted-foreground mt-2 line-clamp-1">{goal.targetState}</p>
  </div>
  )
  })}
@@ -268,11 +264,11 @@ export default function GrowthGoalsPage() {
  >
  <form onSubmit={handleCreateGoal} className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
  <div className="space-y-2">
- <label className="text-xs font-medium text-zinc-400 ">Area Evaluasi</label>
+ <label className="text-xs font-medium text-muted-foreground ">Area Evaluasi</label>
  <select 
  value={domainKey}
  onChange={e => setDomainKey(e.target.value)}
- className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
+ className="glass-input"
  >
  {SELF_AWARENESS_DOMAINS.map(d => (
  <option key={d.key} value={d.key}>{d.label}</option>
@@ -281,11 +277,11 @@ export default function GrowthGoalsPage() {
  </div>
 
  <div className="space-y-2">
- <label className="text-xs font-medium text-zinc-400 ">Sumber Insight</label>
+ <label className="text-xs font-medium text-muted-foreground ">Sumber Insight</label>
  <select 
  value={source}
  onChange={e => setSource(e.target.value as any)}
- className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
+ className="glass-input"
  >
  <option value="self">Refleksi Pribadi</option>
  <option value="feedback">Feedback Orang Lain</option>
@@ -295,56 +291,56 @@ export default function GrowthGoalsPage() {
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  <div className="space-y-2">
- <label className="text-xs font-medium text-rose-400 ">Kondisi Saat Ini</label>
+ <label className="text-xs font-medium text-rose-700 dark:text-rose-300 ">Kondisi Saat Ini</label>
  <textarea 
  required
  value={currentState}
  onChange={e => setCurrentState(e.target.value)}
  placeholder="Mis. Sulit memprioritaskan tugas"
- className="w-full h-20 bg-rose-500/10 border border-rose-500/20 rounded-lg px-3 py-2 text-sm text-white resize-none" aria-label="Mis. Sulit memprioritaskan tugas"
+ className="glass-input h-20 resize-none border-red-200 dark:border-red-900" aria-label="Mis. Sulit memprioritaskan tugas"
 />
  </div>
  <div className="space-y-2">
- <label className="text-xs font-medium text-teal-400 ">Target (Versi Lebih Baik)</label>
+ <label className="text-xs font-medium text-teal-700 dark:text-teal-300 ">Target (Versi Lebih Baik)</label>
  <textarea 
  required
  value={targetState}
  onChange={e => setTargetState(e.target.value)}
  placeholder="Mis. Bisa menyusun jadwal prioritas harian"
- className="w-full h-20 bg-teal-500/10 border border-teal-500/20 rounded-lg px-3 py-2 text-sm text-white resize-none" aria-label="Mis. Bisa menyusun jadwal prioritas harian"
+ className="glass-input h-20 resize-none border-green-200 dark:border-green-900" aria-label="Mis. Bisa menyusun jadwal prioritas harian"
 />
  </div>
  </div>
 
- <div className="space-y-2 pt-2 border-t border-white/10">
- <label className="text-xs font-medium text-indigo-400 ">Tindakan Spesifik (SMART)</label>
+ <div className="space-y-2 pt-2 border-t border-border">
+ <label className="text-xs font-medium text-indigo-600 dark:text-indigo-300 ">Tindakan Spesifik (SMART)</label>
  <textarea 
  required
  value={smartSpecific}
  onChange={e => setSmartSpecific(e.target.value)}
  placeholder="Apa tindakan spesifik yang akan dilakukan untuk mencapai target tersebut?"
- className="w-full h-20 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white resize-none" aria-label="Apa tindakan spesifik yang akan dilakukan untuk mencapai target tersebut?"
+ className="glass-input h-20 resize-none" aria-label="Apa tindakan spesifik yang akan dilakukan untuk mencapai target tersebut?"
 />
  </div>
 
  <div className="grid grid-cols-2 gap-4">
  <div className="space-y-2">
- <label className="text-xs font-medium text-zinc-400 ">Indikator Sukses</label>
+ <label className="text-xs font-medium text-muted-foreground ">Indikator Sukses</label>
  <input 
  type="text" 
  value={smartMeasurable}
  onChange={e => setSmartMeasurable(e.target.value)}
  placeholder="Cara mengukurnya"
- className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white" aria-label="Cara mengukurnya"
+ className="glass-input" aria-label="Cara mengukurnya"
 />
  </div>
  <div className="space-y-2">
- <label className="text-xs font-medium text-zinc-400 ">Target Waktu (Deadline)</label>
+ <label className="text-xs font-medium text-muted-foreground ">Target Waktu (Deadline)</label>
  <input 
  type="date" 
  value={smartTimebound}
  onChange={e => setSmartTimebound(e.target.value)}
- className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
+ className="glass-input"
  />
  </div>
  </div>

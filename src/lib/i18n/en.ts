@@ -53,6 +53,7 @@ export const en: Record<TranslationKey, string> = {
   nav_reviews: 'Reviews',
   nav_finance: 'Finance',
   nav_settings: 'Settings',
+  nav_reports: 'Reports',
 
   // Dashboard
   dash_title: 'Today\'s Command Center',

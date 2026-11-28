@@ -14,7 +14,7 @@ export function MiniChart({ points }: MiniChartProps) {
  const max = Math.max(...points.map((p) => p.value), 1);
 
  return (
- <div className="flex justify-between items-end h-28 w-full px-2 pt-4 border-b border-border">
+ <div className="flex justify-between items-end h-28 w-full px-2 pt-4">
  {points.map((point, index) => {
  const heightPct = Math.max(6, (point.value / max) * 100);
  return (
@@ -25,11 +25,11 @@ export function MiniChart({ points }: MiniChartProps) {
  >
  <div className="w-full px-1.5 flex items-end justify-center h-20">
  <div
- className="w-full rounded-t-sm transition-colors duration-300 bg-primary/80 group-hover:bg-primary"
+ className="w-full rounded-full transition-colors duration-300 bg-blue-200 dark:bg-blue-900 group-hover:bg-blue-500"
  style={{ height: `${heightPct}%` }}
  />
  </div>
- <span className="text-[11px] text-muted-foreground font-medium mt-1.5 select-none">
+ <span className="text-xs text-muted-foreground mt-1.5 select-none">
  {point.label}
  </span>
  </div>

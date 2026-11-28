@@ -93,7 +93,7 @@ export function PersonalTraitEvaluation() {
             onClick={() => setActiveTab(area)}
             className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors border ${
               activeTab === area
-                ? 'bg-primary/10 text-primary border-primary/30 shadow-2xs'
+                ? 'bg-primary/10 text-primary border-primary/30 shadow-card'
                 : 'bg-muted/20 text-muted-foreground border-border hover:bg-muted/40 hover:text-foreground'
             }`}
           >
@@ -133,7 +133,7 @@ export function PersonalTraitEvaluation() {
                       onClick={() => updateTrait(trait.id, { rating: '+' })}
                       className={`w-7 h-7 rounded-md flex items-center justify-center font-medium text-xs transition-colors ${
                         trait.rating === '+'
-                          ? 'bg-emerald-500 text-white shadow-xs'
+                          ? 'bg-emerald-500 text-white shadow-card'
                           : 'bg-muted/30 text-muted-foreground hover:bg-emerald-500/20 hover:text-emerald-500 border border-border'
                       }`}
                       title="Positif / Menguntungkan"
@@ -144,7 +144,7 @@ export function PersonalTraitEvaluation() {
                       onClick={() => updateTrait(trait.id, { rating: '-' })}
                       className={`w-7 h-7 rounded-md flex items-center justify-center font-medium text-xs transition-colors ${
                         trait.rating === '-'
-                          ? 'bg-rose-500 text-white shadow-xs'
+                          ? 'bg-rose-500 text-white shadow-card'
                           : 'bg-muted/30 text-muted-foreground hover:bg-rose-500/20 hover:text-rose-500 border border-border'
                       }`}
                       title="Negatif / Perlu Diperbaiki"
@@ -156,13 +156,13 @@ export function PersonalTraitEvaluation() {
 
                 {/* Target Goal Input for this Trait */}
                 <div className="pt-2 border-t border-border flex items-center gap-2">
-                  <span className="text-[11px] font-medium text-muted-foreground shrink-0">Target Ubah:</span>
+                  <span className="text-xs font-medium text-muted-foreground shrink-0">Target Ubah:</span>
                   <input
                     type="text"
                     placeholder="Contoh: Belajar mendengarkan sebelum memotong"
                     value={trait.targetGoal || ''}
                     onChange={(e) => updateTrait(trait.id, { targetGoal: e.target.value })}
-                    className="flex-1 text-xs px-2.5 py-1 rounded bg-muted/20 border border-border text-foreground focus:outline-hidden" aria-label="Contoh: Belajar mendengarkan sebelum memotong"
+                    className="flex-1 text-xs px-2.5 py-1 rounded bg-muted/20 border border-border text-foreground focus:outline-none" aria-label="Contoh: Belajar mendengarkan sebelum memotong"
 />
                 </div>
               </div>
@@ -177,7 +177,7 @@ export function PersonalTraitEvaluation() {
             placeholder={`Tambah sifat baru di area ${activeTab}...`}
             value={newTraitName}
             onChange={(e) => setNewTraitName(e.target.value)}
-            className="flex-1 text-xs px-3 py-2 rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+            className="flex-1 text-xs px-3 py-2 rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none"
           />
           <Button type="submit" variant="primary" size="sm" icon="plus" className="text-xs">
             Tambah
@@ -186,7 +186,7 @@ export function PersonalTraitEvaluation() {
 
         {/* Save Bar */}
         <div className="mt-4 pt-3 border-t border-border flex items-center justify-between">
-          <span className="text-[11px] text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             {traits.length} sifat terdaftar di seluruh area.
           </span>
           <Button variant="outline" size="sm" onClick={handleSave} className="text-xs">

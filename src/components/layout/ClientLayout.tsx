@@ -6,42 +6,34 @@ import { Topbar } from '@/components/layout/Topbar';
 import { MobileNav } from '@/components/layout/MobileNav';
 import { QuickAddTransaction } from '@/components/finance/QuickAddTransaction';
 import { NotificationBanner } from '@/components/ui/NotificationBanner';
+import { LinkSync } from '@/lib/hooks/useLinks';
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  
+
+  // Public pages (feedback form) render without app chrome.
   if (pathname?.startsWith('/f/')) {
-    return (
-      <div className="min-h-screen w-full flex flex-col bg-background text-foreground overflow-x-hidden">
-        {children}
-      </div>
-    );
+    return <div className="min-h-screen w-full flex flex-col overflow-x-hidden">{children}</div>;
   }
 
   return (
-    <div className="flex min-h-screen w-full relative bg-background text-foreground overflow-x-hidden">
-      {/* Sidebar */}
-      <div className="z-10 flex">
-        <Sidebar />
-      </div>
-      
-      {/* Main Content Workspace */}
-      <div className="flex-1 flex flex-col min-w-0 pb-24 md:pb-0 z-10 relative overflow-x-hidden">
+    <div className="flex min-h-screen w-full">
+      <Sidebar />
+
+      <div className="flex-1 flex flex-col min-w-0">
         <Topbar />
-        
-        <main className="flex-1 overflow-y-auto overflow-x-hidden">
+        <main
+          id="main"
+          className="flex-1 min-w-0 pb-[calc(var(--mobile-nav-h)+env(safe-area-inset-bottom))] md:pb-10"
+        >
           <NotificationBanner />
-          <div className="px-4 py-5 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-            {children}
-          </div>
+          <div className="px-4 pt-2 pb-6 md:px-8 md:pt-2 max-w-7xl mx-auto w-full">{children}</div>
         </main>
       </div>
 
-      {/* Mobile Navigation bar (Thumb Zone) */}
       <MobileNav />
-
-      {/* Global Quick Add Transaction */}
       <QuickAddTransaction />
+      <LinkSync />
     </div>
   );
 }

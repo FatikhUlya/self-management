@@ -77,18 +77,14 @@ export default function ReviewWritePage() {
  const placeholders = getQuestionPlaceholders();
 
  return (
- <div className="space-y-6 max-w-4xl mx-auto pb-24">
- <div className="flex items-center gap-3">
- <Link href="/journal">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
- <Icon name="arrowLeft" size={18} />
- </button>
- </Link>
+ <div className="space-y-6 max-w-4xl mx-auto">
+ <div className="page-header-title">
+ <Link href="/journal" className="icon-btn" aria-label="Kembali"><Icon name="arrowLeft" size={18} /></Link>
  <div className="flex-1">
- <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+ <h1 className="page-title">
  Tulis Evaluasi (Review)
  </h1>
- <p className="text-zinc-500 text-xs mt-1">
+ <p className="page-subtitle">
  {formatDate(today)}
  </p>
  </div>
@@ -110,7 +106,7 @@ export default function ReviewWritePage() {
  key={p}
  type="button"
  onClick={() => setPeriod(p)}
- className={`px-3 py-1.5 rounded-md text-[11px] font-semibold   transition-colors duration-150 ${
+ className={`px-3 py-1.5 rounded-md text-xs font-semibold   transition-colors duration-150 ${
  period === p
  ? 'bg-indigo-500 text-white shadow-md'
  : 'text-muted-foreground hover:text-foreground'
@@ -135,7 +131,7 @@ export default function ReviewWritePage() {
  onClick={() => setScore(val)}
  className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-colors ${
  score === val 
- ? 'bg-indigo-500/20 border-indigo-500 text-indigo-400 font-medium' 
+ ? 'bg-indigo-500/20 border-indigo-500 text-indigo-600 dark:text-indigo-300 font-medium' 
  : 'bg-muted/30 border-border text-muted-foreground hover:border-border-strong'
  }`}
  >
@@ -211,7 +207,7 @@ export default function ReviewWritePage() {
 />
  </div>
 
- <Button type="submit" variant="primary" icon="check" className="w-full h-12 bg-indigo-600 hover:bg-indigo-700">
+ <Button type="submit" variant="primary" icon="check" className="w-full h-12">
  Simpan Evaluasi
  </Button>
  </form>

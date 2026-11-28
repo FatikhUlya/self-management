@@ -26,18 +26,14 @@ export default function ReviewEntriesPage() {
  };
 
  return (
- <div className="space-y-6 max-w-5xl mx-auto pb-24">
- <div className="flex items-center gap-3">
- <Link href="/journal">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
- <Icon name="arrowLeft" size={18} />
- </button>
- </Link>
+ <div className="space-y-6 max-w-5xl mx-auto">
+ <div className="page-header-title">
+ <Link href="/journal" className="icon-btn" aria-label="Kembali"><Icon name="arrowLeft" size={18} /></Link>
  <div className="flex-1">
- <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+ <h1 className="page-title">
  Riwayat Evaluasi (Reviews)
  </h1>
- <p className="text-zinc-500 text-xs mt-1">
+ <p className="page-subtitle">
  Lihat riwayat review Anda dari waktu ke waktu.
  </p>
  </div>
@@ -59,7 +55,7 @@ export default function ReviewEntriesPage() {
  <span className="font-medium ">{review.period}</span>
  </Badge>
  <Badge tone="green" className="flex items-center gap-1.5 px-2 py-0.5">
- <Icon name="star" size={12} className="text-emerald-400" />
+ <Icon name="star" size={12} className="text-emerald-700 dark:text-emerald-300" />
  <span className="font-medium">Score: {review.score}/5</span>
  </Badge>
  <button
@@ -75,18 +71,18 @@ export default function ReviewEntriesPage() {
  <div className="text-xs space-y-2 font-medium pt-1 text-muted-foreground">
  {review.wins && (
  <p className="flex items-start gap-2">
- <Icon name="trophy" size={14} className="text-amber-400 mt-0.5 shrink-0" />
+ <Icon name="trophy" size={14} className="text-amber-700 dark:text-amber-300 mt-0.5 shrink-0" />
  <span className="text-foreground"><span className="opacity-50">Wins:</span> {review.wins}</span>
  </p>
  )}
  {review.lessons && (
  <p className="flex items-start gap-2">
- <Icon name="lightbulb" size={14} className="text-yellow-400 mt-0.5 shrink-0" />
+ <Icon name="lightbulb" size={14} className="text-yellow-700 dark:text-yellow-300 mt-0.5 shrink-0" />
  <span className="text-foreground"><span className="opacity-50">Lessons:</span> {review.lessons}</span>
  </p>
  )}
  {review.focus && (
- <p className="border-t border-white/5 pt-2 font-medium text-indigo-400 leading-relaxed line-clamp-1 flex gap-2">
+ <p className="border-t border-border pt-2 font-medium text-indigo-600 dark:text-indigo-300 leading-relaxed line-clamp-1 flex gap-2">
  <Icon name="target" size={14} className="mt-0.5 shrink-0" /> {review.focus}
  </p>
  )}
@@ -111,7 +107,7 @@ export default function ReviewEntriesPage() {
  ? (
  <div className="flex items-center gap-4 mt-2 select-none">
  <div className="flex items-center gap-2">
- <Icon name="star" size={16} className="text-emerald-400" />
+ <Icon name="star" size={16} className="text-emerald-700 dark:text-emerald-300" />
  <span className="text-xs text-muted-foreground font-medium ">Score: {viewingReview.score}/5</span>
  </div>
  </div>
@@ -122,17 +118,17 @@ export default function ReviewEntriesPage() {
  {viewingReview && (
  <div className="space-y-5 text-xs leading-relaxed text-foreground mt-2">
  <div className="space-y-2">
- <h4 className="text-[11px] font-semibold text-muted-foreground border-b border-white/5 pb-1.5">
+ <h4 className="text-xs font-semibold text-muted-foreground border-b border-border pb-1.5">
  Pencapaian (Wins)
  </h4>
  <p className="flex items-start gap-2 text-foreground font-medium bg-muted/30 p-3 rounded-lg">
- <Icon name="trophy" size={16} className="text-amber-400 shrink-0 mt-0.5" />
+ <Icon name="trophy" size={16} className="text-amber-700 dark:text-amber-300 shrink-0 mt-0.5" />
  <span>{viewingReview.wins || <span className=" text-muted-foreground">Tidak ada data</span>}</span>
  </p>
  </div>
 
  <div className="space-y-2">
- <h4 className="text-[11px] font-semibold text-muted-foreground border-b border-white/5 pb-1.5">
+ <h4 className="text-xs font-semibold text-muted-foreground border-b border-border pb-1.5">
  Pelajaran (Lessons)
  </h4>
  <p className=" text-xs bg-muted/20 border border-border p-4 rounded-lg leading-relaxed font-medium">
@@ -141,19 +137,19 @@ export default function ReviewEntriesPage() {
  </div>
 
  <div className="space-y-2">
- <h4 className="text-[11px] font-semibold text-muted-foreground border-b border-white/5 pb-1.5">
+ <h4 className="text-xs font-semibold text-muted-foreground border-b border-border pb-1.5">
  Tantangan / Hambatan
  </h4>
- <p className=" text-xs bg-muted/20 border border-border p-4 rounded-lg leading-relaxed font-medium text-rose-400">
+ <p className=" text-xs bg-muted/20 border border-border p-4 rounded-lg leading-relaxed font-medium text-rose-700 dark:text-rose-300">
  &ldquo;{viewingReview.challenges}&rdquo;
  </p>
  </div>
 
  <div className="space-y-2">
- <h4 className="text-[11px] font-semibold text-muted-foreground border-b border-white/5 pb-1.5">
+ <h4 className="text-xs font-semibold text-muted-foreground border-b border-border pb-1.5">
  Fokus Berikutnya
  </h4>
- <p className="flex items-start gap-2 text-indigo-400 font-medium bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-lg">
+ <p className="flex items-start gap-2 text-indigo-600 dark:text-indigo-300 font-medium bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-lg">
  <Icon name="target" size={16} className="shrink-0 mt-0.5" />
  <span>{viewingReview.focus || <span className=" opacity-50">Tidak ada data</span>}</span>
  </p>
@@ -161,14 +157,14 @@ export default function ReviewEntriesPage() {
 
  {viewingReview.evaluationNotes && (
  <div className="space-y-2">
- <h4 className="text-[11px] font-semibold text-muted-foreground border-b border-white/5 pb-1.5">
+ <h4 className="text-xs font-semibold text-muted-foreground border-b border-border pb-1.5">
  Catatan Tambahan
  </h4>
  <p className="text-muted-foreground">{viewingReview.evaluationNotes}</p>
  </div>
  )}
 
- <div className="flex justify-end pt-4 border-t border-white/5 mt-4">
+ <div className="flex justify-end pt-4 border-t border-border mt-4">
  <Button variant="secondary" onClick={() => setViewingReview(null)} className="px-6">
  Tutup
  </Button>

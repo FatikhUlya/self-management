@@ -6,6 +6,7 @@ import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
 import { DashboardCard } from '@/components/ui/DashboardCard';
 import { QuickNavGrid } from '@/components/ui/QuickNavGrid';
+import { SubpageLinks } from '@/components/ui/SubpageLinks';
 import { Icon } from '@/components/ui/Icon';
 import { MiniChart } from '@/components/ui/MiniChart';
 import { AiReviewer } from '@/components/ui/AiReviewer';
@@ -40,25 +41,30 @@ export default function ReviewsDashboardPage() {
  });
 
  return (
- <div className="space-y-6 max-w-5xl mx-auto pb-24">
+ <div className="space-y-6 max-w-5xl mx-auto">
  {/* Header */}
- <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+ <div className="page-header">
  <div>
  <DateStamp />
- <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+ <h1 className="page-title">
  {t('reviews_title')}
  </h1>
- <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
+ <p className="page-subtitle">
  Tinjau ulang performa kehidupan Anda dan kelola evaluasi berkala.
  </p>
  </div>
  </div>
 
- <QuickNavGrid 
- items={[
- { label: 'Tulis Evaluasi Baru', icon: 'edit', iconColor: 'text-fuchsia-500', href: '/reviews/write' },
- { label: 'Riwayat Evaluasi', icon: 'clock', iconColor: 'text-indigo-500', href: '/reviews/history' }
- ]} 
+ <SubpageLinks
+ stacked
+ columns={4}
+ label="Menu review"
+ links={[
+ { href: '/reviews/write', icon: 'edit', title: 'Tulis Evaluasi', detail: 'Harian, mingguan, tahunan' },
+ { href: '/reviews/period', icon: 'calendar', title: 'Bulanan & Kuartalan', detail: 'Hentikan · Lanjutkan · Mulai' },
+ { href: '/reviews/lessons', icon: 'lightbulb', title: 'Pelajaran & Debrief', detail: 'Bedah satu peristiwa' },
+ { href: '/reviews/history', icon: 'clock', title: 'Riwayat Evaluasi', detail: `${state.reviews.length} tersimpan` },
+ ]}
  />
 
  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -110,7 +116,7 @@ export default function ReviewsDashboardPage() {
  <div key={review.id} className="p-3 bg-muted/20 border border-border rounded-lg flex justify-between items-center">
  <div>
  <strong className="text-xs text-foreground block">{review.date}</strong>
- <span className="text-[11px] text-muted-foreground font-medium">{review.period}</span>
+ <span className="text-xs text-muted-foreground font-medium">{review.period}</span>
  </div>
  <div className="text-xs font-semibold text-amber-500 bg-amber-500/10 px-2 py-1 rounded">
  {review.score}/10

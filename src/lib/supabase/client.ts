@@ -4,7 +4,12 @@ import type { Database } from './types';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+// Placeholders keep local mode (no Supabase configured) from crashing at import;
+// isSupabaseConfigured() stays false, so no request is ever sent with them.
+export const supabase = createClient<Database>(
+  supabaseUrl || 'http://localhost:54321',
+  supabaseAnonKey || 'local-mode'
+);
 
 /** Check if Supabase is configured */
 export function isSupabaseConfigured(): boolean {

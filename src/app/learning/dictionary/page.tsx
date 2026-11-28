@@ -75,18 +75,14 @@ export default function DictionaryPage() {
  }, [state.dictionary, vocabFlipDirection, locale]);
 
  return (
- <div className="space-y-6 max-w-5xl mx-auto pb-24">
- <div className="flex items-center gap-3">
- <Link href="/learning">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
- <Icon name="arrowLeft" size={18} />
- </button>
- </Link>
+ <div className="space-y-6 max-w-5xl mx-auto">
+ <div className="page-header-title">
+ <Link href="/learning" className="icon-btn" aria-label="Kembali"><Icon name="arrowLeft" size={18} /></Link>
  <div className="flex-1">
- <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+ <h1 className="page-title">
  {t('dictionary_title')}
  </h1>
- <p className="text-zinc-500 text-xs mt-1">
+ <p className="page-subtitle">
  Kumpulkan kosakata baru dan kelompokkan berdasarkan bahasa.
  </p>
  </div>
@@ -185,7 +181,7 @@ export default function DictionaryPage() {
  <div className="flex items-center gap-2">
  <button
  onClick={handleFlipDirectionToggle}
- className="w-8 h-8 flex items-center justify-center rounded-lg bg-muted/30 border border-white/10 text-muted-foreground hover:text-foreground hover:border-primary/25 transition-colors"
+ className="w-8 h-8 flex items-center justify-center rounded-lg bg-muted/30 border border-border text-muted-foreground hover:text-foreground hover:border-primary/25 transition-colors"
  title="Tukar urutan (Indo -> Asing / Asing -> Indo)"
  >
  <Icon name="shuffle" size={14} />
@@ -198,10 +194,10 @@ export default function DictionaryPage() {
  <div className="flex gap-2 overflow-x-auto max-w-full">
  <button
  onClick={() => setSelectedFilterLang(null)}
- className={`px-3 py-1 text-[11px] font-semibold  rounded-full border transition-colors whitespace-nowrap ${
+ className={`px-3 py-1 text-xs font-semibold  rounded-full border transition-colors whitespace-nowrap ${
  selectedFilterLang === null
- ? 'bg-amber-500/20 border-amber-500/50 text-amber-300'
- : 'bg-muted/30 border-white/10 text-muted-foreground hover:border-white/20'
+ ? 'bg-amber-500/20 border-amber-500/50 text-amber-700 dark:text-amber-300'
+ : 'bg-muted/30 border-border text-muted-foreground hover:border-gray-300 dark:hover:border-gray-600'
  }`}
  >
  Semua
@@ -210,10 +206,10 @@ export default function DictionaryPage() {
  <button
  key={lang}
  onClick={() => setSelectedFilterLang(lang)}
- className={`px-3 py-1 text-[11px] font-semibold  rounded-full border transition-colors whitespace-nowrap ${
+ className={`px-3 py-1 text-xs font-semibold  rounded-full border transition-colors whitespace-nowrap ${
  selectedFilterLang === lang
- ? 'bg-amber-500/20 border-amber-500/50 text-amber-300'
- : 'bg-muted/30 border-white/10 text-muted-foreground hover:border-white/20'
+ ? 'bg-amber-500/20 border-amber-500/50 text-amber-700 dark:text-amber-300'
+ : 'bg-muted/30 border-border text-muted-foreground hover:border-gray-300 dark:hover:border-gray-600'
  }`}
  >
  {lang} <span className="opacity-50 ml-1">({dictionaryGrouped[lang].length})</span>
@@ -232,17 +228,17 @@ export default function DictionaryPage() {
  <span className="text-xs font-medium text-foreground">
  {vocabFlipDirection === 'indo-target' ? item.indonesian : item.translation}
  </span>
- <span className="text-xs font-medium text-amber-300">
+ <span className="text-xs font-medium text-amber-700 dark:text-amber-300">
  {vocabFlipDirection === 'indo-target' ? item.translation : item.indonesian}
  </span>
  </div>
  <div className="flex items-center gap-3">
- <span className="text-[11px] text-muted-foreground/50 font-semibold bg-white/5 px-2 py-0.5 rounded">
+ <span className="text-xs text-muted-foreground font-medium bg-muted px-2 py-0.5 rounded-full">
  {item.language || 'English'}
  </span>
  <button
  onClick={() => deleteDictionaryEntry(item.id)}
- className="text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
+ className="text-muted-foreground hover:text-destructive transition-colors md:opacity-0 md:group-hover:opacity-100"
  title={t('delete')}
  >
  <Icon name="trash" size={12} />
@@ -296,10 +292,10 @@ export default function DictionaryPage() {
  </Button>
  </div>
  
- <div className="bg-black/20 border border-white/5 p-4 rounded-lg h-[40vh] overflow-y-auto text-xs text-foreground font-mono leading-relaxed select-all">
+ <div className="bg-muted p-4 rounded-lg h-[40vh] overflow-y-auto text-xs text-foreground font-mono leading-relaxed select-all">
  {state.dictionary?.filter(d => exportLanguageFilter === 'all' || d.language === exportLanguageFilter).map((d) => (
  <div key={d.id}>
- <span className="text-amber-300">{d.indonesian}</span> = <span className="text-teal-300">{d.translation}</span>
+ <span className="text-amber-700 dark:text-amber-300">{d.indonesian}</span> = <span className="text-teal-700 dark:text-teal-300">{d.translation}</span>
  </div>
  ))}
  </div>

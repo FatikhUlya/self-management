@@ -54,7 +54,7 @@ export function ActiveDay({
  {/* Left: Tasks */}
  <div className="space-y-6">
  {mit && (
- <Surface className="p-6 border border-border border-l-4 border-l-[#ef4444] rounded-xl shadow-sm bg-white">
+ <Surface variant="soft" className="p-5 md:p-6">
  <div className="flex justify-between items-start mb-4">
  <Badge tone="rose">Most Important Task</Badge>
  {mit.status === 'done' && (
@@ -74,11 +74,9 @@ export function ActiveDay({
  <Button variant="primary" icon="check" onClick={() => updateTaskStatus(mit.id, 'done')} className="flex-1">
  Selesaikan
  </Button>
- <Link href={`/focus?taskId=${mit.id}`} className="flex-1">
- <Button variant="secondary" icon="clock" className="w-full">
+ <Button href={`/focus?taskId=${mit.id}`} variant="secondary" icon="clock" className="flex-1 w-full">
  Fokus
  </Button>
- </Link>
  </>
  ) : (
  <Button variant="secondary" icon="rotateCcw" onClick={() => updateTaskStatus(mit.id, 'todo')}>
@@ -90,7 +88,7 @@ export function ActiveDay({
  )}
 
  {secondaryTasks.length > 0 && (
- <Surface className="p-6 border border-border rounded-xl shadow-sm bg-white">
+ <Surface className="p-6">
  <h3 className="text-xs font-medium text-muted-foreground mb-4 flex items-center gap-2">
  <Icon name="checkSquare" size={16} className="text-primary" />
  Secondary Tasks
@@ -105,8 +103,8 @@ export function ActiveDay({
  onClick={() => updateTaskStatus(t.id, t.status === 'done' ? 'todo' : 'done')}
  className={`w-7 h-7 rounded-xl flex items-center justify-center border transition-colors ${
  t.status === 'done' 
- ? 'bg-primary border-primary text-white shadow-xs' 
- : 'border-border text-transparent hover:border-primary hover:text-primary bg-white'
+ ? 'bg-primary border-primary text-primary-foreground shadow-card' 
+ : 'border-border text-transparent hover:border-primary hover:text-primary bg-card'
  }`}
  >
  <Icon name="check" size={14} className="stroke-[3]" />
@@ -121,12 +119,12 @@ export function ActiveDay({
  {/* Right: Rules & Intention */}
  <div className="space-y-6">
  {todayPlan.morningCheckin?.intention && (
- <Surface className="p-6 border border-border rounded-xl shadow-sm bg-white">
+ <Surface className="p-6">
  <h3 className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-2">
  <Icon name="compass" size={16} className="text-sky-500" />
  Intensi Hari Ini
  </h3>
- <p className="text-sm font-semibold text-foreground bg-[#EBF7FD] p-4 rounded-xl border border-sky-500/25/30">
+ <p className="text-sm font-medium text-foreground well">
  "{todayPlan.morningCheckin.intention}"
  </p>
  </Surface>
@@ -134,7 +132,7 @@ export function ActiveDay({
 
  <Surface className="p-6">
  <h3 className="text-sm font-medium text-foreground mb-4 flex items-center gap-2">
- <Icon name="shield" size={16} className="text-amber-400" />
+ <Icon name="shield" size={16} className="text-amber-700 dark:text-amber-300" />
  Sistem Pengingat
  </h3>
  <p className="text-sm text-muted-foreground mb-4">
@@ -147,7 +145,7 @@ export function ActiveDay({
  </div>
  ))}
  </div>
- <Link href="/rules" className="block mt-4 text-xs text-indigo-400 hover:underline">
+ <Link href="/rules" className="block mt-4 text-xs text-indigo-600 dark:text-indigo-300 hover:underline">
  Lihat semua aturan &rarr;
  </Link>
  </Surface>

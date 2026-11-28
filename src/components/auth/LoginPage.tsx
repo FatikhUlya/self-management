@@ -1,5 +1,6 @@
 'use client';
 
+import { Logo } from '@/components/layout/Sidebar';
 import React, { useState } from 'react';
 
 interface LoginPageProps {
@@ -62,19 +63,16 @@ export function LoginPage({ onLogin, onRegister }: LoginPageProps) {
  };
 
  const today = new Date().toLocaleDateString('id-ID', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' });
- const input = 'w-full h-10 px-3 rounded-lg bg-card border border-input text-sm text-foreground placeholder:text-muted-foreground transition-colors focus:outline-none focus:border-ring focus:ring-2 focus:ring-ring/20';
+ const input = 'glass-input h-12 md:h-11';
  const modules = ['Tugas & rencana', 'Habit harian', 'Kesehatan & nutrisi', 'Keuangan', 'Jurnal', 'Belajar', 'Review mingguan'];
 
  return (
  <div className="min-h-screen bg-background grid lg:grid-cols-2">
  <main className="flex items-center justify-center px-6 py-16">
  <div className="w-full max-w-sm">
- <div className="flex items-center gap-2 mb-12">
- <span aria-hidden="true" className="flex items-center justify-center w-6 h-6 rounded-md bg-foreground text-background font-mono text-[11px] font-medium">L</span>
- <span className="text-[15px] font-medium text-foreground">Life OS</span>
- </div>
+ <Logo className="mb-12" />
 
- <h1 className="text-[28px] font-medium leading-tight text-foreground">
+ <h1 className="page-title">
  {isRegister ? 'Buat akun' : 'Masuk'}
  </h1>
  <p className="text-sm text-muted-foreground mt-2 mb-8">
@@ -106,7 +104,7 @@ export function LoginPage({ onLogin, onRegister }: LoginPageProps) {
  </div>
  )}
 
- <button type="submit" disabled={loading} className="w-full h-10 rounded-lg bg-primary text-primary-foreground text-sm font-medium transition-[opacity,transform] hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
+ <button type="submit" disabled={loading} className="w-full h-12 md:h-11 rounded-full bg-primary text-primary-foreground text-[15px] font-medium transition-[opacity,transform] hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
  {loading ? 'Memproses' : isRegister ? 'Buat akun' : 'Masuk'}
  </button>
  </form>
@@ -121,23 +119,23 @@ export function LoginPage({ onLogin, onRegister }: LoginPageProps) {
  </main>
 
  {/* A ledger page: ruled lines and the index of what the book holds */}
- <aside aria-hidden="true" className="hidden lg:flex items-center justify-center bg-secondary border-l border-border p-12">
- <div className="w-full max-w-md rounded-2xl bg-card border border-border shadow-[0_8px_24px_rgba(0,0,0,0.06)] overflow-hidden">
+ <aside aria-hidden="true" className="hidden lg:flex items-center justify-center p-6"><div className="card-hero w-full h-full flex items-center justify-center p-12">
+ <div className="w-full max-w-md rounded-3xl bg-card shadow-float overflow-hidden">
  <div className="flex items-center justify-between h-12 px-6 border-b border-border">
  <span className="text-[13px] text-muted-foreground">Daftar isi</span>
- <span className="font-mono text-xs text-muted-foreground tabular-nums">{today}</span>
+ <span className="tabular-nums text-xs text-muted-foreground tabular-nums">{today}</span>
  </div>
  <ol className="px-6 py-2">
  {modules.map((m, i) => (
  <li key={m} className="flex items-baseline gap-4 h-11 border-b border-border last:border-0">
- <span className="w-6 font-mono text-xs text-muted-foreground tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+ <span className="w-6 tabular-nums text-xs text-muted-foreground tabular-nums">{String(i + 1).padStart(2, '0')}</span>
  <span className="flex-1 text-sm text-foreground">{m}</span>
  <span className="w-3 h-px bg-border self-center" />
  </li>
  ))}
  </ol>
  </div>
- </aside>
+ </div></aside>
  </div>
  );
 }

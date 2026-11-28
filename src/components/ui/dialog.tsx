@@ -15,7 +15,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-black/60 backdrop-blur-xs data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      "fixed inset-0 z-50 bg-black/40 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
       className
     )}
     {...props}
@@ -32,7 +32,7 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed z-50 grid w-full gap-4 border border-border bg-card p-6 shadow-2xl duration-200",
+        "fixed z-50 grid w-full gap-4 bg-card p-5 md:p-6 shadow-sheet duration-200 max-h-[90vh] overflow-y-auto",
         // Mobile: Thumb-friendly Bottom Sheet / Drawer
         "bottom-0 left-0 right-0 max-h-[85vh] overflow-y-auto rounded-t-3xl border-t pb-8 pt-3",
         "data-[state=open]:slide-in-from-bottom data-[state=closed]:slide-out-to-bottom",
@@ -90,7 +90,7 @@ const DialogTitle = React.forwardRef<
   <DialogPrimitive.Title
     ref={ref}
     className={cn(
-      "text-lg sm:text-xl font-medium tracking-[-0.015em] leading-[1.3] text-foreground",
+      "font-display text-xl font-medium leading-[1.3] text-foreground",
       className
     )}
     {...props}
