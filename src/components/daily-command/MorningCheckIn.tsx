@@ -62,7 +62,7 @@ export function MorningCheckIn({
       <div className="space-y-4">
         {/* Mandatory: MIT */}
         <div className="space-y-1.5">
-          <label className="text-[11px] font-semibold text-muted-foreground ">
+          <label className="text-xs font-semibold text-muted-foreground ">
             Prioritas Utama Hari Ini (MIT)
           </label>
           <select 
@@ -82,7 +82,7 @@ export function MorningCheckIn({
           <div className="space-y-3 pt-3 border-t border-border animate-in fade-in">
             {/* Day Mode */}
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold text-muted-foreground ">Kondisi Fisik / Energi</label>
+              <label className="text-xs font-semibold text-muted-foreground ">Kondisi Fisik / Energi</label>
               <div className="flex gap-2">
                 {[
                   { id: 'normal', icon: 'sun', label: 'Bugar' },
@@ -96,7 +96,7 @@ export function MorningCheckIn({
                     className={cn(
                       "p-2 rounded-lg border text-center transition-colors flex items-center justify-center gap-1.5 flex-1 text-xs font-medium",
                       dayMode === mode.id
-                        ? "bg-primary/10 border-primary/30 text-primary font-semibold shadow-2xs"
+                        ? "bg-primary/10 border-primary/30 text-primary font-semibold shadow-card"
                         : "bg-muted/40 border-border text-muted-foreground hover:border-border hover:text-foreground"
                     )}
                   >
@@ -109,7 +109,7 @@ export function MorningCheckIn({
 
             {/* Secondary Tasks */}
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold text-muted-foreground ">Tugas Pendukung (Maksimal 3)</label>
+              <label className="text-xs font-semibold text-muted-foreground ">Tugas Pendukung (Maksimal 3)</label>
               <div className="max-h-36 overflow-y-auto space-y-1 pr-1">
                 {availableTasks.filter(t => t.id !== mitTaskId).map(t => {
                   const isSelected = secondaryTaskIds.includes(t.id);
@@ -134,7 +134,7 @@ export function MorningCheckIn({
 
             {/* Intention */}
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold text-muted-foreground ">Intensi / Mindset Hari Ini</label>
+              <label className="text-xs font-semibold text-muted-foreground ">Intensi / Mindset Hari Ini</label>
               <input
                 type="text"
                 value={intention}

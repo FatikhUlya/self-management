@@ -577,7 +577,8 @@ interface LifeOSContextProps {
  addProject: (project: Omit<Project, 'id' | 'createdAt'>) => Promise<void>;
  updateProject: (id: string, updates: Partial<Omit<Project, 'id' | 'createdAt'>>) => Promise<void>;
  deleteProject: (id: string) => Promise<void>;
- addTask: (task: Omit<Task, 'id' | 'createdAt' | 'status' | 'completedAt'>) => Promise<void>;
+ /** Resolves to the new task's id, so other records can link to it. */
+ addTask: (task: Omit<Task, 'id' | 'createdAt' | 'status' | 'completedAt'>) => Promise<string>;
  updateTask: (id: string, updates: Partial<Omit<Task, 'id' | 'createdAt'>>) => Promise<void>;
  updateTaskStatus: (id: string, status: 'todo' | 'doing' | 'done') => Promise<void>;
  deleteTask: (id: string) => Promise<void>;
@@ -1699,6 +1700,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
  ...prev,
  tasks: [item, ...prev.tasks]
  }));
+ return item.id;
  }, [isDbConnected, updateStateAndPersist, checkError]);
 
  const updateTaskStatus = useCallback(async (id: string, status: 'todo' | 'doing' | 'done') => {

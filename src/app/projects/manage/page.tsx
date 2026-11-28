@@ -76,18 +76,14 @@ export default function ProjectsManagePage() {
  };
 
  return (
- <div className="space-y-6 max-w-5xl mx-auto pb-24">
- <div className="flex items-center gap-3">
- <Link href="/projects">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
- <Icon name="arrowLeft" size={18} />
- </button>
- </Link>
+ <div className="space-y-6 max-w-5xl mx-auto">
+ <div className="page-header-title">
+ <Link href="/projects" className="icon-btn" aria-label="Kembali"><Icon name="arrowLeft" size={18} /></Link>
  <div className="flex-1">
- <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+ <h1 className="page-title">
  Kelola Proyek
  </h1>
- <p className="text-zinc-500 text-xs mt-1">
+ <p className="page-subtitle">
  Tambah, ubah, atau hapus daftar proyek Anda.
  </p>
  </div>
@@ -121,19 +117,19 @@ export default function ProjectsManagePage() {
  return (
  <div 
  key={proj.id} 
- className="p-4 rounded-xl bg-muted/20 border border-border hover:border-border-strong hover:bg-muted/50/[0.01] transition-colors space-y-3"
+ className="p-4 rounded-xl bg-muted/20 border border-border hover:border-border-strong hover:bg-muted transition-colors space-y-3"
  >
  <div className="flex justify-between items-start">
  <div className="space-y-1">
  <strong className="text-sm text-foreground block tracking-tight">{proj.name}</strong>
  <div className="flex flex-wrap items-center gap-2">
- <span className="text-[11px] font-medium text-muted-foreground ">
+ <span className="text-xs font-medium text-muted-foreground ">
  Area: {proj.area || 'Inbox'} / {projTasks.length} Tasks
  </span>
  <select
  value={proj.goalId || ''}
  onChange={(e) => updateProjectGoal(proj.id, e.target.value || null)}
- className="glass-select py-0.5 px-1.5 text-[11px] bg-black/40 border border-white/5 text-muted-foreground hover:text-foreground focus:text-foreground"
+ className="glass-select py-0.5 px-1.5 text-xs bg-card border border-border text-muted-foreground hover:text-foreground focus:text-foreground"
  >
  <option value="">-- Hubungkan Goal --</option>
  {state.goals.map((g) => (
@@ -151,14 +147,14 @@ export default function ProjectsManagePage() {
  </Badge>
  <button
  onClick={() => handleOpenEditProject(proj)}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-primary/20 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors"
+ className="icon-btn"
  title="Edit Project"
  >
  <Icon name="edit" size={12} />
  </button>
  <button
  onClick={() => deleteProject(proj.id)}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors"
+ className="icon-btn hover:text-destructive"
  title={t('delete')}
  >
  <Icon name="trash" size={12} />
@@ -167,7 +163,7 @@ export default function ProjectsManagePage() {
  </div>
 
  <div className="space-y-1">
- <div className="flex justify-between text-[11px] text-muted-foreground font-medium ">
+ <div className="flex justify-between text-xs text-muted-foreground font-medium ">
  <span>{completionRate}% {t('projects_completed')}</span>
  <span>{doneTasks.length}/{projTasks.length}</span>
  </div>
@@ -353,7 +349,7 @@ export default function ProjectsManagePage() {
  </select>
  </div>
 
- <div className="flex justify-end gap-2 pt-2 border-t border-white/5">
+ <div className="flex justify-end gap-2 pt-2 border-t border-border">
  <Button type="button" variant="secondary" onClick={() => setEditingProject(null)}>
  Batal
  </Button>

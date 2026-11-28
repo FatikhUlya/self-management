@@ -341,18 +341,14 @@ export default function PlanningTimelinePage() {
  const taskCount = plans.filter((plan) => plan.kind === 'task').length;
 
  return (
- <div className="space-y-6 max-w-5xl mx-auto pb-24">
- <div className="flex items-center gap-3">
- <Link href="/planning">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
- <Icon name="arrowLeft" size={18} />
- </button>
- </Link>
+ <div className="space-y-6 max-w-5xl mx-auto">
+ <div className="page-header-title">
+ <Link href="/planning" className="icon-btn" aria-label="Kembali"><Icon name="arrowLeft" size={18} /></Link>
  <div className="flex-1">
- <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+ <h1 className="page-title">
  Timeline Agenda
  </h1>
- <p className="text-zinc-500 text-xs mt-1">
+ <p className="page-subtitle">
  Lihat agenda Anda dalam tampilan 24 Jam penuh.
  </p>
  </div>
@@ -382,7 +378,7 @@ export default function PlanningTimelinePage() {
  </div>
  <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end">
  <div className="flex items-center gap-2 w-full sm:w-auto">
- <span className="text-[11px] font-medium text-muted-foreground whitespace-nowrap">Lompat ke:</span>
+ <span className="text-xs font-medium text-muted-foreground whitespace-nowrap">Lompat ke:</span>
  <input
  type="date"
  value={planDate}
@@ -448,8 +444,8 @@ export default function PlanningTimelinePage() {
  return (
  <div className="mb-6 p-4 rounded-xl border border-amber-500/20 bg-amber-500/5">
  <div className="flex items-center gap-2 mb-3">
- <Icon name="zap" size={14} className="text-amber-400" />
- <span className="text-xs font-semibold text-amber-400 ">
+ <Icon name="zap" size={14} className="text-amber-700 dark:text-amber-300" />
+ <span className="text-xs font-semibold text-amber-700 dark:text-amber-300 ">
  Tasks Due Tanggal Ini ({dueTasks.length})
  </span>
  </div>
@@ -460,17 +456,17 @@ export default function PlanningTimelinePage() {
  className="flex items-center justify-between p-3 rounded-lg bg-amber-500/5 border border-amber-500/10 hover:border-amber-500/30 transition-colors"
  >
  <div className="flex items-center gap-3 min-w-0">
- <Badge tone="amber" className="text-[11px] py-0 px-1.5 font-semibold shrink-0">
+ <Badge tone="amber" className="text-xs py-0 px-1.5 font-semibold shrink-0">
  Auto-Task
  </Badge>
  <span className="text-sm font-medium text-foreground truncate">{task.title}</span>
- <Badge tone={task.priority === 'High' ? 'rose' : task.priority === 'Medium' ? 'amber' : 'gray'} className="text-[11px] shrink-0">
+ <Badge tone={task.priority === 'High' ? 'rose' : task.priority === 'Medium' ? 'amber' : 'gray'} className="text-xs shrink-0">
  {task.priority}
  </Badge>
  </div>
  <button
  onClick={() => updateTaskStatus(task.id, 'done')}
- className="w-7 h-7 rounded-md border border-amber-500/20 bg-black/40 hover:border-primary/25 hover:bg-primary/20 hover:text-primary text-muted-foreground transition-colors flex items-center justify-center shrink-0"
+ className="icon-btn"
  title="Selesaikan Task"
  >
  <Icon name="check" size={12} />
@@ -482,17 +478,17 @@ export default function PlanningTimelinePage() {
  );
  })()}
 
- <div className="relative border-l-2 border-white/10 ml-12 sm:ml-16 pb-8">
+ <div className="relative border-l-2 border-border ml-12 sm:ml-16 pb-8">
  {Array.from({ length: 24 }).map((_, hour) => {
  const hourPlans = plansForHour(hour);
  if (hourPlans.length === 0) {
  return (
  <div key={hour} className="relative group py-2">
- <div className="absolute -left-12 sm:-left-16 top-1/2 -translate-y-1/2 text-[11px] sm:text-xs font-semibold text-muted-foreground w-10 sm:w-12 text-right">
+ <div className="absolute -left-12 sm:-left-16 top-1/2 -translate-y-1/2 text-xs sm:text-xs font-semibold text-muted-foreground w-10 sm:w-12 text-right">
  {String(hour).padStart(2, '0')}:00
  </div>
- <div className="absolute -left-[5px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-white/10 border border-[#121212]"></div>
- <div className="border-b border-border/60 h-full w-full opacity-50 pl-4 py-2 text-[11px] text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors">
+ <div className="absolute -left-[5px] top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-muted border border-card"></div>
+ <div className="border-b border-border/60 h-full w-full opacity-50 pl-4 py-2 text-xs text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors">
  ...
  </div>
  </div>
@@ -501,10 +497,10 @@ export default function PlanningTimelinePage() {
 
  return (
  <div key={hour} className="relative py-4">
- <div className="absolute -left-12 sm:-left-16 top-4 text-[11px] sm:text-xs font-semibold text-foreground w-10 sm:w-12 text-right">
+ <div className="absolute -left-12 sm:-left-16 top-4 text-xs sm:text-xs font-semibold text-foreground w-10 sm:w-12 text-right">
  {String(hour).padStart(2, '0')}:00
  </div>
- <div className="absolute -left-[5px] top-5 w-2 h-2 rounded-full bg-primary border border-[#121212] "></div>
+ <div className="absolute -left-[5px] top-5 w-2 h-2 rounded-full bg-primary border border-card "></div>
 
  <div className="pl-6 space-y-3">
  {hourPlans.map((plan) => (
@@ -513,7 +509,7 @@ export default function PlanningTimelinePage() {
  className={`
  group relative rounded-xl border p-4 transition-colors duration-300
  ${plan.status === 'done' 
- ? 'bg-muted/20 border-white/5 opacity-50' 
+ ? 'bg-muted/20 border-border opacity-50' 
  : plan.kind === 'event' 
  ? 'bg-indigo-500/10 border-indigo-500/20 hover:border-indigo-500/40' 
  : 'bg-emerald-500/10 border-emerald-500/20 hover:border-emerald-500/40'
@@ -526,11 +522,11 @@ export default function PlanningTimelinePage() {
  <span className="text-xs font-semibold text-foreground ">
  {plan.startTime} — {plan.endTime}
  </span>
- <Badge tone={plan.kind === 'event' ? 'indigo' : 'teal'} className="text-[11px] py-0 px-1.5 font-semibold ">
+ <Badge tone={plan.kind === 'event' ? 'indigo' : 'teal'} className="text-xs py-0 px-1.5 font-semibold ">
  {plan.kind}
  </Badge>
  {plan.googleEventId && (
- <Badge tone="gray" className="text-[11px] py-0 px-1.5 flex items-center gap-1">
+ <Badge tone="gray" className="text-xs py-0 px-1.5 flex items-center gap-1">
  <Icon name="calendar" size={8} /> GCal
  </Badge>
  )}
@@ -557,7 +553,7 @@ export default function PlanningTimelinePage() {
  </div>
 
  <div className="flex items-center gap-2 shrink-0">
- <Badge tone={plan.priority === 'High' ? 'rose' : plan.priority === 'Medium' ? 'amber' : 'gray'} className="text-[11px]">
+ <Badge tone={plan.priority === 'High' ? 'rose' : plan.priority === 'Medium' ? 'amber' : 'gray'} className="text-xs">
  {plan.priority}
  </Badge>
  <button
@@ -565,7 +561,7 @@ export default function PlanningTimelinePage() {
  className={`w-7 h-7 rounded-md border flex items-center justify-center transition-colors ${
  plan.status === 'done'
  ? 'bg-primary/20 border-primary/25 text-primary'
- : 'bg-black/40 border-white/10 hover:border-primary/25 hover:text-primary text-muted-foreground'
+ : 'bg-black/40 border-border hover:border-primary/25 hover:text-primary text-muted-foreground'
  }`}
  title={plan.status === 'done' ? 'Batal Selesai' : 'Tandai Selesai'}
  >
@@ -573,7 +569,7 @@ export default function PlanningTimelinePage() {
  </button>
  <button
  onClick={() => deletePlan(plan.id)}
- className="w-7 h-7 rounded-md border border-transparent bg-black/40 hover:border-destructive/25/30 hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors flex items-center justify-center"
+ className="icon-btn hover:text-destructive"
  title={t('delete')}
  >
  <Icon name="trash" size={12} />

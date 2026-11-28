@@ -95,7 +95,7 @@ export function CashflowChart({ transactions, selectedDate }: { transactions: Tx
                 />
                 <text
                   x={cx} y={H - 8} textAnchor="middle"
-                  className={'font-mono text-[11px] ' + (isCurrent ? 'fill-foreground' : 'fill-muted-foreground')}
+                  className={'tabular-nums text-xs ' + (isCurrent ? 'fill-foreground' : 'fill-muted-foreground')}
                 >
                   {m.label}
                 </text>

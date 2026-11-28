@@ -106,9 +106,9 @@ export default function LearningSessionsPage() {
 
  return (
  <div className="flex-1 min-w-[300px] bg-muted/20 border border-border rounded-xl p-4 flex flex-col h-[500px]">
- <div className="flex justify-between items-center pb-2 mb-3 border-b border-white/5">
+ <div className="flex justify-between items-center pb-2 mb-3 border-b border-border">
  <h4 className="text-xs font-semibold text-muted-foreground ">{t(titleKey as any)}</h4>
- <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-muted/40 text-muted-foreground border border-border">
+ <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-muted/40 text-muted-foreground border border-border">
  {laneItems.length}
  </span>
  </div>
@@ -129,10 +129,10 @@ export default function LearningSessionsPage() {
  </p>
  </div>
 
- <div className="flex justify-between items-center pt-2 border-t border-white/5">
+ <div className="flex justify-between items-center pt-2 border-t border-border">
  <div className="flex flex-wrap gap-2 items-center">
- <Badge tone="indigo" className="text-[11px]">{`${item.minutes}m`}</Badge>
- <span className="text-[11px] text-muted-foreground font-medium">
+ <Badge tone="indigo" className="text-xs">{`${item.minutes}m`}</Badge>
+ <span className="text-xs text-muted-foreground font-medium">
  {formatDate(item.date)}
  </span>
  </div>
@@ -152,7 +152,7 @@ export default function LearningSessionsPage() {
  onClick={() => handleOpenCornellNotes(item)}
  className={`p-1 transition-colors ${
  item.notesNotes || item.notesCues || item.notesSummary
- ? 'text-teal-400 hover:text-teal-300'
+ ? 'text-teal-700 dark:text-teal-300 hover:text-teal-300'
  : 'text-muted-foreground hover:text-foreground'
  }`}
  title="Buka Catatan Cornell"
@@ -161,7 +161,7 @@ export default function LearningSessionsPage() {
  </button>
  <button
  onClick={() => deleteLearningSession(item.id)}
- className="text-muted-foreground hover:text-destructive transition-colors p-1 opacity-0 group-hover:opacity-100"
+ className="text-muted-foreground hover:text-destructive transition-colors p-1 md:opacity-0 md:group-hover:opacity-100"
  title={t('delete')}
  >
  <Icon name="trash" size={14} />
@@ -179,18 +179,14 @@ export default function LearningSessionsPage() {
  };
 
  return (
- <div className="space-y-6 max-w-6xl mx-auto pb-24">
- <div className="flex items-center gap-3">
- <Link href="/learning">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
- <Icon name="arrowLeft" size={18} />
- </button>
- </Link>
+ <div className="space-y-6 max-w-6xl mx-auto">
+ <div className="page-header-title">
+ <Link href="/learning" className="icon-btn" aria-label="Kembali"><Icon name="arrowLeft" size={18} /></Link>
  <div className="flex-1">
- <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+ <h1 className="page-title">
  Sesi Pembelajaran
  </h1>
- <p className="text-zinc-500 text-xs mt-1">
+ <p className="page-subtitle">
  Catat topik yang Anda pelajari, catat dengan metode Cornell, dan kelola statusnya.
  </p>
  </div>
@@ -356,7 +352,7 @@ export default function LearningSessionsPage() {
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
  {/* Cues Column */}
  <div className="md:col-span-1 space-y-1">
- <label className="text-[11px] font-semibold text-muted-foreground ">
+ <label className="text-xs font-semibold text-muted-foreground ">
  {locale === 'id' ? 'Kata Kunci / Pertanyaan (Cues)' : 'Cues / Keywords'}
  </label>
  <textarea
@@ -369,7 +365,7 @@ export default function LearningSessionsPage() {
  
  {/* Notes Column */}
  <div className="md:col-span-2 space-y-1">
- <label className="text-[11px] font-semibold text-muted-foreground ">
+ <label className="text-xs font-semibold text-muted-foreground ">
  {locale === 'id' ? 'Catatan (Notes)' : 'Notes'}
  </label>
  <textarea
@@ -383,7 +379,7 @@ export default function LearningSessionsPage() {
 
  {/* Summary Row */}
  <div className="space-y-1">
- <label className="text-[11px] font-semibold text-muted-foreground ">
+ <label className="text-xs font-semibold text-muted-foreground ">
  {locale === 'id' ? 'Ringkasan (Summary)' : 'Summary'}
  </label>
  <textarea
@@ -394,7 +390,7 @@ export default function LearningSessionsPage() {
  />
  </div>
 
- <div className="pt-4 border-t border-white/5 flex justify-end space-x-3">
+ <div className="pt-4 border-t border-border flex justify-end space-x-3">
  <Button type="button" variant="secondary" onClick={() => setIsCornellModalOpen(false)}>
  {t('cancel')}
  </Button>

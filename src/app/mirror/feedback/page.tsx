@@ -65,18 +65,14 @@ export default function FeedbackManager() {
 
  return (
  <div className="space-y-6">
- <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
- <div className="flex items-center gap-3">
- <Link href="/mirror">
- <button className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-muted/50/10 transition-colors">
- <Icon name="arrowLeft" size={16} />
- </button>
- </Link>
+ <div className="page-header">
+ <div className="page-header-title">
+ <Link href="/mirror" className="icon-btn" aria-label="Kembali"><Icon name="arrowLeft" size={16} /></Link>
  <div>
- <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+ <h1 className="page-title">
  Feedback Kolega
  </h1>
- <p className="text-zinc-400 mt-1 text-sm">
+ <p className="text-muted-foreground mt-1 text-sm">
  Minta umpan balik 360° dari rekan kerja, mentor, atau teman.
  </p>
  </div>
@@ -98,19 +94,19 @@ export default function FeedbackManager() {
  {activeRequests.map(req => {
  const responses = state.feedbackResponses.filter(r => r.requestId === req.id);
  return (
- <div key={req.id} className="bg-white/5 border border-white/10 rounded-xl p-4 flex flex-col justify-between">
+ <div key={req.id} className="bg-muted border border-border rounded-xl p-4 flex flex-col justify-between">
  <div>
  <div className="flex justify-between items-start mb-2">
- <strong className="text-sm text-white">{req.title}</strong>
+ <strong className="text-sm text-foreground">{req.title}</strong>
  <Badge tone="teal">Aktif</Badge>
  </div>
- <div className="text-xs text-zinc-400 space-y-1 mb-4">
+ <div className="text-xs text-muted-foreground space-y-1 mb-4">
  <p>Total Responden: {responses.length}</p>
  <p>Privasi: {req.privacyMode === 'anonymous' ? 'Anonim' : 'Terbuka'}</p>
  <p>Deadline: {req.deadline ? formatDate(req.deadline) : 'Tidak ada'}</p>
  </div>
  </div>
- <div className="flex items-center gap-2 mt-4 pt-4 border-t border-white/10">
+ <div className="flex items-center gap-2 mt-4 pt-4 border-t border-border">
  <Button 
  variant="secondary" 
  size="sm" 
@@ -123,7 +119,7 @@ export default function FeedbackManager() {
  <Button 
  variant="secondary" 
  size="sm" 
- className="text-rose-400 hover:text-rose-300"
+ className="text-rose-700 dark:text-rose-300 hover:text-rose-300"
  onClick={() => {
  if (confirm('Tutup permintaan feedback ini?')) closeFeedbackRequest(req.id);
  }}
@@ -136,7 +132,7 @@ export default function FeedbackManager() {
  })}
  </div>
  ) : (
- <div className="text-center py-6 text-zinc-400 text-sm">
+ <div className="text-center py-6 text-muted-foreground text-sm">
  Tidak ada permintaan feedback yang aktif.
  </div>
  )}
@@ -152,10 +148,10 @@ export default function FeedbackManager() {
  {closedRequests.map(req => {
  const responses = state.feedbackResponses.filter(r => r.requestId === req.id);
  return (
- <div key={req.id} className="flex justify-between items-center bg-white/5 border border-white/10 p-3 rounded-lg opacity-60">
+ <div key={req.id} className="flex justify-between items-center bg-muted border border-border p-3 rounded-lg opacity-60">
  <div>
- <strong className="text-sm text-white block">{req.title}</strong>
- <span className="text-xs text-zinc-400">{responses.length} Responden</span>
+ <strong className="text-sm text-foreground block">{req.title}</strong>
+ <span className="text-xs text-muted-foreground">{responses.length} Responden</span>
  </div>
  <Badge tone="gray">Ditutup</Badge>
  </div>
@@ -174,23 +170,23 @@ export default function FeedbackManager() {
  >
  <form onSubmit={handleSubmit} className="space-y-4">
  <div className="space-y-2">
- <label className="text-xs font-medium text-zinc-400 ">Judul</label>
+ <label className="text-xs font-medium text-muted-foreground ">Judul</label>
  <input 
  type="text" 
  required
  value={title}
  onChange={e => setTitle(e.target.value)}
  placeholder="Mis. Feedback Tengah Tahun 2026"
- className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white" aria-label="Mis. Feedback Tengah Tahun 2026"
+ className="glass-input" aria-label="Mis. Feedback Tengah Tahun 2026"
 />
  </div>
 
  <div className="space-y-2">
- <label className="text-xs font-medium text-zinc-400 ">Privasi</label>
+ <label className="text-xs font-medium text-muted-foreground ">Privasi</label>
  <select 
  value={privacyMode}
  onChange={e => setPrivacyMode(e.target.value as any)}
- className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
+ className="glass-input"
  >
  <option value="anonymous">Anonim (Responden tidak mengisi nama)</option>
  <option value="required">Terbuka (Responden mengisi nama)</option>
@@ -198,17 +194,17 @@ export default function FeedbackManager() {
  </div>
 
  <div className="space-y-2">
- <label className="text-xs font-medium text-zinc-400 ">Deadline (Opsional)</label>
+ <label className="text-xs font-medium text-muted-foreground ">Deadline (Opsional)</label>
  <input 
  type="date" 
  value={deadline}
  onChange={e => setDeadline(e.target.value)}
- className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white"
+ className="glass-input"
  />
  </div>
 
- <div className="space-y-2 pt-2 border-t border-white/10">
- <label className="text-xs font-medium text-zinc-400 ">Pilih Area Evaluasi (Pilih 1+)</label>
+ <div className="space-y-2 pt-2 border-t border-border">
+ <label className="text-xs font-medium text-muted-foreground ">Pilih Area Evaluasi (Pilih 1+)</label>
  <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-1">
  {SELF_AWARENESS_DOMAINS.map(domain => {
  const isSelected = selectedDomains.includes(domain.key);
@@ -217,7 +213,7 @@ export default function FeedbackManager() {
  key={domain.key}
  onClick={() => toggleDomain(domain.key)}
  className={`p-2 rounded-lg border cursor-pointer flex items-center gap-2 text-xs transition-colors ${
- isSelected ? 'bg-teal-500/10 border-teal-500/30 text-teal-300' : 'bg-white/5 border-white/10 text-zinc-400 hover:border-white/20'
+ isSelected ? 'bg-teal-500/10 border-teal-500/30 text-teal-700 dark:text-teal-300' : 'bg-muted border-border text-muted-foreground hover:border-gray-300 dark:hover:border-gray-600'
  }`}
  >
  <div className={`w-4 h-4 rounded-sm flex items-center justify-center border ${

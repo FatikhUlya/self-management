@@ -66,18 +66,14 @@ export default function HabitsManagePage() {
  };
 
  return (
- <div className="space-y-6 max-w-5xl mx-auto pb-24">
- <div className="flex items-center gap-3">
- <Link href="/habits">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
- <Icon name="arrowLeft" size={18} />
- </button>
- </Link>
+ <div className="space-y-6 max-w-5xl mx-auto">
+ <div className="page-header-title">
+ <Link href="/habits" className="icon-btn" aria-label="Kembali"><Icon name="arrowLeft" size={18} /></Link>
  <div className="flex-1">
- <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+ <h1 className="page-title">
  Kelola Kebiasaan
  </h1>
- <p className="text-zinc-500 text-xs mt-1">
+ <p className="page-subtitle">
  Tambah, ubah, atau hapus rutinitas kebiasaan Anda.
  </p>
  </div>
@@ -110,24 +106,24 @@ export default function HabitsManagePage() {
  >
  <div>
  <strong className="text-sm font-medium block text-foreground">{habit.name}</strong>
- <div className="flex gap-2 items-center text-[11px] text-muted-foreground font-medium mt-1">
+ <div className="flex gap-2 items-center text-xs text-muted-foreground font-medium mt-1">
  <span>{habit.area}</span>
  <span className="w-1 h-1 rounded-full bg-border" />
  <span>{habit.frequency === 'daily' ? 'Harian' : 'Mingguan'} ({habit.targetPerWeek}x)</span>
  </div>
  </div>
 
- <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+ <div className="flex items-center space-x-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
  <button
  onClick={() => handleEditHabitClick(habit)}
- className="w-8 h-8 rounded bg-muted/30 border border-border hover:bg-muted/50/[0.07] text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors"
+ className="icon-btn"
  title={t('edit')}
  >
  <Icon name="edit" size={14} />
  </button>
  <button
  onClick={() => deleteHabit(habit.id)}
- className="w-8 h-8 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors"
+ className="icon-btn hover:text-destructive"
  title={t('delete')}
  >
  <Icon name="trash" size={14} />

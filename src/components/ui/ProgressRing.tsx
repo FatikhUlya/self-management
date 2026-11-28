@@ -7,7 +7,7 @@ interface ProgressRingProps {
  size?: number;
 }
 
-export function ProgressRing({ label, value, colorClass = 'text-primary', size = 80 }: ProgressRingProps) {
+export function ProgressRing({ label, value, colorClass = 'text-blue-500', size = 80 }: ProgressRingProps) {
  const radius = size * 0.4;
  const stroke = size * 0.065;
  const normalizedRadius = radius - stroke * 2;
@@ -44,7 +44,7 @@ export function ProgressRing({ label, value, colorClass = 'text-primary', size =
  </svg>
  {/* Inner Label */}
  <div className="absolute inset-0 flex items-center justify-center">
- <span className="text-sm font-semibold text-foreground tabular-nums">{Math.round(value)}%</span>
+ <span className="font-display text-base font-medium text-foreground tabular-nums">{Math.round(value)}%</span>
  </div>
  </div>
  <span className="text-xs text-muted-foreground mt-2 text-center truncate w-full">{label}</span>

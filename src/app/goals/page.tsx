@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import { useLifeProfile } from '@/lib/hooks/useLifeProfile';
 import { useLifeOS, KeyResult, Goal } from '@/lib/hooks/useLifeOSState';
 import { useLocalStorageState } from '@/lib/hooks/useLocalStorageState';
 import { useI18n } from '@/lib/i18n/context';
@@ -49,11 +50,12 @@ export default function GoalsDashboardPage() {
   const [activeTab, setActiveTab] = useState<'okrs' | 'compass' | 'archive'>('okrs');
 
   // Vision & Mission Persistent State
-  const [vision, setVision] = useLocalStorageState(
+  // Older versions kept these in the browser only; the profile record (synced) wins once saved.
+  const [legacyVision] = useLocalStorageState(
     'lifeos_vision',
     'Menjadi seorang Solo Operator & Lead Engineer kelas dunia yang membangun sistem bernilai tinggi, menjaga kesehatan prima, dan mandiri secara finansial.'
   );
-  const [mission, setMission] = useLocalStorageState(
+  const [legacyMission] = useLocalStorageState(
     'lifeos_mission',
     '1. Menguasai teknologi modern dan arsitektur produk perangkat lunak setiap hari.\n2. Menjaga disiplin raga, nutrisi terukur, dan ketenangan batin.\n3. Menyelaraskan tindakan harian terkecil dengan target strategis jangka panjang.'
   );
@@ -76,6 +78,12 @@ export default function GoalsDashboardPage() {
   // Vision Modal Form State
   const [tempVision, setTempVision] = useState('');
   const [tempMission, setTempMission] = useState('');
+  const [tempValues, setTempValues] = useState('');
+  const [tempSuccess, setTempSuccess] = useState('');
+  const [tempContribution, setTempContribution] = useState('');
+  const profile = useLifeProfile();
+  const vision = profile.data.vision ?? legacyVision;
+  const mission = profile.data.mission ?? legacyMission;
 
   // Goal Form State
   const [goalTitle, setGoalTitle] = useState('');
@@ -187,13 +195,15 @@ export default function GoalsDashboardPage() {
   const handleOpenVisionModal = () => {
     setTempVision(vision);
     setTempMission(mission);
+    setTempValues(profile.data.values || '');
+    setTempSuccess(profile.data.success || '');
+    setTempContribution(profile.data.contribution || '');
     setIsVisionModalOpen(true);
   };
 
   const handleSaveVisionMission = (e: React.FormEvent) => {
     e.preventDefault();
-    setVision(tempVision);
-    setMission(tempMission);
+    profile.save({ vision: tempVision, mission: tempMission, values: tempValues, success: tempSuccess, contribution: tempContribution });
     setIsVisionModalOpen(false);
   };
 
@@ -298,25 +308,26 @@ export default function GoalsDashboardPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-24">
+    <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header & Page Title */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="page-header">
         <div>
           <DateStamp />
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+            <h1 className="page-title">
               Goals & Strategic OKRs
             </h1>
-            <Badge tone="teal" className="font-mono tabular-nums text-xs">
+            <Badge tone="teal" className="tabular-nums text-xs">
               {activeGoals.length} Target Aktif
             </Badge>
           </div>
-          <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
+          <p className="page-subtitle">
             Penyelarasan visi hidup, target strategis (Objectives), dan hasil kunci terukur (Key Results).
           </p>
         </div>
 
         <div className="flex items-center gap-2">
+          <Button href="/goals/annual" variant="secondary" icon="star">Goals Tahunan</Button>
           <Button
             variant="outline"
             icon="star"
@@ -343,19 +354,17 @@ export default function GoalsDashboardPage() {
 
       {/* Top Strategic Metric Strip */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard
+        <MetricCard glow
           icon="activity"
           label="Rata-rata Progres"
           value={`${avgProgress}%`}
           detail={`${activeGoals.length} target berjalan`}
-          glow={avgProgress >= 50}
         />
         <MetricCard
           icon="checkCircle"
           label="Target Selesai"
           value={completedGoals.length}
           detail={`Dari total ${totalGoals} target`}
-          glow={completedGoals.length > 0}
         />
         <MetricCard
           icon="target"
@@ -372,47 +381,32 @@ export default function GoalsDashboardPage() {
       </div>
 
       {/* Modern Segmented Navigation Tabs (Swipe-friendly) */}
-      <div className="flex items-center justify-between border-b border-border pb-2 overflow-x-auto no-scrollbar gap-4 px-1">
-        <div className="flex p-1 bg-muted/30 rounded-xl border border-border shrink-0 gap-1">
+      <div className="flex items-center justify-between gap-4 min-w-0">
+        <div role="tablist" className="seg">
           <button
             onClick={() => setActiveTab('okrs')}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px] touch-manipulation',
-              activeTab === 'okrs'
-                ? 'bg-background text-foreground shadow-xs border border-border/80'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
+            role="tab" aria-selected={activeTab === 'okrs'} className="seg-item"
           >
             <Icon name="target" size={14} className={activeTab === 'okrs' ? 'text-teal-500' : ''} />
             Papan Target & OKR
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
+            <span className="seg-count">
               {state.goals.length}
             </span>
           </button>
           <button
             onClick={() => setActiveTab('compass')}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px] touch-manipulation',
-              activeTab === 'compass'
-                ? 'bg-background text-foreground shadow-xs border border-border/80'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
+            role="tab" aria-selected={activeTab === 'compass'} className="seg-item"
           >
             <Icon name="star" size={14} className={activeTab === 'compass' ? 'text-teal-500' : ''} />
             Kompas & Visi Misi
           </button>
           <button
             onClick={() => setActiveTab('archive')}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px] touch-manipulation',
-              activeTab === 'archive'
-                ? 'bg-background text-foreground shadow-xs border border-border/80'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
+            role="tab" aria-selected={activeTab === 'archive'} className="seg-item"
           >
             <Icon name="trophy" size={14} className={activeTab === 'archive' ? 'text-teal-500' : ''} />
             Pencapaian (Milestones)
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
+            <span className="seg-count">
               {completedGoals.length}
             </span>
           </button>
@@ -435,7 +429,7 @@ export default function GoalsDashboardPage() {
                 placeholder="Cari target atau key result"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-teal-500 text-foreground" aria-label="Cari target atau key result"
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-none focus:border-teal-500 text-foreground" aria-label="Cari target atau key result"
 />
             </div>
 
@@ -449,7 +443,7 @@ export default function GoalsDashboardPage() {
                     className={cn(
                       'px-2.5 py-1 text-xs rounded-md font-medium transition-colors capitalize',
                       timeframeFilter === tf
-                        ? 'bg-background text-foreground font-medium shadow-2xs'
+                        ? 'bg-background text-foreground font-medium shadow-card'
                         : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
@@ -468,7 +462,7 @@ export default function GoalsDashboardPage() {
               <select
                 value={statusFilter}
                 onChange={(e: any) => setStatusFilter(e.target.value)}
-                className="px-2.5 py-1 text-xs rounded-lg bg-muted/20 border border-border text-foreground shrink-0 focus:outline-hidden"
+                className="px-2.5 py-1 text-xs rounded-lg bg-muted/20 border border-border text-foreground shrink-0 focus:outline-none"
               >
                 <option value="all">Semua Status</option>
                 <option value="active">Berjalan</option>
@@ -479,7 +473,7 @@ export default function GoalsDashboardPage() {
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="px-2.5 py-1 text-xs rounded-lg bg-muted/20 border border-border text-foreground shrink-0 focus:outline-hidden max-w-[140px] truncate"
+                className="px-2.5 py-1 text-xs rounded-lg bg-muted/20 border border-border text-foreground shrink-0 focus:outline-none max-w-[140px] truncate"
               >
                 <option value="all">Semua Kategori</option>
                 {GOAL_CATEGORIES.map((c) => (
@@ -507,14 +501,14 @@ export default function GoalsDashboardPage() {
                     {/* Header Row */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
-                        <Badge tone={status.tone} className="text-[11px] font-medium ">
+                        <Badge tone={status.tone} className="text-xs font-medium ">
                           {status.label}
                         </Badge>
-                        <Badge tone="gray" className="text-[11px]">
+                        <Badge tone="gray" className="text-xs">
                           {goal.category || 'General'}
                         </Badge>
                         {goal.targetDate && (
-                          <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+                          <span className="text-xs text-muted-foreground flex items-center gap-1">
                             <Icon name="calendar" size={12} />
                             Target: {formatDate(goal.targetDate)}
                           </span>
@@ -552,7 +546,7 @@ export default function GoalsDashboardPage() {
                       </h3>
 
                       <div className="space-y-1">
-                        <div className="flex justify-between items-baseline text-xs font-mono">
+                        <div className="flex justify-between items-baseline text-xs tabular-nums">
                           <span className="text-muted-foreground">Kemajuan Keseluruhan</span>
                           <strong className="text-teal-500 font-medium">{goal.progress}%</strong>
                         </div>
@@ -596,7 +590,7 @@ export default function GoalsDashboardPage() {
                                       <span className="font-semibold text-foreground truncate">
                                         {kr.title}
                                       </span>
-                                      <span className="text-[11px] font-mono text-muted-foreground">
+                                      <span className="text-xs tabular-nums text-muted-foreground">
                                         ({krPct}%)
                                       </span>
                                     </div>
@@ -611,14 +605,14 @@ export default function GoalsDashboardPage() {
                                   </div>
 
                                   <div className="flex items-center gap-3 shrink-0">
-                                    <span className="font-mono text-xs font-medium text-foreground">
+                                    <span className="tabular-nums text-xs font-medium text-foreground">
                                       {kr.currentValue} / {kr.targetValue} {kr.unit}
                                     </span>
                                     <div className="flex items-center gap-1">
                                       <button
                                         type="button"
                                         onClick={() => handleQuickAdjustKr(goal, kr.id, -1)}
-                                        className="w-6 h-6 rounded-md bg-muted/40 hover:bg-muted text-foreground flex items-center justify-center font-medium"
+                                        className="icon-btn"
                                         title="Kurangi 1"
                                       >
                                         -
@@ -626,7 +620,7 @@ export default function GoalsDashboardPage() {
                                       <button
                                         type="button"
                                         onClick={() => handleQuickAdjustKr(goal, kr.id, 1)}
-                                        className="w-6 h-6 rounded-md bg-teal-500/20 hover:bg-teal-500/30 text-teal-600 dark:text-teal-400 flex items-center justify-center font-medium"
+                                        className="icon-btn"
                                         title="Tambah 1"
                                       >
                                         +
@@ -642,7 +636,7 @@ export default function GoalsDashboardPage() {
                     )}
 
                     {/* Linked Tasks & Projects Footer Strip */}
-                    <div className="pt-3 border-t border-border flex flex-wrap items-center justify-between gap-2 text-[11px] text-muted-foreground">
+                    <div className="pt-3 border-t border-border flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
                       <div className="flex items-center gap-3">
                         {linkedProjects.length > 0 && (
                           <span className="flex items-center gap-1 font-medium text-foreground">
@@ -660,12 +654,12 @@ export default function GoalsDashboardPage() {
                           >
                             <Icon name="checkCircle" size={13} className="text-emerald-500" />
                             {linkedTasks.filter((t) => t.status === 'done').length}/{linkedTasks.length} Tugas Terikat
-                            <span className="text-[11px] text-primary">({isTasksExpanded ? 'Tutup' : 'Lihat'})</span>
+                            <span className="text-xs text-primary">({isTasksExpanded ? 'Tutup' : 'Lihat'})</span>
                           </button>
                         )}
                       </div>
 
-                      <span className="text-[11px]">
+                      <span className="text-xs">
                         Dibuat: {formatDate(goal.createdAt)}
                       </span>
                     </div>
@@ -673,7 +667,7 @@ export default function GoalsDashboardPage() {
                     {/* Expandable Linked Tasks Checklist */}
                     {isTasksExpanded && linkedTasks.length > 0 && (
                       <div className="p-3 rounded-lg bg-muted/10 border border-dashed border-border space-y-2 mt-2">
-                        <span className="text-[11px] font-medium text-muted-foreground block">
+                        <span className="text-xs font-medium text-muted-foreground block">
                           Daftar Tugas Eksekusi:
                         </span>
                         <div className="space-y-1.5">
@@ -697,7 +691,7 @@ export default function GoalsDashboardPage() {
                                     {task.title}
                                   </span>
                                 </div>
-                                <span className="text-[11px] text-muted-foreground font-mono">
+                                <span className="text-xs text-muted-foreground tabular-nums">
                                   {task.due ? formatDate(task.due) : 'No due'}
                                 </span>
                               </div>
@@ -747,7 +741,7 @@ export default function GoalsDashboardPage() {
                   "{vision}"
                 </p>
               </div>
-              <p className="text-[11px] text-muted-foreground mt-4 pt-3 border-t border-border">
+              <p className="text-xs text-muted-foreground mt-4 pt-3 border-t border-border">
                 Kompas arah jangka panjang yang menjadi fondasi seluruh keputusan Anda.
               </p>
             </Surface>
@@ -772,11 +766,34 @@ export default function GoalsDashboardPage() {
                   ))}
                 </div>
               </div>
-              <p className="text-[11px] text-muted-foreground mt-4 pt-3 border-t border-border">
+              <p className="text-xs text-muted-foreground mt-4 pt-3 border-t border-border">
                 Pedoman tindakan berulang untuk merealisasikan visi hidup Anda setiap hari.
               </p>
             </Surface>
           </div>
+
+          {/* Profile: values, success, contribution (journal sheet 01) */}
+          <Surface className="p-5 md:p-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="section-title">Nilai, Sukses & Kontribusi</h3>
+              <button onClick={handleOpenVisionModal} className="text-xs font-semibold text-primary hover:underline flex items-center gap-1">
+                <Icon name="edit" size={12} /> Edit
+              </button>
+            </div>
+            <dl className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[
+                { k: 'Nilai hidup', v: profile.data.values },
+                { k: 'Definisi sukses', v: profile.data.success },
+                { k: 'Kontribusi', v: profile.data.contribution },
+              ].map((x) => (
+                <div key={x.k} className="well">
+                  <dt className="text-xs text-muted-foreground mb-1">{x.k}</dt>
+                  <dd className="text-sm whitespace-pre-line">{x.v || <span className="text-muted-foreground">Belum diisi</span>}</dd>
+                </div>
+              ))}
+            </dl>
+            {!profile.exists && <p className="text-xs text-muted-foreground">Simpan sekali agar kompas hidup tersinkron ke akun dan terbaca di perangkat lain.</p>}
+          </Surface>
 
           {/* Life Dimensions Wheel / Pillars */}
           <div className="space-y-4">
@@ -803,12 +820,12 @@ export default function GoalsDashboardPage() {
                           {area.label}
                         </strong>
                       </div>
-                      <Badge tone={area.tone} className="text-[11px]">
+                      <Badge tone={area.tone} className="text-xs">
                         {areaGoals.length} Goals
                       </Badge>
                     </div>
 
-                    <div className="text-[11px] text-muted-foreground space-y-1">
+                    <div className="text-xs text-muted-foreground space-y-1">
                       <p>
                         Target Aktif:{' '}
                         <span className="font-semibold text-foreground">
@@ -858,7 +875,7 @@ export default function GoalsDashboardPage() {
                 Daftar seluruh tujuan hidup dan OKR yang telah berhasil Anda tuntaskan 100%.
               </p>
             </div>
-            <Badge tone="green" className="text-xs font-mono font-medium">
+            <Badge tone="green" className="text-xs tabular-nums font-medium">
               {completedGoals.length} Target Berhasil
             </Badge>
           </Surface>
@@ -868,10 +885,10 @@ export default function GoalsDashboardPage() {
               {completedGoals.map((goal) => (
                 <Surface key={goal.id} className="p-5 space-y-3 border-l-4 border-l-emerald-500">
                   <div className="flex items-center justify-between">
-                    <Badge tone="green" className="text-[11px] flex items-center gap-1 font-medium">
+                    <Badge tone="green" className="text-xs flex items-center gap-1 font-medium">
                       <Icon name="trophy" size={12} /> Selesai 100%
                     </Badge>
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       {goal.targetDate ? formatDate(goal.targetDate) : 'Target tercapai'}
                     </span>
                   </div>
@@ -880,13 +897,13 @@ export default function GoalsDashboardPage() {
                     {goal.title}
                   </h4>
 
-                  <span className="px-2 py-0.5 rounded bg-muted/40 border border-border text-[11px] text-muted-foreground inline-block">
+                  <span className="px-2 py-0.5 rounded bg-muted/40 border border-border text-xs text-muted-foreground inline-block">
                     {goal.category}
                   </span>
 
                   {goal.keyResults && goal.keyResults.length > 0 && (
                     <div className="space-y-1 text-xs pt-1 border-t border-border">
-                      <span className="text-[11px] font-medium text-muted-foreground">
+                      <span className="text-xs font-medium text-muted-foreground">
                         Hasil Kunci:
                       </span>
                       {goal.keyResults.map((kr) => (
@@ -932,7 +949,7 @@ export default function GoalsDashboardPage() {
 
             <div className="space-y-4 py-3 text-xs">
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Judul Sasaran (Objective)
                 </label>
                 <input
@@ -941,19 +958,19 @@ export default function GoalsDashboardPage() {
                   placeholder="Contoh: Menjadi Lead Frontend Engineer & Rilis 3 Aplikasi SaaS"
                   value={goalTitle}
                   onChange={(e) => setGoalTitle(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-teal-500" aria-label="Contoh: Menjadi Lead Frontend Engineer & Rilis 3 Aplikasi SaaS"
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none focus:border-teal-500" aria-label="Contoh: Menjadi Lead Frontend Engineer & Rilis 3 Aplikasi SaaS"
 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Kategori / Area Hidup
                   </label>
                   <select
                     value={goalCategory}
                     onChange={(e) => setGoalCategory(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+                    className="glass-input"
                   >
                     {GOAL_CATEGORIES.map((c) => (
                       <option key={c} value={c}>
@@ -964,14 +981,14 @@ export default function GoalsDashboardPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Target Tanggal Selesai
                   </label>
                   <input
                     type="date"
                     value={goalTargetDate}
                     onChange={(e) => setGoalTargetDate(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+                    className="glass-input"
                   />
                 </div>
               </div>
@@ -979,7 +996,7 @@ export default function GoalsDashboardPage() {
               {/* Key Results Section */}
               <div className="space-y-2 pt-2 border-t border-border">
                 <div className="flex items-center justify-between">
-                  <label className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5">
+                  <label className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
                     <Icon name="checkCircle" size={13} className="text-teal-500" />
                     Key Results Terukur (KRs)
                   </label>
@@ -1006,7 +1023,7 @@ export default function GoalsDashboardPage() {
                           onChange={(e) =>
                             handleUpdateKeyResultRow(idx, 'title', e.target.value)
                           }
-                          className="flex-1 px-2.5 py-1.5 text-xs rounded-md bg-background border border-border text-foreground focus:outline-hidden" aria-label="Judul Key Result"
+                          className="flex-1 px-2.5 py-1.5 text-xs rounded-md bg-background border border-border text-foreground focus:outline-none" aria-label="Judul Key Result"
 />
                         <button
                           type="button"
@@ -1019,7 +1036,7 @@ export default function GoalsDashboardPage() {
 
                       <div className="grid grid-cols-3 gap-2">
                         <div>
-                          <span className="text-[11px] text-muted-foreground block mb-0.5">
+                          <span className="text-xs text-muted-foreground block mb-0.5">
                             Nilai Awal
                           </span>
                           <input
@@ -1032,11 +1049,11 @@ export default function GoalsDashboardPage() {
                                 Number(e.target.value)
                               )
                             }
-                            className="w-full px-2 py-1 text-xs rounded bg-background border border-border text-foreground font-mono focus:outline-hidden"
+                            className="w-full px-2 py-1 text-xs rounded bg-background border border-border text-foreground tabular-nums focus:outline-none"
                           />
                         </div>
                         <div>
-                          <span className="text-[11px] text-muted-foreground block mb-0.5">
+                          <span className="text-xs text-muted-foreground block mb-0.5">
                             Target Akhir
                           </span>
                           <input
@@ -1049,11 +1066,11 @@ export default function GoalsDashboardPage() {
                                 Number(e.target.value)
                               )
                             }
-                            className="w-full px-2 py-1 text-xs rounded bg-background border border-border text-foreground font-mono focus:outline-hidden"
+                            className="w-full px-2 py-1 text-xs rounded bg-background border border-border text-foreground tabular-nums focus:outline-none"
                           />
                         </div>
                         <div>
-                          <span className="text-[11px] text-muted-foreground block mb-0.5">
+                          <span className="text-xs text-muted-foreground block mb-0.5">
                             Satuan (Unit)
                           </span>
                           <input
@@ -1063,7 +1080,7 @@ export default function GoalsDashboardPage() {
                             onChange={(e) =>
                               handleUpdateKeyResultRow(idx, 'unit', e.target.value)
                             }
-                            className="w-full px-2 py-1 text-xs rounded bg-background border border-border text-foreground focus:outline-hidden" aria-label="cth: Proyek, %, Buku"
+                            className="w-full px-2 py-1 text-xs rounded bg-background border border-border text-foreground focus:outline-none" aria-label="cth: Proyek, %, Buku"
 />
                         </div>
                       </div>
@@ -1100,7 +1117,7 @@ export default function GoalsDashboardPage() {
 
       {/* MODAL 2: EDIT VISI & MISI KOMPAS */}
       <Dialog open={isVisionModalOpen} onOpenChange={setIsVisionModalOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <form onSubmit={handleSaveVisionMission}>
             <DialogHeader>
               <DialogTitle className="text-lg font-medium flex items-center gap-2">
@@ -1114,7 +1131,7 @@ export default function GoalsDashboardPage() {
 
             <div className="space-y-4 py-3 text-xs">
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Visi Pribadi (Vision)
                 </label>
                 <textarea
@@ -1123,12 +1140,12 @@ export default function GoalsDashboardPage() {
                   placeholder="Siapa diri Anda dan dampak apa yang ingin Anda ciptakan?"
                   value={tempVision}
                   onChange={(e) => setTempVision(e.target.value)}
-                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed focus:outline-hidden focus:border-teal-500 resize-none" aria-label="Siapa diri Anda dan dampak apa yang ingin Anda ciptakan?"
+                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed focus:outline-none focus:border-teal-500 resize-none" aria-label="Siapa diri Anda dan dampak apa yang ingin Anda ciptakan?"
 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Misi & Prinsip Kerja (Mission - tulis per baris)
                 </label>
                 <textarea
@@ -1137,9 +1154,20 @@ export default function GoalsDashboardPage() {
                   placeholder="Pilar tindakan yang Anda lakukan untuk mencapai visi tersebut"
                   value={tempMission}
                   onChange={(e) => setTempMission(e.target.value)}
-                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed focus:outline-hidden focus:border-teal-500 resize-none" aria-label="Pilar tindakan yang Anda lakukan untuk mencapai visi tersebut"
+                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed focus:outline-none focus:border-teal-500 resize-none" aria-label="Pilar tindakan yang Anda lakukan untuk mencapai visi tersebut"
 />
               </div>
+
+              {[
+                { label: 'Nilai hidup (satu per baris)', v: tempValues, set: setTempValues, ph: 'Integritas, keluarga, belajar seumur hidup…' },
+                { label: 'Definisi sukses versi saya', v: tempSuccess, set: setTempSuccess, ph: 'Seperti apa hidup yang berhasil menurut Anda?' },
+                { label: 'Kontribusi yang ingin saya berikan', v: tempContribution, set: setTempContribution, ph: 'Untuk keluarga, komunitas, profesi…' },
+              ].map((f) => (
+                <label key={f.label} className="block">
+                  <span className="label block mb-1.5">{f.label}</span>
+                  <textarea rows={3} value={f.v} onChange={(e) => f.set(e.target.value)} placeholder={f.ph} className="glass-input resize-y text-sm" />
+                </label>
+              ))}
             </div>
 
             <DialogFooter>

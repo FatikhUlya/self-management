@@ -89,7 +89,7 @@ export function QuickAddTransaction() {
  <>
  <button
  onClick={() => setIsOpen(true)}
- className="fixed bottom-20 right-6 md:bottom-8 md:right-8 w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-[0_8px_24px_rgba(0,0,0,0.12)] hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] z-40"
+ className="fixed right-4 bottom-[calc(var(--mobile-nav-h)+env(safe-area-inset-bottom)+4px)] md:bottom-8 md:right-8 w-14 h-14 md:w-12 md:h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center shadow-float hover:opacity-90 active:scale-[0.97] transition-[opacity,transform] z-30"
  aria-label="Catat transaksi cepat" title="Catat transaksi"
  >
  <Icon name="plus" size={20} />

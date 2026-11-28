@@ -136,22 +136,20 @@ export default function RecordTransactionPage() {
  return (
  <div className="space-y-6 max-w-2xl mx-auto">
  {/* Header */}
- <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+ <div className="page-header">
+ <div className="page-header-title">
+ <Link href="/finance" className="icon-btn" aria-label={locale === 'id' ? 'Kembali' : 'Back'}><Icon name="arrowLeft" size={18} /></Link>
  <div>
- <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+ <h1 className="page-title">
  {locale === 'id' ? 'Catat Transaksi' : 'Record Transaction'}
  </h1>
- <p className="text-zinc-500 mt-1 text-sm">
+ <p className="page-subtitle">
  {locale === 'id' 
  ? 'Tambahkan pengeluaran, pemasukan, atau transfer antar akun.'
  : 'Add expense, income, or transfer between accounts.'}
  </p>
  </div>
- <Link href="/finance">
- <Button variant="secondary" icon="arrowLeft" className="text-xs">
- {locale === 'id' ? 'Kembali' : 'Back'}
- </Button>
- </Link>
+ </div>
  </div>
 
  <Surface className="p-6">
@@ -163,7 +161,7 @@ export default function RecordTransactionPage() {
  setTxType('expense');
  setTxCategory(EXPENSE_CATEGORIES[0]);
  }}
- className={`py-2 rounded-md text-[11px] font-semibold   transition-colors duration-150 ${
+ className={`py-2 rounded-md text-xs font-semibold   transition-colors duration-150 ${
  txType === 'expense'
  ? 'bg-rose-500 text-white shadow-md'
  : 'text-muted-foreground hover:text-foreground'
@@ -177,7 +175,7 @@ export default function RecordTransactionPage() {
  setTxType('income');
  setTxCategory(INCOME_CATEGORIES[0]);
  }}
- className={`py-2 rounded-md text-[11px] font-semibold   transition-colors duration-150 ${
+ className={`py-2 rounded-md text-xs font-semibold   transition-colors duration-150 ${
  txType === 'income'
  ? 'bg-emerald-500 text-white shadow-md'
  : 'text-muted-foreground hover:text-foreground'
@@ -188,7 +186,7 @@ export default function RecordTransactionPage() {
  <button
  type="button"
  onClick={() => setTxType('transfer')}
- className={`py-2 rounded-md text-[11px] font-semibold   transition-colors duration-150 ${
+ className={`py-2 rounded-md text-xs font-semibold   transition-colors duration-150 ${
  txType === 'transfer'
  ? 'bg-blue-500 text-white shadow-md'
  : 'text-muted-foreground hover:text-foreground'
@@ -250,7 +248,7 @@ export default function RecordTransactionPage() {
  <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Dari Akun' : 'From Account'}
  </label>
- <button type="button" onClick={() => setIsAccountModalOpen(true)} className="text-[11px] text-emerald-500 font-medium hover:underline">
+ <button type="button" onClick={() => setIsAccountModalOpen(true)} className="text-xs text-emerald-500 font-medium hover:underline">
  {locale === 'id' ? 'Kelola Rekening' : 'Manage Accounts'}
  </button>
  </div>
@@ -270,7 +268,7 @@ export default function RecordTransactionPage() {
  <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Ke Akun' : 'To Account'}
  </label>
- <button type="button" onClick={() => setIsAccountModalOpen(true)} className="text-[11px] text-emerald-500 font-medium hover:underline">
+ <button type="button" onClick={() => setIsAccountModalOpen(true)} className="text-xs text-emerald-500 font-medium hover:underline">
  {locale === 'id' ? 'Kelola Rekening' : 'Manage Accounts'}
  </button>
  </div>
@@ -307,7 +305,7 @@ export default function RecordTransactionPage() {
  <label className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Akun/Sumber Kas' : 'Account/Source'}
  </label>
- <button type="button" onClick={() => setIsAccountModalOpen(true)} className="text-[11px] text-emerald-500 font-medium hover:underline">
+ <button type="button" onClick={() => setIsAccountModalOpen(true)} className="text-xs text-emerald-500 font-medium hover:underline">
  {locale === 'id' ? 'Kelola Rekening' : 'Manage Accounts'}
  </button>
  </div>

@@ -91,7 +91,7 @@ export default function PublicFeedbackPage() {
  if (loading && !request) {
  return (
  <div className="flex-1 flex items-center justify-center">
- <div className="animate-spin text-teal-500">
+ <div className="animate-spin text-blue-500">
  <Icon name="loader" size={32} />
  </div>
  </div>
@@ -101,11 +101,11 @@ export default function PublicFeedbackPage() {
  if (error) {
  return (
  <div className="flex-1 flex flex-col items-center justify-center p-6 text-center max-w-md mx-auto">
- <div className="w-16 h-16 rounded-full bg-rose-500/20 text-rose-500 flex items-center justify-center mb-6">
+ <div className="w-16 h-16 rounded-full bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-300 flex items-center justify-center mb-6">
  <Icon name="x" size={32} />
  </div>
- <h1 className="text-xl font-medium text-white mb-2">Tautan Tidak Valid</h1>
- <p className="text-zinc-400 text-sm leading-relaxed">{error}</p>
+ <h1 className="page-title mb-2">Tautan Tidak Valid</h1>
+ <p className="text-muted-foreground text-sm leading-relaxed">{error}</p>
  </div>
  );
  }
@@ -113,11 +113,11 @@ export default function PublicFeedbackPage() {
  if (step === 'success') {
  return (
  <div className="flex-1 flex flex-col items-center justify-center p-6 text-center max-w-md mx-auto">
- <div className="w-16 h-16 rounded-full bg-teal-500/20 text-teal-500 flex items-center justify-center mb-6">
+ <div className="w-16 h-16 rounded-full bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300 flex items-center justify-center mb-6">
  <Icon name="check" size={32} />
  </div>
- <h1 className="text-2xl font-medium text-white mb-2">Terima Kasih</h1>
- <p className="text-zinc-400 text-sm leading-relaxed">
+ <h1 className="page-title mb-2">Terima Kasih</h1>
+ <p className="text-muted-foreground text-sm leading-relaxed">
  Feedback Anda telah tersimpan dan akan sangat membantu dalam proses pengembangan diri.
  </p>
  </div>
@@ -127,23 +127,23 @@ export default function PublicFeedbackPage() {
  if (step === 'intro' && request) {
  return (
  <div className="flex-1 flex items-center justify-center p-4">
- <Surface className="max-w-xl w-full p-8 text-center space-y-6">
- <div className="inline-flex items-center justify-center w-16 h-16 rounded-xl bg-teal-500/10 text-teal-400 mb-2">
+ <Surface className="max-w-xl w-full p-6 md:p-8 text-center space-y-6">
+ <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-300 mb-2">
  <Icon name="lightbulb" size={32} />
  </div>
  <div>
- <h1 className="text-2xl font-medium text-white mb-2">{request.title}</h1>
- <p className="text-zinc-400 text-sm leading-relaxed">
+ <h1 className="page-title mb-2">{request.title}</h1>
+ <p className="text-muted-foreground text-sm leading-relaxed">
  Anda diundang untuk memberikan feedback. Feedback yang konstruktif dan berbasis fakta (bukan sekadar penilaian label) akan sangat berharga.
  </p>
  </div>
  
- <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-left">
- <h4 className="text-sm font-medium text-white mb-2 flex items-center gap-2">
- <Icon name="shield" size={16} className="text-teal-400" />
+ <div className="well text-left">
+ <h4 className="text-sm font-medium text-foreground mb-2 flex items-center gap-2">
+ <Icon name="shield" size={16} className="text-blue-600 dark:text-blue-300" />
  Privasi Anda
  </h4>
- <p className="text-xs text-zinc-400">
+ <p className="text-xs text-muted-foreground">
  {request.privacy_mode === 'anonymous' 
  ? 'Feedback ini bersifat anonim. Nama Anda tidak akan dicatat atau ditampilkan.' 
  : 'Feedback ini bersifat terbuka. Anda akan diminta untuk mencantumkan nama Anda.'}
@@ -163,20 +163,20 @@ export default function PublicFeedbackPage() {
  }
 
  return (
- <div className="flex-1 max-w-2xl mx-auto w-full p-4 pb-24">
+ <div className="flex-1 max-w-2xl mx-auto w-full px-4 py-8 md:py-12">
  <div className="mb-8 text-center">
- <h1 className="text-xl font-medium text-white mb-2">{request?.title}</h1>
- <p className="text-sm text-zinc-400">
+ <h1 className="page-title mb-2">{request?.title}</h1>
+ <p className="text-sm text-muted-foreground">
  Fokus pada observasi konkret, hindari menggunakan label yang menghakimi.
  </p>
  </div>
 
- <form onSubmit={handleSubmit} className="space-y-8">
+ <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5">
  {request?.privacy_mode === 'required' && (
- <Surface className="p-6 border-l-4 border-l-teal-500">
- <h3 className="text-base font-medium text-white mb-4">Identitas Anda</h3>
+ <Surface variant="soft" className="p-5 md:p-6">
+ <h3 className="section-title mb-4">Identitas Anda</h3>
  <div className="space-y-2">
- <label className="text-xs font-medium text-zinc-400 ">
+ <label className="text-xs font-medium text-muted-foreground ">
  Nama Lengkap
  </label>
  <input
@@ -185,7 +185,7 @@ export default function PublicFeedbackPage() {
  value={respondentName}
  onChange={(e) => setRespondentName(e.target.value)}
  placeholder="Masukkan nama Anda"
- className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-teal-500/50" aria-label="Masukkan nama Anda"
+ className="glass-input" aria-label="Masukkan nama Anda"
 />
  </div>
  </Surface>
@@ -196,19 +196,19 @@ export default function PublicFeedbackPage() {
  if (!domain) return null;
  
  return (
- <Surface key={domainKey} className="p-6">
- <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
- <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-zinc-300">
+ <Surface key={domainKey} className="p-5 md:p-6">
+ <div className="flex items-center gap-3 mb-6 border-b border-border pb-4">
+ <div className="icon-tile w-10 h-10">
  <Icon name={domain.icon as any} size={20} />
  </div>
  <div>
- <h3 className="text-base font-medium text-white">{domain.label}</h3>
+ <h3 className="section-title">{domain.label}</h3>
  </div>
  </div>
 
  <div className="space-y-6">
  <div className="space-y-3">
- <label className="text-xs font-medium text-zinc-400 ">
+ <label className="text-xs font-medium text-muted-foreground ">
  Rating (1-5)
  </label>
  <div className="flex items-center justify-between gap-2 max-w-xs">
@@ -220,10 +220,12 @@ export default function PublicFeedbackPage() {
  ...prev,
  [domainKey]: { ...prev[domainKey], rating }
  }))}
- className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
+ aria-pressed={domainResponses[domainKey].rating === rating}
+ aria-label={`Nilai ${rating}`}
+ className={`w-11 h-11 rounded-full text-sm font-medium transition-colors ${
  domainResponses[domainKey].rating === rating
- ? 'bg-teal-500 text-white shadow-lg '
- : 'bg-white/5 text-zinc-400 hover:bg-white/10 border border-white/5'
+ ? 'bg-primary text-primary-foreground'
+ : 'bg-card text-foreground border border-border hover:bg-muted'
  }`}
  >
  {rating}
@@ -233,11 +235,11 @@ export default function PublicFeedbackPage() {
  </div>
 
  <div className="space-y-2">
- <label className="text-xs font-medium text-teal-400 flex items-center gap-2">
+ <label className="text-xs font-medium text-teal-700 dark:text-teal-300 flex items-center gap-2">
  <Icon name="arrowUp" size={12} />
  Hal yang Sudah Baik (Kekuatan)
  </label>
- <p className="text-xs text-zinc-500 mb-2">
+ <p className="text-xs text-muted-foreground mb-2">
  Apa yang menurut Anda sudah dilakukan dengan baik? Berikan contoh spesifik.
  </p>
  <textarea
@@ -248,16 +250,16 @@ export default function PublicFeedbackPage() {
  [domainKey]: { ...prev[domainKey], strength: e.target.value }
  }))}
  placeholder="Contoh: Dia sangat responsif ketika ditanya mengenai progress proyek X minggu lalu"
- className="w-full h-24 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white resize-none focus:outline-none focus:border-teal-500/50" aria-label="Contoh: Dia sangat responsif ketika ditanya mengenai progress proyek X minggu lalu"
+ className="glass-input h-24 resize-none" aria-label="Contoh: Dia sangat responsif ketika ditanya mengenai progress proyek X minggu lalu"
 />
  </div>
 
  <div className="space-y-2">
- <label className="text-xs font-medium text-amber-400 flex items-center gap-2">
+ <label className="text-xs font-medium text-amber-700 dark:text-amber-300 flex items-center gap-2">
  <Icon name="arrowRight" size={12} />
  Area untuk Dikembangkan
  </label>
- <p className="text-xs text-zinc-500 mb-2">
+ <p className="text-xs text-muted-foreground mb-2">
  Apa yang bisa ditingkatkan ke depannya? Hindari menghakimi, fokus pada observasi dan saran perbaikan.
  </p>
  <textarea
@@ -268,7 +270,7 @@ export default function PublicFeedbackPage() {
  [domainKey]: { ...prev[domainKey], growth: e.target.value }
  }))}
  placeholder="Contoh: Pada saat meeting Y, akan lebih baik jika"
- className="w-full h-24 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white resize-none focus:outline-none focus:border-amber-500/50" aria-label="Contoh: Pada saat meeting Y, akan lebih baik jika"
+ className="glass-input h-24 resize-none" aria-label="Contoh: Pada saat meeting Y, akan lebih baik jika"
 />
  </div>
  </div>
@@ -280,7 +282,7 @@ export default function PublicFeedbackPage() {
  type="submit" 
  variant="primary" 
  disabled={loading}
- className="w-full h-14 text-sm font-medium shadow-xl "
+ className="w-full h-14 text-[15px]"
  >
  {loading ? 'Mengirim...' : 'Kirim Feedback'}
  </Button>

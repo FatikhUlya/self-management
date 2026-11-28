@@ -2,32 +2,32 @@ import type { Config } from "tailwindcss";
 
 type Ramp = Record<string, string>;
 
-// Graphite with a faint paper warmth: reads as grey, never as a color.
-const GRAPHITE: Ramp = {
-  50: "#fafaf9", 100: "#f4f4f2", 200: "#e8e7e4", 300: "#d6d5d1", 400: "#a4a39e",
-  500: "#73726d", 600: "#57564f", 700: "#41403b", 800: "#2a2926", 900: "#1c1b19", 950: "#131312",
+// Scarlet direction (docs/STYLE_GUIDE.md): cool neutral, one bright blue,
+// and three status ramps. Legacy color families alias onto these below.
+const GRAY: Ramp = {
+  50: "#f8f9fb", 100: "#f1f3f6", 200: "#e4e7ec", 300: "#d0d5dd", 400: "#98a2b3",
+  500: "#667085", 600: "#475467", 700: "#344054", 800: "#1d2939", 900: "#101828", 950: "#0c111d",
 };
-// Ink blue: the one accent (fountain-pen ink on a ledger page).
-const INK: Ramp = {
-  50: "#f2f5fa", 100: "#e3e9f4", 200: "#c8d3e8", 300: "#9fb2d6", 400: "#7891c4",
-  500: "#4a66a3", 600: "#3a548c", 700: "#2f4472", 800: "#27385c", 900: "#1f2c48", 950: "#141c2f",
+const BLUE: Ramp = {
+  50: "#eef5ff", 100: "#dcebff", 200: "#b8d6ff", 300: "#8cbeff", 400: "#5ca0ff",
+  500: "#2f83ff", 600: "#0a66e8", 700: "#0852bd", 800: "#0b4396", 900: "#0f3874", 950: "#0b2349",
 };
-const MOSS: Ramp = {
-  50: "#f1f7f2", 100: "#dcefe0", 200: "#bbdfc4", 300: "#8cc79d", 400: "#5fae79",
-  500: "#3b8a57", 600: "#2d7046", 700: "#26593a", 800: "#214831", 900: "#1c3b29", 950: "#0e2116",
+const GREEN: Ramp = {
+  50: "#ecfdf3", 100: "#d1fadf", 200: "#a6f4c5", 300: "#6ce9a6", 400: "#32d583",
+  500: "#12b76a", 600: "#039855", 700: "#027a48", 800: "#05603a", 900: "#054f31", 950: "#022c1b",
 };
-const BRICK: Ramp = {
-  50: "#fbf3f2", 100: "#f6e2df", 200: "#ecc4be", 300: "#de9a91", 400: "#d0776b",
-  500: "#b85245", 600: "#9c4036", 700: "#81352d", 800: "#6b2f29", 900: "#5a2a25", 950: "#311310",
+const RED: Ramp = {
+  50: "#fef3f2", 100: "#fee4e2", 200: "#fecdca", 300: "#fda29b", 400: "#f97066",
+  500: "#f04438", 600: "#d92d20", 700: "#b42318", 800: "#912018", 900: "#7a271a", 950: "#451510",
 };
-const OCHRE: Ramp = {
-  50: "#fbf7ee", 100: "#f5ead2", 200: "#ead4a4", 300: "#dcb76d", 400: "#cf9d45",
-  500: "#b9832c", 600: "#9a6823", 700: "#7b5020", 800: "#66421f", 900: "#57381e", 950: "#321e0e",
+const AMBER: Ramp = {
+  50: "#fffaeb", 100: "#fef0c7", 200: "#fedf89", 300: "#fec84b", 400: "#fdb022",
+  500: "#f79009", 600: "#dc6803", 700: "#b54708", 800: "#93370d", 900: "#7a2e0e", 950: "#431a06",
 };
 
 const alias = (ramp: Ramp, names: string[]) =>
   Object.fromEntries(names.map(n => [n, ramp]));
-const graphiteFamilies = () => alias(GRAPHITE, ["zinc", "slate", "gray", "neutral", "stone"]);
+const grayFamilies = () => alias(GRAY, ["zinc", "slate", "gray", "neutral", "stone"]);
 
 const config: Config = {
   content: [
@@ -39,34 +39,10 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: [
-          "var(--font-sans)",
-          "Plus Jakarta Sans",
-          "-apple-system",
-          "BlinkMacSystemFont",
-          "SF Pro Text",
-          "Segoe UI",
-          "Roboto",
-          "sans-serif",
-        ],
-        heading: [
-          "var(--font-heading)",
-          "var(--font-sans)",
-          "Plus Jakarta Sans",
-          "-apple-system",
-          "BlinkMacSystemFont",
-          "sans-serif",
-        ],
-        mono: [
-          "var(--font-mono)",
-          "JetBrains Mono",
-          "ui-monospace",
-          "SFMono-Regular",
-          "Menlo",
-          "Monaco",
-          "Consolas",
-          "monospace",
-        ],
+        sans: ["var(--font-sans)", "Inter", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+        display: ["var(--font-display)", "Outfit", "var(--font-sans)", "system-ui", "sans-serif"],
+        heading: ["var(--font-display)", "Outfit", "var(--font-sans)", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "JetBrains Mono", "ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "monospace"],
       },
       letterSpacing: {
         'tight-h1': '-0.025em',
@@ -82,24 +58,17 @@ const config: Config = {
         prose: '65ch',
       },
       colors: {
-        /* ── Unslop direction: planner & ledger ──
-           Every grey family is one graphite ramp with a faint paper warmth.
-           All hue families collapse into four with meaning:
-             ink   (accent: selection, primary figure, links)
-             moss  (positive / done)
-             brick (negative / error)
-             ochre (warning / attention)
-           This keeps legacy classes like text-indigo-500 working while the
-           screen reads as one palette. */
-        ...graphiteFamilies(),
-        ...alias(INK, ["indigo", "violet", "purple", "fuchsia", "blue", "sky", "cyan"]),
-        ...alias(MOSS, ["emerald", "green", "teal", "lime"]),
-        ...alias(BRICK, ["rose", "red", "pink"]),
-        ...alias(OCHRE, ["amber", "yellow", "orange"]),
-        ink: { ...INK, DEFAULT: "hsl(var(--ink) / <alpha-value>)", foreground: "hsl(var(--ink-foreground))" },
-        moss: MOSS,
-        brick: BRICK,
-        ochre: OCHRE,
+        /* Legacy families collapse into the Scarlet ramps so old classes
+           (text-indigo-500, bg-emerald-50 …) stay on-palette. */
+        ...grayFamilies(),
+        ...alias(BLUE, ["indigo", "violet", "purple", "fuchsia", "blue", "sky", "cyan"]),
+        ...alias(GREEN, ["emerald", "green", "teal", "lime"]),
+        ...alias(RED, ["rose", "red", "pink"]),
+        ...alias(AMBER, ["amber", "yellow", "orange"]),
+        ink: { ...BLUE, DEFAULT: "hsl(var(--ink) / <alpha-value>)", foreground: "hsl(var(--ink-foreground))" },
+        moss: GREEN,
+        brick: RED,
+        ochre: AMBER,
         /* ── Surface & semantic tokens (CSS variable driven) ── */
         border: "hsl(var(--border) / <alpha-value>)",
         input: "hsl(var(--input) / <alpha-value>)",
@@ -136,11 +105,9 @@ const config: Config = {
         },
         /* ── Brand accent tokens (Option 1: Executive Monolith) ── */
         brand: {
-          slate: "#0F172A",
-          teal: "#0D9488",
-          amber: "#D97706",
-          emerald: "#10B981",
-          rose: "#DC2626",
+          DEFAULT: "#2f83ff",
+          deep: "#0a66e8",
+          soft: "#dcebff",
         },
         /* ── Status colors (flat, muted, professional) ── */
         success: {
@@ -210,17 +177,28 @@ const config: Config = {
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        sm: "8px",
+        md: "10px",
+        lg: "14px",
+        xl: "20px",
+        "2xl": "24px",
+        "3xl": "28px",
       },
       boxShadow: {
-        /* Precision shadows — Linear/Vercel style */
-        glass: "0 1px 2px 0 rgb(0 0 0 / 0.03), 0 1px 3px 0 rgb(0 0 0 / 0.04)",
-        "glass-hover":
-          "0 2px 8px 0 rgb(0 0 0 / 0.04), 0 1px 2px 0 rgb(0 0 0 / 0.04)",
-        subtle:
-          "0 1px 3px 0 rgb(0 0 0 / 0.04), 0 1px 2px -1px rgb(0 0 0 / 0.04)",
+        card: "var(--shadow-card)",
+        float: "var(--shadow-float)",
+        sheet: "var(--shadow-sheet)",
+        /* legacy names map onto the same three steps */
+        glass: "var(--shadow-card)",
+        "glass-hover": "var(--shadow-float)",
+        subtle: "var(--shadow-card)",
+        xs: "var(--shadow-card)",
+        "2xs": "var(--shadow-card)",
+        sm: "var(--shadow-card)",
+        md: "var(--shadow-card)",
+        lg: "var(--shadow-float)",
+        xl: "var(--shadow-float)",
+        "2xl": "var(--shadow-sheet)",
       },
       keyframes: {
         "accordion-down": {

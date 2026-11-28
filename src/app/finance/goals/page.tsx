@@ -78,22 +78,20 @@ export default function GoalsPage() {
  return (
  <div className="space-y-6 max-w-4xl mx-auto">
  {/* Header */}
- <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+ <div className="page-header">
+ <div className="page-header-title">
+ <Link href="/finance" className="icon-btn" aria-label={locale === 'id' ? 'Kembali' : 'Back'}><Icon name="arrowLeft" size={18} /></Link>
  <div>
- <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+ <h1 className="page-title">
  {locale === 'id' ? 'Target Keuangan' : 'Financial Goals'}
  </h1>
- <p className="text-zinc-500 mt-1 text-sm">
+ <p className="page-subtitle">
  {locale === 'id' 
  ? 'Tabungan, investasi, dan impian finansial Anda.'
  : 'Your savings, investments, and financial dreams.'}
  </p>
  </div>
- <Link href="/finance">
- <Button variant="secondary" icon="arrowLeft" className="text-xs">
- {locale === 'id' ? 'Kembali ke Dashboard' : 'Back to Dashboard'}
- </Button>
- </Link>
+ </div>
  </div>
 
  <Surface className="p-6">
@@ -122,7 +120,7 @@ export default function GoalsPage() {
  return (
  <div
  key={goal.id}
- className="p-5 rounded-xl bg-muted/20 border border-border hover:border-border-strong hover:bg-muted/50/[0.01] transition-colors space-y-4"
+ className="p-5 rounded-xl bg-muted/20 border border-border hover:border-border-strong hover:bg-muted transition-colors space-y-4"
  >
  <div className="flex justify-between items-start gap-4">
  <div>
@@ -133,7 +131,7 @@ export default function GoalsPage() {
  </span>
  )}
  {goal.linkedAccountName && (
- <span className="text-[11px] font-medium text-primary mt-0.5 block">
+ <span className="text-xs font-medium text-primary mt-0.5 block">
  {locale === 'id' ? 'Akun' : 'Account'}: {goal.linkedAccountName}
  </span>
  )}
@@ -151,7 +149,7 @@ export default function GoalsPage() {
  projectionText = `${locale === 'id' ? 'Estimasi:' : 'Est:'} ${monthLabel(estDate, locale === 'id' ? 'id-ID' : 'en-US')}`;
  }
  return (
- <span className="text-[11px] font-medium text-amber-400 mt-0.5 block">
+ <span className="text-xs font-medium text-amber-700 dark:text-amber-300 mt-0.5 block">
  {projectionText}
  </span>
  );
@@ -167,14 +165,14 @@ export default function GoalsPage() {
  setEditingGoalId(isEditing ? null : goal.id);
  setNewCurrentAmount(String(goal.currentAmount));
  }}
- className="w-8 h-8 rounded bg-muted/30 border border-border hover:bg-primary/20 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors"
+ className="icon-btn"
  title={locale === 'id' ? 'Update Saldo Terkumpul' : 'Update Collected Balance'}
  >
  <Icon name="edit" size={14} />
  </button>
  <button
  onClick={() => deleteFinancialGoal(goal.id)}
- className="w-8 h-8 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors"
+ className="icon-btn hover:text-destructive"
  title={t('delete')}
  >
  <Icon name="trash" size={14} />
@@ -186,7 +184,7 @@ export default function GoalsPage() {
  {isEditing && (
  <div className="flex items-center gap-2 bg-black/30 p-3 rounded-lg border border-border">
  <div className="flex-1 flex flex-col space-y-1">
- <label className="text-[11px] font-semibold text-muted-foreground">{locale === 'id' ? 'Saldo Terkumpul Baru' : 'New Collected Balance'}</label>
+ <label className="text-xs font-semibold text-muted-foreground">{locale === 'id' ? 'Saldo Terkumpul Baru' : 'New Collected Balance'}</label>
  <input
  type="number"
  className="glass-input py-1 text-sm font-medium"
@@ -265,7 +263,7 @@ export default function GoalsPage() {
  placeholder="Rp"
  value={goalTarget}
  onChange={(e) => setGoalTarget(e.target.value)}
- className="glass-input text-sm font-medium text-emerald-400"
+ className="glass-input text-sm font-medium text-emerald-700 dark:text-emerald-300"
  />
  </div>
  <div className="flex flex-col space-y-1">

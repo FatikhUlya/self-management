@@ -21,6 +21,9 @@ import {
 import { formatDate, todayISO, cn } from '@/lib/utils';
 import { DateStamp } from '@/components/ui/DateStamp';
 import { CashflowChart } from '@/components/finance/CashflowChart';
+import { PeriodNavigator } from '@/components/ui/PeriodNavigator';
+import { SubpageLinks } from '@/components/ui/SubpageLinks';
+import { getPeriod, inRange, PERIOD_LABEL, PeriodType } from '@/lib/period';
 
 const EXPENSE_CATEGORIES = [
   'Makanan & Minuman',
@@ -124,10 +127,14 @@ export default function FinanceDashboard() {
   const netWorth = netCash + totalAssets - totalDebts;
 
   // Current Month Cashflow
-  const currentMonthPrefix = selectedDate.slice(0, 7); // YYYY-MM
+  // Figures follow the chosen period (week / month / quarter / year)
+  const [finType, setFinType] = useState<PeriodType>('month');
+  const [finAnchor, setFinAnchor] = useState(selectedDate);
+  const finPeriod = getPeriod(finType, finAnchor, locale === 'id' ? 'id' : 'en');
+  const periodWord = PERIOD_LABEL[finType][locale === 'id' ? 'id' : 'en'].toLowerCase();
   const monthTransactions = useMemo(() => {
-    return state.transactions.filter((t) => t.date?.startsWith(currentMonthPrefix));
-  }, [state.transactions, currentMonthPrefix]);
+    return state.transactions.filter((t) => inRange(t.date, finPeriod));
+  }, [state.transactions, finPeriod.start, finPeriod.end]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const monthIncome = useMemo(() => {
     return monthTransactions
@@ -378,27 +385,29 @@ export default function FinanceDashboard() {
   };
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-24">
+    <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header & Page Title */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="page-header">
         <div>
           <DateStamp />
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+            <h1 className="page-title">
               Keuangan & Kekayaan
             </h1>
           </div>
-          <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
+          <p className="page-subtitle">
             Kendali arus kas harian, alokasi kekayaan bersih, pelunasan utang, dan target tabungan masa depan.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
+          <Button href="/finance/budget" variant="secondary" icon="chartBar" className="hidden md:inline-flex">Anggaran</Button>
+          <Button href="/finance/wishlist" variant="secondary" icon="package" className="hidden md:inline-flex">Wishlist</Button>
           <Button
             variant="outline"
             icon="briefcase"
             onClick={() => setIsAccountModalOpen(true)}
-            className="text-xs"
+            className="text-xs hidden md:inline-flex"
           >
             Kelola Akun
           </Button>
@@ -413,84 +422,108 @@ export default function FinanceDashboard() {
         </div>
       </div>
 
+      <PeriodNavigator types={['week', 'month', 'quarter', 'year']} type={finType} anchor={finAnchor} onChange={(t, a) => { setFinType(t); setFinAnchor(a); }} />
+
       {/* Top Financial Metric Strip */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+        <MetricCard glow
           icon="wallet"
           label="Kekayaan Bersih"
           value={formatIDR(netWorth)}
           detail={`Kas: ${formatIDR(netCash)} • Aset: ${formatIDR(totalAssets)}`}
-          glow={netWorth > 0}
         />
         <MetricCard
           icon="chevronRight"
-          label="Pemasukan Bulan Ini"
+          label="Pemasukan"
           value={formatIDR(monthIncome)}
           detail={`${monthTransactions.filter((t) => t.type === 'income').length} transaksi masuk`}
         />
         <MetricCard
           icon="chevronLeft"
-          label="Pengeluaran Bulan Ini"
+          label="Pengeluaran"
           value={formatIDR(monthExpense)}
           detail={`${monthTransactions.filter((t) => t.type === 'expense').length} transaksi keluar`}
         />
         <MetricCard
           icon="trendingUp"
-          label="Arus Kas (Cashflow)"
+          label="Arus Kas"
           value={formatIDR(monthCashflow)}
-          detail={monthCashflow >= 0 ? 'Surplus bulan ini' : 'Defisit bulan ini'}
-          glow={monthCashflow > 0}
+          detail={monthCashflow >= 0 ? `Surplus ${periodWord} ini` : `Defisit ${periodWord} ini`}
         />
       </div>
 
+      {/* Mobile hub: menu + latest entries; full tabs stay on desktop */}
+      <div className="md:hidden space-y-4">
+        <SubpageLinks
+          stacked
+          label="Menu keuangan"
+          links={[
+            { href: '/finance/ledger', icon: 'receipt', title: 'Buku Kas & Transaksi', detail: `${state.transactions.length} transaksi` },
+            { href: '/finance/budget', icon: 'chartBar', title: 'Anggaran Bulanan', detail: `${(state.budgets || []).filter((b) => b.period === 'monthly').length} kategori diatur` },
+            { href: '/finance/wealth', icon: 'briefcase', title: 'Neraca Aset & Utang', detail: `${(state.assets?.length || 0) + (state.debts?.length || 0)} item` },
+            { href: '/finance/goals', icon: 'target', title: 'Target Tabungan', detail: `${state.financialGoals.length} target` },
+            { href: '/finance/wishlist', icon: 'package', title: 'Wishlist & Keputusan Beli' },
+          ]}
+        />
+        <Surface className="p-4 space-y-2">
+          <div className="flex items-center justify-between">
+            <h2 className="section-title">Transaksi terakhir</h2>
+            <a href="/finance/ledger" className="text-[13px] text-blue-600 dark:text-blue-400">Semua</a>
+          </div>
+          {state.transactions.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Belum ada transaksi.</p>
+          ) : (
+            <ul className="divide-y divide-border">
+              {[...state.transactions].sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 5).map((tx) => (
+                <li key={tx.id} className="flex items-center justify-between gap-3 py-2.5">
+                  <span className="min-w-0">
+                    <span className="block text-sm truncate">{tx.title}</span>
+                    <span className="block text-xs text-muted-foreground">{formatDate(tx.date)} · {tx.category}</span>
+                  </span>
+                  <span className={cn('text-sm tabular-nums shrink-0', tx.type === 'expense' ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400')}>
+                    {tx.type === 'expense' ? '-' : '+'}{formatIDR(tx.amount)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Surface>
+      </div>
+
+      <div className="hidden md:block space-y-6">
       <CashflowChart transactions={state.transactions as any} selectedDate={state.selectedDate} />
 
       {/* Modern Segmented Navigation Tabs */}
       {/* Navigation Tab Bar (Swipe-friendly) */}
-      <div className="flex items-center justify-between border-b border-border pb-2 overflow-x-auto no-scrollbar gap-4 px-1">
-        <div className="flex p-1 bg-muted/30 rounded-xl border border-border shrink-0 gap-1">
+      <div className="flex items-center justify-between gap-4 min-w-0">
+        <div role="tablist" className="seg">
           <button
             onClick={() => setActiveTab('ledger')}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px] touch-manipulation',
-              activeTab === 'ledger'
-                ? 'bg-background text-foreground shadow-xs border border-border/80'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
+            role="tab" aria-selected={activeTab === 'ledger'} className="seg-item"
           >
             <Icon name="receipt" size={14} className={activeTab === 'ledger' ? 'text-emerald-500' : ''} />
             Buku Kas & Transaksi
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
+            <span className="seg-count">
               {state.transactions.length}
             </span>
           </button>
           <button
             onClick={() => setActiveTab('wealth')}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px] touch-manipulation',
-              activeTab === 'wealth'
-                ? 'bg-background text-foreground shadow-xs border border-border/80'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
+            role="tab" aria-selected={activeTab === 'wealth'} className="seg-item"
           >
             <Icon name="briefcase" size={14} className={activeTab === 'wealth' ? 'text-emerald-500' : ''} />
             Neraca Aset & Kewajiban
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
+            <span className="seg-count">
               {(state.assets?.length || 0) + (state.debts?.length || 0)}
             </span>
           </button>
           <button
             onClick={() => setActiveTab('goals')}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px] touch-manipulation',
-              activeTab === 'goals'
-                ? 'bg-background text-foreground shadow-xs border border-border/80'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
+            role="tab" aria-selected={activeTab === 'goals'} className="seg-item"
           >
             <Icon name="target" size={14} className={activeTab === 'goals' ? 'text-emerald-500' : ''} />
             Target Tabungan Finansial
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
+            <span className="seg-count">
               {state.financialGoals.length}
             </span>
           </button>
@@ -520,7 +553,7 @@ export default function FinanceDashboard() {
                     className={cn(
                       'px-3 py-1 text-xs rounded-md font-semibold transition-colors',
                       quickType === 'expense'
-                        ? 'bg-rose-500 text-white shadow-xs'
+                        ? 'bg-rose-500 text-white shadow-card'
                         : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
@@ -535,7 +568,7 @@ export default function FinanceDashboard() {
                     className={cn(
                       'px-3 py-1 text-xs rounded-md font-semibold transition-colors',
                       quickType === 'income'
-                        ? 'bg-emerald-500 text-white shadow-xs'
+                        ? 'bg-emerald-500 text-white shadow-card'
                         : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
@@ -550,19 +583,19 @@ export default function FinanceDashboard() {
                   placeholder="Keterangan transaksi"
                   value={quickTitle}
                   onChange={(e) => setQuickTitle(e.target.value)}
-                  className="sm:col-span-4 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-emerald-500 text-foreground" aria-label="Keterangan transaksi"
+                  className="sm:col-span-4 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-none focus:border-emerald-500 text-foreground" aria-label="Keterangan transaksi"
 />
                 <input
                   type="number"
                   placeholder="Nominal (Rp)"
                   value={quickAmount}
                   onChange={(e) => setQuickAmount(e.target.value)}
-                  className="sm:col-span-2 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-emerald-500 text-foreground font-mono" aria-label="Nominal (Rp)"
+                  className="sm:col-span-2 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-none focus:border-emerald-500 text-foreground tabular-nums" aria-label="Nominal (Rp)"
 />
                 <select
                   value={quickCategory}
                   onChange={(e) => setQuickCategory(e.target.value)}
-                  className="sm:col-span-2 px-2.5 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-emerald-500 text-foreground"
+                  className="sm:col-span-2 px-2.5 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-none focus:border-emerald-500 text-foreground"
                 >
                   {(quickType === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES).map((cat) => (
                     <option key={cat} value={cat}>
@@ -573,7 +606,7 @@ export default function FinanceDashboard() {
                 <select
                   value={quickAccount}
                   onChange={(e) => setQuickAccount(e.target.value)}
-                  className="sm:col-span-2 px-2.5 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-emerald-500 text-foreground"
+                  className="sm:col-span-2 px-2.5 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-none focus:border-emerald-500 text-foreground"
                 >
                   {availableAccounts.map((acc) => (
                     <option key={acc} value={acc}>
@@ -608,7 +641,7 @@ export default function FinanceDashboard() {
                 placeholder="Cari transaksi"
                 value={txSearch}
                 onChange={(e) => setTxSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-emerald-500 text-foreground" aria-label="Cari transaksi"
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-none focus:border-emerald-500 text-foreground" aria-label="Cari transaksi"
 />
             </div>
 
@@ -622,7 +655,7 @@ export default function FinanceDashboard() {
                     className={cn(
                       'px-2.5 py-1 text-xs rounded-md font-medium transition-colors capitalize',
                       txTypeFilter === t
-                        ? 'bg-background text-foreground font-medium shadow-2xs'
+                        ? 'bg-background text-foreground font-medium shadow-card'
                         : 'text-muted-foreground hover:text-foreground'
                     )}
                   >
@@ -635,7 +668,7 @@ export default function FinanceDashboard() {
               <select
                 value={txAccountFilter}
                 onChange={(e) => setTxAccountFilter(e.target.value)}
-                className="px-2.5 py-1 text-xs rounded-lg bg-muted/20 border border-border text-foreground shrink-0 focus:outline-hidden"
+                className="px-2.5 py-1 text-xs rounded-lg bg-muted/20 border border-border text-foreground shrink-0 focus:outline-none"
               >
                 <option value="all">Semua Akun</option>
                 {availableAccounts.map((acc) => (
@@ -649,7 +682,7 @@ export default function FinanceDashboard() {
               <select
                 value={txCategoryFilter}
                 onChange={(e) => setTxCategoryFilter(e.target.value)}
-                className="px-2.5 py-1 text-xs rounded-lg bg-muted/20 border border-border text-foreground shrink-0 focus:outline-hidden max-w-[140px] truncate"
+                className="px-2.5 py-1 text-xs rounded-lg bg-muted/20 border border-border text-foreground shrink-0 focus:outline-none max-w-[140px] truncate"
               >
                 <option value="all">Semua Kategori</option>
                 {Array.from(new Set([...EXPENSE_CATEGORIES, ...INCOME_CATEGORIES])).map((c) => (
@@ -691,10 +724,10 @@ export default function FinanceDashboard() {
                           <strong className="block text-xs font-semibold text-foreground truncate">
                             {tx.title}
                           </strong>
-                          <div className="flex flex-wrap items-center gap-2 mt-0.5 text-[11px] text-muted-foreground">
+                          <div className="flex flex-wrap items-center gap-2 mt-0.5 text-xs text-muted-foreground">
                             <span>{formatDate(tx.date)}</span>
                             <span>•</span>
-                            <span className="px-1.5 py-0.2 rounded bg-muted/40 border border-border text-[11px]">
+                            <span className="px-1.5 py-0.2 rounded bg-muted/40 border border-border text-xs">
                               {tx.category}
                             </span>
                             <span>•</span>
@@ -712,7 +745,7 @@ export default function FinanceDashboard() {
                       <div className="flex items-center gap-3 shrink-0">
                         <strong
                           className={cn(
-                            'text-sm font-medium font-mono tabular-nums',
+                            'text-sm font-medium tabular-nums tabular-nums',
                             isExp ? 'text-rose-500' : 'text-emerald-500'
                           )}
                         >
@@ -774,19 +807,19 @@ export default function FinanceDashboard() {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {accountBalances.map(([name, bal]) => (
                 <Surface key={name} className="p-4 flex flex-col justify-between">
-                  <span className="text-[11px] font-medium text-muted-foreground truncate">
+                  <span className="text-xs font-medium text-muted-foreground truncate">
                     {name}
                   </span>
                   <div className="mt-2">
                     <strong
                       className={cn(
-                        'block text-sm font-medium font-mono tabular-nums',
+                        'block text-sm font-medium tabular-nums tabular-nums',
                         bal >= 0 ? 'text-foreground' : 'text-rose-500'
                       )}
                     >
                       {formatIDR(bal)}
                     </strong>
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       {bal >= 0 ? 'Saldo Positif' : 'Saldo Minus'}
                     </span>
                   </div>
@@ -805,7 +838,7 @@ export default function FinanceDashboard() {
                     <Icon name="briefcase" size={13} className="text-muted-foreground" />
                     Aset & Kepemilikan Finansial
                   </h3>
-                  <span className="text-xs font-medium font-mono text-emerald-500">
+                  <span className="text-xs font-medium tabular-nums text-emerald-500">
                     Total: {formatIDR(totalAssets)}
                   </span>
                 </div>
@@ -828,12 +861,12 @@ export default function FinanceDashboard() {
                         <strong className="block text-xs font-semibold text-foreground">
                           {asset.name}
                         </strong>
-                        <span className="px-1.5 py-0.2 rounded bg-muted/40 border border-border text-[11px] text-muted-foreground">
+                        <span className="px-1.5 py-0.2 rounded bg-muted/40 border border-border text-xs text-muted-foreground">
                           {asset.category}
                         </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <strong className="text-xs font-medium font-mono text-emerald-500">
+                        <strong className="text-xs font-medium tabular-nums text-emerald-500">
                           {formatIDR(asset.value)}
                         </strong>
                         <button
@@ -867,7 +900,7 @@ export default function FinanceDashboard() {
                     <Icon name="alertCircle" size={13} className="text-muted-foreground" />
                     Kewajiban & Utang
                   </h3>
-                  <span className="text-xs font-medium font-mono text-rose-500">
+                  <span className="text-xs font-medium tabular-nums text-rose-500">
                     Sisa Total: {formatIDR(totalDebts)}
                   </span>
                 </div>
@@ -894,7 +927,7 @@ export default function FinanceDashboard() {
                             <strong className="block text-xs font-semibold text-foreground">
                               {debt.name}
                             </strong>
-                            <span className="text-[11px] text-muted-foreground">
+                            <span className="text-xs text-muted-foreground">
                               Cicilan: {formatIDR(debt.monthlyInstallment)}/bln • Jatuh Tempo: {debt.nextDueDate || debt.dueDate}
                             </span>
                           </div>
@@ -902,7 +935,7 @@ export default function FinanceDashboard() {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="text-[11px] py-1 px-2 h-auto"
+                              className="text-xs py-1 px-2 h-auto"
                               onClick={() => {
                                 setSelectedDebtForPayment(debt);
                                 setDebtPaymentAmount(String(debt.monthlyInstallment || ''));
@@ -924,7 +957,7 @@ export default function FinanceDashboard() {
                         </div>
 
                         <div className="space-y-1">
-                          <div className="flex items-center justify-between text-[11px] font-mono">
+                          <div className="flex items-center justify-between text-xs tabular-nums">
                             <span className="text-muted-foreground">
                               Terbayar: {formatIDR(paid)} ({pct}%)
                             </span>
@@ -987,18 +1020,18 @@ export default function FinanceDashboard() {
                             {goal.title}
                           </strong>
                           {goal.linkedAccountName && (
-                            <span className="text-[11px] text-muted-foreground">
+                            <span className="text-xs text-muted-foreground">
                               Disimpan di: <span className="font-semibold text-foreground">{goal.linkedAccountName}</span>
                             </span>
                           )}
                         </div>
                         <div className="flex items-center gap-1.5">
                           {isComplete ? (
-                            <Badge tone="green" className="text-[11px]">
+                            <Badge tone="green" className="text-xs">
                               Tercapai!
                             </Badge>
                           ) : (
-                            <Badge tone="indigo" className="text-[11px] font-mono">
+                            <Badge tone="indigo" className="text-xs tabular-nums">
                               {pct}%
                             </Badge>
                           )}
@@ -1017,7 +1050,7 @@ export default function FinanceDashboard() {
 
                       {/* Progress numbers */}
                       <div className="space-y-1.5 pt-1">
-                        <div className="flex items-baseline justify-between text-xs font-mono">
+                        <div className="flex items-baseline justify-between text-xs tabular-nums">
                           <span className="font-medium text-emerald-500">
                             {formatIDR(goal.currentAmount)}
                           </span>
@@ -1029,7 +1062,7 @@ export default function FinanceDashboard() {
                       </div>
                     </div>
 
-                    <div className="pt-3 border-t border-border flex items-center justify-between text-[11px] text-muted-foreground">
+                    <div className="pt-3 border-t border-border flex items-center justify-between text-xs text-muted-foreground">
                       <span>
                         {goal.targetDate ? `Target: ${formatDate(goal.targetDate)}` : 'Tanpa batas waktu'}
                       </span>
@@ -1057,6 +1090,7 @@ export default function FinanceDashboard() {
           )}
         </div>
       )}
+      </div>
 
       {/* DIALOG 1: CATAT TRANSAKSI LENGKAP */}
       <Dialog open={isAddTxModalOpen} onOpenChange={setIsAddTxModalOpen}>
@@ -1084,7 +1118,7 @@ export default function FinanceDashboard() {
                   className={cn(
                     'py-2 rounded-lg font-medium text-xs transition-colors',
                     modalTxType === 'expense'
-                      ? 'bg-rose-500 text-white shadow-xs'
+                      ? 'bg-rose-500 text-white shadow-card'
                       : 'text-muted-foreground hover:text-foreground'
                   )}
                 >
@@ -1099,7 +1133,7 @@ export default function FinanceDashboard() {
                   className={cn(
                     'py-2 rounded-lg font-medium text-xs transition-colors',
                     modalTxType === 'income'
-                      ? 'bg-emerald-500 text-white shadow-xs'
+                      ? 'bg-emerald-500 text-white shadow-card'
                       : 'text-muted-foreground hover:text-foreground'
                   )}
                 >
@@ -1108,7 +1142,7 @@ export default function FinanceDashboard() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Keterangan Transaksi
                 </label>
                 <input
@@ -1117,13 +1151,13 @@ export default function FinanceDashboard() {
                   placeholder="Contoh: Belanja Bulanan Supermarket"
                   value={modalTxTitle}
                   onChange={(e) => setModalTxTitle(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-emerald-500" aria-label="Contoh: Belanja Bulanan Supermarket"
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none focus:border-emerald-500" aria-label="Contoh: Belanja Bulanan Supermarket"
 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Nominal (IDR)
                   </label>
                   <input
@@ -1132,31 +1166,31 @@ export default function FinanceDashboard() {
                     placeholder="Contoh: 150000"
                     value={modalTxAmount}
                     onChange={(e) => setModalTxAmount(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-emerald-500" aria-label="Contoh: 150000"
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground tabular-nums focus:outline-none focus:border-emerald-500" aria-label="Contoh: 150000"
 />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Tanggal
                   </label>
                   <input
                     type="date"
                     value={modalTxDate}
                     onChange={(e) => setModalTxDate(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-emerald-500"
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none focus:border-emerald-500"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Kategori
                   </label>
                   <select
                     value={modalTxCategory}
                     onChange={(e) => setModalTxCategory(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+                    className="glass-input"
                   >
                     {(modalTxType === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES).map((cat) => (
                       <option key={cat} value={cat}>
@@ -1166,13 +1200,13 @@ export default function FinanceDashboard() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Sumber Rekening
                   </label>
                   <select
                     value={modalTxAccount}
                     onChange={(e) => setModalTxAccount(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+                    className="glass-input"
                   >
                     {availableAccounts.map((acc) => (
                       <option key={acc} value={acc}>
@@ -1184,7 +1218,7 @@ export default function FinanceDashboard() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Catatan Tambahan (Opsional)
                 </label>
                 <input
@@ -1192,7 +1226,7 @@ export default function FinanceDashboard() {
                   placeholder="Catatan kecil"
                   value={modalTxNotes}
                   onChange={(e) => setModalTxNotes(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-emerald-500" aria-label="Catatan kecil"
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none focus:border-emerald-500" aria-label="Catatan kecil"
 />
               </div>
             </div>
@@ -1229,7 +1263,7 @@ export default function FinanceDashboard() {
                 placeholder="Nama akun baru"
                 value={newAccountName}
                 onChange={(e) => setNewAccountName(e.target.value)}
-                className="flex-1 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-emerald-500" aria-label="Nama akun baru"
+                className="flex-1 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none focus:border-emerald-500" aria-label="Nama akun baru"
 />
               <Button type="submit" variant="primary" size="sm" icon="plus">
                 Tambah
@@ -1288,7 +1322,7 @@ export default function FinanceDashboard() {
 
             <div className="space-y-3 py-2 text-xs">
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Nama Target
                 </label>
                 <input
@@ -1297,13 +1331,13 @@ export default function FinanceDashboard() {
                   placeholder="Contoh: Dana Darurat 6 Bulan"
                   value={goalTitle}
                   onChange={(e) => setGoalTitle(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-emerald-500" aria-label="Contoh: Dana Darurat 6 Bulan"
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none focus:border-emerald-500" aria-label="Contoh: Dana Darurat 6 Bulan"
 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Target Nominal (Rp)
                   </label>
                   <input
@@ -1312,11 +1346,11 @@ export default function FinanceDashboard() {
                     placeholder="30000000"
                     value={goalTargetAmount}
                     onChange={(e) => setGoalTargetAmount(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-emerald-500" aria-label="30000000"
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground tabular-nums focus:outline-none focus:border-emerald-500" aria-label="30000000"
 />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Saldo Awal (Rp)
                   </label>
                   <input
@@ -1324,31 +1358,31 @@ export default function FinanceDashboard() {
                     placeholder="0"
                     value={goalCurrentAmount}
                     onChange={(e) => setGoalCurrentAmount(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-emerald-500" aria-label="0"
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground tabular-nums focus:outline-none focus:border-emerald-500" aria-label="0"
 />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Target Tanggal (Opsional)
                   </label>
                   <input
                     type="date"
                     value={goalTargetDate}
                     onChange={(e) => setGoalTargetDate(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-emerald-500"
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none focus:border-emerald-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Simpan di Akun
                   </label>
                   <select
                     value={goalLinkedAccount}
                     onChange={(e) => setGoalLinkedAccount(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+                    className="glass-input"
                   >
                     {availableAccounts.map((acc) => (
                       <option key={acc} value={acc}>
@@ -1387,7 +1421,7 @@ export default function FinanceDashboard() {
             </DialogHeader>
 
             <div className="py-2 text-xs">
-              <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+              <label className="label mb-1.5">
                 Nominal Setoran Tambahan (Rp)
               </label>
               <input
@@ -1397,7 +1431,7 @@ export default function FinanceDashboard() {
                 placeholder="Contoh: 500000"
                 value={depositAmount}
                 onChange={(e) => setDepositAmount(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-emerald-500" aria-label="Contoh: 500000"
+                className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground tabular-nums focus:outline-none focus:border-emerald-500" aria-label="Contoh: 500000"
 />
             </div>
 
@@ -1429,7 +1463,7 @@ export default function FinanceDashboard() {
 
             <div className="space-y-3 py-2 text-xs">
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Nama Aset
                 </label>
                 <input
@@ -1438,13 +1472,13 @@ export default function FinanceDashboard() {
                   placeholder="Contoh: Portofolio Reksadana Bibit"
                   value={assetName}
                   onChange={(e) => setAssetName(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-emerald-500" aria-label="Contoh: Portofolio Reksadana Bibit"
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none focus:border-emerald-500" aria-label="Contoh: Portofolio Reksadana Bibit"
 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Nilai Pasar (Rp)
                   </label>
                   <input
@@ -1453,17 +1487,17 @@ export default function FinanceDashboard() {
                     placeholder="10000000"
                     value={assetValue}
                     onChange={(e) => setAssetValue(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-emerald-500" aria-label="10000000"
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground tabular-nums focus:outline-none focus:border-emerald-500" aria-label="10000000"
 />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Kategori Aset
                   </label>
                   <select
                     value={assetCategory}
                     onChange={(e) => setAssetCategory(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+                    className="glass-input"
                   >
                     {ASSET_CATEGORIES.map((cat) => (
                       <option key={cat} value={cat}>
@@ -1503,7 +1537,7 @@ export default function FinanceDashboard() {
 
             <div className="space-y-3 py-2 text-xs">
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Nama Pinjaman / Cicilan
                 </label>
                 <input
@@ -1512,13 +1546,13 @@ export default function FinanceDashboard() {
                   placeholder="Contoh: Cicilan Laptop Kerja"
                   value={debtName}
                   onChange={(e) => setDebtName(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-rose-500" aria-label="Contoh: Cicilan Laptop Kerja"
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none focus:border-rose-500" aria-label="Contoh: Cicilan Laptop Kerja"
 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Total Pinjaman (Rp)
                   </label>
                   <input
@@ -1527,11 +1561,11 @@ export default function FinanceDashboard() {
                     placeholder="12000000"
                     value={debtTotal}
                     onChange={(e) => setDebtTotal(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-rose-500" aria-label="12000000"
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground tabular-nums focus:outline-none focus:border-rose-500" aria-label="12000000"
 />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Sisa Utang Saat Ini (Rp)
                   </label>
                   <input
@@ -1539,14 +1573,14 @@ export default function FinanceDashboard() {
                     placeholder="Biarkan kosong jika sama"
                     value={debtRemaining}
                     onChange={(e) => setDebtRemaining(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-rose-500" aria-label="Biarkan kosong jika sama"
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground tabular-nums focus:outline-none focus:border-rose-500" aria-label="Biarkan kosong jika sama"
 />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Cicilan per Bulan (Rp)
                   </label>
                   <input
@@ -1554,18 +1588,18 @@ export default function FinanceDashboard() {
                     placeholder="1000000"
                     value={debtInstallment}
                     onChange={(e) => setDebtInstallment(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-rose-500" aria-label="1000000"
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground tabular-nums focus:outline-none focus:border-rose-500" aria-label="1000000"
 />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Tanggal Jatuh Tempo
                   </label>
                   <input
                     type="date"
                     value={debtDueDate}
                     onChange={(e) => setDebtDueDate(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-rose-500"
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none focus:border-rose-500"
                   />
                 </div>
               </div>
@@ -1598,12 +1632,12 @@ export default function FinanceDashboard() {
             </DialogHeader>
 
             <div className="py-2 text-xs space-y-2">
-              <div className="p-2.5 rounded-lg bg-muted/20 border border-border flex justify-between font-mono">
+              <div className="p-2.5 rounded-lg bg-muted/20 border border-border flex justify-between tabular-nums">
                 <span className="text-muted-foreground">Sisa Utang Saat Ini:</span>
                 <span className="font-medium text-rose-500">{formatIDR(selectedDebtForPayment?.remainingAmount || 0)}</span>
               </div>
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Nominal Pembayaran (Rp)
                 </label>
                 <input
@@ -1612,7 +1646,7 @@ export default function FinanceDashboard() {
                   autoFocus
                   value={debtPaymentAmount}
                   onChange={(e) => setDebtPaymentAmount(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground font-mono focus:outline-hidden focus:border-emerald-500"
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground tabular-nums focus:outline-none focus:border-emerald-500"
                 />
               </div>
             </div>

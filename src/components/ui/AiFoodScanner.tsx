@@ -253,21 +253,11 @@ export function AiFoodScanner({ onSave }: AiFoodScannerProps) {
  {/* Trigger Button */}
  <button
  onClick={handleOpen}
- className="group relative inline-flex items-center gap-2 px-4 py-2.5 rounded-xl 
- bg-gradient-to-r from-violet-600/20 to-fuchsia-600/20 
- hover:from-violet-600/30 hover:to-fuchsia-600/30
- border border-violet-500/30 hover:border-violet-400/50
- text-violet-300 hover:text-violet-200
- font-semibold text-sm
- shadow-lg shadow-violet-500/5 hover:shadow-violet-500/20
- transition-colors duration-300 active:scale-[0.97]"
+ className="group inline-flex items-center justify-center gap-2 h-11 md:h-9 px-5 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity active:scale-[0.98]"
  >
- <div className="relative">
- <Icon name="camera" size={18} />
- <div className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-violet-400" />
- </div>
+ <Icon name="camera" size={16} />
  <span>AI Scan</span>
- <Icon name="sparkles" size={14} className="opacity-60 group-hover:opacity-100 transition-opacity" />
+ 
  </button>
 
  {/* Scanner Modal */}
@@ -294,18 +284,18 @@ export function AiFoodScanner({ onSave }: AiFoodScannerProps) {
  <div className="absolute inset-0 flex items-center justify-center bg-black/60">
  <div className="text-center space-y-3">
  <div className="animate-spin mx-auto">
- <Icon name="loader" size={32} className="text-violet-400" />
+ <Icon name="loader" size={32} className="text-blue-500" />
  </div>
- <p className="text-xs text-zinc-400">Memuat kamera...</p>
+ <p className="text-xs text-muted-foreground">Memuat kamera...</p>
  </div>
  </div>
  )}
  {/* Corner guides */}
  <div className="absolute inset-4 pointer-events-none">
- <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-violet-400/60 rounded-tl-lg" />
- <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-violet-400/60 rounded-tr-lg" />
- <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-violet-400/60 rounded-bl-lg" />
- <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-violet-400/60 rounded-br-lg" />
+ <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-white/70 rounded-tl-lg" />
+ <div className="absolute top-0 right-0 w-8 h-8 border-t-2 border-r-2 border-white/70 rounded-tr-lg" />
+ <div className="absolute bottom-0 left-0 w-8 h-8 border-b-2 border-l-2 border-white/70 rounded-bl-lg" />
+ <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-white/70 rounded-br-lg" />
  </div>
  </div>
 
@@ -330,17 +320,11 @@ export function AiFoodScanner({ onSave }: AiFoodScannerProps) {
  <button
  onClick={handleCapture}
  disabled={!isCameraReady}
- className="w-16 h-16 rounded-full bg-gradient-to-r from-violet-500 to-fuchsia-500 
- hover:from-violet-400 hover:to-fuchsia-400
- disabled:opacity-30 disabled:cursor-not-allowed
- flex items-center justify-center 
- shadow-lg shadow-violet-500/30 hover:shadow-violet-500/50
- transition-colors duration-200 active:scale-95
- ring-4 ring-white/10"
+ className="w-[72px] h-[72px] rounded-full bg-white disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center shadow-float transition-transform active:scale-95 ring-4 ring-white/30"
  title="Ambil foto"
  >
- <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
- <Icon name="camera" size={24} className="text-white" />
+ <div className="w-14 h-14 rounded-full bg-primary flex items-center justify-center">
+ <Icon name="camera" size={24} className="text-primary-foreground" />
  </div>
  </button>
 
@@ -366,7 +350,7 @@ export function AiFoodScanner({ onSave }: AiFoodScannerProps) {
  <div className="space-y-4">
  <div className="relative rounded-xl overflow-hidden aspect-[4/3]">
  <img src={capturedImage} alt="Captured food" className="w-full h-full object-cover" />
- <div className="absolute bottom-3 right-3 px-3 py-1.5 rounded-lg bg-black/60 backdrop-blur-sm text-white text-[11px] font-medium ">
+ <div className="absolute bottom-3 right-3 px-3 py-1.5 rounded-lg bg-black/60 backdrop-blur-sm text-white text-xs font-medium ">
  Preview
  </div>
  </div>
@@ -386,12 +370,7 @@ export function AiFoodScanner({ onSave }: AiFoodScannerProps) {
  </Button>
  <button
  onClick={handleAnalyze}
- className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg
- bg-gradient-to-r from-violet-500 to-fuchsia-500 
- hover:from-violet-400 hover:to-fuchsia-400
- text-white font-semibold text-sm
- shadow-lg shadow-violet-500/20 hover:shadow-violet-500/40
- transition-colors duration-200 active:scale-[0.98]"
+ className="flex-1 inline-flex items-center justify-center gap-2 h-12 md:h-10 px-5 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity active:scale-[0.98]"
  >
  <Icon name="sparkles" size={16} />
  Analisis AI
@@ -408,9 +387,9 @@ export function AiFoodScanner({ onSave }: AiFoodScannerProps) {
  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
  </div>
  <div className="text-center space-y-4 -mt-20 relative z-10">
- <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border border-violet-500/30">
+ <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border border-blue-200">
  <div className="animate-spin">
- <Icon name="loader" size={28} className="text-violet-400" />
+ <Icon name="loader" size={28} className="text-blue-500" />
  </div>
  </div>
  <div>
@@ -419,7 +398,7 @@ export function AiFoodScanner({ onSave }: AiFoodScannerProps) {
  </div>
  {/* Animated progress bar */}
  <div className="max-w-[200px] mx-auto h-1 rounded-full bg-white/5 overflow-hidden">
- <div className="h-full rounded-full bg-violet-500" style={{ width: '60%' }} />
+ <div className="h-full rounded-full bg-blue-500" style={{ width: '60%' }} />
  </div>
  </div>
  </div>
@@ -433,10 +412,10 @@ export function AiFoodScanner({ onSave }: AiFoodScannerProps) {
  <img src={capturedImage} alt={result.food} className="w-full h-full object-cover" />
  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
  <div className="absolute bottom-3 left-3 right-3">
- <h4 className="text-lg font-medium text-white leading-tight">{result.food}</h4>
+ <h4 className="text-lg font-medium text-foreground leading-tight">{result.food}</h4>
  <div className="flex items-center gap-2 mt-1">
- <span className="text-xs text-white/70">{result.portion}</span>
- <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${confidenceColor(result.confidence)}`}>
+ <span className="text-xs text-foreground/70">{result.portion}</span>
+ <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${confidenceColor(result.confidence)}`}>
  {confidenceLabel(result.confidence)}
  </span>
  </div>
@@ -446,24 +425,24 @@ export function AiFoodScanner({ onSave }: AiFoodScannerProps) {
  {/* Nutrition grid */}
  <div className="grid grid-cols-4 gap-2">
  <div className="text-center p-3 rounded-xl border border-amber-500/20">
- <p className="text-[11px] font-semibold text-amber-400/80">Kalori</p>
+ <p className="text-xs font-semibold text-amber-400/80">Kalori</p>
  <p className="text-xl font-semibold text-amber-400 mt-1">{result.calories}</p>
- <p className="text-[11px] text-amber-400/50 font-medium">kcal</p>
+ <p className="text-xs text-amber-400/50 font-medium">kcal</p>
  </div>
  <div className="text-center p-3 rounded-xl border border-blue-500/20">
- <p className="text-[11px] font-semibold text-blue-400/80">Karbo</p>
+ <p className="text-xs font-semibold text-blue-400/80">Karbo</p>
  <p className="text-xl font-semibold text-blue-400 mt-1">{result.carbs}</p>
- <p className="text-[11px] text-blue-400/50 font-medium">gram</p>
+ <p className="text-xs text-blue-400/50 font-medium">gram</p>
  </div>
  <div className="text-center p-3 rounded-xl border border-rose-500/20">
- <p className="text-[11px] font-semibold text-rose-400/80">Protein</p>
+ <p className="text-xs font-semibold text-rose-400/80">Protein</p>
  <p className="text-xl font-semibold text-rose-400 mt-1">{result.protein}</p>
- <p className="text-[11px] text-rose-400/50 font-medium">gram</p>
+ <p className="text-xs text-rose-400/50 font-medium">gram</p>
  </div>
  <div className="text-center p-3 rounded-xl border border-yellow-500/20">
- <p className="text-[11px] font-semibold text-yellow-400/80">Lemak</p>
+ <p className="text-xs font-semibold text-yellow-400/80">Lemak</p>
  <p className="text-xl font-semibold text-yellow-400 mt-1">{result.fat}</p>
- <p className="text-[11px] text-yellow-400/50 font-medium">gram</p>
+ <p className="text-xs text-yellow-400/50 font-medium">gram</p>
  </div>
  </div>
 
@@ -474,12 +453,7 @@ export function AiFoodScanner({ onSave }: AiFoodScannerProps) {
  </Button>
  <button
  onClick={handleSave}
- className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg
- bg-gradient-to-r from-emerald-500 to-teal-500 
- hover:from-emerald-400 hover:to-teal-400
- text-white font-semibold text-sm
- shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40
- transition-colors duration-200 active:scale-[0.98]"
+ className="flex-1 inline-flex items-center justify-center gap-2 h-12 md:h-10 px-5 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity active:scale-[0.98]"
  >
  <Icon name="check" size={16} />
  Simpan ke Log

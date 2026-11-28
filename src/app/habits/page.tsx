@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { SubpageLinks } from '@/components/ui/SubpageLinks';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
@@ -191,27 +192,28 @@ export default function HabitsDashboardPage() {
   };
 
   return (
-    <StaggerGroup className="space-y-6 max-w-7xl mx-auto pb-16">
+    <StaggerGroup className="space-y-6 max-w-7xl mx-auto">
       {/* ═══════════════ Header ═══════════════ */}
       <StaggerItem>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border/60">
+        <div className="page-header">
           <div>
             <DateStamp />
-            <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+            <h1 className="page-title">
               Habits & Rutinitas
             </h1>
-            <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
+            <p className="page-subtitle">
               Bangun disiplin harian melalui pelacakan konsistensi, streak, dan evaluasi bulanan.
             </p>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            <Button href="/habits/analytics" variant="secondary" icon="barChart" className="hidden md:inline-flex">Analitik</Button>
             <Button
               variant="primary"
               size="sm"
               icon="plus"
               onClick={() => setIsAddModalOpen(true)}
-              className="text-xs font-semibold shadow-2xs"
+              className="text-xs font-semibold shadow-card"
             >
               Habit Baru
             </Button>
@@ -222,19 +224,17 @@ export default function HabitsDashboardPage() {
       {/* ═══════════════ Metrics Row ═══════════════ */}
       <StaggerItem>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-          <MetricCard
+          <MetricCard glow
             icon="check"
             label="Skor Hari Ini"
             value={`${todayScore}%`}
             detail={`${doneTodayCount} dari ${state.habits.length} kebiasaan selesai`}
-            glow={todayScore >= 80}
           />
           <MetricCard
             icon="zap"
             label="Streak Tertinggi"
             value={`${maxStreak} hari`}
             detail={maxStreak > 0 ? "Momentum aktif terjaga" : "Mulai bangun streak hari ini"}
-            glow={maxStreak >= 3}
           />
           <MetricCard
             icon="activity"
@@ -251,42 +251,40 @@ export default function HabitsDashboardPage() {
         </div>
       </StaggerItem>
 
-      {/* ═══════════════ Tab Switcher (Swipe-friendly) ═══════════════ */}
-      <StaggerItem>
-        <div className="flex items-center justify-between gap-3 bg-muted/40 p-1.5 rounded-xl border border-border/80 overflow-x-auto no-scrollbar">
-          <div className="flex items-center gap-1 shrink-0">
+      {/* Mobile hub menu: today's matrix stays here, the rest has its own page */}
+      <StaggerItem className="md:hidden">
+        <SubpageLinks
+          stacked
+          label="Menu habit"
+          links={[
+            { href: '/habits/calendar', icon: 'calendar', title: 'Kalender & Heatmap', detail: 'Riwayat per bulan' },
+            { href: '/habits/analytics', icon: 'barChart', title: 'Analitik', detail: 'Per minggu, bulan, kuartal, tahun' },
+            { href: '/habits/manage', icon: 'settings', title: 'Kelola Habit', detail: `${state.habits.length} habit aktif` },
+          ]}
+        />
+      </StaggerItem>
+
+      {/* ═══════════════ Tab Switcher (desktop) ═══════════════ */}
+      <StaggerItem className="hidden md:block">
+        <div className="flex items-center justify-between gap-3 min-w-0">
+          <div role="tablist" className="seg">
             <button
               onClick={() => setActiveTab('matrix')}
-              className={cn(
-                "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-colors min-h-[44px] touch-manipulation",
-                activeTab === 'matrix'
-                  ? "bg-card text-foreground font-semibold shadow-2xs border border-border/60"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-              )}
+              role="tab" aria-selected={activeTab === 'matrix'} className="seg-item"
             >
               <Icon name="checkSquare" size={13} className={activeTab === 'matrix' ? "text-primary" : "text-muted-foreground"} />
               Matriks 7 Hari ({state.habits.length})
             </button>
             <button
               onClick={() => setActiveTab('calendar')}
-              className={cn(
-                "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-colors min-h-[44px] touch-manipulation",
-                activeTab === 'calendar'
-                  ? "bg-card text-foreground font-semibold shadow-2xs border border-border/60"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-              )}
+              role="tab" aria-selected={activeTab === 'calendar'} className="seg-item"
             >
               <Icon name="calendar" size={13} className={activeTab === 'calendar' ? "text-primary" : "text-muted-foreground"} />
               Kalender & Heatmap
             </button>
             <button
               onClick={() => setActiveTab('manage')}
-              className={cn(
-                "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-colors min-h-[44px] touch-manipulation",
-                activeTab === 'manage'
-                  ? "bg-card text-foreground font-semibold shadow-2xs border border-border/60"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-              )}
+              role="tab" aria-selected={activeTab === 'manage'} className="seg-item"
             >
               <Icon name="settings" size={13} className={activeTab === 'manage' ? "text-primary" : "text-muted-foreground"} />
               Kelola Habit
@@ -296,22 +294,17 @@ export default function HabitsDashboardPage() {
       </StaggerItem>
 
       {/* ═══════════════ TAB 1: 7-DAY MATRIX (MOST FREQUENTLY USED) ═══════════════ */}
-      {activeTab === 'matrix' && (
-        <div className="space-y-4">
+      {(
+        <div className={cn('space-y-4', activeTab !== 'matrix' && 'md:hidden')}>
           <Surface className="p-4 md:p-6 space-y-4">
             {/* Filter & Quick Add Row */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-border/80 pb-3">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-xs font-semibold text-foreground ">Area:</span>
-                <div className="flex items-center gap-1 overflow-x-auto py-0.5">
+                <div role="tablist" className="seg">
                   <button
                     onClick={() => setSelectedArea('all')}
-                    className={cn(
-                      "px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors",
-                      selectedArea === 'all'
-                        ? "bg-primary/10 text-primary font-semibold border border-primary/20"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                    )}
+                    role="tab" aria-selected={selectedArea === 'all'} className="seg-item"
                   >
                     Semua
                   </button>
@@ -320,7 +313,7 @@ export default function HabitsDashboardPage() {
                       key={area}
                       onClick={() => setSelectedArea(area)}
                       className={cn(
-                        "px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors whitespace-nowrap",
+                        "px-2.5 py-1 rounded-md text-xs font-medium transition-colors whitespace-nowrap",
                         selectedArea === area
                           ? "bg-primary/10 text-primary font-semibold border border-primary/20"
                           : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -344,7 +337,7 @@ export default function HabitsDashboardPage() {
                 <button
                   type="submit"
                   disabled={!quickHabitName.trim()}
-                  className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded text-[11px] font-semibold bg-primary text-primary-foreground disabled:opacity-30 transition-colors"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded text-xs font-semibold bg-primary text-primary-foreground disabled:opacity-30 transition-colors"
                 >
                   Enter ↵
                 </button>
@@ -380,12 +373,12 @@ export default function HabitsDashboardPage() {
                                 {habit.name}
                               </strong>
                               {streak > 0 && (
-                                <span className="text-[11px] font-mono tabular-nums text-muted-foreground">
+                                <span className="text-xs tabular-nums text-muted-foreground">
                                   {streak} hari beruntun
                                 </span>
                               )}
                             </div>
-                            <div className="flex items-center gap-2 mt-1 text-[11px] text-zinc-500">
+                            <div className="flex items-center gap-2 mt-1 text-xs text-zinc-500">
                               <span>{habit.area || 'Personal'}</span>
                               {goal && <span>· {goal.title.slice(0, 24)}</span>}
                             </div>
@@ -398,7 +391,7 @@ export default function HabitsDashboardPage() {
                             className={cn(
                               "min-h-[44px] min-w-[44px] px-3 py-2 rounded-xl flex items-center justify-center gap-1.5 text-xs font-semibold border transition-colors active:scale-95 touch-manipulation",
                               isDoneToday
-                                ? "bg-primary border-primary text-primary-foreground shadow-xs"
+                                ? "bg-primary border-primary text-primary-foreground shadow-card"
                                 : "bg-card border-input text-zinc-600 dark:text-zinc-400 hover:border-primary/50"
                             )}
                           >
@@ -409,7 +402,7 @@ export default function HabitsDashboardPage() {
 
                         {/* 7-Day Mini Dots strip */}
                         <div className="flex items-center justify-between pt-2 border-t border-border/60">
-                          <span className="text-[11px] font-medium text-zinc-500">7 Hari Terakhir</span>
+                          <span className="text-xs font-medium text-zinc-500">7 Hari Terakhir</span>
                           <div className="flex items-center gap-1.5">
                             {sevenDays.map((d) => {
                               const done = state.habitLogs.some(
@@ -422,10 +415,10 @@ export default function HabitsDashboardPage() {
                                   type="button"
                                   onClick={() => toggleHabit(habit.id, d)}
                                   className={cn(
-                                    "w-7 h-7 rounded-md flex items-center justify-center text-[11px] font-mono font-medium transition-colors active:scale-90 touch-manipulation",
+                                    "w-7 h-7 rounded-md flex items-center justify-center text-xs tabular-nums font-medium transition-colors active:scale-90 touch-manipulation",
                                     done
                                       ? "bg-primary text-primary-foreground font-medium"
-                                      : "bg-muted text-zinc-400 border border-border/80",
+                                      : "bg-muted text-muted-foreground border border-border/80",
                                     isCur && !done && "border-primary/50 ring-1 ring-primary/30"
                                   )}
                                   title={`${dayName(d, 'id-ID')} (${d.slice(8, 10)}): ${done ? 'Selesai' : 'Belum'}`}
@@ -458,8 +451,8 @@ export default function HabitsDashboardPage() {
                                 isCurrentDay && "text-ink font-medium bg-ink/5 shadow-[inset_0_-2px_0_hsl(var(--ink))]"
                               )}
                             >
-                              <span className="text-[11px]">{dayName(d, 'id-ID')}</span>
-                              <span className="text-xs font-mono tabular-nums">{d.slice(8, 10)}</span>
+                              <span className="text-xs">{dayName(d, 'id-ID')}</span>
+                              <span className="text-xs tabular-nums">{d.slice(8, 10)}</span>
                             </div>
                           );
                         })}
@@ -484,12 +477,12 @@ export default function HabitsDashboardPage() {
                                 {habit.name}
                               </strong>
                               {streak > 0 && (
-                                <span className="text-[11px] font-mono tabular-nums text-muted-foreground shrink-0">
+                                <span className="text-xs tabular-nums text-muted-foreground shrink-0">
                                   {streak} hari beruntun
                                 </span>
                               )}
                             </div>
-                            <div className="flex items-center gap-2 mt-0.5 text-[11px] text-muted-foreground">
+                            <div className="flex items-center gap-2 mt-0.5 text-xs text-muted-foreground">
                               <span>{habit.area || 'Personal'}</span>
                               {goal && <span>· {goal.title.slice(0, 24)}</span>}
                             </div>
@@ -551,7 +544,7 @@ export default function HabitsDashboardPage() {
 
       {/* ═══════════════ TAB 2: BULANAN & HEATMAP KALENDER ═══════════════ */}
       {activeTab === 'calendar' && (
-        <div className="space-y-4">
+        <div className="hidden md:block space-y-4">
           <Surface className="p-5 md:p-6 space-y-4">
             {/* Month Header Switcher */}
             <div className="flex items-center justify-between border-b border-border/80 pb-3">
@@ -562,7 +555,7 @@ export default function HabitsDashboardPage() {
                 >
                   <Icon name="chevronLeft" size={14} />
                 </button>
-                <h3 className="text-sm font-medium tracking-tight text-foreground font-mono">
+                <h3 className="text-sm font-medium tracking-tight text-foreground tabular-nums">
                   {new Intl.DateTimeFormat(locale === 'id' ? 'id-ID' : 'en-US', { month: 'long', year: 'numeric' }).format(new Date(calYear, calMonth, 1))}
                 </h3>
                 <button
@@ -574,7 +567,7 @@ export default function HabitsDashboardPage() {
               </div>
 
               {/* Heatmap Legend */}
-              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <span>Kurang</span>
                 <span className="w-3 h-3 rounded bg-muted border border-border" />
                 <span className="w-3 h-3 rounded bg-emerald-100 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800" />
@@ -587,7 +580,7 @@ export default function HabitsDashboardPage() {
             {/* Calendar Grid */}
             <div className="grid grid-cols-7 gap-2">
               {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map((day) => (
-                <div key={day} className="text-center text-[11px] font-semibold text-muted-foreground py-1">
+                <div key={day} className="text-center text-xs font-semibold text-muted-foreground py-1">
                   {day}
                 </div>
               ))}
@@ -614,14 +607,14 @@ export default function HabitsDashboardPage() {
                     key={dateStr}
                     onClick={() => setSelectedCalendarDate(dateStr)}
                     className={cn(
-                      "h-14 p-1.5 rounded-lg border text-left flex flex-col justify-between transition-colors shadow-2xs",
+                      "h-14 p-1.5 rounded-lg border text-left flex flex-col justify-between transition-colors shadow-card",
                       toneClass,
                       isSelected && "ring-2 ring-primary ring-offset-2 ring-offset-background"
                     )}
                   >
-                    <span className="text-[11px] font-mono leading-none">{dayNumber}</span>
+                    <span className="text-xs tabular-nums leading-none">{dayNumber}</span>
                     {pct > 0 && (
-                      <span className="text-[11px] font-mono text-right font-semibold">{pct}%</span>
+                      <span className="text-xs tabular-nums text-right font-semibold">{pct}%</span>
                     )}
                   </button>
                 );
@@ -633,7 +626,7 @@ export default function HabitsDashboardPage() {
 
       {/* ═══════════════ TAB 3: KELOLA HABIT (CRUD) ═══════════════ */}
       {activeTab === 'manage' && (
-        <div className="space-y-4">
+        <div className="hidden md:block space-y-4">
           {state.habits.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {state.habits.map((habit) => {
@@ -643,7 +636,7 @@ export default function HabitsDashboardPage() {
                 return (
                   <Surface
                     key={habit.id}
-                    className="p-5 flex flex-col justify-between space-y-4 hover:shadow-xs transition-colors"
+                    className="p-5 flex flex-col justify-between space-y-4 hover:shadow-card transition-colors"
                   >
                     <div>
                       <div className="flex items-start justify-between gap-2">
@@ -655,17 +648,17 @@ export default function HabitsDashboardPage() {
                             <h3 className="text-xs font-medium text-foreground tracking-tight truncate leading-tight">
                               {habit.name}
                             </h3>
-                            <span className="text-[11px] text-muted-foreground block truncate">{habit.area || 'Personal'}</span>
+                            <span className="text-xs text-muted-foreground block truncate">{habit.area || 'Personal'}</span>
                           </div>
                         </div>
 
-                        <Badge tone="teal" className="text-[11px]">
+                        <Badge tone="teal" className="text-xs">
                           {habit.frequency === 'daily' ? 'Harian' : `${habit.targetPerWeek}x / mg`}
                         </Badge>
                       </div>
 
                       {goal && (
-                        <div className="mt-3 p-2 rounded-lg bg-muted/30 border border-border/60 flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                        <div className="mt-3 p-2 rounded-lg bg-muted/30 border border-border/60 flex items-center gap-1.5 text-xs text-muted-foreground">
                           <Icon name="target" size={12} className="text-primary shrink-0" />
                           <span className="truncate">{goal.title}</span>
                         </div>
@@ -673,7 +666,7 @@ export default function HabitsDashboardPage() {
 
                       <div className="mt-4 flex items-center justify-between text-xs font-medium text-muted-foreground">
                         <span>Streak Aktif</span>
-                        <span className="font-mono font-medium text-foreground">{streak} hari beruntun</span>
+                        <span className="tabular-nums font-medium text-foreground">{streak} hari beruntun</span>
                       </div>
                     </div>
 
@@ -823,7 +816,7 @@ export default function HabitsDashboardPage() {
                   max="7"
                   value={editTarget}
                   onChange={(e) => setEditTarget(Number(e.target.value))}
-                  className="glass-input text-xs font-mono"
+                  className="glass-input text-xs tabular-nums"
                 />
               </div>
             </div>

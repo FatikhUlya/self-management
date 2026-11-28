@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useLifeOS, WorkApplication } from '@/lib/hooks/useLifeOSState';
 import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
@@ -20,6 +20,7 @@ import {
 import { formatDate, todayISO, safeUrl, cn } from '@/lib/utils';
 import { WORK_STATUSES, Priority, WorkStatusId } from '@/lib/constants';
 import { DateStamp } from '@/components/ui/DateStamp';
+import { SubpageLinks } from '@/components/ui/SubpageLinks';
 
 const PIPELINE_ORDER: WorkStatusId[] = ['wishlist', 'applied', 'screening', 'interview', 'offer', 'rejected'];
 
@@ -40,6 +41,8 @@ export default function CareerAndWorkPage() {
 
   // Active View Tab
   const [activeTab, setActiveTab] = useState<'kanban' | 'list' | 'calendar'>('kanban');
+  // Phones: start on the list; the kanban board needs a wide screen
+  useEffect(() => { if (window.innerWidth < 768) setActiveTab('list'); }, []);
 
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
@@ -207,20 +210,20 @@ export default function CareerAndWorkPage() {
   ];
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-24">
+    <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header & Page Title */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="page-header">
         <div>
           <DateStamp />
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+            <h1 className="page-title">
               Career & Job Pipeline
             </h1>
-            <Badge tone="blue" className="font-mono tabular-nums text-xs">
+            <Badge tone="blue" className="tabular-nums text-xs">
               {activePipelineCount} Proses Aktif
             </Badge>
           </div>
-          <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
+          <p className="page-subtitle">
             Pantau pipeline lamaran kerja, persiapan wawancara, negosiasi tawaran (offer), dan rekruter.
           </p>
         </div>
@@ -237,9 +240,22 @@ export default function CareerAndWorkPage() {
         </div>
       </div>
 
+      {/* Career notebooks (journal sheets 20, 22, 23, 24) */}
+      <SubpageLinks
+        stacked
+        columns={4}
+        label="Catatan karier"
+        links={[
+          { href: '/work/roadmap', icon: 'trendingUp', title: 'Peta Karier', detail: 'Milestone 1, 3, 5 tahun' },
+          { href: '/work/visits', icon: 'mapPin', title: 'Kunjungan Lapangan', detail: 'Temuan & tindak lanjut' },
+          { href: '/work/portfolio', icon: 'fileText', title: 'Studi Kasus', detail: 'Bahan CV & wawancara' },
+          { href: '/work/meetings', icon: 'users', title: 'Rapat & Feedback', detail: 'Keputusan & action item' },
+        ]}
+      />
+
       {/* Top Strategic Metric Strip */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard
+        <MetricCard glow
           icon="briefcase"
           label="Total Lamaran"
           value={totalApps}
@@ -250,14 +266,12 @@ export default function CareerAndWorkPage() {
           label="Proses Aktif"
           value={activePipelineCount}
           detail="Screening & Wawancara"
-          glow={activePipelineCount > 0}
         />
         <MetricCard
           icon="trophy"
           label="Tawaran (Offers)"
           value={offersCount}
           detail={offersCount > 0 ? 'Selamat! Tahap penawaran' : 'Terus kirim lamaran'}
-          glow={offersCount > 0}
         />
         <MetricCard
           icon="checkCircle"
@@ -268,40 +282,25 @@ export default function CareerAndWorkPage() {
       </div>
 
       {/* Modern Segmented Navigation Tabs (Swipe-friendly) */}
-      <div className="flex items-center justify-between border-b border-border pb-2 overflow-x-auto no-scrollbar gap-4 px-1">
-        <div className="flex p-1 bg-muted/30 rounded-xl border border-border shrink-0 gap-1">
+      <div className="flex items-center justify-between gap-4 min-w-0">
+        <div role="tablist" className="seg">
           <button
             onClick={() => setActiveTab('kanban')}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px] touch-manipulation',
-              activeTab === 'kanban'
-                ? 'bg-background text-foreground shadow-xs border border-border/80'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
+            role="tab" aria-selected={activeTab === 'kanban'} className="seg-item"
           >
             <Icon name="layout" size={14} className={activeTab === 'kanban' ? 'text-sky-500' : ''} />
             Papan Pipeline (Kanban)
           </button>
           <button
             onClick={() => setActiveTab('list')}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px] touch-manipulation',
-              activeTab === 'list'
-                ? 'bg-background text-foreground shadow-xs border border-border/80'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
+            role="tab" aria-selected={activeTab === 'list'} className="seg-item"
           >
             <Icon name="list" size={14} className={activeTab === 'list' ? 'text-sky-500' : ''} />
             Daftar Lamaran ({filteredApplications.length})
           </button>
           <button
             onClick={() => setActiveTab('calendar')}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors min-h-[44px] touch-manipulation',
-              activeTab === 'calendar'
-                ? 'bg-background text-foreground shadow-xs border border-border/80'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
+            role="tab" aria-selected={activeTab === 'calendar'} className="seg-item"
           >
             <Icon name="calendar" size={14} className={activeTab === 'calendar' ? 'text-sky-500' : ''} />
             Jadwal Deadline & Interview
@@ -325,7 +324,7 @@ export default function CareerAndWorkPage() {
                 placeholder="Cari perusahaan atau posisi"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-sky-500 text-foreground" aria-label="Cari perusahaan atau posisi"
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-none focus:border-sky-500 text-foreground" aria-label="Cari perusahaan atau posisi"
 />
             </div>
 
@@ -333,7 +332,7 @@ export default function CareerAndWorkPage() {
               <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
-                className="px-2.5 py-1.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+                className="px-2.5 py-1.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none"
               >
                 <option value="all">Semua Prioritas</option>
                 <option value="High">Tinggi (High)</option>
@@ -358,10 +357,10 @@ export default function CareerAndWorkPage() {
                   {/* Lane Header */}
                   <div className="p-3 border-b border-border bg-muted/30 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <Badge tone={stage.tone} className="text-[11px] font-medium py-0.5">
+                      <Badge tone={stage.tone} className="text-xs font-medium py-0.5">
                         {stage.label}
                       </Badge>
-                      <span className="text-xs font-mono text-muted-foreground font-medium">
+                      <span className="text-xs tabular-nums text-muted-foreground font-medium">
                         {appsInStage.length}
                       </span>
                     </div>
@@ -383,7 +382,7 @@ export default function CareerAndWorkPage() {
                           <div
                             key={app.id}
                             onClick={() => setViewingApp(app)}
-                            className="p-3 rounded-lg bg-card border border-border hover:border-sky-500/40 hover:shadow-xs transition-colors cursor-pointer space-y-2 group"
+                            className="p-3 rounded-lg bg-card border border-border hover:border-sky-500/40 hover:shadow-card transition-colors cursor-pointer space-y-2 group"
                           >
                             {/* Card Top */}
                             <div className="flex items-start justify-between gap-1">
@@ -391,20 +390,20 @@ export default function CareerAndWorkPage() {
                                 <strong className="block text-xs font-medium text-foreground group-hover:text-sky-500 transition-colors">
                                   {app.company}
                                 </strong>
-                                <span className="text-[11px] text-muted-foreground font-medium block">
+                                <span className="text-xs text-muted-foreground font-medium block">
                                   {app.role}
                                 </span>
                               </div>
                               <Badge
                                 tone={isHigh ? 'rose' : 'gray'}
-                                className="text-[11px] py-0 px-1 font-semibold shrink-0"
+                                className="text-xs py-0 px-1 font-semibold shrink-0"
                               >
                                 {app.priority}
                               </Badge>
                             </div>
 
                             {/* Source & Deadline */}
-                            <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-muted-foreground">
+                            <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
                               {app.source && (
                                 <span className="px-1.5 py-0.2 rounded bg-muted/40 border border-border">
                                   {app.source}
@@ -420,7 +419,7 @@ export default function CareerAndWorkPage() {
 
                             {/* Next Action */}
                             {app.nextAction && (
-                              <p className="text-[11px] text-sky-600 dark:text-sky-400 font-medium truncate pt-1 border-t border-border">
+                              <p className="text-xs text-sky-600 dark:text-sky-400 font-medium truncate pt-1 border-t border-border">
                                 ➔ {app.nextAction}
                               </p>
                             )}
@@ -492,7 +491,7 @@ export default function CareerAndWorkPage() {
                       })
                     ) : (
                       <div className="py-8 text-center">
-                        <p className="text-[11px] text-muted-foreground ">
+                        <p className="text-xs text-muted-foreground ">
                           Kosong
                         </p>
                       </div>
@@ -521,7 +520,7 @@ export default function CareerAndWorkPage() {
                 placeholder="Cari perusahaan, posisi, atau catatan"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-sky-500 text-foreground" aria-label="Cari perusahaan, posisi, atau catatan"
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-none focus:border-sky-500 text-foreground" aria-label="Cari perusahaan, posisi, atau catatan"
 />
             </div>
 
@@ -529,7 +528,7 @@ export default function CareerAndWorkPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="px-2.5 py-1.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+                className="px-2.5 py-1.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none"
               >
                 <option value="all">Semua Status</option>
                 {PIPELINE_ORDER.map((id) => (
@@ -542,7 +541,7 @@ export default function CareerAndWorkPage() {
               <select
                 value={priorityFilter}
                 onChange={(e) => setPriorityFilter(e.target.value)}
-                className="px-2.5 py-1.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+                className="px-2.5 py-1.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none"
               >
                 <option value="all">Semua Prioritas</option>
                 <option value="High">Tinggi (High)</option>
@@ -573,12 +572,12 @@ export default function CareerAndWorkPage() {
                           <span className="text-xs text-zinc-500">{app.role}</span>
                         </div>
                         <div className="flex items-center gap-1.5 shrink-0">
-                          <Badge tone={stage.tone} className="text-[11px]">
+                          <Badge tone={stage.tone} className="text-xs">
                             {stage.label}
                           </Badge>
                           <Badge
                             tone={app.priority === 'High' ? 'rose' : 'gray'}
-                            className="text-[11px]"
+                            className="text-xs"
                           >
                             {app.priority}
                           </Badge>
@@ -588,20 +587,20 @@ export default function CareerAndWorkPage() {
                       {/* Details row */}
                       <div className="grid grid-cols-2 gap-2 text-xs py-2 border-y border-border">
                         <div>
-                          <span className="text-[11px] font-medium text-zinc-500 block">Deadline</span>
-                          <span className="text-foreground font-mono tabular-nums">
+                          <span className="text-xs font-medium text-zinc-500 block">Deadline</span>
+                          <span className="text-foreground tabular-nums">
                             {app.deadline ? formatDate(app.deadline) : '-'}
                           </span>
                         </div>
                         <div>
-                          <span className="text-[11px] font-medium text-zinc-500 block">Sumber</span>
+                          <span className="text-xs font-medium text-zinc-500 block">Sumber</span>
                           <span className="text-foreground truncate block">{app.source || '-'}</span>
                         </div>
                       </div>
 
                       {app.nextAction && (
                         <div className="text-xs text-foreground bg-muted/30 p-2.5 rounded-lg border border-border">
-                          <span className="font-semibold text-primary block text-[11px] ">Aksi Berikutnya:</span>
+                          <span className="font-semibold text-primary block text-xs ">Aksi Berikutnya:</span>
                           <p className="mt-0.5 line-clamp-2">{app.nextAction}</p>
                         </div>
                       )}
@@ -668,7 +667,7 @@ export default function CareerAndWorkPage() {
               <Surface className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="border-b border-border bg-muted/20 text-muted-foreground text-[11px] font-medium ">
+                    <tr className="border-b border-border bg-muted/20 text-muted-foreground text-xs font-medium ">
                       <th className="p-3">Perusahaan & Posisi</th>
                       <th className="p-3">Status</th>
                       <th className="p-3">Prioritas</th>
@@ -691,24 +690,24 @@ export default function CareerAndWorkPage() {
                             <strong className="block text-foreground font-semibold">
                               {app.company}
                             </strong>
-                            <span className="text-muted-foreground text-[11px]">
+                            <span className="text-muted-foreground text-xs">
                               {app.role}
                             </span>
                           </td>
                           <td className="p-3">
-                            <Badge tone={stage.tone} className="text-[11px]">
+                            <Badge tone={stage.tone} className="text-xs">
                               {stage.label}
                             </Badge>
                           </td>
                           <td className="p-3">
                             <Badge
                               tone={app.priority === 'High' ? 'rose' : 'gray'}
-                              className="text-[11px]"
+                              className="text-xs"
                             >
                               {app.priority}
                             </Badge>
                           </td>
-                          <td className="p-3 text-muted-foreground font-mono">
+                          <td className="p-3 text-muted-foreground tabular-nums">
                             {app.deadline ? formatDate(app.deadline) : '-'}
                           </td>
                           <td className="p-3 text-muted-foreground">
@@ -823,7 +822,7 @@ export default function CareerAndWorkPage() {
               </div>
 
               {/* Day Headers (Sen - Min) */}
-              <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-medium text-muted-foreground pb-2">
+              <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground pb-2">
                 <span>Sen</span>
                 <span>Sel</span>
                 <span>Rab</span>
@@ -862,7 +861,7 @@ export default function CareerAndWorkPage() {
                       <div className="flex items-center justify-between">
                         <span
                           className={cn(
-                            'text-[11px] font-mono font-medium leading-none',
+                            'text-xs tabular-nums font-medium leading-none',
                             isTodayDay ? 'text-primary' : 'text-foreground'
                           )}
                         >
@@ -878,13 +877,13 @@ export default function CareerAndWorkPage() {
                           {matchingApps.slice(0, 1).map((app) => (
                             <div
                               key={app.id}
-                              className="text-[11px] font-semibold truncate px-1 py-0.2 rounded bg-sky-500/20 text-sky-600 dark:text-sky-300"
+                              className="text-xs font-semibold truncate px-1 py-0.2 rounded bg-sky-500/20 text-sky-600 dark:text-sky-300"
                             >
                               {app.company}
                             </div>
                           ))}
                           {matchingApps.length > 1 && (
-                            <span className="text-[11px] text-muted-foreground block text-right font-mono">
+                            <span className="text-xs text-muted-foreground block text-right tabular-nums">
                               +{matchingApps.length - 1} lagi
                             </span>
                           )}
@@ -905,7 +904,7 @@ export default function CareerAndWorkPage() {
                   <Icon name="calendar" size={13} className="text-sky-500" />
                   Jadwal Tanggal
                 </span>
-                <span className="text-xs font-mono font-medium text-foreground">
+                <span className="text-xs tabular-nums font-medium text-foreground">
                   {activeCalDate ? formatDate(activeCalDate) : '-'}
                 </span>
               </div>
@@ -927,13 +926,13 @@ export default function CareerAndWorkPage() {
                             <strong className="text-xs font-medium text-foreground">
                               {app.company}
                             </strong>
-                            <Badge tone={STAGE_CONFIG[app.status].tone} className="text-[11px]">
+                            <Badge tone={STAGE_CONFIG[app.status].tone} className="text-xs">
                               {STAGE_CONFIG[app.status].label}
                             </Badge>
                           </div>
-                          <p className="text-[11px] text-muted-foreground">{app.role}</p>
+                          <p className="text-xs text-muted-foreground">{app.role}</p>
                           {app.nextAction && (
-                            <p className="text-[11px] text-sky-500 font-medium">
+                            <p className="text-xs text-sky-500 font-medium">
                               ➔ {app.nextAction}
                             </p>
                           )}
@@ -987,7 +986,7 @@ export default function CareerAndWorkPage() {
             <div className="space-y-3 py-3 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Nama Perusahaan *
                   </label>
                   <input
@@ -996,11 +995,11 @@ export default function CareerAndWorkPage() {
                     placeholder="Contoh: Google, GoTo, Vercel"
                     value={company}
                     onChange={(e) => setCompany(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-sky-500" aria-label="Contoh: Google, GoTo, Vercel"
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none focus:border-sky-500" aria-label="Contoh: Google, GoTo, Vercel"
 />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Posisi / Role *
                   </label>
                   <input
@@ -1009,20 +1008,20 @@ export default function CareerAndWorkPage() {
                     placeholder="Contoh: Senior Frontend Engineer"
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-sky-500" aria-label="Contoh: Senior Frontend Engineer"
+                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none focus:border-sky-500" aria-label="Contoh: Senior Frontend Engineer"
 />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Tahap Rekrutmen
                   </label>
                   <select
                     value={status}
                     onChange={(e: any) => setStatus(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+                    className="glass-input"
                   >
                     {PIPELINE_ORDER.map((id) => (
                       <option key={id} value={id}>
@@ -1032,13 +1031,13 @@ export default function CareerAndWorkPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Prioritas Minat
                   </label>
                   <select
                     value={priority}
                     onChange={(e: any) => setPriority(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+                    className="glass-input"
                   >
                     <option value="High">Tinggi (High Priority)</option>
                     <option value="Medium">Menengah (Medium)</option>
@@ -1049,18 +1048,18 @@ export default function CareerAndWorkPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Batas Waktu (Deadline)
                   </label>
                   <input
                     type="date"
                     value={deadline}
                     onChange={(e) => setDeadline(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+                    className="glass-input"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                  <label className="label mb-1.5">
                     Sumber Informasi
                   </label>
                   <input
@@ -1068,13 +1067,13 @@ export default function CareerAndWorkPage() {
                     placeholder="LinkedIn, Glints, Referal"
                     value={source}
                     onChange={(e) => setSource(e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden" aria-label="LinkedIn, Glints, Referal"
+                    className="glass-input" aria-label="LinkedIn, Glints, Referal"
 />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Link URL Lowongan
                 </label>
                 <input
@@ -1082,12 +1081,12 @@ export default function CareerAndWorkPage() {
                   placeholder="https://linkedin.com/jobs/"
                   value={link}
                   onChange={(e) => setLink(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden" aria-label="https://linkedin.com/jobs/"
+                  className="glass-input" aria-label="https://linkedin.com/jobs/"
 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Tindakan Selanjutnya (Next Action)
                 </label>
                 <input
@@ -1095,12 +1094,12 @@ export default function CareerAndWorkPage() {
                   placeholder="Contoh: Kirim email follow-up portofolio ke Recruiter"
                   value={nextAction}
                   onChange={(e) => setNextAction(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden" aria-label="Contoh: Kirim email follow-up portofolio ke Recruiter"
+                  className="glass-input" aria-label="Contoh: Kirim email follow-up portofolio ke Recruiter"
 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Catatan Tambahan / Gaji / Info Recruiter
                 </label>
                 <textarea
@@ -1108,7 +1107,7 @@ export default function CareerAndWorkPage() {
                   placeholder="Catatan gaji, profil interviewer, link resume khusus"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed focus:outline-hidden resize-none" aria-label="Catatan gaji, profil interviewer, link resume khusus"
+                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed focus:outline-none resize-none" aria-label="Catatan gaji, profil interviewer, link resume khusus"
 />
               </div>
             </div>
@@ -1184,7 +1183,7 @@ export default function CareerAndWorkPage() {
 
                 {viewingApp.nextAction && (
                   <div className="p-3 rounded-lg bg-sky-500/10 border border-sky-500/20">
-                    <span className="text-[11px] font-medium text-sky-500 block">
+                    <span className="text-xs font-medium text-sky-500 block">
                       Aksi Selanjutnya:
                     </span>
                     <p className="text-foreground font-medium mt-0.5">
@@ -1195,7 +1194,7 @@ export default function CareerAndWorkPage() {
 
                 {viewingApp.notes && (
                   <div>
-                    <span className="text-[11px] font-medium text-muted-foreground block mb-1">
+                    <span className="text-xs font-medium text-muted-foreground block mb-1">
                       Catatan:
                     </span>
                     <p className="p-3 rounded-lg bg-muted/20 border border-border text-foreground leading-relaxed whitespace-pre-wrap">

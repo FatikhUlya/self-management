@@ -52,19 +52,14 @@ export default function ReviewsHistoryPage() {
  .sort((a, b) => b.date.localeCompare(a.date));
 
  return (
- <div className="space-y-6 max-w-4xl mx-auto pb-24">
- <div className="flex items-center gap-3">
- <Link href="/reviews">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
- <Icon name="arrowLeft" size={18} />
- </button>
- </Link>
+ <div className="space-y-6 max-w-4xl mx-auto">
+ <div className="page-header-title">
+ <Link href="/reviews" className="icon-btn" aria-label="Kembali"><Icon name="arrowLeft" size={18} /></Link>
  <div className="flex-1">
- <h1 className="text-2xl font-medium text-foreground flex items-center gap-2">
- <Icon name="review" size={24} className="text-fuchsia-500" />
+ <h1 className="page-title">
  Riwayat Evaluasi
  </h1>
- <p className="text-zinc-500 text-xs mt-1">
+ <p className="page-subtitle">
  Lihat kembali hasil evaluasi Anda di masa lalu.
  </p>
  </div>
@@ -81,15 +76,11 @@ export default function ReviewsHistoryPage() {
  </p>
  </div>
 
- <div className="flex bg-muted/30 border border-border rounded-lg p-0.5 select-none self-start">
+ <div role="tablist" className="seg">
  <button
  type="button"
  onClick={() => setActivePeriod('all')}
- className={`text-[11px] font-semibold  py-1.5 px-3 rounded-md transition-colors ${
- activePeriod === 'all'
- ? 'bg-fuchsia-500 text-white shadow-sm'
- : 'text-muted-foreground hover:text-foreground'
- }`}
+ role="tab" aria-selected={activePeriod === 'all'} className="seg-item"
  >
  Semua
  </button>
@@ -98,7 +89,7 @@ export default function ReviewsHistoryPage() {
  key={period}
  type="button"
  onClick={() => setActivePeriod(period)}
- className={`text-[11px] font-semibold  py-1.5 px-3 rounded-md transition-colors ${
+ className={`text-xs font-semibold  py-1.5 px-3 rounded-md transition-colors ${
  activePeriod === period
  ? 'bg-fuchsia-500 text-white shadow-sm'
  : 'text-muted-foreground hover:text-foreground'
@@ -121,8 +112,8 @@ export default function ReviewsHistoryPage() {
  <div>
  <strong className="text-sm text-foreground block">{formatDate(review.date)}</strong>
  <div className="flex items-center gap-2 mt-1">
- <Badge tone="teal" className="text-[11px] ">{review.period}</Badge>
- <Badge tone="amber" className="text-[11px] ">{`Score ${review.score}/10`}</Badge>
+ <Badge tone="teal" className="text-xs ">{review.period}</Badge>
+ <Badge tone="amber" className="text-xs ">{`Score ${review.score}/10`}</Badge>
  </div>
  </div>
  <button
@@ -137,9 +128,9 @@ export default function ReviewsHistoryPage() {
  <div className="text-sm space-y-2 font-medium pt-2 text-muted-foreground">
  {review.wins && (
  <div className="flex items-start gap-2 bg-muted/30 p-3 rounded-lg">
- <Icon name="trophy" size={16} className="text-yellow-400 mt-0.5 shrink-0" />
+ <Icon name="trophy" size={16} className="text-yellow-700 dark:text-yellow-300 mt-0.5 shrink-0" />
  <div>
- <span className="text-[11px] font-medium block mb-0.5 opacity-50">Pencapaian Utama</span>
+ <span className="text-xs font-medium block mb-0.5 opacity-50">Pencapaian Utama</span>
  <span className="text-foreground leading-relaxed">{review.wins}</span>
  </div>
  </div>
@@ -148,7 +139,7 @@ export default function ReviewsHistoryPage() {
  <div className="flex items-start gap-2 bg-muted/30 p-3 rounded-lg">
  <Icon name="target" size={16} className="text-primary mt-0.5 shrink-0" />
  <div>
- <span className="text-[11px] font-medium block mb-0.5 opacity-50">Fokus Berikutnya</span>
+ <span className="text-xs font-medium block mb-0.5 opacity-50">Fokus Berikutnya</span>
  <span className="text-foreground leading-relaxed">{review.focus}</span>
  </div>
  </div>
@@ -157,21 +148,21 @@ export default function ReviewsHistoryPage() {
  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2">
  {review.lessons && (
  <div className="bg-muted/30 p-3 rounded-lg">
- <span className="text-[11px] font-medium block mb-1 opacity-50 text-indigo-400">Pelajaran</span>
+ <span className="text-xs font-medium block mb-1 opacity-50 text-indigo-600 dark:text-indigo-300">Pelajaran</span>
  <span className="text-xs text-foreground">{review.lessons}</span>
  </div>
  )}
  {review.challenges && (
  <div className="bg-muted/30 p-3 rounded-lg">
- <span className="text-[11px] font-medium block mb-1 opacity-50 text-rose-400">Hambatan</span>
+ <span className="text-xs font-medium block mb-1 opacity-50 text-rose-700 dark:text-rose-300">Hambatan</span>
  <span className="text-xs text-foreground">{review.challenges}</span>
  </div>
  )}
  </div>
  )}
  {review.evaluationNotes && (
- <div className="border-t border-white/5 pt-3 mt-3">
- <span className="text-[11px] font-medium block mb-1 opacity-50">Catatan Evaluasi</span>
+ <div className="border-t border-border pt-3 mt-3">
+ <span className="text-xs font-medium block mb-1 opacity-50">Catatan Evaluasi</span>
  <p className=" text-xs leading-relaxed text-foreground">
  &ldquo;{review.evaluationNotes}&rdquo;
  </p>
@@ -179,10 +170,10 @@ export default function ReviewsHistoryPage() {
  )}
  {review.aiSummary && (
  <div className="border-t border-border border-dashed pt-4 mt-4 relative">
- <div className="absolute -top-3 right-4 bg-[#111111] px-2 text-muted-foreground">
+ <div className="absolute -top-3 right-4 bg-card px-2 text-muted-foreground">
  <Icon name="sparkles" size={16} className="text-fuchsia-500" />
  </div>
- <span className="text-[11px] font-medium block mb-2 opacity-50 text-fuchsia-400">AI Review & Insights</span>
+ <span className="text-xs font-medium block mb-2 opacity-50 text-fuchsia-600 dark:text-fuchsia-300">AI Review & Insights</span>
  <div className="prose prose-invert prose-sm max-w-none prose-p:text-muted-foreground prose-headings:text-foreground text-xs">
  {renderMarkdown(review.aiSummary)}
  </div>

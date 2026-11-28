@@ -110,14 +110,10 @@ export default function NewReflectionWizard() {
  return (
  <div className="max-w-3xl mx-auto space-y-6">
  <div className="flex items-center gap-4 mb-8">
- <Link href="/mirror">
- <button className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-muted/50/10 transition-colors">
- <Icon name="arrowLeft" size={20} />
- </button>
- </Link>
+ <Link href="/mirror" className="icon-btn" aria-label="Kembali"><Icon name="arrowLeft" size={20} /></Link>
  <div>
- <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">Refleksi Diri Baru</h1>
- <p className="text-zinc-400 text-sm mt-1">Pilih periode dan area yang ingin dievaluasi.</p>
+ <h1 className="page-title">Refleksi Diri Baru</h1>
+ <p className="text-muted-foreground text-sm mt-1">Pilih periode dan area yang ingin dievaluasi.</p>
  </div>
  </div>
 
@@ -127,11 +123,11 @@ export default function NewReflectionWizard() {
  </h3>
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
  <div className="space-y-2">
- <label className="text-xs font-medium text-zinc-400 ">Periode</label>
+ <label className="text-xs font-medium text-muted-foreground ">Periode</label>
  <select 
  value={periodType} 
  onChange={e => setPeriodType(e.target.value as any)}
- className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-teal-500/50"
+ className="glass-input"
  >
  <option value="weekly">Mingguan</option>
  <option value="monthly">Bulanan</option>
@@ -139,13 +135,13 @@ export default function NewReflectionWizard() {
  </select>
  </div>
  <div className="space-y-2">
- <label className="text-xs font-medium text-zinc-400 ">Label Refleksi</label>
+ <label className="text-xs font-medium text-muted-foreground ">Label Refleksi</label>
  <input 
  type="text" 
  placeholder="Mis. Refleksi Agustus 2026"
  value={periodLabel}
  onChange={e => setPeriodLabel(e.target.value)}
- className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white focus:outline-none focus:border-teal-500/50" aria-label="Mis. Refleksi Agustus 2026"
+ className="glass-input" aria-label="Mis. Refleksi Agustus 2026"
 />
  </div>
  </div>
@@ -162,8 +158,8 @@ export default function NewReflectionWizard() {
  onClick={() => toggleDomain(domain.key)}
  className={`p-3 rounded-lg border cursor-pointer flex items-center gap-3 transition-colors ${
  isSelected 
- ? 'bg-teal-500/10 border-teal-500/30 text-teal-300' 
- : 'bg-white/5 border-white/10 text-zinc-400 hover:border-white/20'
+ ? 'bg-teal-500/10 border-teal-500/30 text-teal-700 dark:text-teal-300' 
+ : 'bg-muted border-border text-muted-foreground hover:border-gray-300 dark:hover:border-gray-600'
  }`}
  >
  <div className={`w-5 h-5 rounded flex items-center justify-center border ${
@@ -201,8 +197,8 @@ export default function NewReflectionWizard() {
  return (
  <div className="max-w-3xl mx-auto space-y-6 pb-24">
  <div className="flex justify-between items-center mb-6">
- <h1 className="text-xl font-medium text-white flex items-center gap-2">
- <Icon name={currentDomain.icon as any} size={24} className="text-teal-400" />
+ <h1 className="text-xl font-medium text-foreground flex items-center gap-2">
+ <Icon name={currentDomain.icon as any} size={24} className="text-teal-700 dark:text-teal-300" />
  Evaluasi: {currentDomain.label}
  </h1>
  <Badge tone="teal">
@@ -211,7 +207,7 @@ export default function NewReflectionWizard() {
  </div>
  
  <div className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 mb-6">
- <p className="text-xs text-amber-400/80 leading-relaxed font-medium">
+ <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed font-medium">
  <strong className="font-medium">Panduan</strong> Pisahkan antara <em>observasi (fakta)</em> dan <em>penilaian (interpretasi)</em>. Tuliskan terlebih dahulu kejadian konkret yang Anda alami secara objektif tanpa bias mood, baru kemudian tuliskan apa yang bisa dipelajari darinya.
  </p>
  </div>
@@ -219,29 +215,29 @@ export default function NewReflectionWizard() {
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  {/* Hal yang Sudah Baik */}
  <Surface className="p-6 border-t-2 border-t-teal-500">
- <h3 className="text-sm font-medium text-teal-400 mb-4">
+ <h3 className="text-sm font-medium text-teal-700 dark:text-teal-300 mb-4">
  Hal yang Sudah Baik
  </h3>
  
  <div className="space-y-4">
  <div className="space-y-2">
- <label className="text-xs font-medium text-zinc-400">1. Fakta/Observasi</label>
- <p className="text-[11px] text-zinc-500">Kejadian spesifik apa yang terjadi?</p>
+ <label className="text-xs font-medium text-muted-foreground">1. Fakta/Observasi</label>
+ <p className="text-xs text-zinc-500">Kejadian spesifik apa yang terjadi?</p>
  <textarea
  value={curRes.strengthObservation}
  onChange={e => updateRes({ strengthObservation: e.target.value })}
  placeholder="Contoh: Saya berhasil memimpin rapat mingguan tanpa ada agenda yang terlewat"
- className="w-full h-24 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white resize-none" aria-label="Contoh: Saya berhasil memimpin rapat mingguan tanpa ada agenda yang terlewat"
+ className="glass-input h-24 resize-none" aria-label="Contoh: Saya berhasil memimpin rapat mingguan tanpa ada agenda yang terlewat"
 />
  </div>
  <div className="space-y-2">
- <label className="text-xs font-medium text-zinc-400">2. Makna/Penilaian</label>
- <p className="text-[11px] text-zinc-500">Mengapa ini hal yang baik? Apa dampaknya?</p>
+ <label className="text-xs font-medium text-muted-foreground">2. Makna/Penilaian</label>
+ <p className="text-xs text-zinc-500">Mengapa ini hal yang baik? Apa dampaknya?</p>
  <textarea
  value={curRes.strengthReasoning}
  onChange={e => updateRes({ strengthReasoning: e.target.value })}
  placeholder="Ini menunjukkan saya sudah lebih siap dan menghargai waktu anggota tim"
- className="w-full h-24 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white resize-none" aria-label="Ini menunjukkan saya sudah lebih siap dan menghargai waktu anggota tim"
+ className="glass-input h-24 resize-none" aria-label="Ini menunjukkan saya sudah lebih siap dan menghargai waktu anggota tim"
 />
  </div>
  </div>
@@ -249,29 +245,29 @@ export default function NewReflectionWizard() {
 
  {/* Area untuk Dikembangkan */}
  <Surface className="p-6 border-t-2 border-t-rose-500">
- <h3 className="text-sm font-medium text-rose-400 mb-4">
+ <h3 className="text-sm font-medium text-rose-700 dark:text-rose-300 mb-4">
  Area untuk Dikembangkan
  </h3>
  
  <div className="space-y-4">
  <div className="space-y-2">
- <label className="text-xs font-medium text-zinc-400">1. Fakta/Observasi</label>
- <p className="text-[11px] text-zinc-500">Kejadian spesifik apa yang kurang optimal?</p>
+ <label className="text-xs font-medium text-muted-foreground">1. Fakta/Observasi</label>
+ <p className="text-xs text-zinc-500">Kejadian spesifik apa yang kurang optimal?</p>
  <textarea
  value={curRes.growthObservation}
  onChange={e => updateRes({ growthObservation: e.target.value })}
  placeholder="Contoh: Saat diskusi ide baru, saya memotong pembicaraan rekan dua kali"
- className="w-full h-24 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white resize-none" aria-label="Contoh: Saat diskusi ide baru, saya memotong pembicaraan rekan dua kali"
+ className="glass-input h-24 resize-none" aria-label="Contoh: Saat diskusi ide baru, saya memotong pembicaraan rekan dua kali"
 />
  </div>
  <div className="space-y-2">
- <label className="text-xs font-medium text-zinc-400">2. Pembelajaran/Tujuan</label>
- <p className="text-[11px] text-zinc-500">Apa versi yang lebih baik dari kejadian ini?</p>
+ <label className="text-xs font-medium text-muted-foreground">2. Pembelajaran/Tujuan</label>
+ <p className="text-xs text-zinc-500">Apa versi yang lebih baik dari kejadian ini?</p>
  <textarea
  value={curRes.growthReasoning}
  onChange={e => updateRes({ growthReasoning: e.target.value })}
  placeholder="Ke depannya, saya harus lebih sabar dan membiarkan mereka selesai bicara"
- className="w-full h-24 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-white resize-none" aria-label="Ke depannya, saya harus lebih sabar dan membiarkan mereka selesai bicara"
+ className="glass-input h-24 resize-none" aria-label="Ke depannya, saya harus lebih sabar dan membiarkan mereka selesai bicara"
 />
  </div>
  </div>
@@ -281,10 +277,10 @@ export default function NewReflectionWizard() {
  <Surface className="p-6">
  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
  <div>
- <h3 className="text-sm font-medium text-white mb-1">
+ <h3 className="text-sm font-medium text-foreground mb-1">
  Rating Kepuasan Anda
  </h3>
- <p className="text-xs text-zinc-400">Seberapa puas Anda dengan area ini secara keseluruhan? (1-5)</p>
+ <p className="text-xs text-muted-foreground">Seberapa puas Anda dengan area ini secara keseluruhan? (1-5)</p>
  </div>
  
  <div className="flex items-center gap-2">
@@ -295,8 +291,8 @@ export default function NewReflectionWizard() {
  onClick={() => updateRes({ rating })}
  className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
  curRes.rating === rating
- ? 'bg-teal-500 text-white shadow-lg '
- : 'bg-white/5 text-zinc-400 hover:bg-muted/50/10 border border-white/5'
+ ? 'bg-primary text-primary-foreground'
+ : 'bg-muted text-muted-foreground hover:bg-muted border border-border'
  }`}
  >
  {rating}
@@ -323,21 +319,21 @@ export default function NewReflectionWizard() {
  return (
  <div className="max-w-3xl mx-auto space-y-6 pb-24">
  <div className="flex justify-between items-center mb-6">
- <h1 className="text-2xl font-medium text-white">Kesimpulan</h1>
+ <h1 className="page-title">Kesimpulan</h1>
  </div>
 
  <Surface className="p-6 space-y-6">
- <h3 className="text-sm font-medium text-white border-b border-white/10 pb-2">
+ <h3 className="text-sm font-medium text-foreground border-b border-border pb-2">
  Ringkasan Refleksi (Opsional)
  </h3>
- <p className="text-xs text-zinc-400 leading-relaxed">
+ <p className="text-xs text-muted-foreground leading-relaxed">
  Dari semua evaluasi area di atas, apa benang merah atau satu kesimpulan utama (insight) yang Anda dapatkan tentang diri Anda periode ini?
  </p>
  <textarea
  value={overallReflection}
  onChange={e => setOverallReflection(e.target.value)}
  placeholder="Insight utama: Saya sudah baik dalam komunikasi tertulis, tapi masih perlu belajar meredam emosi saat diskusi langsung"
- className="w-full h-32 bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-sm text-white resize-none" aria-label="Insight utama: Saya sudah baik dalam komunikasi tertulis, tapi masih perlu belajar meredam emosi saat diskusi langsung"
+ className="glass-input h-32 resize-none" aria-label="Insight utama: Saya sudah baik dalam komunikasi tertulis, tapi masih perlu belajar meredam emosi saat diskusi langsung"
 />
  </Surface>
 

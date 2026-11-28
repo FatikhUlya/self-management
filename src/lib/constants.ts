@@ -141,11 +141,13 @@ export const NAV_ITEMS = [
   { id: 'journal', path: '/journal', icon: 'journal', labelKey: 'nav_journal' as const, section: 'wellness' },
   { id: 'learning', path: '/learning', icon: 'book', labelKey: 'nav_learning' as const, section: 'wellness' },
   { id: 'rules', path: '/rules', icon: 'compass', labelKey: 'nav_rules' as const, section: 'wellness' },
+  { id: 'mirror', path: '/mirror', icon: 'mirror', labelKey: 'nav_mirror' as const, section: 'wellness' },
 
   // Career & Finance
   { id: 'finance', path: '/finance', icon: 'wallet', labelKey: 'nav_finance' as const, section: 'growth' },
   { id: 'work', path: '/work', icon: 'briefcase', labelKey: 'nav_work' as const, section: 'growth' },
   { id: 'reviews', path: '/reviews', icon: 'sparkles', labelKey: 'nav_reviews' as const, section: 'growth' },
+  { id: 'reports', path: '/reports', icon: 'barChart', labelKey: 'nav_reports' as const, section: 'growth' },
 
   // System
   { id: 'settings', path: '/settings', icon: 'settings', labelKey: 'nav_settings' as const, section: 'system' },

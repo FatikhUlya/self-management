@@ -118,14 +118,14 @@ export function SmartAlerts() {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between text-xs font-medium text-muted-foreground px-1">
-        <span className="flex items-center gap-1.5 font-semibold text-foreground text-[11px] ">
+        <span className="flex items-center gap-1.5 font-semibold text-foreground text-xs ">
           <Icon name="bell" size={13} className="text-amber-500" />
           Pemberitahuan Cerdas ({alerts.length})
         </span>
         {alerts.length > 2 && (
           <button 
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-[11px] text-primary hover:underline font-medium"
+            className="text-xs text-primary hover:underline font-medium"
           >
             {isExpanded ? 'Ringkas' : `Lihat Semua (${alerts.length})`}
           </button>
@@ -139,7 +139,7 @@ export function SmartAlerts() {
             <div
               key={alert.id}
               className={cn(
-                "flex items-center gap-2.5 p-3 rounded-lg border transition-colors text-xs shadow-2xs",
+                "flex items-center gap-2.5 p-3 rounded-lg border transition-colors text-xs shadow-card",
                 config.container
               )}
             >
@@ -148,7 +148,7 @@ export function SmartAlerts() {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="font-semibold text-foreground tracking-tight truncate leading-tight">{alert.title}</p>
-                <p className="text-muted-foreground mt-0.5 truncate text-[11px]">{alert.detail}</p>
+                <p className="text-muted-foreground mt-0.5 truncate text-xs">{alert.detail}</p>
               </div>
             </div>
           );

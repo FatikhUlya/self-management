@@ -57,18 +57,14 @@ function PlanningAddForm() {
  };
 
  return (
- <div className="space-y-6 max-w-3xl mx-auto pb-24">
- <div className="flex items-center gap-3">
- <Link href="/planning/timeline">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
- <Icon name="arrowLeft" size={18} />
- </button>
- </Link>
+ <div className="space-y-6 max-w-3xl mx-auto">
+ <div className="page-header-title">
+ <Link href="/planning/timeline" className="icon-btn" aria-label="Kembali"><Icon name="arrowLeft" size={18} /></Link>
  <div className="flex-1">
- <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+ <h1 className="page-title">
  Tambah Agenda Baru
  </h1>
- <p className="text-zinc-500 text-xs mt-1">
+ <p className="page-subtitle">
  Susun agenda kegiatan untuk hari yang dipilih.
  </p>
  </div>
@@ -77,7 +73,7 @@ function PlanningAddForm() {
  <Surface className="p-6">
  <form onSubmit={handleSubmit} className="space-y-5">
  <div className="flex flex-col space-y-1.5">
- <label htmlFor="planDate" className="text-[11px] font-semibold text-muted-foreground">
+ <label htmlFor="planDate" className="text-xs font-semibold text-muted-foreground">
  Tanggal Agenda
  </label>
  <input
@@ -91,7 +87,7 @@ function PlanningAddForm() {
  </div>
 
  <div className="flex flex-col space-y-1.5">
- <label htmlFor="planTitle" className="text-[11px] font-semibold text-muted-foreground">
+ <label htmlFor="planTitle" className="text-xs font-semibold text-muted-foreground">
  {t('planning_plan_name')}
  </label>
  <input
@@ -107,7 +103,7 @@ function PlanningAddForm() {
 
  <div className="grid grid-cols-2 gap-4">
  <div className="flex flex-col space-y-1.5">
- <label htmlFor="planKind" className="text-[11px] font-semibold text-muted-foreground">
+ <label htmlFor="planKind" className="text-xs font-semibold text-muted-foreground">
  {t('planning_type')}
  </label>
  <select
@@ -121,7 +117,7 @@ function PlanningAddForm() {
  </select>
  </div>
  <div className="flex flex-col space-y-1.5">
- <label htmlFor="planPriority" className="text-[11px] font-semibold text-muted-foreground">
+ <label htmlFor="planPriority" className="text-xs font-semibold text-muted-foreground">
  {t('priority')}
  </label>
  <select
@@ -139,7 +135,7 @@ function PlanningAddForm() {
 
  <div className="grid grid-cols-2 gap-4">
  <div className="flex flex-col space-y-1.5">
- <label htmlFor="startTime" className="text-[11px] font-semibold text-muted-foreground">
+ <label htmlFor="startTime" className="text-xs font-semibold text-muted-foreground">
  {t('planning_start')}
  </label>
  <input
@@ -148,11 +144,11 @@ function PlanningAddForm() {
  required
  value={startTime}
  onChange={(e) => setStartTime(e.target.value)}
- className="glass-input text-sm h-11 font-mono text-center "
+ className="glass-input text-sm h-11 tabular-nums text-center "
  />
  </div>
  <div className="flex flex-col space-y-1.5">
- <label htmlFor="endTime" className="text-[11px] font-semibold text-muted-foreground">
+ <label htmlFor="endTime" className="text-xs font-semibold text-muted-foreground">
  {t('planning_end')}
  </label>
  <input
@@ -161,13 +157,13 @@ function PlanningAddForm() {
  required
  value={endTime}
  onChange={(e) => setEndTime(e.target.value)}
- className="glass-input text-sm h-11 font-mono text-center "
+ className="glass-input text-sm h-11 tabular-nums text-center "
  />
  </div>
  </div>
 
  <div className="flex flex-col space-y-1.5">
- <label htmlFor="planArea" className="text-[11px] font-semibold text-muted-foreground">
+ <label htmlFor="planArea" className="text-xs font-semibold text-muted-foreground">
  {t('area')} (Opsional)
  </label>
  <input
@@ -181,7 +177,7 @@ function PlanningAddForm() {
  </div>
 
  <div className="flex flex-col space-y-1.5">
- <label htmlFor="planNotes" className="text-[11px] font-semibold text-muted-foreground">
+ <label htmlFor="planNotes" className="text-xs font-semibold text-muted-foreground">
  {t('planning_notes')}
  </label>
  <textarea

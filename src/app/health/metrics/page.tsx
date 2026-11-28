@@ -104,14 +104,10 @@ export default function HealthMetricsPage() {
  return (
  <div className="space-y-6 max-w-5xl mx-auto">
  {/* Header */}
- <div className="flex items-center gap-3">
- <Link href="/health">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
- <Icon name="arrowLeft" size={18} />
- </button>
- </Link>
+ <div className="page-header-title">
+ <Link href="/health" className="icon-btn" aria-label="Kembali"><Icon name="arrowLeft" size={18} /></Link>
  <div>
- <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+ <h1 className="page-title">
  Body Metrics
  </h1>
  <p className="text-zinc-500 text-xs">
@@ -301,11 +297,11 @@ export default function HealthMetricsPage() {
  >
  <div>
  <strong className="text-xs text-foreground block">{log.weight} kg</strong>
- <span className="text-[11px] text-muted-foreground font-medium">{formatDate(log.date)} • {log.notes || 'No notes'}</span>
+ <span className="text-xs text-muted-foreground font-medium">{formatDate(log.date)} • {log.notes || 'No notes'}</span>
  </div>
  <button
  onClick={() => deleteWeightLog(log.id)}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors"
+ className="icon-btn hover:text-destructive"
  title={t('delete')}
  >
  <Icon name="trash" size={12} />

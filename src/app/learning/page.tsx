@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
 import { MetricCard } from '@/components/ui/MetricCard';
+import { SubpageLinks } from '@/components/ui/SubpageLinks';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import {
@@ -194,25 +195,27 @@ export default function LearningDashboardPage() {
   }, [state.dictionary, dictLanguageFilter, dictSearch]);
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-24">
+    <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header & Page Title */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="page-header">
         <div>
           <DateStamp />
           <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+            <h1 className="page-title">
               Knowledge & Learning
             </h1>
-            <Badge tone="amber" className="font-mono tabular-nums text-xs">
+            <Badge tone="amber" className="tabular-nums text-xs">
               {todayMinutes}m Hari Ini
             </Badge>
           </div>
-          <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
+          <p className="page-subtitle">
             Pusat manajemen pengetahuan, kurikulum belajar terarah, log sesi studi, dan bank kosakata bahasa.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
+          <Button href="/learning/reading" variant="secondary" icon="bookOpen" className="hidden md:inline-flex">Catatan Bacaan</Button>
+          <Button href="/learning/schedule" variant="secondary" icon="calendar" className="hidden md:inline-flex">Jadwal Belajar</Button>
           <Button
             variant="outline"
             icon="plus"
@@ -225,21 +228,21 @@ export default function LearningDashboardPage() {
             variant="primary"
             icon="edit"
             onClick={() => setActiveTab('sessions')}
-            className="text-xs"
+            className="text-xs hidden md:inline-flex"
           >
             Catat Sesi Belajar
           </Button>
+          <Button href="/learning/sessions" variant="primary" icon="edit" className="md:hidden">Catat Sesi</Button>
         </div>
       </div>
 
       {/* Top Strategic Metric Strip */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard
+        <MetricCard glow
           icon="activity"
           label="Belajar Hari Ini"
           value={`${todayMinutes} Menit`}
           detail={todayMinutes >= 30 ? 'Target harian tercapai' : 'Yuk alokasikan 30 menit'}
-          glow={todayMinutes >= 30}
         />
         <MetricCard
           icon="calendar"
@@ -252,7 +255,6 @@ export default function LearningDashboardPage() {
           label="Modul Diselesaikan"
           value={totalModules > 0 ? `${completedModules}/${totalModules}` : '0'}
           detail={totalModules > 0 ? `${Math.round((completedModules / totalModules) * 100)}% kurikulum tuntas` : 'Belum ada silabus'}
-          glow={completedModules > 0}
         />
         <MetricCard
           icon="globe"
@@ -262,51 +264,49 @@ export default function LearningDashboardPage() {
         />
       </div>
 
+      {/* Mobile hub menu: sessions, dictionary and schedule live on their own pages */}
+      <SubpageLinks
+        stacked
+        className="md:hidden"
+        label="Menu belajar"
+        links={[
+          { href: '/learning/sessions', icon: 'activity', title: 'Log Sesi & Catatan Cornell', detail: `${state.learning?.length || 0} sesi` },
+          { href: '/learning/dictionary', icon: 'globe', title: 'Kamus & Flashcards', detail: `${totalDictionaryWords} kata` },
+          { href: '/learning/reading', icon: 'bookOpen', title: 'Catatan Bacaan', detail: 'Ide utama, kutipan, yang diterapkan' },
+          { href: '/learning/schedule', icon: 'calendar', title: 'Jadwal Belajar' },
+        ]}
+      />
+
       {/* Modern Segmented Navigation Tabs */}
-      <div className="flex items-center justify-between border-b border-border pb-2 overflow-x-auto no-scrollbar gap-4 px-1">
-        <div className="flex p-1 bg-muted/30 rounded-xl border border-border shrink-0">
+      <div className="hidden md:flex items-center justify-between gap-4 min-w-0">
+        <div role="tablist" className="seg">
           <button
             onClick={() => setActiveTab('paths')}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-colors',
-              activeTab === 'paths'
-                ? 'bg-background text-foreground shadow-xs border border-border/80'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
+            role="tab" aria-selected={activeTab === 'paths'} className="seg-item"
           >
             <Icon name="bookOpen" size={14} className={activeTab === 'paths' ? 'text-amber-500' : ''} />
             Jalur Pembelajaran & Silabus
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
+            <span className="seg-count">
               {state.learningSubjects?.length || 0}
             </span>
           </button>
           <button
             onClick={() => setActiveTab('sessions')}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-colors',
-              activeTab === 'sessions'
-                ? 'bg-background text-foreground shadow-xs border border-border/80'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
+            role="tab" aria-selected={activeTab === 'sessions'} className="seg-item"
           >
             <Icon name="activity" size={14} className={activeTab === 'sessions' ? 'text-amber-500' : ''} />
             Log Sesi & Waktu Studi
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
+            <span className="seg-count">
               {state.learning?.length || 0}
             </span>
           </button>
           <button
             onClick={() => setActiveTab('dictionary')}
-            className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-colors',
-              activeTab === 'dictionary'
-                ? 'bg-background text-foreground shadow-xs border border-border/80'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
+            role="tab" aria-selected={activeTab === 'dictionary'} className="seg-item"
           >
             <Icon name="globe" size={14} className={activeTab === 'dictionary' ? 'text-amber-500' : ''} />
             Kamus & Flashcards
-            <span className="px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[11px]">
+            <span className="seg-count">
               {totalDictionaryWords}
             </span>
           </button>
@@ -314,8 +314,9 @@ export default function LearningDashboardPage() {
       </div>
 
       {/* TAB 1: JALUR PEMBELAJARAN (LEARNING PATHS & MODULES) */}
-      {activeTab === 'paths' && (
-        <div className="space-y-6 animate-in fade-in duration-200">
+      {/* Paths stay on the mobile hub: they are the main content */}
+      {(
+        <div className={cn('space-y-6 animate-in fade-in duration-200', activeTab !== 'paths' && 'md:hidden')}>
           <Surface className="p-4 flex items-center justify-between">
             <div>
               <h3 className="text-xs font-medium text-muted-foreground">
@@ -374,7 +375,7 @@ export default function LearningDashboardPage() {
 
                       {/* Progress Bar */}
                       <div className="space-y-1">
-                        <div className="flex justify-between items-baseline text-xs font-mono">
+                        <div className="flex justify-between items-baseline text-xs tabular-nums">
                           <span className="text-muted-foreground">
                             Progres: {doneCount}/{modules.length} Modul
                           </span>
@@ -386,7 +387,7 @@ export default function LearningDashboardPage() {
                       {/* Modules Checklist Preview */}
                       <div className="pt-2 border-t border-border space-y-1.5">
                         <div className="flex items-center justify-between">
-                          <span className="text-[11px] font-medium text-muted-foreground">
+                          <span className="text-xs font-medium text-muted-foreground">
                             Daftar Modul ({modules.length}):
                           </span>
                           <button
@@ -395,7 +396,7 @@ export default function LearningDashboardPage() {
                               setTargetSubjectForModule(subject);
                               setIsNewModuleModalOpen(true);
                             }}
-                            className="text-[11px] font-medium text-amber-600 dark:text-amber-400 hover:underline"
+                            className="text-xs font-medium text-amber-600 dark:text-amber-400 hover:underline"
                           >
                             + Tambah Modul
                           </button>
@@ -446,7 +447,7 @@ export default function LearningDashboardPage() {
                             ))}
                           </div>
                         ) : (
-                          <p className="text-[11px] text-muted-foreground py-2 text-center">
+                          <p className="text-xs text-muted-foreground py-2 text-center">
                             Belum ada modul. Klik "+ Tambah Modul" untuk menyusun silabus.
                           </p>
                         )}
@@ -478,7 +479,7 @@ export default function LearningDashboardPage() {
 
       {/* TAB 2: LOG SESI & WAKTU BELAJAR (STUDY SESSIONS) */}
       {activeTab === 'sessions' && (
-        <div className="space-y-6 animate-in fade-in duration-200">
+        <div className="hidden md:block space-y-6 animate-in fade-in duration-200">
           {/* Inline Fast Add Study Session */}
           <Surface className="p-4">
             <form onSubmit={handleQuickAddSession} className="flex flex-col gap-3">
@@ -493,21 +494,21 @@ export default function LearningDashboardPage() {
                   placeholder="Topik materi"
                   value={quickTopic}
                   onChange={(e) => setQuickTopic(e.target.value)}
-                  className="sm:col-span-5 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-amber-500 text-foreground" aria-label="Topik materi"
+                  className="sm:col-span-5 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-none focus:border-amber-500 text-foreground" aria-label="Topik materi"
 />
                 <input
                   type="number"
                   placeholder="Menit"
                   value={quickMinutes}
                   onChange={(e) => setQuickMinutes(e.target.value)}
-                  className="sm:col-span-2 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-amber-500 text-foreground font-mono" aria-label="Menit"
+                  className="sm:col-span-2 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-none focus:border-amber-500 text-foreground tabular-nums" aria-label="Menit"
 />
                 <input
                   type="text"
                   placeholder="Sumber/Buku"
                   value={quickResource}
                   onChange={(e) => setQuickResource(e.target.value)}
-                  className="sm:col-span-3 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-amber-500 text-foreground" aria-label="Sumber/Buku"
+                  className="sm:col-span-3 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-none focus:border-amber-500 text-foreground" aria-label="Sumber/Buku"
 />
                 <div className="sm:col-span-2">
                   <Button
@@ -536,7 +537,7 @@ export default function LearningDashboardPage() {
                 placeholder="Cari topik atau sumber materi"
                 value={sessionSearch}
                 onChange={(e) => setSessionSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-amber-500 text-foreground" aria-label="Cari topik atau sumber materi"
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-none focus:border-amber-500 text-foreground" aria-label="Cari topik atau sumber materi"
 />
             </div>
           </Surface>
@@ -558,7 +559,7 @@ export default function LearningDashboardPage() {
                         <strong className="block text-xs font-semibold text-foreground truncate">
                           {session.topic}
                         </strong>
-                        <div className="flex flex-wrap items-center gap-2 mt-0.5 text-[11px] text-muted-foreground">
+                        <div className="flex flex-wrap items-center gap-2 mt-0.5 text-xs text-muted-foreground">
                           <span>{formatDate(session.date)}</span>
                           {session.resource && (
                             <>
@@ -584,7 +585,7 @@ export default function LearningDashboardPage() {
                     </div>
 
                     <div className="flex items-center gap-3 shrink-0">
-                      <Badge tone="amber" className="font-mono text-xs font-medium">
+                      <Badge tone="amber" className="tabular-nums text-xs font-medium">
                         {session.minutes} Menit
                       </Badge>
                       <button
@@ -613,7 +614,7 @@ export default function LearningDashboardPage() {
 
       {/* TAB 3: KAMUS & FLASHCARDS (VOCABULARY) */}
       {activeTab === 'dictionary' && (
-        <div className="space-y-6 animate-in fade-in duration-200">
+        <div className="hidden md:block space-y-6 animate-in fade-in duration-200">
           {/* Inline Fast Add Word */}
           <Surface className="p-4">
             <form onSubmit={handleQuickAddDictionary} className="flex flex-col gap-3">
@@ -628,19 +629,19 @@ export default function LearningDashboardPage() {
                   placeholder="Kata/Istilah asing"
                   value={quickIndo}
                   onChange={(e) => setQuickIndo(e.target.value)}
-                  className="sm:col-span-5 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-blue-500 text-foreground" aria-label="Kata/Istilah asing"
+                  className="sm:col-span-5 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-none focus:border-blue-500 text-foreground" aria-label="Kata/Istilah asing"
 />
                 <input
                   type="text"
                   placeholder="Terjemahan / Arti bahasa Indonesia"
                   value={quickTrans}
                   onChange={(e) => setQuickTrans(e.target.value)}
-                  className="sm:col-span-4 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-blue-500 text-foreground" aria-label="Terjemahan / Arti bahasa Indonesia"
+                  className="sm:col-span-4 px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-none focus:border-blue-500 text-foreground" aria-label="Terjemahan / Arti bahasa Indonesia"
 />
                 <select
                   value={quickLang}
                   onChange={(e) => setQuickLang(e.target.value)}
-                  className="sm:col-span-2 px-2.5 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden text-foreground"
+                  className="sm:col-span-2 px-2.5 py-2 text-xs rounded-lg bg-muted/20 border border-border focus:outline-none text-foreground"
                 >
                   {VOCAB_LANGUAGES.map((l) => (
                     <option key={l} value={l}>
@@ -675,7 +676,7 @@ export default function LearningDashboardPage() {
                 placeholder="Cari kata atau arti"
                 value={dictSearch}
                 onChange={(e) => setDictSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-hidden focus:border-blue-500 text-foreground" aria-label="Cari kata atau arti"
+                className="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg bg-muted/20 border border-border focus:outline-none focus:border-blue-500 text-foreground" aria-label="Cari kata atau arti"
 />
             </div>
 
@@ -683,7 +684,7 @@ export default function LearningDashboardPage() {
               <select
                 value={dictLanguageFilter}
                 onChange={(e) => setDictLanguageFilter(e.target.value)}
-                className="px-2.5 py-1.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden"
+                className="px-2.5 py-1.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none"
               >
                 <option value="all">Semua Bahasa</option>
                 {VOCAB_LANGUAGES.map((l) => (
@@ -720,18 +721,18 @@ export default function LearningDashboardPage() {
                       }
                       className="p-6 h-40 flex flex-col justify-between items-center text-center cursor-pointer hover:border-blue-500/50 transition-colors select-none "
                     >
-                      <Badge tone="blue" className="text-[11px]">
+                      <Badge tone="blue" className="text-xs">
                         {entry.language} • {isFlipped ? 'Arti' : 'Kata'}
                       </Badge>
                       <div className="space-y-1 my-auto">
                         <strong className="text-base font-medium text-foreground block">
                           {isFlipped ? entry.translation : entry.indonesian}
                         </strong>
-                        <p className="text-[11px] text-muted-foreground ">
+                        <p className="text-xs text-muted-foreground ">
                           (Klik untuk membalik kartu)
                         </p>
                       </div>
-                      <span className="text-[11px] text-muted-foreground">
+                      <span className="text-xs text-muted-foreground">
                         {isFlipped ? `Asal: ${entry.indonesian}` : `Arti: ???`}
                       </span>
                     </Surface>
@@ -750,7 +751,7 @@ export default function LearningDashboardPage() {
                         </p>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Badge tone="blue" className="text-[11px]">
+                        <Badge tone="blue" className="text-xs">
                           {entry.language}
                         </Badge>
                         <button
@@ -793,7 +794,7 @@ export default function LearningDashboardPage() {
 
             <div className="space-y-3 py-3 text-xs">
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Judul Topik Pembelajaran *
                 </label>
                 <input
@@ -802,12 +803,12 @@ export default function LearningDashboardPage() {
                   placeholder="Contoh: Full-Stack Next.js 15 & System Design"
                   value={subjectTitle}
                   onChange={(e) => setSubjectTitle(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-amber-500" aria-label="Contoh: Full-Stack Next.js 15 & System Design"
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none focus:border-amber-500" aria-label="Contoh: Full-Stack Next.js 15 & System Design"
 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Deskripsi / Tujuan Belajar (Opsional)
                 </label>
                 <textarea
@@ -815,7 +816,7 @@ export default function LearningDashboardPage() {
                   placeholder="Ringkasan target keahlian dan silabus umum"
                   value={subjectDesc}
                   onChange={(e) => setSubjectDesc(e.target.value)}
-                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden resize-none" aria-label="Ringkasan target keahlian dan silabus umum"
+                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none resize-none" aria-label="Ringkasan target keahlian dan silabus umum"
 />
               </div>
             </div>
@@ -848,7 +849,7 @@ export default function LearningDashboardPage() {
 
             <div className="space-y-3 py-3 text-xs">
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Judul Modul / Bab *
                 </label>
                 <input
@@ -857,12 +858,12 @@ export default function LearningDashboardPage() {
                   placeholder="Contoh: Server Actions & Mutasi Database"
                   value={moduleTitle}
                   onChange={(e) => setModuleTitle(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden focus:border-amber-500" aria-label="Contoh: Server Actions & Mutasi Database"
+                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none focus:border-amber-500" aria-label="Contoh: Server Actions & Mutasi Database"
 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Tautan Video Materi / Tutorial (Opsional)
                 </label>
                 <input
@@ -870,12 +871,12 @@ export default function LearningDashboardPage() {
                   placeholder="https://youtube.com/watch?v="
                   value={moduleVideoLink}
                   onChange={(e) => setModuleVideoLink(e.target.value)}
-                  className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden" aria-label="https://youtube.com/watch?v="
+                  className="glass-input" aria-label="https://youtube.com/watch?v="
 />
               </div>
 
               <div>
-                <label className="block text-[11px] font-semibold text-muted-foreground mb-1">
+                <label className="label mb-1.5">
                   Catatan Ringkas Materi (Opsional)
                 </label>
                 <textarea
@@ -883,7 +884,7 @@ export default function LearningDashboardPage() {
                   placeholder="Poin penting atau ringkasan silabus modul"
                   value={moduleMaterial}
                   onChange={(e) => setModuleMaterial(e.target.value)}
-                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-hidden resize-none" aria-label="Poin penting atau ringkasan silabus modul"
+                  className="w-full p-2.5 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none resize-none" aria-label="Poin penting atau ringkasan silabus modul"
 />
               </div>
             </div>

@@ -24,7 +24,7 @@ export function ProgressBar({ value, max = 100, label, detail }: ProgressBarProp
  {(label || detail) && (
  <div className="flex justify-between items-baseline mb-1.5">
  {label && <span className="text-sm font-medium text-foreground">{label}</span>}
- {detail && <span className="text-xs text-muted-foreground font-mono tabular-nums">{detail}</span>}
+ {detail && <span className="text-xs text-muted-foreground tabular-nums">{detail}</span>}
  </div>
  )}
  <div className="duo-progress-track">

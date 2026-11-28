@@ -1,121 +1,108 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { useI18n } from '@/lib/i18n/context';
+import { useTheme } from '@/lib/hooks/useTheme';
 import { Icon } from '../ui/Icon';
 import { NAV_ITEMS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
+import { isNavActive } from './navBadges';
+import { Logo } from './Sidebar';
 
-export function Topbar() {
-  const pathname = usePathname();
-  const { state, setSelectedDate, isDbConnected } = useLifeOS();
-  const { locale, setLocale, t } = useI18n();
-
-  const [theme, setTheme] = React.useState<'dark' | 'light'>('light');
-
-  React.useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedTheme = localStorage.getItem('lifeos_theme');
-      if (savedTheme === 'dark') {
-        setTheme('dark');
-        document.documentElement.classList.add('dark');
-        document.documentElement.classList.remove('light');
-      } else {
-        setTheme('light');
-        document.documentElement.classList.remove('dark');
-        document.documentElement.classList.add('light');
-      }
-    }
-  }, []);
-
-  const toggleTheme = () => {
-    const nextTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(nextTheme);
-    const root = window.document.documentElement;
-    if (nextTheme === 'light') {
-      root.classList.remove('dark');
-      root.classList.add('light');
-    } else {
-      root.classList.remove('light');
-      root.classList.add('dark');
-    }
-    localStorage.setItem('lifeos_theme', nextTheme);
-  };
-
-  const activeNavItem = (NAV_ITEMS as readonly any[]).find((item) => 
-    item.path === pathname || (item.path !== '/' && pathname.startsWith(item.path))
-  ) || NAV_ITEMS[0];
-
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value) {
-      setSelectedDate(e.target.value);
-    }
-  };
-
-  const toggleLanguage = () => {
-    setLocale(locale === 'id' ? 'en' : 'id');
-  };
-
-  const btn = 'flex items-center justify-center h-8 rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors';
+/** Date chip with a native date picker underneath (keyboard + screen reader friendly). */
+function DateChip({ compact = false }: { compact?: boolean }) {
+  const { state, setSelectedDate } = useLifeOS();
+  const { locale } = useI18n();
+  const date = new Date(`${state.selectedDate}T00:00:00`);
+  const loc = locale === 'id' ? 'id-ID' : 'en-US';
+  const text = date.toLocaleDateString(loc, compact ? { day: 'numeric', month: 'short' } : { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between gap-3 h-14 px-4 sm:px-6 lg:px-8 bg-background border-b border-border select-none">
-      <div className="flex items-center gap-2 min-w-0 text-[13px]">
-        <span className="md:hidden font-medium text-foreground">Life OS</span>
-        <span className="md:hidden text-muted-foreground" aria-hidden="true">/</span>
-        <span className="text-foreground truncate">{t(activeNavItem.labelKey)}</span>
-      </div>
+    <label className="chip relative cursor-pointer focus-within:ring-2 focus-within:ring-ring">
+      <Icon name="calendar" size={15} />
+      <span className="tabular-nums">{text}</span>
+      <input
+        type="date"
+        aria-label={locale === 'id' ? 'Pilih tanggal kerja' : 'Pick working date'}
+        value={state.selectedDate}
+        onChange={(e) => e.target.value && setSelectedDate(e.target.value)}
+        className="absolute inset-0 opacity-0 cursor-pointer w-full !min-h-0"
+      />
+    </label>
+  );
+}
 
-      <div className="flex md:hidden items-center gap-2 shrink-0">
-        <button
-          onClick={toggleTheme}
-          aria-label={theme === 'dark' ? 'Mode terang' : 'Mode gelap'}
-          className={cn(btn, 'w-11 h-11')}
-        >
-          <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={18} />
-        </button>
-      </div>
+/**
+ * Desktop: transparent utility row (breadcrumb + date, sync, theme, language).
+ * Mobile: app bar with logo/module title and the date chip (§3.2).
+ */
+export function Topbar() {
+  const pathname = usePathname();
+  const { isDbConnected } = useLifeOS();
+  const { locale, setLocale, t } = useI18n();
+  const { theme, toggle } = useTheme();
 
-      <div className="hidden md:flex items-center gap-2 shrink-0">
-        <span
-          className="flex items-center gap-2 px-2 text-xs text-muted-foreground"
-          title={isDbConnected ? t('settings_supabase_connected') : t('settings_supabase_disconnected')}
-        >
-          <span className={cn('w-1.5 h-1.5 rounded-full', isDbConnected ? 'bg-success' : 'bg-muted-foreground')} />
-          {isDbConnected ? 'Tersinkron' : 'Lokal'}
-        </span>
+  const activeNavItem = (NAV_ITEMS as readonly any[]).find((item) => isNavActive(pathname, item.path)) || NAV_ITEMS[0];
+  const isHome = pathname === '/';
 
-        <label className={cn(btn, 'gap-2 px-2 cursor-pointer')}>
-          <Icon name="calendar" size={16} />
-          <input
-            type="date"
-            aria-label="Pilih tanggal"
-            value={state.selectedDate}
-            onChange={handleDateChange}
-            className="bg-transparent outline-none cursor-pointer text-xs text-foreground border-none p-0 focus:ring-0 font-mono tabular-nums"
-          />
-        </label>
+  return (
+    <>
+      {/* Mobile app bar */}
+      <header className="md:hidden sticky top-0 z-30 pt-safe bg-background/85 backdrop-blur-md">
+        <div className="flex items-center justify-between gap-3 h-14 px-4">
+          {isHome ? (
+            <Link href="/" aria-label="Life OS, beranda"><Logo /></Link>
+          ) : (
+            <span className="flex items-center gap-2 min-w-0">
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground shrink-0">
+                <Icon name={activeNavItem.icon} size={16} />
+              </span>
+              <span className="font-display text-[17px] font-medium text-foreground truncate">{t(activeNavItem.labelKey)}</span>
+            </span>
+          )}
+          <DateChip compact />
+        </div>
+      </header>
 
-        <button
-          onClick={toggleTheme}
-          aria-label={theme === 'dark' ? 'Ganti ke mode terang' : 'Ganti ke mode gelap'}
-          title={theme === 'dark' ? 'Mode terang' : 'Mode gelap'}
-          className={cn(btn, 'w-8')}
-        >
-          <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={16} />
-        </button>
+      {/* Desktop utility row */}
+      <header className="hidden md:flex sticky top-0 z-30 items-center justify-between gap-3 h-16 px-8 bg-background/80 backdrop-blur-md select-none">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-2 min-w-0 text-sm">
+          <Link href="/" className="text-muted-foreground hover:text-foreground">Life OS</Link>
+          <Icon name="chevronRight" size={14} className="text-muted-foreground" />
+          <span className="text-foreground truncate" aria-current="page">{t(activeNavItem.labelKey)}</span>
+        </nav>
 
-        <button
-          onClick={toggleLanguage}
-          aria-label={`Ubah bahasa, saat ini ${locale === 'id' ? 'Bahasa Indonesia' : 'English'}`}
-          title={t('settings_language')}
-          className={cn(btn, 'px-2 font-mono text-xs')}
-        >
-          {locale.toUpperCase()}
-        </button>
-      </div>
-    </header>
+        <div className="flex items-center gap-2 shrink-0">
+          <span
+            className="chip pointer-events-none"
+            title={isDbConnected ? t('settings_supabase_connected') : t('settings_supabase_disconnected')}
+          >
+            <span className={cn('w-1.5 h-1.5 rounded-full', isDbConnected ? 'bg-success' : 'bg-muted-foreground')} />
+            {isDbConnected ? (locale === 'id' ? 'Tersinkron' : 'Synced') : 'Lokal'}
+          </span>
+          <DateChip />
+          <button
+            type="button"
+            onClick={toggle}
+            aria-label={theme === 'dark' ? 'Ganti ke mode terang' : 'Ganti ke mode gelap'}
+            title={theme === 'dark' ? 'Mode terang' : 'Mode gelap'}
+            className="icon-btn"
+          >
+            <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={16} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setLocale(locale === 'id' ? 'en' : 'id')}
+            aria-label={`Ubah bahasa, saat ini ${locale === 'id' ? 'Bahasa Indonesia' : 'English'}`}
+            className="icon-btn text-xs font-semibold"
+          >
+            {locale.toUpperCase()}
+          </button>
+        </div>
+      </header>
+    </>
   );
 }

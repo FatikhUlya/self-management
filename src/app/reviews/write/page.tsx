@@ -20,6 +20,11 @@ export default function ReviewsWritePage() {
 
  // Period tab state
  const [activePeriod, setActivePeriod] = useState<ReviewPeriod>('weekly');
+ // Opened from /reports with ?period=… → start on that period
+ useEffect(() => {
+ const q = new URLSearchParams(window.location.search).get('period');
+ if (q === 'daily' || q === 'weekly' || q === 'monthly' || q === 'yearly') setActivePeriod(q);
+ }, []);
 
  // Form states
  const [score, setScore] = useState<number>(7);
@@ -130,18 +135,14 @@ export default function ReviewsWritePage() {
  };
 
  return (
- <div className="space-y-6 max-w-6xl mx-auto pb-24">
- <div className="flex items-center gap-3">
- <Link href="/reviews">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
- <Icon name="arrowLeft" size={18} />
- </button>
- </Link>
+ <div className="space-y-6 max-w-6xl mx-auto">
+ <div className="page-header-title">
+ <Link href="/reviews" className="icon-btn" aria-label="Kembali"><Icon name="arrowLeft" size={18} /></Link>
  <div className="flex-1">
- <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+ <h1 className="page-title">
  Tulis Evaluasi
  </h1>
- <p className="text-zinc-500 text-xs mt-1">
+ <p className="page-subtitle">
  Evaluasi progres harian, mingguan, atau bulanan Anda di satu tempat.
  </p>
  </div>
@@ -167,9 +168,9 @@ export default function ReviewsWritePage() {
  key={period}
  type="button"
  onClick={() => setActivePeriod(period)}
- className={`text-[11px] font-semibold  py-1.5 px-3 rounded-md transition-colors ${
+ className={`text-xs font-semibold  py-1.5 px-3 rounded-md transition-colors ${
  activePeriod === period
- ? 'bg-primary text-white shadow-sm'
+ ? 'bg-primary text-primary-foreground'
  : 'text-muted-foreground hover:text-foreground'
  }`}
  >

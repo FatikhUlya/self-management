@@ -11,6 +11,8 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
+import { SubpageLinks } from '@/components/ui/SubpageLinks';
+import { DailyChecks } from '@/components/daily/DailyChecks';
 import { Button } from '@/components/ui/Button';
 import {
   Dialog,
@@ -168,16 +170,16 @@ export default function HealthPage() {
   };
 
   return (
-    <StaggerGroup className="space-y-6 max-w-7xl mx-auto pb-16">
+    <StaggerGroup className="space-y-6 max-w-7xl mx-auto">
       {/* ═══════════════ Header ═══════════════ */}
       <StaggerItem>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-border/60">
+        <div className="page-header">
           <div>
             <DateStamp />
-            <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+            <h1 className="page-title">
               Kesehatan & Vitalitas (Health)
             </h1>
-            <p className="text-sm leading-[1.6] text-zinc-600 dark:text-zinc-400 mt-1 max-w-prose">
+            <p className="page-subtitle">
               Pantau nutrisi harian, asupan kalori & makro, aktivitas latihan fisik, dan metrik tubuh.
             </p>
           </div>
@@ -188,7 +190,7 @@ export default function HealthPage() {
               size="sm"
               icon="activity"
               onClick={() => setIsAddWeightModalOpen(true)}
-              className="text-xs font-medium"
+              className="text-xs font-medium hidden md:inline-flex"
             >
               Catat Berat
             </Button>
@@ -197,7 +199,7 @@ export default function HealthPage() {
               size="sm"
               icon="dumbbell"
               onClick={() => setIsAddWorkoutModalOpen(true)}
-              className="text-xs font-medium"
+              className="text-xs font-medium hidden md:inline-flex"
             >
               Catat Workout
             </Button>
@@ -206,7 +208,7 @@ export default function HealthPage() {
               size="sm"
               icon="plus"
               onClick={() => setIsAddMealModalOpen(true)}
-              className="text-xs font-semibold shadow-2xs"
+              className="text-xs font-semibold shadow-card"
             >
               Catat Makanan
             </Button>
@@ -214,15 +216,27 @@ export default function HealthPage() {
         </div>
       </StaggerItem>
 
+      <StaggerItem>
+        <SubpageLinks
+          stacked
+          label="Halaman kesehatan"
+          links={[
+            { href: '/health/nutrition', icon: 'apple', title: 'Nutrisi & Makanan', detail: `${dailyMeals.length} makanan · ${totalCalories} kkal hari ini` },
+            { href: '/health/workout', icon: 'dumbbell', title: 'Workout', detail: `${dailyWorkouts.length} sesi hari ini` },
+            { href: '/health/metrics', icon: 'activity', title: 'Metrik Tubuh & TDEE', detail: 'Berat, tinggi, target kalori' },
+            { href: '/health/body', icon: 'ruler', title: 'Progres Tubuh', detail: 'Lingkar tubuh & foto progres' },
+          ]}
+        />
+      </StaggerItem>
+
       {/* ═══════════════ Top 4-Metric Grid ═══════════════ */}
       <StaggerItem>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-          <MetricCard
+          <MetricCard glow
             icon="apple"
             label="Kalori Hari Ini"
             value={`${totalCalories} kcal`}
             detail={`Target: ${mealGoalCalories} kcal (${caloriePercent}%)`}
-            glow={caloriePercent >= 90 && caloriePercent <= 110}
           />
           <MetricCard
             icon="activity"
@@ -235,7 +249,6 @@ export default function HealthPage() {
             label="Latihan Fisik"
             value={`${totalWorkoutMins}m`}
             detail={`${dailyWorkouts.length} sesi diselesaikan hari ini`}
-            glow={totalWorkoutMins > 0}
           />
           <MetricCard
             icon="heart"
@@ -246,49 +259,38 @@ export default function HealthPage() {
         </div>
       </StaggerItem>
 
-      {/* ═══════════════ Tab Switcher ═══════════════ */}
       <StaggerItem>
-        <div className="flex items-center justify-between gap-3 bg-muted/40 p-1.5 rounded-xl border border-border/80 overflow-x-auto no-scrollbar">
-          <div className="flex items-center gap-1 shrink-0">
+        <DailyChecks show={['water']} />
+      </StaggerItem>
+
+      {/* ═══════════════ Tab Switcher (desktop; mobile uses the menu above) ═══════════════ */}
+      <StaggerItem className="hidden md:block">
+        <div className="flex items-center justify-between gap-3 min-w-0">
+          <div role="tablist" className="seg">
             <button
               onClick={() => setActiveTab('nutrition')}
-              className={cn(
-                "flex items-center gap-2 px-3.5 py-2 md:py-1.5 rounded-lg text-xs font-medium transition-colors shrink-0 min-h-[40px] md:min-h-0",
-                activeTab === 'nutrition'
-                  ? "bg-card text-foreground font-semibold shadow-2xs border border-border/60"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-              )}
+              role="tab" aria-selected={activeTab === 'nutrition'} className="seg-item"
             >
               <Icon name="apple" size={13} className={activeTab === 'nutrition' ? "text-primary" : "text-muted-foreground"} />
               Nutrisi & Makanan ({dailyMeals.length})
             </button>
             <button
               onClick={() => setActiveTab('workout')}
-              className={cn(
-                "flex items-center gap-2 px-3.5 py-2 md:py-1.5 rounded-lg text-xs font-medium transition-colors shrink-0 min-h-[40px] md:min-h-0",
-                activeTab === 'workout'
-                  ? "bg-card text-foreground font-semibold shadow-2xs border border-border/60"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-              )}
+              role="tab" aria-selected={activeTab === 'workout'} className="seg-item"
             >
               <Icon name="dumbbell" size={13} className={activeTab === 'workout' ? "text-primary" : "text-muted-foreground"} />
               Workout & Latihan ({dailyWorkouts.length})
             </button>
             <button
               onClick={() => setActiveTab('metrics')}
-              className={cn(
-                "flex items-center gap-2 px-3.5 py-2 md:py-1.5 rounded-lg text-xs font-medium transition-colors shrink-0 min-h-[40px] md:min-h-0",
-                activeTab === 'metrics'
-                  ? "bg-card text-foreground font-semibold shadow-2xs border border-border/60"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/60"
-              )}
+              role="tab" aria-selected={activeTab === 'metrics'} className="seg-item"
             >
               <Icon name="activity" size={13} className={activeTab === 'metrics' ? "text-primary" : "text-muted-foreground"} />
               Metrik Tubuh & TDEE
             </button>
           </div>
 
-          <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground font-mono shrink-0">
+          <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground tabular-nums shrink-0">
             <span>{formatDate(today, { locale: locale === 'id' ? 'id-ID' : 'en-US' })}</span>
           </div>
         </div>
@@ -296,7 +298,7 @@ export default function HealthPage() {
 
       {/* ═══════════════ TAB 1: NUTRISI & MAKANAN ═══════════════ */}
       {activeTab === 'nutrition' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="hidden md:grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left: Meal Log & Inline Add (7 cols) */}
           <div className="lg:col-span-7 space-y-4">
             <Surface className="p-5 md:p-6 space-y-4">
@@ -306,15 +308,13 @@ export default function HealthPage() {
                     <Icon name="apple" size={14} className="text-muted-foreground" />
                     Catatan Makanan Hari Ini
                   </h3>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     {dailyMeals.length} item tercatat • {totalCalories} kcal total
                   </p>
                 </div>
-                <Link href="/health/nutrition">
-                  <Button size="sm" variant="ghost" icon="arrowRight" className="text-xs">
+                <Button href="/health/nutrition" size="sm" variant="ghost" icon="arrowRight" className="text-xs">
                     Analisis Nutrisi
                   </Button>
-                </Link>
               </div>
 
               {/* Inline Fast Add Meal */}
@@ -331,14 +331,14 @@ export default function HealthPage() {
                   placeholder="kcal"
                   value={quickMealCalories}
                   onChange={(e) => setQuickMealCalories(e.target.value)}
-                  className="glass-input py-1 px-2 text-xs w-20 font-mono text-center bg-background" aria-label="kcal"
+                  className="glass-input py-1 px-2 text-xs w-20 tabular-nums text-center bg-background" aria-label="kcal"
 />
                 <input
                   type="number"
                   placeholder="protein (g)"
                   value={quickMealProtein}
                   onChange={(e) => setQuickMealProtein(e.target.value)}
-                  className="glass-input py-1 px-2 text-xs w-20 font-mono text-center bg-background" aria-label="protein (g)"
+                  className="glass-input py-1 px-2 text-xs w-20 tabular-nums text-center bg-background" aria-label="protein (g)"
 />
                 <select
                   value={quickMealType}
@@ -363,7 +363,7 @@ export default function HealthPage() {
                       initial={{ opacity: 0, y: 3 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.02, duration: 0.2 }}
-                      className="group flex items-center justify-between p-3 rounded-lg border border-border/80 bg-muted/20 hover:bg-muted/40 transition-colors shadow-2xs"
+                      className="group flex items-center justify-between p-3 rounded-lg border border-border/80 bg-muted/20 hover:bg-muted/40 transition-colors shadow-card"
                     >
                       <div className="flex items-center gap-3 min-w-0 pr-2">
                         <Badge tone={meal.type === 'Breakfast' ? 'amber' : meal.type === 'Lunch' ? 'teal' : meal.type === 'Dinner' ? 'blue' : 'gray'}>
@@ -371,15 +371,15 @@ export default function HealthPage() {
                         </Badge>
                         <div className="min-w-0">
                           <strong className="text-xs font-medium text-foreground block truncate">{meal.food}</strong>
-                          <span className="text-[11px] text-muted-foreground">{meal.portion || '1 porsi'}</span>
+                          <span className="text-xs text-muted-foreground">{meal.portion || '1 porsi'}</span>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2.5 shrink-0">
                         <div className="text-right">
-                          <span className="text-xs font-medium text-foreground font-mono tabular-nums block">{meal.calories} kcal</span>
+                          <span className="text-xs font-medium text-foreground tabular-nums block">{meal.calories} kcal</span>
                           {meal.protein > 0 && (
-                            <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono block">{meal.protein}g protein</span>
+                            <span className="text-xs text-emerald-600 dark:text-emerald-400 tabular-nums block">{meal.protein}g protein</span>
                           )}
                         </div>
                         <button
@@ -411,7 +411,7 @@ export default function HealthPage() {
                   <Icon name="activity" size={14} className="text-muted-foreground" />
                   Target Kalori & Makronutrisi
                 </h3>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Realisasi asupan harian terhadap pagu gizi
                 </p>
               </div>
@@ -426,16 +426,16 @@ export default function HealthPage() {
 
                 <div className="grid grid-cols-3 gap-2 pt-2 border-t border-border/60">
                   <div className="bg-muted/40 p-2.5 rounded-lg border border-border/70 text-center">
-                    <span className="text-[11px] font-semibold text-muted-foreground block">Protein</span>
-                    <strong className="text-sm font-medium text-foreground font-mono mt-0.5 block">{totalProtein}g</strong>
+                    <span className="text-xs font-semibold text-muted-foreground block">Protein</span>
+                    <strong className="text-sm font-medium text-foreground tabular-nums mt-0.5 block">{totalProtein}g</strong>
                   </div>
                   <div className="bg-muted/40 p-2.5 rounded-lg border border-border/70 text-center">
-                    <span className="text-[11px] font-semibold text-muted-foreground block">Carbs</span>
-                    <strong className="text-sm font-medium text-foreground font-mono mt-0.5 block">{totalCarbs}g</strong>
+                    <span className="text-xs font-semibold text-muted-foreground block">Carbs</span>
+                    <strong className="text-sm font-medium text-foreground tabular-nums mt-0.5 block">{totalCarbs}g</strong>
                   </div>
                   <div className="bg-muted/40 p-2.5 rounded-lg border border-border/70 text-center">
-                    <span className="text-[11px] font-semibold text-muted-foreground block">Fat</span>
-                    <strong className="text-sm font-medium text-foreground font-mono mt-0.5 block">{totalFat}g</strong>
+                    <span className="text-xs font-semibold text-muted-foreground block">Fat</span>
+                    <strong className="text-sm font-medium text-foreground tabular-nums mt-0.5 block">{totalFat}g</strong>
                   </div>
                 </div>
 
@@ -450,7 +450,7 @@ export default function HealthPage() {
 
       {/* ═══════════════ TAB 2: WORKOUT & LATIHAN ═══════════════ */}
       {activeTab === 'workout' && (
-        <div className="space-y-4">
+        <div className="hidden md:block space-y-4">
           <Surface className="p-5 md:p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-border/80 pb-3">
               <div>
@@ -458,22 +458,20 @@ export default function HealthPage() {
                   <Icon name="dumbbell" size={14} className="text-muted-foreground" />
                   Sesi Latihan Hari Ini ({formatDate(today)})
                 </h3>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   {dailyWorkouts.length} sesi • {totalWorkoutMins} menit total
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <Link href="/health/workout">
-                  <Button size="sm" variant="ghost" icon="arrowRight" className="text-xs">
+                <Button href="/health/workout" size="sm" variant="ghost" icon="arrowRight" className="text-xs">
                     Workout Detail & Sets
                   </Button>
-                </Link>
                 <Button
                   size="sm"
                   variant="primary"
                   icon="plus"
                   onClick={() => setIsAddWorkoutModalOpen(true)}
-                  className="text-xs font-semibold shadow-2xs"
+                  className="text-xs font-semibold shadow-card"
                 >
                   Catat Sesi
                 </Button>
@@ -496,7 +494,7 @@ export default function HealthPage() {
                           </span>
                           <strong className="text-xs font-medium text-foreground truncate">{workout.program}</strong>
                         </div>
-                        <Badge tone="teal" className="text-[11px]">
+                        <Badge tone="teal" className="text-xs">
                           {workout.minutes}m
                         </Badge>
                       </div>
@@ -509,7 +507,7 @@ export default function HealthPage() {
                     </div>
 
                     <div className="flex items-center justify-between pt-2 border-t border-border/60 text-xs">
-                      <span className="text-[11px] text-muted-foreground font-semibold font-mono">
+                      <span className="text-xs text-muted-foreground font-semibold tabular-nums">
                         {workout.category}
                       </span>
                       <button
@@ -539,7 +537,7 @@ export default function HealthPage() {
 
       {/* ═══════════════ TAB 3: METRIK TUBUH & TDEE ═══════════════ */}
       {activeTab === 'metrics' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="hidden md:grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left: Weight History (7 cols) */}
           <div className="lg:col-span-7 space-y-4">
             <Surface className="p-5 md:p-6 space-y-4">
@@ -549,7 +547,7 @@ export default function HealthPage() {
                     <Icon name="activity" size={14} className="text-muted-foreground" />
                     Riwayat Berat Badan
                   </h3>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     Catatan timbangan berat badan terakhir
                   </p>
                 </div>
@@ -558,7 +556,7 @@ export default function HealthPage() {
                   variant="primary"
                   icon="plus"
                   onClick={() => setIsAddWeightModalOpen(true)}
-                  className="text-xs font-semibold shadow-2xs"
+                  className="text-xs font-semibold shadow-card"
                 >
                   Timbang Berat
                 </Button>
@@ -572,7 +570,7 @@ export default function HealthPage() {
                     .map((log) => (
                       <div key={log.id} className="py-2.5 flex items-center justify-between group text-xs">
                         <div className="flex items-center gap-3">
-                          <span className="font-mono text-muted-foreground tabular-nums text-xs font-medium">
+                          <span className="tabular-nums text-muted-foreground tabular-nums text-xs font-medium">
                             {formatDate(log.date)}
                           </span>
                           {log.notes && (
@@ -580,10 +578,10 @@ export default function HealthPage() {
                           )}
                         </div>
                         <div className="flex items-center gap-2">
-                          <strong className="font-mono text-foreground font-medium tabular-nums">{log.weight} kg</strong>
+                          <strong className="tabular-nums text-foreground font-medium tabular-nums">{log.weight} kg</strong>
                           <button
                             onClick={() => deleteWeightLog(log.id)}
-                            className="opacity-0 group-hover:opacity-100 p-1 text-muted-foreground hover:text-destructive transition-colors"
+                            className="md:opacity-0 md:group-hover:opacity-100 p-1 text-muted-foreground hover:text-destructive transition-colors"
                             title="Hapus"
                           >
                             <Icon name="trash" size={12} />
@@ -614,7 +612,7 @@ export default function HealthPage() {
                   <Icon name="heart" size={14} className="text-muted-foreground" />
                   Kalkulator TDEE & Profil
                 </h3>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   Estimasi kebutuhan kalori harian (Mifflin-St Jeor)
                 </p>
               </div>
@@ -622,14 +620,14 @@ export default function HealthPage() {
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="bg-muted/40 p-2.5 rounded-lg border border-border/70">
-                    <span className="text-[11px] text-muted-foreground font-semibold ">Tinggi Badan</span>
-                    <strong className="block text-sm font-medium text-foreground font-mono mt-0.5">
+                    <span className="text-xs text-muted-foreground font-semibold ">Tinggi Badan</span>
+                    <strong className="block text-sm font-medium text-foreground tabular-nums mt-0.5">
                       {state.healthProfile.height ? `${state.healthProfile.height} cm` : '—'}
                     </strong>
                   </div>
                   <div className="bg-muted/40 p-2.5 rounded-lg border border-border/70">
-                    <span className="text-[11px] text-muted-foreground font-semibold ">Usia</span>
-                    <strong className="block text-sm font-medium text-foreground font-mono mt-0.5">
+                    <span className="text-xs text-muted-foreground font-semibold ">Usia</span>
+                    <strong className="block text-sm font-medium text-foreground tabular-nums mt-0.5">
                       {state.healthProfile.age ? `${state.healthProfile.age} th` : '—'}
                     </strong>
                   </div>
@@ -638,19 +636,17 @@ export default function HealthPage() {
                 <div className="p-3.5 rounded-xl border border-border/80 bg-muted/20 space-y-2">
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-muted-foreground font-medium">Estimasi TDEE Harian:</span>
-                    <strong className="text-base font-medium text-foreground font-mono tabular-nums">{tdee} kcal</strong>
+                    <strong className="text-base font-medium text-foreground tabular-nums">{tdee} kcal</strong>
                   </div>
                   <div className="flex justify-between items-center text-xs">
                     <span className="text-muted-foreground font-medium">Target Kalori Disetel:</span>
-                    <strong className="text-sm font-semibold text-primary font-mono tabular-nums">{mealGoalCalories} kcal</strong>
+                    <strong className="text-sm font-semibold text-primary tabular-nums">{mealGoalCalories} kcal</strong>
                   </div>
                 </div>
 
-                <Link href="/health/metrics">
-                  <Button variant="outline" size="sm" icon="edit" className="w-full text-xs mt-1">
+                <Button href="/health/metrics" variant="outline" size="sm" icon="edit" className="w-full text-xs mt-1">
                     Ubah Profil & Target Kalori
                   </Button>
-                </Link>
               </div>
             </Surface>
           </div>
@@ -711,7 +707,7 @@ export default function HealthPage() {
                   required
                   value={mealCalories}
                   onChange={(e) => setMealCalories(Number(e.target.value))}
-                  className="glass-input text-xs font-mono"
+                  className="glass-input text-xs tabular-nums"
                 />
               </div>
               <div className="space-y-1.5">
@@ -720,7 +716,7 @@ export default function HealthPage() {
                   type="number"
                   value={mealProtein}
                   onChange={(e) => setMealProtein(Number(e.target.value))}
-                  className="glass-input text-xs font-mono"
+                  className="glass-input text-xs tabular-nums"
                 />
               </div>
               <div className="space-y-1.5">
@@ -729,7 +725,7 @@ export default function HealthPage() {
                   type="number"
                   value={mealCarbs}
                   onChange={(e) => setMealCarbs(Number(e.target.value))}
-                  className="glass-input text-xs font-mono"
+                  className="glass-input text-xs tabular-nums"
                 />
               </div>
             </div>
@@ -771,7 +767,7 @@ export default function HealthPage() {
                   min="1"
                   value={workoutMinutes}
                   onChange={(e) => setWorkoutMinutes(Number(e.target.value))}
-                  className="glass-input text-xs font-mono"
+                  className="glass-input text-xs tabular-nums"
                 />
               </div>
 
@@ -821,7 +817,7 @@ export default function HealthPage() {
                 required
                 value={newWeight}
                 onChange={(e) => setNewWeight(Number(e.target.value))}
-                className="glass-input text-xs font-mono font-medium text-base"
+                className="glass-input text-xs tabular-nums font-medium text-base"
               />
             </div>
 

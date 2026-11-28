@@ -7,6 +7,8 @@ import { useLifeOS } from '@/lib/hooks/useLifeOSState';
 import { useLocalStorageState } from '@/lib/hooks/useLocalStorageState';
 import { useI18n } from '@/lib/i18n/context';
 import { Surface } from '@/components/ui/Surface';
+import { TodayGoalTargets } from '@/components/goals/TodayGoalTargets';
+import { DailyChecks } from '@/components/daily/DailyChecks';
 import { MetricCard } from '@/components/ui/MetricCard';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -162,11 +164,11 @@ export default function Dashboard() {
     <StaggerGroup className="space-y-6 max-w-7xl mx-auto">
       {/* ═══════════════ Hero Header & Day Status ═══════════════ */}
       <StaggerItem>
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-border">
+        <div className="page-header">
           <div>
             <DateStamp />
             <div className="flex items-baseline gap-3">
-              <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+              <h1 className="page-title">
                 {locale === 'id' ? 'Hari ini' : 'Today'}
               </h1>
               {todayPlan?.dayStatus === 'in_progress' && (
@@ -197,7 +199,7 @@ export default function Dashboard() {
                 size="sm"
                 icon="sun"
                 onClick={() => setShowMorningModal(true)}
-                className="shadow-2xs font-semibold"
+                className="shadow-card font-semibold"
               >
                 Mulai Hari Ini
               </Button>
@@ -209,17 +211,15 @@ export default function Dashboard() {
                 size="sm"
                 icon="moon"
                 onClick={() => setShowEveningModal(true)}
-                className="shadow-2xs font-semibold"
+                className="shadow-card font-semibold"
               >
                 Akhiri Hari
               </Button>
             )}
 
-            <Link href="/capture">
-              <Button variant="ghost" size="sm" icon="plus" className="text-xs">
+            <Button href="/capture" variant="ghost" size="sm" icon="plus" className="text-xs">
                 Capture
               </Button>
-            </Link>
           </div>
         </div>
       </StaggerItem>
@@ -237,12 +237,11 @@ export default function Dashboard() {
         className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4"
       >
         <motion.div variants={fadeInUp}>
-          <MetricCard
+          <MetricCard glow
             icon="checkSquare"
             label="Tugas Hari Ini"
             value={activeTodaysTasks.length}
             detail={`${doneTodayCount} selesai hari ini`}
-            glow={activeTodaysTasks.length > 0}
           />
         </motion.div>
         <motion.div variants={fadeInUp}>
@@ -251,7 +250,6 @@ export default function Dashboard() {
             label="Habits Selesai"
             value={`${habitPercent}%`}
             detail={`${habitsDoneCount} dari ${state.habits.length} selesai`}
-            glow={habitPercent >= 80}
           />
         </motion.div>
         <motion.div variants={fadeInUp}>
@@ -268,10 +266,12 @@ export default function Dashboard() {
             label="Konsistensi Jurnal"
             value={`${journalStreak()} hari`}
             detail={journalStreak() > 0 ? "Streak aktif" : "Belum terisi"}
-            glow={journalStreak() > 2}
           />
         </motion.div>
       </motion.div>
+
+      {/* Annual goal targets for today / this week */}
+      <TodayGoalTargets date={state.selectedDate} />
 
       {/* ═══════════════ Main Command Grid (Left: Execution 7cols / Right: Context 5cols) ═══════════════ */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -295,37 +295,22 @@ export default function Dashboard() {
                 </div>
 
                 {/* Filter Pills */}
-                <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-lg border border-border/60 overflow-x-auto no-scrollbar">
+                <div role="tablist" className="seg">
                   <button
                     onClick={() => setTaskFilter('all')}
-                    className={cn(
-                      "px-3 py-1.5 text-xs font-medium rounded-md transition-colors min-h-[40px] touch-manipulation shrink-0",
-                      taskFilter === 'all'
-                        ? "bg-card text-foreground font-semibold shadow-2xs"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
+                    role="tab" aria-selected={taskFilter === 'all'} className="seg-item"
                   >
                     Semua ({activeTodaysTasks.length})
                   </button>
                   <button
                     onClick={() => setTaskFilter('high')}
-                    className={cn(
-                      "px-3 py-1.5 text-xs font-medium rounded-md transition-colors min-h-[40px] touch-manipulation shrink-0",
-                      taskFilter === 'high'
-                        ? "bg-card text-foreground font-semibold shadow-2xs"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
+                    role="tab" aria-selected={taskFilter === 'high'} className="seg-item"
                   >
                     Tinggi
                   </button>
                   <button
                     onClick={() => setTaskFilter('done')}
-                    className={cn(
-                      "px-3 py-1.5 text-xs font-medium rounded-md transition-colors min-h-[40px] touch-manipulation shrink-0",
-                      taskFilter === 'done'
-                        ? "bg-card text-foreground font-semibold shadow-2xs"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
+                    role="tab" aria-selected={taskFilter === 'done'} className="seg-item"
                   >
                     Selesai ({doneTodayCount})
                   </button>
@@ -344,7 +329,7 @@ export default function Dashboard() {
                 <button
                   type="submit"
                   disabled={!newQuickTask.trim()}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded text-[11px] font-semibold bg-primary text-primary-foreground disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-0.5 rounded text-xs font-semibold bg-primary text-primary-foreground disabled:opacity-30 disabled:pointer-events-none transition-colors"
                 >
                   Enter ↵
                 </button>
@@ -391,12 +376,12 @@ export default function Dashboard() {
                             </span>
                             <div className="flex items-center gap-2 mt-0.5">
                               {task.due && (
-                                <span className="text-[11px] font-mono text-muted-foreground tabular-nums">
+                                <span className="text-xs tabular-nums text-muted-foreground tabular-nums">
                                   {formatDate(task.due)}
                                 </span>
                               )}
                               {task.context && (
-                                <span className="text-[11px] text-muted-foreground/80 truncate">
+                                <span className="text-xs text-muted-foreground/80 truncate">
                                   • {task.context}
                                 </span>
                               )}
@@ -407,7 +392,7 @@ export default function Dashboard() {
                         <div className="flex items-center gap-2 shrink-0">
                           <Badge 
                             tone={task.priority === 'High' || task.priority === 'P1' ? 'rose' : task.priority === 'Medium' || task.priority === 'P2' ? 'amber' : 'gray'}
-                            className="text-[11px]"
+                            className="text-xs"
                           >
                             {task.priority}
                           </Badge>
@@ -439,11 +424,9 @@ export default function Dashboard() {
                     {habitsDoneCount} dari {state.habits.length} habit selesai ({habitPercent}%)
                   </p>
                 </div>
-                <Link href="/habits">
-                  <Button size="sm" variant="ghost" icon="arrowRight" className="text-xs">
+                <Button href="/habits" size="sm" variant="ghost" icon="arrowRight" className="text-xs">
                     Semua Habit
                   </Button>
-                </Link>
               </div>
 
               {state.habits.length > 0 ? (
@@ -461,7 +444,7 @@ export default function Dashboard() {
                         transition={{ delay: index * 0.02, duration: 0.2 }}
                         onClick={() => toggleHabit(habit.id, today)}
                         className={cn(
-                          "group flex items-center justify-between p-2.5 rounded-lg border cursor-pointer select-none transition-colors shadow-2xs",
+                          "group flex items-center justify-between p-2.5 rounded-lg border cursor-pointer select-none transition-colors shadow-card",
                           isDone
                             ? "bg-emerald-500/10 border-emerald-500/25 text-emerald-800 dark:text-emerald-300"
                             : "bg-muted/30 border-border/80 hover:border-border hover:bg-muted/50 text-foreground"
@@ -469,7 +452,7 @@ export default function Dashboard() {
                       >
                         <div className="min-w-0 pr-2">
                           <span className="text-xs font-medium truncate block leading-tight">{habit.name}</span>
-                          <span className="text-[11px] text-muted-foreground mt-0.5 block truncate">
+                          <span className="text-xs text-muted-foreground mt-0.5 block truncate">
                             {habit.area || 'Personal'}
                           </span>
                         </div>
@@ -510,11 +493,9 @@ export default function Dashboard() {
                     {todayPlans.length} blok aktivitas terjadwal
                   </p>
                 </div>
-                <Link href="/planning">
-                  <Button size="sm" variant="ghost" icon="calendar" className="text-xs">
+                <Button href="/planning" size="sm" variant="ghost" icon="calendar" className="text-xs">
                     Buka Timeline
                   </Button>
-                </Link>
               </div>
 
               {todayPlans.length > 0 ? (
@@ -529,17 +510,17 @@ export default function Dashboard() {
                         transition={{ delay: index * 0.04, duration: 0.2 }}
                         onClick={() => togglePlan(plan.id)}
                         className={cn(
-                          "p-3 rounded-lg border cursor-pointer select-none transition-colors shadow-2xs",
+                          "p-3 rounded-lg border cursor-pointer select-none transition-colors shadow-card",
                           isDone
                             ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-800 dark:text-emerald-300 opacity-80"
                             : "bg-muted/30 border-border/80 hover:border-border hover:bg-muted/50 text-foreground"
                         )}
                       >
                         <div className="flex justify-between items-center gap-2 mb-1">
-                          <span className="text-[11px] font-mono tabular-nums text-muted-foreground font-medium">
+                          <span className="text-xs tabular-nums text-muted-foreground font-medium">
                             {plan.startTime} - {plan.endTime}
                           </span>
-                          <Badge tone={plan.kind === 'event' ? 'blue' : 'purple'} className="text-[11px]">
+                          <Badge tone={plan.kind === 'event' ? 'blue' : 'purple'} className="text-xs">
                             {plan.kind}
                           </Badge>
                         </div>
@@ -549,7 +530,7 @@ export default function Dashboard() {
                         )}>
                           {plan.title}
                         </strong>
-                        <p className="text-[11px] text-muted-foreground truncate mt-0.5">{plan.area || '-'}</p>
+                        <p className="text-xs text-muted-foreground truncate mt-0.5">{plan.area || '-'}</p>
                       </motion.div>
                     );
                   })}
@@ -568,6 +549,9 @@ export default function Dashboard() {
 
         {/* ──────── Right Column: Pulse, Health & Reflection (5 cols) ──────── */}
         <div className="lg:col-span-5 space-y-6">
+          {/* Water + five daily prayers */}
+          <DailyChecks />
+
 
           {/* 1. Quick Capture Box */}
           <StaggerItem>
@@ -580,24 +564,18 @@ export default function Dashboard() {
                   </h3>
                   <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">Simpan ide atau catatan seketika</p>
                 </div>
-                <div className="flex gap-1 bg-muted/60 p-0.5 rounded-md border border-border/60">
+                <div role="tablist" className="seg">
                   <button
                     type="button"
                     onClick={() => setCaptureTab('idea')}
-                    className={cn(
-                      "px-2 py-0.5 text-[11px] font-medium rounded transition-colors",
-                      captureTab === 'idea' ? "bg-card text-foreground font-semibold shadow-2xs" : "text-muted-foreground"
-                    )}
+                    role="tab" aria-selected={captureTab === 'idea'} className="seg-item"
                   >
                     Ide
                   </button>
                   <button
                     type="button"
                     onClick={() => setCaptureTab('note')}
-                    className={cn(
-                      "px-2 py-0.5 text-[11px] font-medium rounded transition-colors",
-                      captureTab === 'note' ? "bg-card text-foreground font-semibold shadow-2xs" : "text-muted-foreground"
-                    )}
+                    role="tab" aria-selected={captureTab === 'note'} className="seg-item"
                   >
                     Catatan
                   </button>
@@ -664,11 +642,9 @@ export default function Dashboard() {
                   </h3>
                   <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">Ringkasan asupan dan latihan fisik</p>
                 </div>
-                <Link href="/health">
-                  <Button size="sm" variant="ghost" icon="arrowRight" className="text-xs">
+                <Button href="/health" size="sm" variant="ghost" icon="arrowRight" className="text-xs">
                     Health Hub
                   </Button>
-                </Link>
               </div>
 
               <div className="space-y-3">
@@ -681,12 +657,12 @@ export default function Dashboard() {
 
                 <div className="grid grid-cols-2 gap-2 pt-1">
                   <div className="bg-muted/40 border border-border/80 rounded-lg p-2.5 flex flex-col items-center">
-                    <span className="text-[11px] text-muted-foreground font-semibold ">Protein</span>
-                    <strong className="text-sm font-semibold text-foreground mt-0.5 font-mono tabular-nums">{dailyProtein}g</strong>
+                    <span className="text-xs text-muted-foreground font-semibold ">Protein</span>
+                    <strong className="text-sm font-semibold text-foreground mt-0.5 tabular-nums">{dailyProtein}g</strong>
                   </div>
                   <div className="bg-muted/40 border border-border/80 rounded-lg p-2.5 flex flex-col items-center">
-                    <span className="text-[11px] text-muted-foreground font-semibold ">Workout</span>
-                    <strong className="text-sm font-semibold text-foreground mt-0.5 font-mono tabular-nums">{dailyWorkoutMins}m</strong>
+                    <span className="text-xs text-muted-foreground font-semibold ">Workout</span>
+                    <strong className="text-sm font-semibold text-foreground mt-0.5 tabular-nums">{dailyWorkoutMins}m</strong>
                   </div>
                 </div>
               </div>
@@ -701,11 +677,9 @@ export default function Dashboard() {
                   <Icon name="compass" size={14} className="text-muted-foreground" />
                   Kompas Hidup
                 </h3>
-                <Link href="/rules">
-                  <Button size="sm" variant="ghost" icon="arrowRight" className="text-xs">
+                <Button href="/rules" size="sm" variant="ghost" icon="arrowRight" className="text-xs">
                     Rules
                   </Button>
-                </Link>
               </div>
 
               {state.selfRules.length > 0 ? (
@@ -719,7 +693,7 @@ export default function Dashboard() {
                       <p className="text-xs text-foreground font-medium leading-relaxed">
                         &ldquo;{rule.rule_text}&rdquo;
                       </p>
-                      <span className="text-[11px] text-muted-foreground block font-mono">
+                      <span className="text-xs text-muted-foreground block tabular-nums">
                         Rotasi Prinsip #{rule.id?.slice(0, 4) || '1'}
                       </span>
                     </div>
@@ -744,28 +718,26 @@ export default function Dashboard() {
                     <Icon name="journal" size={14} className="text-muted-foreground" />
                     Jurnal & Refleksi
                   </h3>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     {selectedJournal ? `Mood ${selectedJournal.mood}/5 • Energi ${selectedJournal.energy}/5` : 'Belum diisi hari ini'}
                   </p>
                 </div>
-                <Link href="/journal">
-                  <Button size="sm" variant="ghost" icon="edit" className="text-xs">
+                <Button href="/journal" size="sm" variant="ghost" icon="edit" className="text-xs">
                     {selectedJournal ? 'Buka' : 'Tulis'}
                   </Button>
-                </Link>
               </div>
 
               {selectedJournal ? (
                 <div className="space-y-2">
                   {selectedJournal.gratitude_1 && (
                     <div className="p-2.5 rounded-lg bg-muted/20 border border-border/60">
-                      <span className="text-[11px] font-semibold text-primary block">Gratitude</span>
+                      <span className="text-xs font-semibold text-primary block">Gratitude</span>
                       <p className="text-xs text-foreground mt-0.5 leading-relaxed truncate">{selectedJournal.gratitude_1}</p>
                     </div>
                   )}
                   {selectedJournal.win && (
                     <div className="p-2.5 rounded-lg bg-muted/20 border border-border/60">
-                      <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 block">Daily Win</span>
+                      <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 block">Daily Win</span>
                       <p className="text-xs text-foreground mt-0.5 leading-relaxed truncate">{selectedJournal.win}</p>
                     </div>
                   )}

@@ -319,14 +319,10 @@ export default function HealthWorkoutPage() {
  return (
  <div className="space-y-6 max-w-5xl mx-auto">
  {/* Header */}
- <div className="flex items-center gap-3">
- <Link href="/health">
- <button className="w-10 h-10 rounded-full bg-muted/30 border border-border flex items-center justify-center text-muted-foreground hover:bg-muted/50/[0.05] transition-colors">
- <Icon name="arrowLeft" size={18} />
- </button>
- </Link>
+ <div className="page-header-title">
+ <Link href="/health" className="icon-btn" aria-label="Kembali"><Icon name="arrowLeft" size={18} /></Link>
  <div>
- <h1 className="text-2xl sm:text-[32px] font-medium leading-[1.15] text-foreground">
+ <h1 className="page-title">
  Workout
  </h1>
  <p className="text-zinc-500 text-xs">
@@ -365,7 +361,7 @@ export default function HealthWorkoutPage() {
  </Button>
 
  <div className="border-t border-border pt-4 space-y-3">
- <span className="text-[11px] text-muted-foreground font-semibold block">Mulai Rutinitas Program</span>
+ <span className="text-xs text-muted-foreground font-semibold block">Mulai Rutinitas Program</span>
  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
  {strengthPrograms.map((progName) => (
  <button
@@ -386,10 +382,10 @@ export default function HealthWorkoutPage() {
  exercises: initialExercises
  });
  }}
- className="p-3 text-left rounded-xl border border-border bg-muted/20 hover:bg-muted/50/[0.04] transition-colors hover:border-border-strong text-xs font-medium space-y-1"
+ className="p-3 text-left rounded-xl border border-border bg-muted/20 hover:bg-muted transition-colors hover:border-border-strong text-xs font-medium space-y-1"
  >
  <span className="text-foreground block tracking-tight">{progName}</span>
- <span className="text-[11px] text-muted-foreground font-medium block">{workoutPrograms[progName].length} Gerakan</span>
+ <span className="text-xs text-muted-foreground font-medium block">{workoutPrograms[progName].length} Gerakan</span>
  </button>
  ))}
  </div>
@@ -397,7 +393,7 @@ export default function HealthWorkoutPage() {
 
  {/* Quick Cardio Quick Log form */}
  <div className="border-t border-border pt-4">
- <span className="text-[11px] text-muted-foreground font-semibold block mb-3">Log Cepat Cardio / Aktivitas Lain</span>
+ <span className="text-xs text-muted-foreground font-semibold block mb-3">Log Cepat Cardio / Aktivitas Lain</span>
  <form onSubmit={handleQuickCardioSubmit} className="grid grid-cols-1 sm:grid-cols-3 gap-3">
  <select
  value={quickCardioType}
@@ -439,7 +435,7 @@ export default function HealthWorkoutPage() {
  placeholder="Nama Latihan" aria-label="Nama Latihan"
 />
  </div>
- <p className="text-[11px] text-muted-foreground font-semibold mt-1 flex items-center gap-1.5">
+ <p className="text-xs text-muted-foreground font-semibold mt-1 flex items-center gap-1.5">
  <Icon name="calendar" size={10} />
  <span>Durasi: {durationString}</span>
  </p>
@@ -474,20 +470,20 @@ export default function HealthWorkoutPage() {
  {/* Active Rest Timer Bar */}
  {isRestTimerActive && restSecondsLeft > 0 && (
  <div className="flex items-center justify-between p-2.5 rounded-xl bg-primary/10/10 border border-primary/25/30 text-xs">
- <div className="flex items-center gap-2 font-medium text-teal-400">
+ <div className="flex items-center gap-2 font-medium text-teal-700 dark:text-teal-300">
  <Icon name="zap" size={14} className="" />
  <span>Rest Timer: {formatRestTime(restSecondsLeft)}</span>
  </div>
  <div className="flex items-center gap-1.5">
  <button
  onClick={() => setRestSecondsLeft(prev => prev + 15)}
- className="px-2 py-0.5 rounded bg-muted/40 hover:bg-muted/50/[0.08] text-[11px] font-medium text-foreground border border-border"
+ className="px-2 py-0.5 rounded bg-muted/40 hover:bg-muted text-xs font-medium text-foreground border border-border"
  >
  +15s
  </button>
  <button
  onClick={() => setRestSecondsLeft(prev => Math.max(0, prev - 15))}
- className="px-2 py-0.5 rounded bg-muted/40 hover:bg-muted/50/[0.08] text-[11px] font-medium text-foreground border border-border"
+ className="px-2 py-0.5 rounded bg-muted/40 hover:bg-muted text-xs font-medium text-foreground border border-border"
  >
  -15s
  </button>
@@ -496,7 +492,7 @@ export default function HealthWorkoutPage() {
  setIsRestTimerActive(false);
  setRestSecondsLeft(0);
  }}
- className="px-2 py-0.5 rounded bg-destructive/10/20 border border-destructive/25/30 text-[11px] font-medium text-rose-300"
+ className="px-2 py-0.5 rounded bg-destructive/10/20 border border-destructive/25/30 text-xs font-medium text-rose-700 dark:text-rose-300"
  >
  Lewati
  </button>
@@ -532,7 +528,7 @@ export default function HealthWorkoutPage() {
 
  {/* Sets List Table */}
  <div className="space-y-2">
- <div className="grid grid-cols-5 text-[11px] font-semibold text-muted-foreground text-center border-b border-white/5 pb-1 select-none">
+ <div className="grid grid-cols-5 text-xs font-semibold text-muted-foreground text-center border-b border-border pb-1 select-none">
  <span>SET</span>
  <span>PREVIOUS</span>
  <span>KG</span>
@@ -545,8 +541,8 @@ export default function HealthWorkoutPage() {
  key={setIdx} 
  className={`grid grid-cols-5 items-center gap-1.5 p-1 rounded-lg border text-center transition-colors ${
  set.isDone 
- ? 'bg-primary/10/10 border-primary/25/30 text-teal-200 font-medium' 
- : 'bg-muted/20 border-white/5 text-foreground'
+ ? 'bg-primary/10/10 border-primary/25/30 text-teal-700 dark:text-teal-300 font-medium' 
+ : 'bg-muted/20 border-border text-foreground'
  }`}
  >
  {/* Set Type / Number Button */}
@@ -554,14 +550,14 @@ export default function HealthWorkoutPage() {
  <button
  type="button"
  onClick={() => cycleSetType(exIdx, setIdx)}
- className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-semibold mx-auto transition-colors ${
+ className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-semibold mx-auto transition-colors ${
  set.setType === 'W' 
  ? 'bg-amber-500 text-white' 
  : set.setType === 'D' 
  ? 'bg-indigo-500 text-white' 
  : set.setType === 'F' 
  ? 'bg-rose-500 text-white' 
- : 'bg-muted/40 text-muted-foreground hover:bg-muted/50/[0.08]'
+ : 'bg-muted/40 text-muted-foreground hover:bg-muted'
  }`}
  title="Klik untuk mengubah tipe set (Normal, Warmup, Drop, Failure)"
  >
@@ -570,7 +566,7 @@ export default function HealthWorkoutPage() {
  </div>
 
  {/* Previous performance Column */}
- <div className="text-[11px] font-medium text-muted-foreground tracking-tight truncate">
+ <div className="text-xs font-medium text-muted-foreground tracking-tight truncate">
  {getPreviousPerformance(ex.name, setIdx)}
  </div>
 
@@ -582,7 +578,7 @@ export default function HealthWorkoutPage() {
  onChange={(e) => updateActiveSetVal(exIdx, setIdx, 'weight', e.target.value)}
  disabled={set.isDone}
  placeholder="0"
- className="bg-transparent border-none p-0 outline-none text-[11px] font-semibold text-center w-full focus:ring-0 disabled:opacity-50" aria-label="0"
+ className="bg-transparent border-none p-0 outline-none text-xs font-semibold text-center w-full focus:ring-0 disabled:opacity-50" aria-label="0"
 />
  </div>
 
@@ -594,7 +590,7 @@ export default function HealthWorkoutPage() {
  onChange={(e) => updateActiveSetVal(exIdx, setIdx, 'reps', e.target.value)}
  disabled={set.isDone}
  placeholder="0"
- className="bg-transparent border-none p-0 outline-none text-[11px] font-semibold text-center w-full focus:ring-0 disabled:opacity-50" aria-label="0"
+ className="bg-transparent border-none p-0 outline-none text-xs font-semibold text-center w-full focus:ring-0 disabled:opacity-50" aria-label="0"
 />
  </div>
 
@@ -605,8 +601,8 @@ export default function HealthWorkoutPage() {
  onClick={() => toggleActiveSetDone(exIdx, setIdx)}
  className={`w-5 h-5 rounded flex items-center justify-center border transition-colors ${
  set.isDone 
- ? 'bg-primary border-primary/25 text-white ' 
- : 'bg-black/30 border-white/10 text-transparent hover:border-border-strong'
+ ? 'bg-primary border-primary/25 text-primary-foreground ' 
+ : 'bg-black/30 border-border text-transparent hover:border-border-strong'
  }`}
  >
  <Icon name="check" size={10} />
@@ -620,14 +616,14 @@ export default function HealthWorkoutPage() {
  <button
  type="button"
  onClick={() => deleteActiveSet(exIdx, ex.sets.length - 1)}
- className="text-[11px] font-semibold text-destructive hover:underline"
+ className="text-xs font-semibold text-destructive hover:underline"
  >
  {locale === 'id' ? 'Hapus Set' : 'Delete Set'}
  </button>
  <button
  type="button"
  onClick={() => addActiveSet(exIdx)}
- className="text-[11px] font-semibold text-primary hover:underline"
+ className="text-xs font-semibold text-primary hover:underline"
  >
  {locale === 'id' ? 'Tambah Set' : 'Add Set'}
  </button>
@@ -675,13 +671,13 @@ export default function HealthWorkoutPage() {
  <div className="flex justify-between items-start">
  <div>
  <strong className="text-xs text-foreground block font-medium">{w.program}</strong>
- <span className="text-[11px] text-muted-foreground font-medium block mt-0.5">
+ <span className="text-xs text-muted-foreground font-medium block mt-0.5">
  {w.category === 'strength' ? 'Latihan Kekuatan' : w.activity} • {w.minutes}m
  </span>
  </div>
  <button
  onClick={() => deleteWorkout(w.id)}
- className="w-7 h-7 rounded bg-muted/30 border border-border hover:bg-destructive/10 text-muted-foreground hover:text-destructive flex items-center justify-center transition-colors shrink-0"
+ className="icon-btn hover:text-destructive"
  title={t('delete')}
  >
  <Icon name="trash" size={12} />
@@ -689,26 +685,26 @@ export default function HealthWorkoutPage() {
  </div>
 
  {w.notes && (
- <p className="text-[11px] text-muted-foreground leading-relaxed">
+ <p className="text-xs text-muted-foreground leading-relaxed">
  &ldquo;{w.notes}&rdquo;
  </p>
  )}
 
  {w.category === 'strength' && w.exercises && w.exercises.length > 0 && (
- <div className="space-y-2 mt-2 pt-2 border-t border-white/5">
+ <div className="space-y-2 mt-2 pt-2 border-t border-border">
  {w.exercises.map((e, eIdx) => (
  <div key={eIdx} className="text-xs space-y-1">
- <span className="font-semibold text-[11px] text-teal-400 block ">{e.name}</span>
+ <span className="font-semibold text-xs text-teal-700 dark:text-teal-300 block ">{e.name}</span>
  <div className="flex flex-wrap gap-1.5 pl-2">
  {e.sets.map((s, sIdx) => {
  const typeStr = s.setType && s.setType !== 'N' ? s.setType : '';
  return (
  <span 
  key={sIdx} 
- className="inline-flex items-center gap-1.5 text-[11px] font-semibold tracking-normal bg-muted/30 border border-border px-1.5 py-0.5 rounded text-foreground"
+ className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-normal bg-muted/30 border border-border px-1.5 py-0.5 rounded text-foreground"
  >
  {typeStr && (
- <span className={`w-3.5 h-3.5 rounded-full flex items-center justify-center text-[7px] text-white shrink-0 font-semibold ${
+ <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs text-white shrink-0 font-semibold ${
  s.setType === 'W' ? 'bg-amber-500' : s.setType === 'D' ? 'bg-indigo-500' : 'bg-rose-500'
  }`}>
  {typeStr}
@@ -760,7 +756,7 @@ export default function HealthWorkoutPage() {
  {exerciseRows.length > 0 ? (
  <table className="w-full text-left text-xs border-collapse">
  <thead>
- <tr className="border-b border-border text-muted-foreground font-semibold text-[11px]">
+ <tr className="border-b border-border text-muted-foreground font-semibold text-xs">
  <th className="py-2.5 px-3">Tanggal</th>
  <th className="py-2.5 px-3">Program</th>
  <th className="py-2.5 px-3">Set</th>
@@ -776,9 +772,9 @@ export default function HealthWorkoutPage() {
  <td className="py-2 px-3">{row.setIndex}</td>
  <td className="py-2 px-3">
  {row.setType === 'N' ? (
- <span className="text-[11px] font-semibold text-muted-foreground">Normal</span>
+ <span className="text-xs font-semibold text-muted-foreground">Normal</span>
  ) : (
- <Badge tone={row.setType === 'W' ? 'amber' : row.setType === 'D' ? 'indigo' : 'rose'} className="text-[11px] px-1 py-0 shrink-0">
+ <Badge tone={row.setType === 'W' ? 'amber' : row.setType === 'D' ? 'indigo' : 'rose'} className="text-xs px-1 py-0 shrink-0">
  {row.setType === 'W' ? 'Warmup' : row.setType === 'D' ? 'Drop' : 'Failure'}
  </Badge>
  )}
@@ -817,7 +813,7 @@ export default function HealthWorkoutPage() {
  <button
  key={exName}
  onClick={() => handleAddExerciseToWorkout(exName)}
- className="w-full p-2.5 text-left rounded-lg border border-border bg-muted/20 hover:bg-muted/50/[0.04] transition-colors text-xs font-medium text-foreground flex justify-between items-center"
+ className="w-full p-2.5 text-left rounded-lg border border-border bg-muted/20 hover:bg-muted transition-colors text-xs font-medium text-foreground flex justify-between items-center"
  >
  <span>{exName}</span>
  <Icon name="arrowRight" size={12} className="text-muted-foreground" />
