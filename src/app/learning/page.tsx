@@ -1,5 +1,6 @@
 'use client';
 
+import { Linkify } from '@/components/ui/Linkify';
 import React, { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLifeOS, LearningSession, LearningSubject, LearningModule, DictionaryEntry } from '@/lib/hooks/useLifeOSState';
@@ -354,7 +355,7 @@ export default function LearningDashboardPage() {
                           </strong>
                           {subject.description && (
                             <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                              {subject.description}
+                              <Linkify text={subject.description} />
                             </p>
                           )}
                         </div>
@@ -421,7 +422,7 @@ export default function LearningDashboardPage() {
                                   </span>
                                 </div>
                                 <div className="flex items-center gap-1.5 shrink-0 opacity-80 group-hover:opacity-100">
-                                  {m.contentVideoLink && (
+                                  {safeUrl(m.contentVideoLink) && (
                                     <a
                                       href={safeUrl(m.contentVideoLink)}
                                       target="_blank"
@@ -564,10 +565,10 @@ export default function LearningDashboardPage() {
                           {session.resource && (
                             <>
                               <span>•</span>
-                              <span>{session.resource}</span>
+                              <span><Linkify text={session.resource} /></span>
                             </>
                           )}
-                          {session.link && (
+                          {safeUrl(session.link) && (
                             <>
                               <span>•</span>
                               <a

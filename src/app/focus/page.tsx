@@ -1,4 +1,5 @@
 'use client';
+import { Linkify } from '@/components/ui/Linkify';
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
@@ -146,7 +147,7 @@ export default function FocusModePage() {
  <Badge tone="amber" className="mb-3">Task Focus</Badge>
  <h2 className="font-display text-2xl font-normal leading-tight">{task.title}</h2>
  {task.description && (
- <p className="text-muted-foreground mt-3 text-sm leading-relaxed">{task.description}</p>
+ <p className="text-muted-foreground mt-3 text-sm leading-relaxed"><Linkify text={task.description} /></p>
  )}
  </div>
 

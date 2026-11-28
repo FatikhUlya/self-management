@@ -1,5 +1,6 @@
 ﻿'use client';
 
+import { Linkify } from '@/components/ui/Linkify';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
@@ -686,7 +687,7 @@ export default function HealthWorkoutPage() {
 
  {w.notes && (
  <p className="text-xs text-muted-foreground leading-relaxed">
- &ldquo;{w.notes}&rdquo;
+ &ldquo;<Linkify text={w.notes} />&rdquo;
  </p>
  )}
 

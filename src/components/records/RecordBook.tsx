@@ -14,6 +14,7 @@ import { cn, safeExternalUrl } from '@/lib/utils';
 import { toISO, fromISO } from '@/lib/period';
 import { LifeRecord, RECORD_KINDS, RecordField, lines, optionLabel } from '@/lib/recordKinds';
 import { isTaskDone } from '@/lib/hooks/useLinks';
+import { Linkify } from '@/components/ui/Linkify';
 import type { LifeGoal } from '@/lib/lifeGoals';
 import Link from 'next/link';
 
@@ -92,6 +93,11 @@ export function RecordBook({ kind }: { kind: keyof typeof RECORD_KINDS }) {
     e.preventDefault();
     if (def.titleField && !form.title.trim()) return;
     const data = { ...form.data };
+    // Numbers typed as "64," or "64." are kept as text while typing; store them as numbers
+    numberFields.forEach((f) => {
+      const v = data[f.key];
+      if (typeof v === 'string') data[f.key] = v.trim() === '' || Number.isNaN(Number(v)) ? '' : Number(v);
+    });
     const date = form.date || today;
     // Reading minutes → one learning session (counts in Learning, Reports)
     const mins = def.learningMinutes ? Number(data[def.learningMinutes]) : 0;
@@ -195,7 +201,7 @@ export function RecordBook({ kind }: { kind: keyof typeof RECORD_KINDS }) {
           {def.fields.filter((f) => f.preview && r.data?.[f.key]).map((f) => (
             <div key={f.key}>
               <p className="text-xs text-muted-foreground">{f.label[lang]}</p>
-              <p className="text-[13px] text-foreground whitespace-pre-line line-clamp-3">{r.data[f.key]}</p>
+              <p className="text-[13px] text-foreground whitespace-pre-line line-clamp-3"><Linkify text={r.data[f.key]} /></p>
             </div>
           ))}
 
@@ -214,7 +220,7 @@ export function RecordBook({ kind }: { kind: keyof typeof RECORD_KINDS }) {
                         return (
                           <li key={i} className={cn('flex gap-2', done && 'line-through text-muted-foreground')}>
                             {tasks[i] ? <Icon name={done ? 'checkCircle' : 'checkSquare'} size={13} className={cn('mt-0.5 shrink-0', done ? 'text-success' : 'text-muted-foreground')} /> : <span className="text-muted-foreground">•</span>}
-                            {l}
+                            <Linkify text={l} />
                           </li>
                         );
                       })}
@@ -230,7 +236,7 @@ export function RecordBook({ kind }: { kind: keyof typeof RECORD_KINDS }) {
 
           {def.fields.filter((f) => f.type === 'url' && safeExternalUrl(r.data?.[f.key])).map((f) => (
             <a key={f.key} href={safeExternalUrl(r.data[f.key])} target="_blank" rel="noopener noreferrer" className="chip self-start">
-              <Icon name="link" size={13} />{f.label[lang]}
+              <Icon name="link" size={13} />{f.label[lang]}<span className="text-muted-foreground truncate max-w-[180px]">· {new URL(safeExternalUrl(r.data[f.key])!).hostname.replace(/^www\./, '')}</span>
             </a>
           ))}
         </Surface>
@@ -408,11 +414,16 @@ function FieldInput({ f, lang, value, onChange, busy, setBusy, options }: {
       ) : (
         <input
           className={cn('glass-input', f.type === 'number' && 'tabular-nums')}
-          type={f.type === 'number' ? 'number' : f.type === 'date' ? 'date' : f.type === 'url' ? 'url' : 'text'}
-          inputMode={f.type === 'number' ? 'decimal' : undefined}
-          step={f.type === 'number' ? 'any' : undefined}
-          value={value ?? ''}
-          onChange={(e) => onChange(f.type === 'number' ? (e.target.value === '' ? '' : Number(e.target.value)) : e.target.value)}
+          // Text, not type=number/url: those reject pasted "64,5" or links without https:// (iOS blocks the paste or the save)
+          type={f.type === 'date' ? 'date' : 'text'}
+          inputMode={f.type === 'number' ? 'decimal' : f.type === 'url' ? 'url' : undefined}
+          autoCapitalize={f.type === 'url' ? 'none' : undefined}
+          value={f.type === 'number' ? String(value ?? '').replace('.', ',') : (value ?? '')}
+          onChange={(e) => {
+            if (f.type !== 'number') return onChange(e.target.value);
+            const t = e.target.value.replace(/[^\d.,-]/g, '').replace(',', '.');
+            onChange(t === '' || t === '-' || t.endsWith('.') ? t : Number(t));
+          }}
           placeholder={ph ?? (f.type === 'url' ? 'https://…' : undefined)}
         />
       )}

@@ -1,5 +1,6 @@
 ﻿'use client';
 
+import { Linkify } from '@/components/ui/Linkify';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
@@ -131,7 +132,7 @@ export default function ReviewsHistoryPage() {
  <Icon name="trophy" size={16} className="text-yellow-700 dark:text-yellow-300 mt-0.5 shrink-0" />
  <div>
  <span className="text-xs font-medium block mb-0.5 opacity-50">Pencapaian Utama</span>
- <span className="text-foreground leading-relaxed">{review.wins}</span>
+ <span className="text-foreground leading-relaxed"><Linkify text={review.wins} /></span>
  </div>
  </div>
  )}
@@ -140,7 +141,7 @@ export default function ReviewsHistoryPage() {
  <Icon name="target" size={16} className="text-primary mt-0.5 shrink-0" />
  <div>
  <span className="text-xs font-medium block mb-0.5 opacity-50">Fokus Berikutnya</span>
- <span className="text-foreground leading-relaxed">{review.focus}</span>
+ <span className="text-foreground leading-relaxed"><Linkify text={review.focus} /></span>
  </div>
  </div>
  )}
@@ -149,13 +150,13 @@ export default function ReviewsHistoryPage() {
  {review.lessons && (
  <div className="bg-muted/30 p-3 rounded-lg">
  <span className="text-xs font-medium block mb-1 opacity-50 text-indigo-600 dark:text-indigo-300">Pelajaran</span>
- <span className="text-xs text-foreground">{review.lessons}</span>
+ <span className="text-xs text-foreground"><Linkify text={review.lessons} /></span>
  </div>
  )}
  {review.challenges && (
  <div className="bg-muted/30 p-3 rounded-lg">
  <span className="text-xs font-medium block mb-1 opacity-50 text-rose-700 dark:text-rose-300">Hambatan</span>
- <span className="text-xs text-foreground">{review.challenges}</span>
+ <span className="text-xs text-foreground"><Linkify text={review.challenges} /></span>
  </div>
  )}
  </div>

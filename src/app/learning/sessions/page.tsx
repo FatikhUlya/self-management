@@ -1,5 +1,6 @@
 ﻿'use client';
 
+import { safeExternalUrl } from '@/lib/utils';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
@@ -137,9 +138,9 @@ export default function LearningSessionsPage() {
  </span>
  </div>
  <div className="flex space-x-1.5 items-center">
- {item.link && (
+ {safeExternalUrl(item.link) && (
  <a 
- href={item.link} 
+ href={safeExternalUrl(item.link)} 
  target="_blank" 
  rel="noreferrer"
  className="text-muted-foreground hover:text-primary transition-colors p-1"

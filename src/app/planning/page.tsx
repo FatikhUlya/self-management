@@ -1,5 +1,6 @@
 'use client';
 
+import { Linkify } from '@/components/ui/Linkify';
 import { DateStamp } from '@/components/ui/DateStamp';
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -465,7 +466,7 @@ export default function PlanningHubPage() {
 
                           {plan.notes && (
                             <p className="text-xs text-muted-foreground truncate mt-0.5">
-                              {plan.notes}
+                              <Linkify text={plan.notes} />
                             </p>
                           )}
                         </div>

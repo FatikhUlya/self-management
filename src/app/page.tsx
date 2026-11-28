@@ -1,5 +1,6 @@
 'use client';
 
+import { Linkify } from '@/components/ui/Linkify';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -738,7 +739,7 @@ export default function Dashboard() {
                   {selectedJournal.win && (
                     <div className="p-2.5 rounded-lg bg-muted/20 border border-border/60">
                       <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 block">Daily Win</span>
-                      <p className="text-xs text-foreground mt-0.5 leading-relaxed truncate">{selectedJournal.win}</p>
+                      <p className="text-xs text-foreground mt-0.5 leading-relaxed truncate"><Linkify text={selectedJournal.win} /></p>
                     </div>
                   )}
                 </div>

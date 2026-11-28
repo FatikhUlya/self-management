@@ -1,5 +1,6 @@
 ﻿'use client';
 
+import { Linkify } from '@/components/ui/Linkify';
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
@@ -545,7 +546,7 @@ export default function PlanningTimelinePage() {
  {plan.notes && (
  <p className="flex items-start gap-1.5 line-clamp-2">
  <Icon name="alignLeft" size={12} className="text-amber-500 mt-0.5 shrink-0" />
- {plan.notes}
+ <Linkify text={plan.notes} />
  </p>
  )}
  </div>

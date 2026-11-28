@@ -1,5 +1,6 @@
 ﻿'use client';
 
+import { MoneyInput } from '@/components/ui/MoneyInput';
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
@@ -698,9 +699,9 @@ export default function LedgerPage() {
  <label htmlFor="bLimit" className="text-xs font-medium text-muted-foreground ">
  {locale === 'id' ? 'Limit Anggaran (Rp)' : 'Budget Limit (Rp)'}
  </label>
- <input
+ <MoneyInput
  id="bLimit"
- type="number"
+
  required
  placeholder="Rp"
  value={budgetLimit}

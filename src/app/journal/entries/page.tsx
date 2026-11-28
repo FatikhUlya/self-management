@@ -1,5 +1,6 @@
 ﻿'use client';
 
+import { Linkify } from '@/components/ui/Linkify';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useLifeOS } from '@/lib/hooks/useLifeOSState';
@@ -72,18 +73,18 @@ export default function ReviewEntriesPage() {
  {review.wins && (
  <p className="flex items-start gap-2">
  <Icon name="trophy" size={14} className="text-amber-700 dark:text-amber-300 mt-0.5 shrink-0" />
- <span className="text-foreground"><span className="opacity-50">Wins:</span> {review.wins}</span>
+ <span className="text-foreground"><span className="opacity-50">Wins:</span> <Linkify text={review.wins} /></span>
  </p>
  )}
  {review.lessons && (
  <p className="flex items-start gap-2">
  <Icon name="lightbulb" size={14} className="text-yellow-700 dark:text-yellow-300 mt-0.5 shrink-0" />
- <span className="text-foreground"><span className="opacity-50">Lessons:</span> {review.lessons}</span>
+ <span className="text-foreground"><span className="opacity-50">Lessons:</span> <Linkify text={review.lessons} /></span>
  </p>
  )}
  {review.focus && (
  <p className="border-t border-border pt-2 font-medium text-indigo-600 dark:text-indigo-300 leading-relaxed line-clamp-1 flex gap-2">
- <Icon name="target" size={14} className="mt-0.5 shrink-0" /> {review.focus}
+ <Icon name="target" size={14} className="mt-0.5 shrink-0" /> <Linkify text={review.focus} />
  </p>
  )}
  </div>
@@ -132,7 +133,7 @@ export default function ReviewEntriesPage() {
  Pelajaran (Lessons)
  </h4>
  <p className=" text-xs bg-muted/20 border border-border p-4 rounded-lg leading-relaxed font-medium">
- &ldquo;{viewingReview.lessons}&rdquo;
+ &ldquo;<Linkify text={viewingReview.lessons} />&rdquo;
  </p>
  </div>
 
@@ -141,7 +142,7 @@ export default function ReviewEntriesPage() {
  Tantangan / Hambatan
  </h4>
  <p className=" text-xs bg-muted/20 border border-border p-4 rounded-lg leading-relaxed font-medium text-rose-700 dark:text-rose-300">
- &ldquo;{viewingReview.challenges}&rdquo;
+ &ldquo;<Linkify text={viewingReview.challenges} />&rdquo;
  </p>
  </div>
 
