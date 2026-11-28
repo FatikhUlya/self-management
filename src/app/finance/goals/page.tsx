@@ -1,5 +1,6 @@
 ﻿'use client';
 
+import { computeBalances } from '@/lib/finance/balances';
 import { MoneyInput } from '@/components/ui/MoneyInput';
 import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
@@ -71,10 +72,9 @@ export default function GoalsPage() {
  const avgMonthlySavings = useMemo(() => {
  // Basic approximation: Average savings based on total income - expense in last 3 months
  // Here we just use overall netBalance as a simple indicator for projection
- const totalIncome = state.transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
- const totalExpense = state.transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
- return Math.max(0, totalIncome - totalExpense); 
- }, [state.transactions]);
+ // Cash on hand: opening balances + transactions since each opening date
+ return Math.max(0, computeBalances(state.financialAccounts || [], state.transactions).total);
+ }, [state.transactions, state.financialAccounts]);
 
  return (
  <div className="space-y-6 max-w-4xl mx-auto">

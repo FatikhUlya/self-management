@@ -11,6 +11,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Badge } from '@/components/ui/Badge';
 import { Icon } from '@/components/ui/Icon';
 import { Modal } from '@/components/ui/Modal';
+import { preOpeningDate } from '@/lib/finance/balances';
 import { formatDate, percent, inLastDays, shiftDateStr, shiftMonthStr, shiftYearStr, todayISO } from '@/lib/utils';
 
 const EXPENSE_CATEGORIES = [
@@ -426,6 +427,11 @@ export default function LedgerPage() {
  >
  <td className="py-3 px-4 text-xs text-muted-foreground font-medium whitespace-nowrap">
  {formatDate(tx.date)}
+ {preOpeningDate(tx, state.financialAccounts || []) && (
+ <span className="status mt-1 flex w-fit bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300" title="Tidak dihitung ke saldo: sudah termasuk saldo awal akun ini">
+ Sebelum saldo awal
+ </span>
+ )}
  </td>
  <td className="py-3 px-4">
  <div className="flex items-center gap-2">

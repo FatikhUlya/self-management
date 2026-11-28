@@ -1,5 +1,6 @@
 'use client';
 
+import { PreOpeningHint } from '@/components/finance/PreOpeningHint';
 import { MoneyInput } from '@/components/ui/MoneyInput';
 import React from 'react';
 import Link from 'next/link';
@@ -241,6 +242,8 @@ export default function RecordTransactionPage() {
  />
  </div>
  </div>
+
+ <PreOpeningHint accounts={txType === 'transfer' ? [txAccount, txToAccount] : [txAccount]} date={txDate} />
 
  {txType === 'transfer' ? (
  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

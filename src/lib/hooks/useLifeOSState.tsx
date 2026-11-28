@@ -318,6 +318,12 @@ export interface Asset {
 export interface FinancialAccount {
  id: string;
  name: string;
+ /** Balance on openingDate (migration 027). */
+ openingBalance?: number;
+ /** "As of" date; transactions dated before it are already in the opening balance. */
+ openingDate?: string | null;
+ /** When the opening balance was entered (audit trail). */
+ openingRecordedAt?: string | null;
  createdAt: string;
 }
 
@@ -650,6 +656,8 @@ interface LifeOSContextProps {
  deleteAsset: (id: string) => Promise<void>;
  addFinancialAccount: (name: string) => Promise<void>;
  updateFinancialAccount: (id: string, name: string) => Promise<void>;
+ /** Set (or clear with date null) an account's opening balance; stamps the recorded time. */
+ setAccountOpeningBalance: (id: string, amount: number, date: string | null) => Promise<void>;
  deleteFinancialAccount: (id: string) => Promise<void>;
 
  // Self Rules
@@ -1300,6 +1308,9 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
  financialAccounts: finalAccounts.map(fa => ({
  id: fa.id,
  name: fa.name,
+ openingBalance: Number(fa.opening_balance || 0),
+ openingDate: fa.opening_date || null,
+ openingRecordedAt: fa.opening_recorded_at || null,
  createdAt: fa.created_at || fa.createdAt
  })),
  learningSchedule: learningSchedulesData?.[0] ? {
@@ -2755,6 +2766,24 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
  }
  }, [isDbConnected, updateStateAndPersist, checkError]);
 
+ const setAccountOpeningBalance = useCallback(async (id: string, amount: number, date: string | null) => {
+ const recordedAt = date ? new Date().toISOString() : null;
+ const patch = { openingBalance: date ? amount : 0, openingDate: date, openingRecordedAt: recordedAt };
+ updateStateAndPersist(prev => ({
+ ...prev,
+ financialAccounts: prev.financialAccounts.map(fa => fa.id === id ? { ...fa, ...patch } : fa)
+ }));
+
+ if (isDbConnected) {
+ const { error } = await supabase.from('financial_accounts').update({
+ opening_balance: patch.openingBalance,
+ opening_date: date,
+ opening_recorded_at: recordedAt,
+ } as any).eq('id', id);
+ checkError(error, 'setAccountOpeningBalance');
+ }
+ }, [isDbConnected, updateStateAndPersist, checkError]);
+
  const addDebt = useCallback(async (debt: Omit<Debt, 'id' | 'createdAt'>) => {
  const item: Debt = {
  ...debt,
@@ -3596,6 +3625,7 @@ export function LifeOSProvider({ children }: { children: ReactNode }) {
  deleteAsset,
  addFinancialAccount,
  updateFinancialAccount,
+ setAccountOpeningBalance,
  deleteFinancialAccount,
  addSelfRule,
  updateSelfRuleSection,

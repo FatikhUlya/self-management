@@ -58,7 +58,7 @@ NEXT_PUBLIC_GOOGLE_API_KEY=
 
 ### Database
 
-Run every file in [supabase/migrations/](supabase/migrations/) **in numeric order** (`001` → `026`) in the Supabase SQL Editor. Later migrations depend on earlier ones, and `023_security_hardening.sql` is required for row-level security on `users` and for the public feedback links to work. `024_life_journal.sql` (annual goals, wishlist) `025_life_records.sql` (notebooks, daily checks) and `026_linked_records.sql` (links between them) back the Personal Life Journal features; without them those pages only save in local mode.
+Run every file in [supabase/migrations/](supabase/migrations/) **in numeric order** (`001` → `027`) in the Supabase SQL Editor. Later migrations depend on earlier ones, and `023_security_hardening.sql` is required for row-level security on `users` and for the public feedback links to work. `024_life_journal.sql` (annual goals, wishlist) `025_life_records.sql` (notebooks, daily checks) `026_linked_records.sql` (links between them) and `027_opening_balances.sql` (account opening balances) back the Personal Life Journal features; without them those pages only save in local mode.
 
 Step-by-step guides (in Indonesian):
 
