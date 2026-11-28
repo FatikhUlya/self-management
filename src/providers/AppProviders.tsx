@@ -25,7 +25,8 @@ function LoadingSkeleton() {
  {Array.from({ length: 10 }).map((_, i) => (
  <div key={i} className="flex items-center gap-2.5 px-2.5 py-2">
  <Skeleton className="w-4 h-4 rounded" />
- <Skeleton className="h-3 rounded" style={{ width: `${60 + Math.random() * 40}%` }} />
+ {/* Fixed widths: Math.random() here made server and client HTML differ (hydration warning) */}
+ <Skeleton className="h-3 rounded" style={{ width: `${[72, 88, 64, 80, 94, 68, 76, 90, 60, 84][i]}%` }} />
  </div>
  ))}
  </div>
