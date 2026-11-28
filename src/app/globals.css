@@ -324,6 +324,11 @@
     transition: border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
   }
   .glass-input { @apply w-full; }
+  /* iOS Safari gives date/time inputs a fixed intrinsic width that overflows the column */
+  input[type="date"].glass-input, input[type="time"].glass-input, input[type="month"].glass-input {
+    -webkit-appearance: none; appearance: none; display: block; min-width: 0; max-width: 100%;
+  }
+  input.glass-input::-webkit-date-and-time-value { text-align: left; }
   textarea.glass-input { padding-top: 10px; padding-bottom: 10px; }
   .glass-input::placeholder { @apply text-muted-foreground/80; }
   .glass-input:focus, .glass-select:focus {

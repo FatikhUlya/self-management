@@ -20,12 +20,17 @@ export function Modal({
   size = 'md',
 }: ModalProps) {
   const panelRef = useRef<HTMLElement>(null);
+  // Pages pass a new onClose every render. Keep it in a ref so the effect below
+  // runs only on open/close; re-running it on each keystroke moved focus away
+  // from the field being typed in (iOS closed the keyboard after every letter).
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (!isOpen) return;
     const opener = document.activeElement as HTMLElement | null;
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') onCloseRef.current();
       // Keep Tab inside the dialog
       if (e.key === 'Tab' && panelRef.current) {
         const f = panelRef.current.querySelectorAll<HTMLElement>(
@@ -39,13 +44,14 @@ export function Modal({
     };
     document.body.style.overflow = 'hidden';
     window.addEventListener('keydown', handleKeyDown);
-    panelRef.current?.focus();
+    // Respect a field that autofocused itself; otherwise focus the panel
+    if (!panelRef.current?.contains(document.activeElement)) panelRef.current?.focus({ preventScroll: true });
     return () => {
       document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKeyDown);
-      opener?.focus?.();
+      opener?.focus?.({ preventScroll: true });
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -67,7 +73,7 @@ export function Modal({
       <section
         className={cn(
           'relative w-full z-10 overflow-hidden outline-none',
-          'flex flex-col max-h-[90vh]',
+          'flex flex-col max-h-[90vh] max-h-[90dvh]',
           // Mobile: bottom sheet. Desktop: centered dialog (STYLE_GUIDE §4.11)
           'rounded-t-3xl sm:rounded-2xl shadow-sheet',
           'bg-card text-card-foreground',
