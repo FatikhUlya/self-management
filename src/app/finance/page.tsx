@@ -24,6 +24,8 @@ import { formatDate, todayISO, cn } from '@/lib/utils';
 import { DateStamp } from '@/components/ui/DateStamp';
 import { CashflowChart } from '@/components/finance/CashflowChart';
 import { PeriodNavigator } from '@/components/ui/PeriodNavigator';
+import { PreOpeningHint } from '@/components/finance/PreOpeningHint';
+import { computeBalances, preOpeningDate } from '@/lib/finance/balances';
 import { SubpageLinks } from '@/components/ui/SubpageLinks';
 import { getPeriod, inRange, PERIOD_LABEL, PeriodType } from '@/lib/period';
 
@@ -78,6 +80,7 @@ export default function FinanceDashboard() {
     deleteDebt,
     addFinancialAccount,
     deleteFinancialAccount,
+    setAccountOpeningBalance,
   } = useLifeOS();
 
   const { t, locale } = useI18n();
@@ -116,7 +119,30 @@ export default function FinanceDashboard() {
       .reduce((sum, t) => sum + t.amount, 0);
   }, [state.transactions]);
 
-  const netCash = totalIncome - totalExpense;
+  // Cash = opening balances + transactions since each account's opening date
+  const balances = useMemo(
+    () => computeBalances(state.financialAccounts || [], state.transactions, availableAccounts),
+    [state.financialAccounts, state.transactions, availableAccounts],
+  );
+  const netCash = balances.total;
+  const [openingFor, setOpeningFor] = useState<string | null>(null);
+  const [openingAmount, setOpeningAmount] = useState('');
+  const [openingDate, setOpeningDate] = useState(selectedDate);
+  const [showPreOpening, setShowPreOpening] = useState(false);
+  const startOpening = (acc: { id: string; openingBalance?: number; openingDate?: string | null }) => {
+    setOpeningFor(acc.id);
+    setOpeningAmount(acc.openingDate ? String(acc.openingBalance || 0) : '');
+    setOpeningDate(acc.openingDate || selectedDate);
+  };
+  const saveOpening = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!openingFor || !openingDate) return;
+    await setAccountOpeningBalance(openingFor, Number(openingAmount.replace(/\D/g, '')) || 0, openingDate);
+    setOpeningFor(null);
+  };
+  const fmtDay = (d?: string | null) => (d ? formatDate(d, { locale: 'id-ID' }) : '');
+  const fmtStamp = (iso?: string | null) =>
+    iso ? new Date(iso).toLocaleString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
 
   const totalAssets = useMemo(() => {
     return state.assets ? state.assets.reduce((sum, a) => sum + a.value, 0) : 0;
@@ -151,23 +177,6 @@ export default function FinanceDashboard() {
   }, [monthTransactions]);
 
   const monthCashflow = monthIncome - monthExpense;
-
-  // Account Balances Breakdown
-  const accountBalances = useMemo(() => {
-    const map: Record<string, number> = {};
-    availableAccounts.forEach((acc) => {
-      map[acc] = 0;
-    });
-
-    state.transactions.forEach((tx) => {
-      const acc = tx.account || 'Tunai';
-      if (map[acc] === undefined) map[acc] = 0;
-      if (tx.type === 'income') map[acc] += tx.amount;
-      else if (tx.type === 'expense') map[acc] -= tx.amount;
-    });
-
-    return Object.entries(map).sort((a, b) => b[1] - a[1]);
-  }, [availableAccounts, state.transactions]);
 
   // INLINE FAST ADD TRANSACTION STATE
   const [quickType, setQuickType] = useState<'expense' | 'income'>('expense');
@@ -386,6 +395,41 @@ export default function FinanceDashboard() {
     setDebtPaymentAmount('');
   };
 
+  // Transactions dated before their account's opening date: shown for accountability, not counted
+  const preOpeningBanner = balances.preOpening.length > 0 && (
+    <Surface variant="soft" className="p-4 space-y-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-2.5">
+          <Icon name="alertTriangle" size={16} className="text-amber-600 mt-0.5 shrink-0" />
+          <p className="text-sm">
+            <strong className="font-medium">{balances.preOpening.length} transaksi tercatat sebelum tanggal saldo awal.</strong>{' '}
+            <span className="text-muted-foreground">Tidak dihitung ke saldo karena sudah termasuk dalam saldo awal. Periksa apakah memang begitu, atau pindahkan tanggal saldo awal.</span>
+          </p>
+        </div>
+        <button type="button" className="chip h-8 text-xs shrink-0" onClick={() => setShowPreOpening((v) => !v)} aria-expanded={showPreOpening}>
+          {showPreOpening ? 'Tutup' : 'Lihat'}
+        </button>
+      </div>
+      {showPreOpening && (
+        <ul className="divide-y divide-border bg-card rounded-lg border border-border">
+          {balances.preOpening.map((tx) => (
+            <li key={tx.id} className="flex items-center justify-between gap-3 px-3 py-2.5 text-sm">
+              <span className="min-w-0">
+                <span className="block truncate">{tx.title}</span>
+                <span className="block text-xs text-muted-foreground">
+                  {fmtDay(tx.date)} · {tx.account || 'Tunai'} · saldo awal per {fmtDay(preOpeningDate(tx, state.financialAccounts || []))}
+                </span>
+              </span>
+              <span className={cn('tabular-nums shrink-0', tx.type === 'expense' ? 'text-rose-600' : 'text-emerald-600')}>
+                {tx.type === 'expense' ? '-' : '+'}{formatIDR(tx.amount)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Surface>
+  );
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header & Page Title */}
@@ -456,6 +500,7 @@ export default function FinanceDashboard() {
 
       {/* Mobile hub: menu + latest entries; full tabs stay on desktop */}
       <div className="md:hidden space-y-4">
+        {preOpeningBanner}
         <SubpageLinks
           stacked
           label="Menu keuangan"
@@ -535,6 +580,7 @@ export default function FinanceDashboard() {
       {/* TAB 1: BUKU KAS & TRANSAKSI */}
       {activeTab === 'ledger' && (
         <div className="space-y-6 animate-in fade-in duration-200">
+          {preOpeningBanner}
           {/* Inline Fast Add Transaction Row */}
           <Surface className="p-4">
             <form onSubmit={handleQuickAddTransaction} className="flex flex-col gap-3">
@@ -728,6 +774,11 @@ export default function FinanceDashboard() {
                           </strong>
                           <div className="flex flex-wrap items-center gap-2 mt-0.5 text-xs text-muted-foreground">
                             <span>{formatDate(tx.date)}</span>
+                            {preOpeningDate(tx, state.financialAccounts || []) && (
+                              <span className="status bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300" title="Tidak dihitung ke saldo: sudah termasuk saldo awal akun ini">
+                                Sebelum saldo awal
+                              </span>
+                            )}
                             <span>•</span>
                             <span className="px-1.5 py-0.2 rounded bg-muted/40 border border-border text-xs">
                               {tx.category}
@@ -807,27 +858,35 @@ export default function FinanceDashboard() {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              {accountBalances.map(([name, bal]) => (
-                <Surface key={name} className="p-4 flex flex-col justify-between">
+              {balances.rows.map((row) => (
+                <Surface key={row.name} className="p-4 flex flex-col justify-between gap-2">
                   <span className="text-xs font-medium text-muted-foreground truncate">
-                    {name}
+                    {row.name}
                   </span>
-                  <div className="mt-2">
-                    <strong
-                      className={cn(
-                        'block text-sm font-medium tabular-nums tabular-nums',
-                        bal >= 0 ? 'text-foreground' : 'text-rose-500'
-                      )}
-                    >
-                      {formatIDR(bal)}
+                  <div>
+                    <strong className={cn('block text-sm font-medium tabular-nums', row.balance >= 0 ? 'text-foreground' : 'text-rose-500')}>
+                      {formatIDR(row.balance)}
                     </strong>
-                    <span className="text-xs text-muted-foreground">
-                      {bal >= 0 ? 'Saldo Positif' : 'Saldo Minus'}
-                    </span>
+                    {row.openingDate ? (
+                      <span className="block text-xs text-muted-foreground">
+                        Saldo awal {formatIDR(row.opening)} per {fmtDay(row.openingDate)}
+                      </span>
+                    ) : (
+                      <span className="block text-xs text-amber-700 dark:text-amber-300">Saldo awal belum dicatat</span>
+                    )}
+                    {row.account?.openingRecordedAt && (
+                      <span className="block text-[11px] text-muted-foreground/80 mt-0.5">Dicatat {fmtStamp(row.account.openingRecordedAt)}</span>
+                    )}
                   </div>
+                  {row.account && (
+                    <button type="button" className="chip h-8 text-xs self-start" onClick={() => startOpening(row.account!)}>
+                      <Icon name="edit" size={12} />{row.openingDate ? 'Ubah saldo awal' : 'Catat saldo awal'}
+                    </button>
+                  )}
                 </Surface>
               ))}
             </div>
+            {preOpeningBanner}
           </div>
 
           {/* 2-Column: Assets vs Debts */}
@@ -1181,6 +1240,7 @@ export default function FinanceDashboard() {
                     onChange={(e) => setModalTxDate(e.target.value)}
                     className="w-full px-3 py-2 text-xs rounded-lg bg-muted/20 border border-border text-foreground focus:outline-none focus:border-emerald-500"
                   />
+                  <PreOpeningHint accounts={[modalTxAccount]} date={modalTxDate} />
                 </div>
               </div>
 
@@ -1279,7 +1339,14 @@ export default function FinanceDashboard() {
                     key={acc.id}
                     className="p-2.5 rounded-lg bg-muted/20 border border-border flex items-center justify-between"
                   >
-                    <span className="font-semibold text-foreground">{acc.name}</span>
+                    <span className="min-w-0">
+                      <span className="block font-semibold text-foreground">{acc.name}</span>
+                      <span className="block text-muted-foreground">
+                        {acc.openingDate ? `Saldo awal ${formatIDR(acc.openingBalance || 0)} per ${fmtDay(acc.openingDate)}` : 'Saldo awal belum dicatat'}
+                      </span>
+                    </span>
+                    <span className="flex-1" />
+                    <button type="button" className="chip h-8 text-xs mr-1" onClick={() => startOpening(acc)}>Saldo awal</button>
                     <button
                       onClick={async () => {
                         if (confirm(`Hapus akun "${acc.name}"?`)) {
@@ -1305,6 +1372,54 @@ export default function FinanceDashboard() {
               Selesai
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* DIALOG: SALDO AWAL AKUN */}
+      <Dialog open={!!openingFor} onOpenChange={(o) => !o && setOpeningFor(null)}>
+        <DialogContent className="max-w-md">
+          {(() => {
+            const acc = state.financialAccounts.find((a) => a.id === openingFor);
+            if (!acc) return null;
+            const before = state.transactions.filter((t) => (t.account || 'Tunai') === acc.name && openingDate && t.date < openingDate).length;
+            return (
+              <form onSubmit={saveOpening}>
+                <DialogHeader>
+                  <DialogTitle className="text-lg font-medium">Saldo awal · {acc.name}</DialogTitle>
+                  <DialogDescription>
+                    Isi saldo sesuai buku tabungan, aplikasi bank, atau uang di dompet pada tanggal tersebut. Saldo akun dihitung mulai dari angka ini.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-3">
+                  <label className="block space-y-1.5">
+                    <span className="label">Saldo (Rp)</span>
+                    <MoneyInput className="glass-input tabular-nums" value={openingAmount} onChange={(e) => setOpeningAmount(e.target.value)} placeholder="0" required />
+                  </label>
+                  <label className="block space-y-1.5">
+                    <span className="label">Per tanggal</span>
+                    <input type="date" className="glass-input" value={openingDate} onChange={(e) => setOpeningDate(e.target.value)} required />
+                  </label>
+                  <p className={cn('text-xs', before ? 'text-amber-700 dark:text-amber-300' : 'text-muted-foreground')}>
+                    {before
+                      ? `${before} transaksi akun ini bertanggal sebelum ${fmtDay(openingDate)}. Transaksi itu tidak dihitung lagi dan akan diberi label "Sebelum saldo awal".`
+                      : 'Transaksi sebelum tanggal ini tidak dihitung lagi, karena sudah termasuk dalam saldo awal.'}
+                  </p>
+                  {acc.openingRecordedAt && (
+                    <p className="text-xs text-muted-foreground">Terakhir dicatat {fmtStamp(acc.openingRecordedAt)}. Menyimpan ulang akan memperbarui waktu pencatatan.</p>
+                  )}
+                </div>
+                <DialogFooter className="gap-2">
+                  {acc.openingDate && (
+                    <Button type="button" variant="ghost" className="text-destructive mr-auto" onClick={async () => { await setAccountOpeningBalance(acc.id, 0, null); setOpeningFor(null); }}>
+                      Hapus saldo awal
+                    </Button>
+                  )}
+                  <Button type="button" variant="outline" onClick={() => setOpeningFor(null)}>Batal</Button>
+                  <Button type="submit" variant="primary" icon="check">Simpan</Button>
+                </DialogFooter>
+              </form>
+            );
+          })()}
         </DialogContent>
       </Dialog>
 
